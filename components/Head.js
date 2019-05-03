@@ -11,7 +11,7 @@ export default class Head extends React.Component {
                     <meta name="description" content=""/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
                     <meta name="robot" content="index, follow"/>
-                    <meta charset="utf-8"/>
+                    <meta charSet="utf-8"/>
 
                     <link rel="stylesheet" href="/static/css/bootstrap.css"/>
                     <link rel="stylesheet" href="/static/css/layout.css" media="screen,projection"/>

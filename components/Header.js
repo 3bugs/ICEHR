@@ -118,7 +118,7 @@ class LoginForm extends React.Component {
             });
         }
 
-        this.doFetchNameTitles();
+        this.doFetchNameTitles(); //todo: เปลี่ยนเป็น server-side render (คิดว่าต้องทำใน getInitialProps)
     }
 
     doFetchNameTitles = () => {
@@ -154,9 +154,14 @@ class LoginForm extends React.Component {
 
     handleChange(field, e) {
         let fields = this.state.fields;
-        fields[field] = e.target.value;
+        fields[field] = this.isString(e.target.value) ? e.target.value.trim() : e.target.value;
+        //fields[field] = e.target.value;
         this.setState({fields});
     }
+
+    isString = value => {
+        return typeof value === 'string' || value instanceof String;
+    };
 
     handleSubmitLogin = event => {
         event.preventDefault();
@@ -192,11 +197,10 @@ class LoginForm extends React.Component {
         return formIsValid;
     }
 
-    handleSubmitRegister = (registerType, e) => {
+    handleSubmitRegister = (registerType, event) => {
         event.preventDefault();
         if (this.validateRegisterForm(registerType)) {
-            //this.doRegister(registerType); //todo:
-            alert('ok');
+            this.doRegister(registerType);
         } else {
             //alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
         }
@@ -239,6 +243,9 @@ class LoginForm extends React.Component {
                 }
                 if (!fields[REGISTER_PERSON_EMAIL] || fields[REGISTER_PERSON_EMAIL].trim().length === 0) {
                     errors[REGISTER_PERSON_EMAIL] = 'กรุณากรอกอีเมล';
+                    formIsValid = false;
+                } else if (!emailRegex.test(fields[REGISTER_PERSON_EMAIL])) {
+                    errors[REGISTER_PERSON_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_PERSON_PASSWORD] || fields[REGISTER_PERSON_PASSWORD].trim().length < 6) {
@@ -325,6 +332,9 @@ class LoginForm extends React.Component {
                 if (!fields[REGISTER_ORGANIZATION_EMAIL] || fields[REGISTER_ORGANIZATION_EMAIL].trim().length === 0) {
                     errors[REGISTER_ORGANIZATION_EMAIL] = 'กรุณากรอกอีเมล';
                     formIsValid = false;
+                } else if (!emailRegex.test(fields[REGISTER_ORGANIZATION_EMAIL])) {
+                    errors[REGISTER_ORGANIZATION_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
+                    formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_PASSWORD] || fields[REGISTER_ORGANIZATION_PASSWORD].trim().length < 6) {
                     errors[REGISTER_ORGANIZATION_PASSWORD] = 'กรุณากรอกรหัสผ่าน อย่างน้อย 6 ตัวอักษร';
@@ -344,33 +354,101 @@ class LoginForm extends React.Component {
         return formIsValid;
     }
 
-    doLogin = (email, password) => {
-        fetch('http://localhost/icehr/backend/api/api.php/login_member', {
+    doRegister = (registerType) => {
+        let fields = this.state.fields;
+
+        let params = {};
+        switch (registerType) {
+            case REGISTER_TYPE_PERSON:
+                params['title'] = fields[REGISTER_PERSON_TITLE];
+                params['firstName'] = fields[REGISTER_PERSON_FIRST_NAME];
+                params['lastName'] = fields[REGISTER_PERSON_LAST_NAME];
+                params['age'] = fields[REGISTER_PERSON_AGE];
+                params['jobPosition'] = fields[REGISTER_PERSON_JOB_POSITION];
+                params['organizationName'] = fields[REGISTER_PERSON_ORGANIZATION_NAME];
+                params['organizationType'] = fields[REGISTER_PERSON_ORGANIZATION_TYPE];
+                params['phone'] = fields[REGISTER_PERSON_PHONE];
+                params['email'] = fields[REGISTER_PERSON_EMAIL];
+                params['password'] = fields[REGISTER_PERSON_PASSWORD];
+                break;
+            case REGISTER_TYPE_ORGANIZATION:
+                params['title'] = fields[REGISTER_ORGANIZATION_TITLE];
+                params['firstName'] = fields[REGISTER_ORGANIZATION_FIRST_NAME];
+                params['lastName'] = fields[REGISTER_ORGANIZATION_LAST_NAME];
+                params['age'] = fields[REGISTER_ORGANIZATION_AGE];
+                params['jobPosition'] = fields[REGISTER_ORGANIZATION_JOB_POSITION];
+                params['organizationName'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_NAME];
+                params['organizationType'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE];
+                params['phone'] = fields[REGISTER_ORGANIZATION_PHONE];
+                params['email'] = fields[REGISTER_ORGANIZATION_EMAIL];
+                params['password'] = fields[REGISTER_ORGANIZATION_PASSWORD];
+                params['address'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS];
+                params['subDistrict'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT];
+                params['district'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT];
+                params['province'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE];
+                params['postalCode'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE];
+                params['organizationPhone'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_PHONE];
+                params['taxId'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID];
+                break;
+        }
+
+        fetch('/api/register_member', {
             method: 'post',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/json'
             },
-            body: 'email=' + email + '&password=' + password
+            body: JSON.stringify(params),
         })
             .then(result => result.json())
             .then(result => {
-                if (result['error_code'] === 0) {
-                    let memberData = result['member_data'];
-                    let displayName = memberData['first_name'] + ' ' + memberData['last_name'];
-                    let loginToken = memberData['login_token'];
+                if (result['error']['code'] === 0) {
+                    alert(result['error']['message']);
+                    this.setState({
+                        fields: {},
+                        showRegisterForm: false,
+                        showLoginForm: true,
+                    });
+                } else {
+                    let errors = {};
+                    errors[RESULT_ERROR] = result['error']['message'];
+                    //this.setState({errors: errors});
+                    alert(result['error']['message']);
+                }
+            });
+    };
+
+    doLogin = (email, password) => {
+        fetch('/api/login_member', {
+            method: 'post',
+            headers: {
+                //'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    let memberData = result['memberData'];
+                    let displayName = memberData['firstName'] + ' ' + memberData['lastName'];
+                    let loginToken = memberData['loginToken'];
                     localStorage.setItem('login_token', loginToken);
                     localStorage.setItem('display_name', displayName);
 
                     this.setState({
+                        fields: {},
                         loginToken: loginToken,
                         displayName: displayName,
                         showLoginForm: false,
                     });
                 } else {
                     let errors = {};
-                    errors[RESULT_ERROR] = result['error_message'];
-                    this.setState({errors: errors});
-                    //alert(result['error_message']);
+                    errors[RESULT_ERROR] = result['error']['message'];
+                    //this.setState({errors: errors});
+                    alert(result['error']['message']);
                 }
             });
     };
@@ -1491,10 +1569,10 @@ export default class Header extends React.Component {
                         background-color: #fff;
                         padding: 0px 10%;
                         position: relative;
-                        -webkit-transition: all 0.5s ease-in-out;
-                        -moz-transition: all 0.5s ease-in-out;
-                        -o-transition: all 0.5s ease-in-out;
-                        transition: all 0.5s ease-in-out;
+                        x-webkit-transition: all 0.5s ease-in-out;
+                        x-moz-transition: all 0.5s ease-in-out;
+                        x-o-transition: all 0.5s ease-in-out;
+                        xtransition: all 0.5s ease-in-out;
                         width: 100%;
                     }
                     
@@ -1643,10 +1721,10 @@ export default class Header extends React.Component {
                         display: block;
                         color: #000;
                         text-decoration: none;
-                        -webkit-transition: all 0.5s ease-in-out;
-                        -moz-transition: all 0.5s ease-in-out;
-                        -o-transition: all 0.5s ease-in-out;
-                        transition: all 0.5s ease-in-out;
+                        x-webkit-transition: all 0.5s ease-in-out;
+                        x-moz-transition: all 0.5s ease-in-out;
+                        x-o-transition: all 0.5s ease-in-out;
+                        xtransition: all 0.5s ease-in-out;
                     }
                     
                     .mainmenu ul li a:hover {
@@ -1815,10 +1893,10 @@ export default class Header extends React.Component {
                             z-index: -9;
                             opacity: 0;
                             visibility: hidden;
-                            -webkit-transition: all 0.5s ease-in-out;
-                            -moz-transition: all 0.5s ease-in-out;
-                            -o-transition: all 0.5s ease-in-out;
-                            transition: all 0.5s ease-in-out;
+                            x-webkit-transition: all 0.5s ease-in-out;
+                            x-moz-transition: all 0.5s ease-in-out;
+                            x-o-transition: all 0.5s ease-in-out;
+                            xtransition: all 0.5s ease-in-out;
                         }
                     
                         .hassub:hover .submenu {
@@ -2038,10 +2116,10 @@ export default class Header extends React.Component {
                     
                         .top_bar {
                             height: auto;
-                            -webkit-transition: all 0.5s ease-in-out;
-                            -moz-transition: all 0.5s ease-in-out;
-                            -o-transition: all 0.5s ease-in-out;
-                            transition: all 0.5s ease-in-out;
+                            x-webkit-transition: all 0.5s ease-in-out;
+                            x-moz-transition: all 0.5s ease-in-out;
+                            x-o-transition: all 0.5s ease-in-out;
+                            xtransition: all 0.5s ease-in-out;
                         }
                     
                         .top_bar.active {

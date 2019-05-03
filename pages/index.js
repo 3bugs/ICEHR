@@ -1,5 +1,6 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
+import Link from 'next/link';
 
 export default class Index extends React.Component {
 
@@ -62,15 +63,17 @@ export default class Index extends React.Component {
                             <div className="col-sm-9 wow fadeInRight">
                                 <div className="service-crop d-none d-sm-block d-md-none d-lg-block d-xl-block">
                                     <div className="row border-bottom mt-3">
+                                        {/*บริการฝึกอบรม*/}
                                         <div className="col-sm-4">
-                                            <a href="service-1.php">
+                                            <Link href="/service-training">
                                                 <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
                                                     <h4>บริการฝึกอบรม</h4>
                                                     <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
                                                         Ipsum has been of the printing and typesetting industry. </p>
                                                 </div>
-                                            </a>
+                                            </Link>
                                         </div>
+                                        {/*In-house Training*/}
                                         <div className="col-sm-4">
                                             <a href="service-4.php">
                                                 <div className="service-index">
@@ -82,6 +85,7 @@ export default class Index extends React.Component {
                                                 </div>
                                             </a>
                                         </div>
+                                        {/*บริการสังคม*/}
                                         <div className="col-sm-4 service-index">
                                             <a href="service-3.php">
                                                 <div className="service-index">
@@ -95,16 +99,17 @@ export default class Index extends React.Component {
                                         </div>
                                     </div>
                                     <div className="row mt-3">
-                                        <div className="col-sm-4 "><img src="/static/images/icon4.svg" className="icon-dm-big"/>
+                                        {/*อบรมสอบใบขับขี่*/}
+                                        <div className="col-sm-4 ">
                                             <a href="service-2.php">
-                                                <div className="service-index">
-                                                    <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
-                                                        ขอใบอนุญาตขับขี่</h4>
+                                                <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
+                                                    <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
                                                     <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
                                                         Ipsum has been of the printing and typesetting industry. </p>
                                                 </div>
                                             </a>
                                         </div>
+                                        {/*งานวิจัยและวิชาการ*/}
                                         <div className="col-sm-4">
                                             <a href="service-5.php">
                                                 <div className="service-index">
@@ -116,6 +121,7 @@ export default class Index extends React.Component {
                                                 </div>
                                             </a>
                                         </div>
+                                        {/*วารสาร HR Intelligence*/}
                                         <div className="col-sm-4 service-index">
                                             <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
                                                 <h4>วารสาร HR Intelligence </h4>
@@ -125,6 +131,7 @@ export default class Index extends React.Component {
                                         </div>
                                     </div>
                                 </div>
+
                                 <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
                                     <div className="owl-news owl-carousel owl-theme mobilespec">
                                         <div className="item">

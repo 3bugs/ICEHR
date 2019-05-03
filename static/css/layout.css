@@ -130,7 +130,7 @@ a:hover {
 
 .icon-dm-big {
 	width: 40px;
-	margin-left: -10px;
+	margin-left: -5px;
 }
 
 .title-service-index {
@@ -150,7 +150,6 @@ a:hover {
 	margin-top: -20px;
 	line-height: 30px;
 }
-
 
 /*
 .service-crop {
@@ -177,7 +176,7 @@ a:hover {
 .service-index {
 	cursor: pointer;
 }
-.service-crop a{
+.service-crop a {
 	color: black;
 }
 
