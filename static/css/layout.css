@@ -545,6 +545,12 @@ a:hover {
 	padding: 20px 90px 20px 30px;
 }
 
+.border-inside-red {
+	border: 1px solid red;
+	margin-top: 30px;
+	padding: 20px 90px 20px 30px;
+}
+
 .nopadleft {
 	padding-left: 0px;
 }

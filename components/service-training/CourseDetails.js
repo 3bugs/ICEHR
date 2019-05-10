@@ -54,16 +54,22 @@ export default class CourseList extends React.Component {
                         <div className="col-md-3">
                             <div className="row">
                                 <div className="col">
-                                    <Link href="/service-training-register">
+                                    <Link
+                                        as={`/service-training-register/${course.id}`}
+                                        href={`/service-training-register?courseId=${course.id}`}
+                                    >
                                         <a className="btn btn-regis">ลงทะเบียน <i className="far fa-edit"></i></a>
                                     </Link>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <div className="social-inside"><a href="#"><i className="fab fa-facebook-f"></i></a> <a href="#"><i
-                                        className="fab fa-twitter"></i></a> <a href="#"><i className="fab fa-google-plus-g"></i></a>
-                                        <a href="#"><i className="fab fa-line"></i></a></div>
+                                    <div className="social-inside">
+                                        <a href="#"><i className="fab fa-facebook-f"></i></a>
+                                        <a href="#"><i className="fab fa-twitter"></i></a>
+                                        <a href="#"><i className="fab fa-google-plus-g"></i></a>
+                                        <a href="#"><i className="fab fa-line"></i></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Modal from 'react-bootstrap/Modal';
 import $ from 'jquery';
 import './Header.css';
+import {isString, isValidEmail} from "../etc/utils";
+import ErrorLabel from './ErrorLabel';
 
 class CustomToggle extends React.Component {
     constructor(props, context) {
@@ -59,39 +61,6 @@ const REGISTER_ORGANIZATION_EMAIL = 'registerOrganizationEmail';
 const REGISTER_ORGANIZATION_PASSWORD = 'registerOrganizationPassword';
 const REGISTER_ORGANIZATION_CONFIRM_PASSWORD = 'registerOrganizationConfirmPassword';
 
-class ErrorLabel extends React.Component {
-    constructor(props, context) {
-        super(props, context);
-    }
-
-    static defaultProps = {
-        textAlign: 'left',
-        marginTop: 0,
-        marginBottom: 0,
-        marginLeft: 0,
-        marginRight: 0,
-        paddingLeft: '2px',
-        paddingRight: '2px',
-    };
-
-    render() {
-        return (
-            <div style={{
-                color: "red",
-                fontSize: '0.9rem',
-                display: this.props.value === undefined ? 'none' : 'block',
-                textAlign: this.props.textAlign,
-                marginTop: this.props.marginTop,
-                marginBottom: this.props.marginBottom,
-                marginLeft: this.props.marginLeft,
-                marginRight: this.props.marginRight,
-                paddingLeft: this.props.paddingLeft,
-                paddingRight: this.props.paddingRight,
-            }}>{this.props.value}</div>
-        );
-    }
-}
-
 class LoginForm extends React.Component {
     constructor(props, context) {
         super(props, context);
@@ -105,7 +74,7 @@ class LoginForm extends React.Component {
     }
 
     componentDidMount() {
-        let loginToken = localStorage.getItem('login_token');
+        const loginToken = localStorage.getItem('login_token');
         if (loginToken !== null) {
             this.setState({
                 loginToken: loginToken,
@@ -152,16 +121,15 @@ class LoginForm extends React.Component {
         });
     };
 
-    handleChange(field, e) {
+    handleChange(field, allowSpace, e) {
         let fields = this.state.fields;
-        fields[field] = this.isString(e.target.value) ? e.target.value.trim() : e.target.value;
-        //fields[field] = e.target.value;
+        if (!allowSpace) {
+            fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
+        } else {
+            fields[field] = e.target.value;
+        }
         this.setState({fields});
     }
-
-    isString = value => {
-        return typeof value === 'string' || value instanceof String;
-    };
 
     handleSubmitLogin = event => {
         event.preventDefault();
@@ -178,12 +146,10 @@ class LoginForm extends React.Component {
         let errors = {};
         let formIsValid = true;
 
-        let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
-
         if (!fields[LOGIN_EMAIL] || fields[LOGIN_EMAIL].trim().length === 0) {
             errors[LOGIN_EMAIL] = 'กรุณากรอกอีเมล';
             formIsValid = false;
-        } /*else if (!emailRegex.test(fields['email'])) {
+        } /*else if (!isValidEmail(fields['email'])) {
             errors['email'] = 'รูปแบบอีเมลไม่ถูกต้อง';
             formIsValid = false;
         }*/
@@ -210,8 +176,6 @@ class LoginForm extends React.Component {
         let fields = this.state.fields;
         let errors = {};
         let formIsValid = true;
-
-        let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
 
         switch (registerType) {
             case REGISTER_TYPE_PERSON:
@@ -244,7 +208,7 @@ class LoginForm extends React.Component {
                 if (!fields[REGISTER_PERSON_EMAIL] || fields[REGISTER_PERSON_EMAIL].trim().length === 0) {
                     errors[REGISTER_PERSON_EMAIL] = 'กรุณากรอกอีเมล';
                     formIsValid = false;
-                } else if (!emailRegex.test(fields[REGISTER_PERSON_EMAIL])) {
+                } else if (!isValidEmail(fields[REGISTER_PERSON_EMAIL])) {
                     errors[REGISTER_PERSON_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
                     formIsValid = false;
                 }
@@ -297,15 +261,15 @@ class LoginForm extends React.Component {
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] || fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] = 'กรุณากรอกที่อยู่หน่วยงาน';
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] = 'กรุณากรอกเลขที่ / อาคาร / หมู่ / ซอย / ถนน';
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT] || fields[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT] = 'กรุณากรอกแขวง/ตำบล';
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT] = 'กรุณากรอกแขวง / ตำบล';
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT] || fields[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT] = 'กรุณากรอกเขต/อำเภอ';
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT] = 'กรุณากรอกเขต / อำเภอ';
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE] || fields[REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE].trim().length === 0) {
@@ -332,7 +296,7 @@ class LoginForm extends React.Component {
                 if (!fields[REGISTER_ORGANIZATION_EMAIL] || fields[REGISTER_ORGANIZATION_EMAIL].trim().length === 0) {
                     errors[REGISTER_ORGANIZATION_EMAIL] = 'กรุณากรอกอีเมล';
                     formIsValid = false;
-                } else if (!emailRegex.test(fields[REGISTER_ORGANIZATION_EMAIL])) {
+                } else if (!isValidEmail(fields[REGISTER_ORGANIZATION_EMAIL])) {
                     errors[REGISTER_ORGANIZATION_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
                     formIsValid = false;
                 }
@@ -508,16 +472,21 @@ class LoginForm extends React.Component {
                                         <label style={{marginTop: '15px', marginBottom: '3px', marginLeft: '3px'}}>อีเมล
                                             : </label>
                                         <input value={this.state.fields[LOGIN_EMAIL] || ''}
-                                               onChange={this.handleChange.bind(this, LOGIN_EMAIL)}
+                                               onChange={this.handleChange.bind(this, LOGIN_EMAIL, false)}
+                                               onKeyDown={e => {
+                                                   if (e.key === ' ') {
+                                                       e.preventDefault();
+                                                   }
+                                               }}
                                                placeholder="กรอกอีเมล"
-                                               type="text" className="form-control input-md"
+                                               type="email" className="form-control input-md"
                                                style={{marginBottom: 0}}/>
                                         <ErrorLabel value={this.state.errors[LOGIN_EMAIL]}/>
 
                                         <label style={{marginTop: '15px', marginBottom: '3px', marginLeft: '3px'}}>รหัสผ่าน
                                             : </label>
                                         <input value={this.state.fields[LOGIN_PASSWORD] || ''}
-                                               onChange={this.handleChange.bind(this, LOGIN_PASSWORD)}
+                                               onChange={this.handleChange.bind(this, LOGIN_PASSWORD, false)}
                                                placeholder="กรอกรหัสผ่าน"
                                                type="password" className="form-control input-md"
                                                style={{marginBottom: 0}}/>
@@ -616,15 +585,14 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <select
                                                                                             value={this.state.fields[REGISTER_PERSON_TITLE] || '0'}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_TITLE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_TITLE, false)}
                                                                                             className="form-control">
                                                                                             <option value="0" disabled
                                                                                                     selected>เลือกคำนำหน้า
                                                                                             </option>
                                                                                             {
-                                                                                                this.state.nameTitleList.map(nameTitle =>
-                                                                                                    <option
-                                                                                                        value={nameTitle.id}>{nameTitle.title}</option>
+                                                                                                this.state.nameTitleList.map((nameTitle, index) =>
+                                                                                                    <option key={index} value={nameTitle.id}>{nameTitle.title}</option>
                                                                                                 )
                                                                                             }
                                                                                         </select>
@@ -649,7 +617,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_FIRST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_FIRST_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_FIRST_NAME, true)}
                                                                                             type="text"
                                                                                             placeholder="กรอกชื่อ"
                                                                                             className="form-control input-md"/>
@@ -668,7 +636,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_LAST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_LAST_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_LAST_NAME, true)}
                                                                                             type="text"
                                                                                             placeholder="กรอกนามสกุล"
                                                                                             className="form-control input-md"/>
@@ -690,7 +658,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_AGE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_AGE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_AGE, false)}
                                                                                             type="number"
                                                                                             placeholder="กรอกอายุ"
                                                                                             className="form-control input-md"/>
@@ -709,7 +677,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_JOB_POSITION] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_JOB_POSITION)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_JOB_POSITION, true)}
                                                                                             type="text"
                                                                                             placeholder="กรอกตำแหน่งงาน"
                                                                                             className="form-control input-md"/>
@@ -731,7 +699,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_ORGANIZATION_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_NAME, true)}
                                                                                             type="text"
                                                                                             placeholder="กรอกชื่อหน่วยงาน"
                                                                                             className="form-control input-md"/>
@@ -750,7 +718,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <select
                                                                                             value={this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE] || '0'}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_TYPE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_TYPE, false)}
                                                                                             className="form-control">
                                                                                             <option value="0"
                                                                                                     disabled
@@ -785,7 +753,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_PHONE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_PHONE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_PHONE, true)}
                                                                                             type="tel"
                                                                                             placeholder="กรอกเบอร์โทรศัพท์"
                                                                                             className="form-control input-md"/>
@@ -806,7 +774,12 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_EMAIL] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_EMAIL)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_EMAIL, false)}
+                                                                                            onKeyDown={e => {
+                                                                                                if (e.key === ' ') {
+                                                                                                    e.preventDefault();
+                                                                                                }
+                                                                                            }}
                                                                                             type="email"
                                                                                             placeholder="กรอกอีเมล"
                                                                                             className="form-control input-md"/>
@@ -830,7 +803,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_PASSWORD] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_PASSWORD)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_PASSWORD, false)}
                                                                                             type="password"
                                                                                             placeholder="กรอกรหัสผ่าน"
                                                                                             className="form-control input-md"/>
@@ -851,7 +824,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_PERSON_CONFIRM_PASSWORD] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_CONFIRM_PASSWORD)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_CONFIRM_PASSWORD, false)}
                                                                                             type="password"
                                                                                             placeholder="กรอกรหัสผ่านอีกครั้งเพื่อยืนยัน"
                                                                                             className="form-control input-md"/>
@@ -900,15 +873,14 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <select
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_TITLE] || '0'}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_TITLE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_TITLE, false)}
                                                                                             className="form-control">
                                                                                             <option value="0" disabled
                                                                                                     selected>เลือกคำนำหน้า
                                                                                             </option>
                                                                                             {
-                                                                                                this.state.nameTitleList.map(nameTitle =>
-                                                                                                    <option
-                                                                                                        value={nameTitle.id}>{nameTitle.title}</option>
+                                                                                                this.state.nameTitleList.map((nameTitle, index) =>
+                                                                                                    <option key={index} value={nameTitle.id}>{nameTitle.title}</option>
                                                                                                 )
                                                                                             }
                                                                                         </select>
@@ -932,7 +904,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_FIRST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_FIRST_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_FIRST_NAME, true)}
                                                                                             type="text" placeholder="กรอกชื่อ"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -950,7 +922,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_LAST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_LAST_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_LAST_NAME, true)}
                                                                                             type="text" placeholder="กรอกนามสกุล"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -971,7 +943,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_AGE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_AGE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_AGE, false)}
                                                                                             type="number" placeholder="กรอกอายุ"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -989,7 +961,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_JOB_POSITION] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_JOB_POSITION)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_JOB_POSITION, true)}
                                                                                             type="text" placeholder="กรอกตำแหน่งงาน"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -1010,7 +982,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_NAME)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_NAME, true)}
                                                                                             type="text" placeholder="กรอกชื่อหน่วยงาน"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -1028,7 +1000,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <select
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] || '0'}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TYPE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TYPE, false)}
                                                                                             className="form-control">
                                                                                             <option value="0" disabled
                                                                                                     selected>เลือกประเภทหน่วยงาน
@@ -1058,7 +1030,7 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-12">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS, true)}
                                                                                             type="text"
                                                                                             placeholder="เลขที่ / อาคาร / หมู่ / ซอย / ถนน"
                                                                                             className="form-control input-md"/>
@@ -1071,7 +1043,7 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-6">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT, true)}
                                                                                             type="text"
                                                                                             placeholder="แขวง / ตำบล"
                                                                                             className="form-control input-md"/>
@@ -1083,12 +1055,12 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-6 nopadleft">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT, true)}
                                                                                             type="text"
                                                                                             placeholder="เขต / อำเภอ"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT]}/>
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT]}/>
                                                                                     </div>
                                                                                     <div className="w-100"></div>
                                                                                     {/*จังหวัด*/}
@@ -1096,7 +1068,7 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-6">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE, false)}
                                                                                             type="text"
                                                                                             placeholder="จังหวัด"
                                                                                             className="form-control input-md"/>
@@ -1108,7 +1080,7 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-6 nopadleft">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE, false)}
                                                                                             type="number"
                                                                                             placeholder="รหัสไปรษณีย์"
                                                                                             className="form-control input-md"/>
@@ -1121,7 +1093,7 @@ class LoginForm extends React.Component {
                                                                                         className="col-12 col-md-6">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_PHONE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_PHONE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_PHONE, true)}
                                                                                             type="text"
                                                                                             placeholder="เบอร์โทรศัพท์หน่วยงาน"
                                                                                             className="form-control input-md"/>
@@ -1136,33 +1108,28 @@ class LoginForm extends React.Component {
                                                                             </div>
                                                                         </div>
 
-                                                                        <div className="row" style={{height: '15px'}}>
-                                                                        </div>
+                                                                        {/*<div className="row" style={{height: '15px'}}>
+                                                                        </div>*/}
 
                                                                         {/*เลขประจำตัวผู้เสียภาษี*/}
-                                                                        <div className="row">
-                                                                            <div className="col-md-6">
-                                                                                {/*เลขประจำตัวผู้เสียภาษี*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">เลขประจำตัวผู้เสียภาษี</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID)}
-                                                                                            type="tel"
-                                                                                            placeholder="เลขประจำตัวผู้เสียภาษี"
-                                                                                            className="form-control input-md"/>
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]}/>
-                                                                                    </div>
-                                                                                </div>
+                                                                        <div className="row mt-2 mb-2">
+                                                                            <div className="col-12 col-md-2"
+                                                                                 style={{paddingRight: 0}}>
+                                                                                <label
+                                                                                    className="label required-label">เลขประจำตัวผู้เสียภาษี</label>
                                                                             </div>
-                                                                            <div className="col-md-6">
+                                                                            <div className="col-12 col-md-9">
+                                                                                <input
+                                                                                    value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] || ''}
+                                                                                    onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID, true)}
+                                                                                    type="tel"
+                                                                                    placeholder="เลขประจำตัวผู้เสียภาษี"
+                                                                                    className="form-control input-md"/>
+                                                                                <ErrorLabel
+                                                                                    value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]}/>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*เบอร์โทรศัพท์, อีเมล*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -1175,7 +1142,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_PHONE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_PHONE)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_PHONE, true)}
                                                                                             type="tel"
                                                                                             placeholder="กรอกเบอร์โทรศัพท์"
                                                                                             className="form-control input-md"/>
@@ -1196,7 +1163,12 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_EMAIL] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_EMAIL)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_EMAIL, false)}
+                                                                                            onKeyDown={e => {
+                                                                                                if (e.key === ' ') {
+                                                                                                    e.preventDefault();
+                                                                                                }
+                                                                                            }}
                                                                                             type="email"
                                                                                             placeholder="กรอกอีเมล"
                                                                                             className="form-control input-md"/>
@@ -1220,7 +1192,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_PASSWORD] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_PASSWORD)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_PASSWORD, false)}
                                                                                             type="password"
                                                                                             placeholder="กรอกรหัสผ่าน"
                                                                                             className="form-control input-md"/>
@@ -1241,7 +1213,7 @@ class LoginForm extends React.Component {
                                                                                     <div className="col-md-8">
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_CONFIRM_PASSWORD] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_CONFIRM_PASSWORD)}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_CONFIRM_PASSWORD, false)}
                                                                                             type="password"
                                                                                             placeholder="กรอกรหัสผ่านอีกครั้งเพื่อยืนยัน"
                                                                                             className="form-control input-md"/>

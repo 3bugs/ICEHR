@@ -22,6 +22,22 @@ app
             extended: true
         }));
 
+        server.get('/service-training/:id', (req, res) => {
+            const actualPage = '/service-training';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-training-register/:id', (req, res) => {
+            const actualPage = '/service-training-register';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-training-register', (req, res) => {
+            res.status(404).end();
+        });
+
         /*จัดการ api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -55,6 +71,9 @@ app
                         break;
                     case 'get_course':
                         doGetCourse(req, res, db);
+                        break;
+                    case 'register_course':
+                        doRegisterCourse(req, res, db);
                         break;
                     default:
                         res.status(404).end();
@@ -185,7 +204,9 @@ doRegisterMember = (req, res, db) => {
                         `INSERT INTO member(title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email, password, address, sub_district, district, province,
                                             postal_code, organization_phone, tax_id)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputTitle, inputFirstName, inputLastName, inputAge, inputJobPosition, inputOrganizationName, inputOrganizationType, inputPhone, inputEmail, inputPassword, inputAddress, inputSubDistrict, inputDistrict, inputProvince, inputPostalCode, inputOrganizationPhone, inputTaxId],
+                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType.trim(),
+                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), inputAddress.trim(), inputSubDistrict.trim(), inputDistrict.trim(), inputProvince.trim(), inputPostalCode.trim(),
+                        inputOrganizationPhone.trim(), inputTaxId.trim()],
 
                     function (err, results, fields) {
                         if (err) {
@@ -243,4 +264,79 @@ doGetCourse = (req, res, db) => {
         }
     );
     db.end();
+};
+
+doRegisterCourse = (req, res, db) => {
+    const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
+    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+    const {
+        coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorAge, coordinatorJobPosition,
+        coordinatorOrganizationName, coordinatorOrganizationType, coordinatorPhone, coordinatorEmail
+    } = coordinator;
+    const {
+        receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
+        receiptPostalCode, receiptOrganizationPhone, receiptTaxId
+    } = receipt;
+
+    db.query(
+            `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_age, coordinator_job_position,
+                                              coordinator_organization_name, coordinator_organization_type, coordinator_phone, coordinator_email,
+                                              receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorAge, coordinatorJobPosition.trim(),
+            coordinatorOrganizationName.trim(), coordinatorOrganizationType.trim(), coordinatorPhone.trim(), coordinatorEmail.trim(),
+            receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+                db.end();
+            } else {
+                let insertId = results.insertId;
+                let placeHolder = '';
+                const data = [];
+                for (let i = 0; i < trainees.length; i++) {
+                    placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+
+                    const {
+                        traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
+                        traineeOrganizationName, traineeOrganizationType, traineePhone, traineeEmail
+                    } = trainees[i];
+
+                    data.push(insertId);
+                    data.push(traineeTitle.trim());
+                    data.push(traineeFirstName.trim());
+                    data.push(traineeLastName.trim());
+                    data.push(traineeAge);
+                    data.push(traineeJobPosition.trim());
+                    data.push(traineeOrganizationName.trim());
+                    data.push(traineeOrganizationType.trim());
+                    data.push(traineePhone.trim());
+                    data.push(traineeEmail.trim());
+                }
+                placeHolder = placeHolder.substring(0, placeHolder.length - 1);
+
+                db.query(
+                        `INSERT INTO course_trainee(course_registration_id, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
+                         VALUES ` + placeHolder,
+                    data,
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                            console.log(err.stack);
+                        } else {
+                            res.send({
+                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                            });
+                        }
+                    });
+                db.end();
+            }
+        }
+    );
 };

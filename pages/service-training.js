@@ -7,39 +7,21 @@ import CourseDetails from '../components/service-training/CourseDetails';
 export default class ServiceTraining extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {
-            showList: true,
-        };
+        this.state = {};
     }
 
-    //https://stackoverflow.com/questions/37878142/reactjs-browser-back-button
-    //https://stackoverflow.com/questions/19926641/how-to-disable-back-button-in-browser-using-javascript
+    //https://nextjs.org/learn/basics/fetching-data-for-pages/fetching-data-for-pages
 
-    componentDidMount() {
-        let self = this;
-        window.addEventListener('popstate', function () {
-            if (!self.state.showList) {
-                self.setState({
-                    showList: true,
-                });
-            }
-        });
-    }
+    static getInitialProps = context => {
+        const {courseId} = context.query;
 
-    onClickCourseRow = courseId => {
-        // เวลากด back จะได้อยู่ที่ URL เดิม
-        history.pushState(null, null, document.URL);
-
-        this.setState({
-            courseId: courseId,
-            showList: false,
-        });
-    };
-
-    test = () => {
-        this.setState({
-            showList: true,
-        });
+        if (courseId === undefined) {
+            let result = {showList: true};
+            return {result};
+        } else {
+            let result = {showList: false, courseId: courseId};
+            return {result};
+        }
     };
 
     render() {
@@ -143,15 +125,18 @@ export default class ServiceTraining extends React.Component {
                     </div>
                 </div>
 
-                <CourseList
-                    visible={this.state.showList}
-                    onClickCourseRow={this.onClickCourseRow}
-                />
+                {
+                    this.props.result.showList &&
+                    <CourseList
+                        onClickCourseRow={this.onClickCourseRow}
+                    />
+                }
 
-                {!this.state.showList &&
-                <CourseDetails
-                    courseId={this.state.courseId}
-                />
+                {
+                    !this.props.result.showList &&
+                    <CourseDetails
+                        courseId={this.props.result.courseId}
+                    />
                 }
 
                 <style jsx>{`

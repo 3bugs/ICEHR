@@ -58,3 +58,12 @@ export function numberWithCommas(n) {
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
 }
+
+export function isString(value) {
+    return typeof value === 'string' || value instanceof String;
+}
+
+export function isValidEmail(value) {
+    let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
+    return emailRegex.test(value);
+}

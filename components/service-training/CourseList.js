@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {formatCourseDateShort, numberWithCommas} from "../../etc/utils";
 
 export default class CourseList extends React.Component {
@@ -32,13 +33,9 @@ export default class CourseList extends React.Component {
             });
     }
 
-    handleClickCourseRow = courseId => {
-        this.props.onClickCourseRow(courseId);
-    };
-
     render() {
         return (
-            <div style={{display: this.props.visible ? 'block' : 'none'}}>
+            <div>
                 <div className="container">
                     <div className="row">
                         <div className="col">
@@ -55,15 +52,21 @@ export default class CourseList extends React.Component {
                                 <tbody>
                                 {
                                     this.state.courseList &&
-                                    this.state.courseList.map(course => {
+                                    this.state.courseList.map((course, index) => {
                                         return (
-                                            <tr className={'course-row'} onClick={this.handleClickCourseRow.bind(this, course.id)}>
-                                                <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
-                                                <td>{course.name}</td>
-                                                <td>{numberWithCommas(course.applicationFee)}</td>
-                                                <td>{course.place}</td>
-                                                <td>เปิดรับสมัคร</td>
-                                            </tr>
+                                            <Link
+                                                key={index}
+                                                as={`/service-training/${course.id}`}
+                                                href={`/service-training?courseId=${course.id}`}
+                                            >
+                                                <tr className={'course-row'}>
+                                                    <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
+                                                    <td>{course.name}</td>
+                                                    <td>{numberWithCommas(course.applicationFee)}</td>
+                                                    <td>{course.place}</td>
+                                                    <td>เปิดรับสมัคร</td>
+                                                </tr>
+                                            </Link>
                                         );
                                     })
                                 }
