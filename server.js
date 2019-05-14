@@ -75,6 +75,12 @@ app
                     case 'register_course':
                         doRegisterCourse(req, res, db);
                         break;
+                    case 'get_name_title':
+                        doGetNameTitle(req, res, db);
+                        break;
+                    case 'get_organization_type':
+                        doGetOrganizationType(req, res, db);
+                        break;
                     default:
                         res.status(404).end();
                         break;
@@ -151,6 +157,15 @@ doLoginMember = (req, res, db) => {
                 memberData.organizationType = results[0].organization_type;
                 memberData.phone = results[0].phone;
                 memberData.email = results[0].email;
+
+                memberData.address = results[0].address;
+                memberData.subDistrict = results[0].sub_district;
+                memberData.district = results[0].district;
+                memberData.province = results[0].province;
+                memberData.postalCode = results[0].postal_code;
+                memberData.organizationPhone = results[0].organization_phone;
+                memberData.taxId = results[0].tax_id;
+
                 memberData.loginToken = encodeToken(results[0].id);
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
@@ -200,13 +215,21 @@ doRegisterMember = (req, res, db) => {
                 });
                 db.end();
             } else {
+                let address = inputAddress === undefined ? null : inputAddress.trim();
+                let subDistrict = inputSubDistrict === undefined ? null : inputSubDistrict.trim();
+                let district = inputDistrict === undefined ? null : inputDistrict.trim();
+                let province = inputProvince === undefined ? null : inputProvince.trim();
+                let postalCode = inputPostalCode === undefined ? null : inputPostalCode.trim();
+                let organizationPhone = inputOrganizationPhone === undefined ? null : inputOrganizationPhone.trim();
+                let taxId = inputTaxId === undefined ? null : inputTaxId.trim();
+
                 db.query(
                         `INSERT INTO member(title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email, password, address, sub_district, district, province,
                                             postal_code, organization_phone, tax_id)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType.trim(),
-                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), inputAddress.trim(), inputSubDistrict.trim(), inputDistrict.trim(), inputProvince.trim(), inputPostalCode.trim(),
-                        inputOrganizationPhone.trim(), inputTaxId.trim()],
+                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType,
+                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode,
+                        organizationPhone, taxId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -226,10 +249,21 @@ doRegisterMember = (req, res, db) => {
 };
 
 doGetCourse = (req, res, db) => {
-    let inputCourseId = req.body.courseId;
+    const inputCourseId = req.body.courseId;
+
+    /*
+    * SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
+    . " FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id "
+    . " ORDER BY c.begin_date";
+    * */
+
+    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id ';
+    const whereClause = inputCourseId === undefined ? '' : ' WHERE c.id = ? ';
+    const orderClause = ' ORDER BY c.begin_date';
+    const sql = selectClause + whereClause + orderClause;
 
     db.query(
-        inputCourseId === undefined ? 'SELECT * FROM course' : 'SELECT * FROM course WHERE id = ?',
+        sql,
         inputCourseId === undefined ? null : [inputCourseId],
 
         function (err, results, fields) {
@@ -246,7 +280,7 @@ doGetCourse = (req, res, db) => {
                 results.forEach(row => {
                     dataList.push({
                         id: row.id,
-                        name: row.name,
+                        name: row.title + ' รุ่นที่ ' + row.batch_number,
                         details: row.details,
                         applicationFee: row.application_fee,
                         place: row.place,
@@ -284,7 +318,7 @@ doRegisterCourse = (req, res, db) => {
                                               receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorAge, coordinatorJobPosition.trim(),
-            coordinatorOrganizationName.trim(), coordinatorOrganizationType.trim(), coordinatorPhone.trim(), coordinatorEmail.trim(),
+            coordinatorOrganizationName.trim(), coordinatorOrganizationType, coordinatorPhone.trim(), coordinatorEmail.trim(),
             receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
 
         function (err, results, fields) {
@@ -296,47 +330,119 @@ doRegisterCourse = (req, res, db) => {
                 db.end();
             } else {
                 let insertId = results.insertId;
-                let placeHolder = '';
-                const data = [];
-                for (let i = 0; i < trainees.length; i++) {
-                    placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
 
-                    const {
-                        traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
-                        traineeOrganizationName, traineeOrganizationType, traineePhone, traineeEmail
-                    } = trainees[i];
-
-                    data.push(insertId);
-                    data.push(traineeTitle.trim());
-                    data.push(traineeFirstName.trim());
-                    data.push(traineeLastName.trim());
-                    data.push(traineeAge);
-                    data.push(traineeJobPosition.trim());
-                    data.push(traineeOrganizationName.trim());
-                    data.push(traineeOrganizationType.trim());
-                    data.push(traineePhone.trim());
-                    data.push(traineeEmail.trim());
-                }
-                placeHolder = placeHolder.substring(0, placeHolder.length - 1);
-
+                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
+                const formId = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
-                        `INSERT INTO course_trainee(course_registration_id, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
-                         VALUES ` + placeHolder,
-                    data,
+                        `UPDATE course_registration
+                         SET form_id = ?
+                         WHERE id = ?`,
+                    [formId, insertId],
+
                     function (err, results, fields) {
                         if (err) {
                             res.send({
                                 error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
                             });
                             console.log(err.stack);
+                            db.end();
                         } else {
-                            res.send({
-                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                            });
+                            let placeHolder = '';
+                            const data = [];
+                            for (let i = 0; i < trainees.length; i++) {
+                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+
+                                const {
+                                    traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
+                                    traineeOrganizationName, traineeOrganizationType, traineePhone, traineeEmail
+                                } = trainees[i];
+
+                                data.push(insertId);
+                                data.push(traineeTitle.trim());
+                                data.push(traineeFirstName.trim());
+                                data.push(traineeLastName.trim());
+                                data.push(traineeAge);
+                                data.push(traineeJobPosition.trim());
+                                data.push(traineeOrganizationName.trim());
+                                data.push(traineeOrganizationType);
+                                data.push(traineePhone.trim());
+                                data.push(traineeEmail.trim());
+                            }
+                            placeHolder = placeHolder.substring(0, placeHolder.length - 1);
+
+                            db.query(
+                                    `INSERT INTO course_trainee(course_registration_id, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
+                                     VALUES ` + placeHolder,
+                                data,
+                                function (err, results, fields) {
+                                    if (err) {
+                                        res.send({
+                                            error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (3)', 'error run query: ' + err.stack),
+                                        });
+                                        console.log(err.stack);
+                                    } else {
+                                        res.send({
+                                            error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                        });
+                                    }
+                                });
+                            db.end();
                         }
-                    });
-                db.end();
+                    }
+                );
             }
         }
     );
+};
+
+doGetNameTitle = (req, res, db) => {
+    db.query(
+        'SELECT * FROM name_title',
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลคำนำหน้าชื่อ', 'error run query: ' + err.stack),
+                });
+            } else {
+                let dataList = [];
+                results.forEach(row => {
+                    const {id, title} = row;
+                    dataList.push({id, title});
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetOrganizationType = (req, res, db) => {
+    db.query(
+        'SELECT * FROM organization_type ORDER BY id',
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลประเภทหน่วยงาน', 'error run query: ' + err.stack),
+                });
+            } else {
+                let dataList = [];
+                results.forEach(row => {
+                    const {id, name} = row;
+                    dataList.push({id, name});
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
+                });
+            }
+        }
+    );
+    db.end();
 };

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Modal from 'react-bootstrap/Modal';
 import $ from 'jquery';
 import './Header.css';
-import {isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, setLoginUser, isString, isValidEmail} from "../etc/utils";
 import ErrorLabel from './ErrorLabel';
 
 class CustomToggle extends React.Component {
@@ -62,43 +62,38 @@ const REGISTER_ORGANIZATION_PASSWORD = 'registerOrganizationPassword';
 const REGISTER_ORGANIZATION_CONFIRM_PASSWORD = 'registerOrganizationConfirmPassword';
 
 class LoginForm extends React.Component {
+
     constructor(props, context) {
         super(props, context);
         this.state = {
-            showRegisterForm: false,
+            showRegisterModal: false,
+            showLoginModal: false,
+            showProfileModal: false,
             fields: {},
             errors: {},
             registerType: 1,
             nameTitleList: [],
+            organizationTypeList: [],
         };
     }
 
     componentDidMount() {
-        const loginToken = localStorage.getItem('login_token');
-        if (loginToken !== null) {
-            this.setState({
-                loginToken: loginToken,
-                displayName: localStorage.getItem('display_name'),
-            });
-        } else {
-            this.setState({
-                loginToken: null,
-                displayName: null,
-            });
-        }
+        const loginUser = getLoginUser();
+        this.setState({loginUser});
 
-        this.doFetchNameTitles(); //todo: เปลี่ยนเป็น server-side render (คิดว่าต้องทำใน getInitialProps)
+        this.doGetNameTitle(); //todo: เปลี่ยนเป็น server-side render (คิดว่าต้องทำใน getInitialProps)
+        this.doGetOrganizationType();
     }
 
-    doFetchNameTitles = () => {
-        fetch('http://localhost/icehr/backend/api/api.php/fetch_name_titles', {
+    doGetNameTitle = () => {
+        fetch('/api/get_name_title', {
             method: 'post'
         })
             .then(result => result.json())
             .then(result => {
-                if (result['error_code'] === 0) {
+                if (result['error']['code'] === 0) {
                     this.setState({
-                        nameTitleList: result['data_list'],
+                        nameTitleList: result['dataList'],
                     });
                 } else {
                     /*let errors = {};
@@ -108,16 +103,58 @@ class LoginForm extends React.Component {
             });
     };
 
-    handleOpenLoginForm = e => {
+    doGetOrganizationType = () => {
+        fetch('/api/get_organization_type', {
+            method: 'post'
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        organizationTypeList: result['dataList'],
+                    });
+                } else {
+                    /*let errors = {};
+                    errors[RESULT_ERROR] = result['error_message'];
+                    this.setState({errors: errors});*/
+                }
+            });
+    };
+
+    /*เมื่อคลิกชื่อ (หรือข้อความ "เข้าสู่ระบบ") ที่มุมบนขวา*/
+    onClickDisplayName = e => {
+        if (this.state.loginUser == null) {
+            // แสดง Login modal
+            this.setState({
+                errors: {},
+                showLoginModal: true,
+            });
+        } else {
+            // แสดง Profile modal
+            this.setState({
+                errors: {},
+                showProfileModal: true,
+            });
+        }
+    };
+
+    onClickLogoutButton = e => {
+        setLoginUser(null);
         this.setState({
-            errors: {},
-            showLoginForm: true,
+            showProfileModal: false,
+            loginUser: null,
         });
     };
 
-    handleCloseLoginForm = e => {
+    handleCloseLoginModal = e => {
         this.setState({
-            showLoginForm: false
+            showLoginModal: false
+        });
+    };
+
+    handleCloseProfileModal = e => {
+        this.setState({
+            showProfileModal: false
         });
     };
 
@@ -369,8 +406,8 @@ class LoginForm extends React.Component {
                     alert(result['error']['message']);
                     this.setState({
                         fields: {},
-                        showRegisterForm: false,
-                        showLoginForm: true,
+                        showRegisterModal: false,
+                        showLoginModal: true,
                     });
                 } else {
                     let errors = {};
@@ -397,16 +434,23 @@ class LoginForm extends React.Component {
             .then(result => {
                 if (result['error']['code'] === 0) {
                     let memberData = result['memberData'];
-                    let displayName = memberData['firstName'] + ' ' + memberData['lastName'];
-                    let loginToken = memberData['loginToken'];
-                    localStorage.setItem('login_token', loginToken);
-                    localStorage.setItem('display_name', displayName);
+
+                    const {
+                        loginToken, id, title, firstName, lastName, age, jobPosition,
+                        organizationName, organizationType, phone, email,
+                        address, subDistrict, district, province, postalCode, organizationPhone, taxId
+                    } = memberData;
+                    const loginUser = {
+                        loginToken, id, title, firstName, lastName, age, jobPosition,
+                        organizationName, organizationType, phone, email,
+                        address, subDistrict, district, province, postalCode, organizationPhone, taxId
+                    };
+                    setLoginUser(loginUser);
 
                     this.setState({
                         fields: {},
-                        loginToken: loginToken,
-                        displayName: displayName,
-                        showLoginForm: false,
+                        loginUser,
+                        showLoginModal: false,
                     });
                 } else {
                     let errors = {};
@@ -419,20 +463,20 @@ class LoginForm extends React.Component {
 
     onClickRegister = () => {
         this.setState({
-            showLoginForm: false,
-            showRegisterForm: true,
+            showLoginModal: false,
+            showRegisterModal: true,
         });
     };
 
-    handleCloseRegisterForm = e => {
+    handleCloseRegisterModal = e => {
         this.setState({
-            showRegisterForm: false
+            showRegisterModal: false
         });
     };
 
     onClickForgotPassword = () => {
         this.setState({
-            showLoginForm: false,
+            showLoginModal: false,
         });
     };
 
@@ -449,26 +493,27 @@ class LoginForm extends React.Component {
     }
 
     render() {
-        let displayName = this.state.loginToken == null ? 'เข้าสู่ระบบ' : this.state.displayName;
+        const {loginUser} = this.state;
+        let displayName = loginUser == null ? 'เข้าสู่ระบบ' : loginUser.firstName + ' ' + loginUser.lastName;
 
         return (
             <div className="icon_top">
                 <div>
                     <div style={{border: '0px solid red'}}>
-                        <a href="#" className="link" onClick={this.handleOpenLoginForm}>
+                        <a href="#" className="link" onClick={this.onClickDisplayName}>
                             <i className="far fa-user"/>&nbsp;&nbsp;{displayName}
                         </a>
 
                         <Modal
                             size={'md'}
-                            show={this.state.showLoginForm}
-                            onHide={this.handleCloseLoginForm}
+                            show={this.state.showLoginModal}
+                            onHide={this.handleCloseLoginModal}
                             centered>
                             <Modal.Body>
                                 <div style={{padding: '10px'}}>
                                     <div className="orlog">เข้าสู่ระบบ</div>
 
-                                    <form id="loginForm" method="post" onSubmit={this.handleSubmitLogin}>
+                                    <form id="loginForm" method="post" onSubmit={this.handleSubmitLogin} noValidate={true}>
                                         <label style={{marginTop: '15px', marginBottom: '3px', marginLeft: '3px'}}>อีเมล
                                             : </label>
                                         <input value={this.state.fields[LOGIN_EMAIL] || ''}
@@ -526,9 +571,30 @@ class LoginForm extends React.Component {
                         </Modal>
 
                         <Modal
+                            size={'sm'}
+                            show={this.state.showProfileModal}
+                            onHide={this.handleCloseProfileModal}
+                            centered>
+                            <Modal.Body>
+                                <div style={{padding: '10px'}}>
+                                    <div className="orlog">{displayName}</div>
+
+                                    <button type="button" className="btn btn-ss" onClick={this.onClickLogoutButton}
+                                            style={{
+                                                width: '100%',
+                                                marginTop: '25px',
+                                                marginBottom: '10px'
+                                            }}>
+                                        ออกจากระบบ
+                                    </button>
+                                </div>
+                            </Modal.Body>
+                        </Modal>
+
+                        <Modal
                             dialogClassName={'modal-register-form'}
-                            show={this.state.showRegisterForm}
-                            onHide={this.handleCloseRegisterForm}
+                            show={this.state.showRegisterModal}
+                            onHide={this.handleCloseRegisterModal}
                             centered>
                             <Modal.Body>
                                 <div id="registerForm">
@@ -592,7 +658,7 @@ class LoginForm extends React.Component {
                                                                                             </option>
                                                                                             {
                                                                                                 this.state.nameTitleList.map((nameTitle, index) =>
-                                                                                                    <option key={index} value={nameTitle.id}>{nameTitle.title}</option>
+                                                                                                    <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
                                                                                                 )
                                                                                             }
                                                                                         </select>
@@ -720,20 +786,12 @@ class LoginForm extends React.Component {
                                                                                             value={this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE] || '0'}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_TYPE, false)}
                                                                                             className="form-control">
-                                                                                            <option value="0"
-                                                                                                    disabled
-                                                                                                    selected>
-                                                                                                เลือกประเภทหน่วยงาน
-                                                                                            </option>
-                                                                                            <option
-                                                                                                value="1">ราชการ
-                                                                                            </option>
-                                                                                            <option
-                                                                                                value="2">รัฐวิสาหกิจ
-                                                                                            </option>
-                                                                                            <option
-                                                                                                value="3">บริษัทเอกชน
-                                                                                            </option>
+                                                                                            <option value="0" disabled selected>เลือกประเภทหน่วยงาน</option>
+                                                                                            {
+                                                                                                this.state.organizationTypeList.map((organizationType, index) =>
+                                                                                                    <option key={index} value={organizationType.id}>{organizationType.name}</option>
+                                                                                                )
+                                                                                            }
                                                                                         </select>
                                                                                         <ErrorLabel
                                                                                             value={this.state.errors[REGISTER_PERSON_ORGANIZATION_TYPE]}/>
@@ -880,7 +938,7 @@ class LoginForm extends React.Component {
                                                                                             </option>
                                                                                             {
                                                                                                 this.state.nameTitleList.map((nameTitle, index) =>
-                                                                                                    <option key={index} value={nameTitle.id}>{nameTitle.title}</option>
+                                                                                                    <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
                                                                                                 )
                                                                                             }
                                                                                         </select>

@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {formatCourseDateLong, isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
@@ -182,9 +182,11 @@ class TraineeRegisterForm extends React.Component {
                                                                         <option value="0" disabled selected>
                                                                             เลือกคำนำหน้า
                                                                         </option>
-                                                                        <option value="1">นาย</option>
-                                                                        <option value="2">นาง</option>
-                                                                        <option value="3">นางสาว</option>
+                                                                        {
+                                                                            this.props.nameTitleList.map((nameTitle, index) =>
+                                                                                <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
+                                                                            )
+                                                                        }
                                                                     </select>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_TITLE]}/>
@@ -290,9 +292,11 @@ class TraineeRegisterForm extends React.Component {
                                                                             onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_ORGANIZATION_TYPE)}
                                                                             className="form-control">
                                                                         <option value="0" disabled selected>เลือกประเภทหน่วยงาน</option>
-                                                                        <option value="1">ราชการ</option>
-                                                                        <option value="2">รัฐวิสาหกิจ</option>
-                                                                        <option value="3">บริษัทเอกชน</option>
+                                                                        {
+                                                                            this.props.organizationTypeList.map((organizationType, index) =>
+                                                                                <option key={index} value={organizationType.id}>{organizationType.name}</option>
+                                                                            )
+                                                                        }
                                                                     </select>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_ORGANIZATION_TYPE]}/>
@@ -369,7 +373,9 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptForm: {
                 fields: {},
                 errors: {}
-            }
+            },
+            nameTitleList: [],
+            organizationTypeList: [],
         };
     }
 
@@ -402,8 +408,88 @@ export default class ServiceTrainingRegister extends React.Component {
         }
     };
 
+    doGetNameTitle = () => {
+        fetch('/api/get_name_title', {
+            method: 'post'
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        nameTitleList: result['dataList'],
+                    });
+                } else {
+                    /*let errors = {};
+                    errors[RESULT_ERROR] = result['error_message'];
+                    this.setState({errors: errors});*/
+                }
+            });
+    };
+
+    doGetOrganizationType = () => {
+        fetch('/api/get_organization_type', {
+            method: 'post'
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        organizationTypeList: result['dataList'],
+                    });
+                } else {
+                    /*let errors = {};
+                    errors[RESULT_ERROR] = result['error_message'];
+                    this.setState({errors: errors});*/
+                }
+            });
+    };
+
     componentDidMount() {
         console.log('ServiceTrainingRegister componentDidMount() - ' + Math.random());
+
+        this.doGetNameTitle();
+        this.doGetOrganizationType();
+
+        let user = getLoginUser();
+        let initialTraineeFields = {};
+        let initialCoordinatorFields = {};
+        let initialReceiptFields = {};
+
+        if (user !== null) {
+            initialTraineeFields[REGISTER_TRAINEE_TITLE] = user.title;
+            initialTraineeFields[REGISTER_TRAINEE_FIRST_NAME] = user.firstName;
+            initialTraineeFields[REGISTER_TRAINEE_LAST_NAME] = user.lastName;
+            initialTraineeFields[REGISTER_TRAINEE_AGE] = user.age;
+            initialTraineeFields[REGISTER_TRAINEE_JOB_POSITION] = user.jobPosition;
+            initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_NAME] = user.organizationName;
+            initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_TYPE] = user.organizationType;
+            initialTraineeFields[REGISTER_TRAINEE_PHONE] = user.phone;
+            initialTraineeFields[REGISTER_TRAINEE_EMAIL] = user.email;
+
+            initialCoordinatorFields[REGISTER_COORDINATOR_TITLE] = user.title;
+            initialCoordinatorFields[REGISTER_COORDINATOR_FIRST_NAME] = user.firstName;
+            initialCoordinatorFields[REGISTER_COORDINATOR_LAST_NAME] = user.lastName;
+            initialCoordinatorFields[REGISTER_COORDINATOR_AGE] = user.age;
+            initialCoordinatorFields[REGISTER_COORDINATOR_JOB_POSITION] = user.jobPosition;
+            initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_NAME] = user.organizationName;
+            initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = user.organizationType;
+            initialCoordinatorFields[REGISTER_COORDINATOR_PHONE] = user.phone;
+            initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;
+
+            initialReceiptFields[REGISTER_RECEIPT_ADDRESS] = user.address;
+            initialReceiptFields[REGISTER_RECEIPT_SUB_DISTRICT] = user.subDistrict;
+            initialReceiptFields[REGISTER_RECEIPT_DISTRICT] = user.district;
+            initialReceiptFields[REGISTER_RECEIPT_PROVINCE] = user.province;
+            initialReceiptFields[REGISTER_RECEIPT_POSTAL_CODE] = user.postalCode;
+            initialReceiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE] = user.organizationPhone;
+            initialReceiptFields[REGISTER_RECEIPT_TAX_ID] = user.taxId;
+        }
+
+        let {traineeForms, coordinatorForm, receiptForm} = this.state;
+        traineeForms[0].fields = initialTraineeFields;
+        coordinatorForm.fields = initialCoordinatorFields;
+        receiptForm.fields = initialReceiptFields;
+        this.setState({traineeForms, coordinatorForm});
 
         //alert('Course ID: ' + this.props.course.id + ', Step: ' + this.props.step);
 
@@ -584,7 +670,7 @@ export default class ServiceTrainingRegister extends React.Component {
                 errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกชื่อ';
                 currentFormIsValid = false;
             }
-            if (!fields[REGISTER_TRAINEE_AGE] || fields[REGISTER_TRAINEE_AGE].trim().length === 0) {
+            if (!fields[REGISTER_TRAINEE_AGE]) {
                 errors[REGISTER_TRAINEE_AGE] = 'กรุณากรอกอายุ';
                 currentFormIsValid = false;
             }
@@ -891,6 +977,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                     this.state.traineeForms.map(formData => (
                                         <TraineeRegisterForm
                                             formData={formData}
+                                            nameTitleList={this.state.nameTitleList}
+                                            organizationTypeList={this.state.organizationTypeList}
                                             handleChangeCallback={this.handleChange}
                                             onClickRemoveCallback={this.onClickRemoveTrainee}
                                         />
@@ -949,9 +1037,11 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                         className="form-control"
                                                                         style={{marginBottom: 0}}>
                                                                     <option value="0" disabled selected>เลือกคำนำหน้า</option>
-                                                                    <option value="1">นาย</option>
-                                                                    <option value="2">นาง</option>
-                                                                    <option value="3">นางสาว</option>
+                                                                    {
+                                                                        this.state.nameTitleList.map((nameTitle, index) =>
+                                                                            <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
+                                                                        )
+                                                                    }
                                                                 </select>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_TITLE]}/>
@@ -1056,9 +1146,11 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                         onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_TYPE)}
                                                                         className="form-control">
                                                                     <option value="0" disabled>เลือกประเภทหน่วยงาน</option>
-                                                                    <option value="1">ราชการ</option>
-                                                                    <option value="2">รัฐวิสาหกิจ</option>
-                                                                    <option value="3">บริษัทเอกชน</option>
+                                                                    {
+                                                                        this.state.organizationTypeList.map((organizationType, index) =>
+                                                                            <option key={index} value={organizationType.id}>{organizationType.name}</option>
+                                                                        )
+                                                                    }
                                                                 </select>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_ORGANIZATION_TYPE]}/>

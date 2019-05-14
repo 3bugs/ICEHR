@@ -1,3 +1,42 @@
+/*memberData.id = results[0].id;
+memberData.title = results[0].title;
+memberData.firstName = results[0].first_name;
+memberData.lastName = results[0].last_name;
+memberData.age = results[0].age;
+memberData.jobPosition = results[0].job_position;
+memberData.organizationName = results[0].organization_name;
+memberData.organizationType = results[0].organization_type;
+memberData.phone = results[0].phone;
+memberData.email = results[0].email;
+
+memberData.address = results[0].address;
+memberData.subDistrict = results[0].sub_district;
+memberData.district = results[0].district;
+memberData.province = results[0].province;
+memberData.postalCode = results[0].postal_code;
+memberData.organizationPhone = results[0].organization_phone;
+memberData.taxId = results[0].tax_id;*/
+
+const KEY_USER = 'user';
+
+export function getLoginUser() {
+    let userJsonString = localStorage.getItem(KEY_USER);
+
+    if (userJsonString != null) {
+        return JSON.parse(userJsonString);
+    } else {
+        return null;
+    }
+}
+
+export function setLoginUser(user) {
+    if (user == null) {
+        localStorage.removeItem(KEY_USER);
+    } else {
+        localStorage.setItem(KEY_USER, JSON.stringify(user));
+    }
+}
+
 export function formatCourseDateShort(beginDate, endDate) {
     const monthNames = [
         'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
