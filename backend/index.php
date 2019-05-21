@@ -1,3 +1,3 @@
 <?php
-header("Location: /icehr_backend/pages/");
+header("Location: pages/");
 die();
