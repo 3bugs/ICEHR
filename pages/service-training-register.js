@@ -744,7 +744,7 @@ export default class ServiceTrainingRegister extends React.Component {
                 coordinatorErrors[REGISTER_COORDINATOR_LAST_NAME] = 'กรุณากรอกนามสกุล';
                 valid = false;
             }
-            if (!coordinatorFields[REGISTER_COORDINATOR_AGE] || coordinatorFields[REGISTER_COORDINATOR_AGE].trim().length === 0) {
+            if (!coordinatorFields[REGISTER_COORDINATOR_AGE]) {
                 coordinatorErrors[REGISTER_COORDINATOR_AGE] = 'กรุณากรอกอายุ';
                 valid = false;
             }
@@ -839,7 +839,8 @@ export default class ServiceTrainingRegister extends React.Component {
     };
 
     doRegister = () => {
-        const loginToken = localStorage.getItem('login_token');
+        const user = getLoginUser();
+        const loginToken = user === null ? null : getLoginUser().loginToken;
         const {traineeForms, coordinatorForm, receiptForm} = this.state;
         const trainees = [];
         for (let i = 0; i < traineeForms.length; i++) {

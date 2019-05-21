@@ -335,7 +335,7 @@ doRegisterCourse = (req, res, db) => {
                 const formId = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration
-                         SET form_id = ?
+                         SET form_number = ?
                          WHERE id = ?`,
                     [formId, insertId],
 
