@@ -52,7 +52,8 @@ class RegisterProgress extends React.Component {
                 <ul className="progressbar">
                     <li className={activeStep === 1 ? 'active' : 'complete'}>{text[0]}</li>
                     <li className={activeStep === 2 ? 'active' : (activeStep > 2 ? 'complete' : '')}>{text[1]}</li>
-                    <li className={activeStep === 3 ? 'active' : ''}>{text[2]}</li>
+                    <li className={activeStep === 3 ? 'active' : (activeStep > 3 ? 'complete' : '')}>{text[2]}</li>
+                    <li className={activeStep === 4 ? 'active' : ''}>{text[3]}</li>
                 </ul>
 
                 <style jsx>{`
@@ -65,7 +66,7 @@ class RegisterProgress extends React.Component {
                     }
                     .progressbar li {
                         list-style-type: none;
-                        width: 32%;
+                        width: 24%;
                         float: left;
                         font-size: 0.8rem;
                         position: relative;
@@ -149,16 +150,19 @@ class TraineeRegisterForm extends React.Component {
     };
 
     render() {
-        let {formData} = this.props;
+        let {formData, isReadOnly} = this.props;
+
         return (
             <Element name={formData.id}>
                 <div className="container_reg" style={{border: '0px solid red', position: 'relative', top: '-10px'}}>
                     <div className="row field_reg">
                         <div className="col">
                             <div className={this.state.red ? 'border-inside-red' : 'border-inside'}>
+                                {!isReadOnly &&
                                 <a href="javascript:void(0);" onClick={this.onClickRemove}>
                                     <div className="deletenumber">x</div>
                                 </a>
+                                }
                                 <div className="row">
                                     <div className="col-12 col-md-1 d-block d-sm-block d-md-block d-lg-block d-xl-block">
                                         <div className="list-add">ลำดับที่ <span id="sequence">{formData.id}</span></div>
@@ -168,6 +172,7 @@ class TraineeRegisterForm extends React.Component {
                                         <div className="row">
                                             <div className="col">
                                                 <div className="regisfo">
+                                                    {/*คำนำหน้า*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
@@ -178,7 +183,8 @@ class TraineeRegisterForm extends React.Component {
                                                                     <select value={formData.fields[REGISTER_TRAINEE_TITLE] || '0'}
                                                                             onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_TITLE)}
                                                                             className="form-control"
-                                                                            style={{marginBottom: 0}}>
+                                                                            style={{marginBottom: 0}}
+                                                                            disabled={isReadOnly}>
                                                                         <option value="0" disabled selected>
                                                                             เลือกคำนำหน้า
                                                                         </option>
@@ -197,6 +203,8 @@ class TraineeRegisterForm extends React.Component {
 
                                                         </div>
                                                     </div>
+
+                                                    {/*ชื่อ-นามสกุล*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
@@ -208,7 +216,8 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_FIRST_NAME)}
                                                                            type="text"
                                                                            placeholder="กรอกชื่อ"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
                                                                 </div>
@@ -224,13 +233,16 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_LAST_NAME)}
                                                                            type="text"
                                                                            placeholder="กรอกนามสกุล"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_LAST_NAME]}/>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    {/*อายุ, ตำแหน่งงาน*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
@@ -242,7 +254,8 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_AGE)}
                                                                            type="number"
                                                                            placeholder="กรอกอายุ"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_AGE]}/>
                                                                 </div>
@@ -258,13 +271,16 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_JOB_POSITION)}
                                                                            type="text"
                                                                            placeholder="กรอกตำแหน่งงาน"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_JOB_POSITION]}/>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    {/*ชื่อ-ประเภทหน่วยงาน*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
@@ -276,7 +292,8 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_ORGANIZATION_NAME)}
                                                                            type="text"
                                                                            placeholder="กรอกชื่อหน่วยงาน"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_ORGANIZATION_NAME]}/>
                                                                 </div>
@@ -290,7 +307,8 @@ class TraineeRegisterForm extends React.Component {
                                                                 <div className="col-md-8">
                                                                     <select value={formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE] || '0'}
                                                                             onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_ORGANIZATION_TYPE)}
-                                                                            className="form-control">
+                                                                            className="form-control"
+                                                                            disabled={isReadOnly}>
                                                                         <option value="0" disabled selected>เลือกประเภทหน่วยงาน</option>
                                                                         {
                                                                             this.props.organizationTypeList.map((organizationType, index) =>
@@ -304,6 +322,8 @@ class TraineeRegisterForm extends React.Component {
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    {/*เบอร์โทร, อีเมล*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
@@ -315,7 +335,8 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_PHONE)}
                                                                            type="tel"
                                                                            placeholder="กรอกเบอร์โทรศัพท์"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_PHONE]}/>
                                                                 </div>
@@ -331,7 +352,8 @@ class TraineeRegisterForm extends React.Component {
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_EMAIL)}
                                                                            type="email"
                                                                            placeholder="กรอกอีเมล"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={isReadOnly}/>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_EMAIL]}/>
                                                                 </div>
@@ -617,6 +639,9 @@ export default class ServiceTrainingRegister extends React.Component {
                 break;
             case 2:
                 valid = this.validateFormCoordinator();
+                break;
+            case 3:
+                valid = this.validateFormReceipt();
                 break;
         }
         if (valid) {
@@ -953,7 +978,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <Element name={TOP_OF_FORM}>
                             <RegisterProgress
                                 text={[
-                                    'ข้อมูลผู้สมัครอบรม', 'ข้อมูลผู้ประสานงาน' + '\n' + '(กรณีผู้สมัครมากกว่า 1 ท่าน)', 'ข้อมูลการออกใบเสร็จ'
+                                    'ข้อมูลผู้สมัครอบรม', 'ข้อมูลผู้ประสานงาน' + '\n' + '(กรณีผู้สมัครมากกว่า 1 ท่าน)', 'ข้อมูลการออกใบเสร็จ', 'ตรวจสอบข้อมูล'
                                 ]}
                                 activeStep={step}
                             /><br/>
@@ -962,7 +987,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         {/*ฟอร์มสมัครอบรม*/}
                         <form id="applicationFormGroup" method="post" noValidate={true} onSubmit={this.handleSubmit}>
                             {/*ขั้นตอน 1 กรอกข้อมูลผู้สมัครอบรม*/}
-                            {step === 1 &&
+                            {((step === 1) || (step === 4)) &&
                             <div>
                                 {/*หัวข้อ*/}
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
@@ -978,6 +1003,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                     this.state.traineeForms.map(formData => (
                                         <TraineeRegisterForm
                                             formData={formData}
+                                            isReadOnly={step === 4}
                                             nameTitleList={this.state.nameTitleList}
                                             organizationTypeList={this.state.organizationTypeList}
                                             handleChangeCallback={this.handleChange}
@@ -987,22 +1013,25 @@ export default class ServiceTrainingRegister extends React.Component {
                                 }
 
                                 {/*ปุ่มเพิ่มผู้สมัครอบรม*/}
+                                {step === 1 &&
                                 <div style={{border: '0px solid blue', marginTop: '15px', textAlign: 'center', marginBottom: '30px'}}>
                                     <a href="javascript:void(0);" className="addmoreuser" onClick={this.onClickAddTrainee}>
                                         <i className="fas fa-plus-circle" style={{fontSize: '0.8rem'}}/>&nbsp;&nbsp;&nbsp;เพิ่มผู้สมัครอบรม
                                     </a>
                                 </div>
+                                }
                             </div>
                             }
 
                             {/*ขั้นตอน 2 กรอกข้อมูลผู้ประสานงาน*/}
-                            {step === 2 &&
+                            {((step === 2) || (step === 4)) &&
                             <Element name={'coordinator-form'}>
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
                                         <h4 className="text-black" style={{marginTop: '20px'}}>
                                             <i className="fas fa-user-friends" style={{fontSize: '1rem', marginBottom: '15px'}}/>&nbsp;ข้อมูลผู้ประสานงาน
                                         </h4>
+                                        {step !== 4 &&
                                         <select
                                             onChange={this.handleChangeSelectCoordinator}
                                             className="form-control"
@@ -1020,12 +1049,15 @@ export default class ServiceTrainingRegister extends React.Component {
                                                 })
                                             }
                                         </select>
+                                        }
                                     </div>
                                 </div>
                                 <div className="border-inside" style={{marginTop: '15px', marginBottom: '30px'}}>
                                     <div className="row">
                                         <div className="col">
                                             <div className="regisfo">
+
+                                                {/*คำนำหน้า*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
@@ -1036,7 +1068,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                 <select value={coordinatorForm.fields[REGISTER_COORDINATOR_TITLE] || '0'}
                                                                         onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_TITLE)}
                                                                         className="form-control"
-                                                                        style={{marginBottom: 0}}>
+                                                                        style={{marginBottom: 0}}
+                                                                        disabled={step === 4}>
                                                                     <option value="0" disabled selected>เลือกคำนำหน้า</option>
                                                                     {
                                                                         this.state.nameTitleList.map((nameTitle, index) =>
@@ -1052,6 +1085,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                     <div className="col-md-6">
                                                     </div>
                                                 </div>
+
+                                                {/*ชื่อ-นามสกุล*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
@@ -1063,7 +1098,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_FIRST_NAME)}
                                                                        type="text"
                                                                        placeholder="กรอกชื่อ"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_FIRST_NAME]}/>
                                                             </div>
@@ -1079,13 +1115,16 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_LAST_NAME)}
                                                                        type="text"
                                                                        placeholder="กรอกนามสกุล"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_LAST_NAME]}/>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                {/*อายุ, ตำแหน่งงาน*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
@@ -1097,7 +1136,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_AGE)}
                                                                        type="number"
                                                                        placeholder="กรอกอายุ"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_AGE]}/>
                                                             </div>
@@ -1113,13 +1153,16 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_JOB_POSITION)}
                                                                        type="text"
                                                                        placeholder="กรอกตำแหน่งงาน"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_JOB_POSITION]}/>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                {/*ชื่อ-ประเภทหน่วยงาน*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
@@ -1131,7 +1174,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_NAME)}
                                                                        type="text"
                                                                        placeholder="กรอกชื่อหน่วยงาน"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_ORGANIZATION_NAME]}/>
                                                             </div>
@@ -1145,7 +1189,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                             <div className="col-md-8">
                                                                 <select value={coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] || '0'}
                                                                         onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_TYPE)}
-                                                                        className="form-control">
+                                                                        className="form-control"
+                                                                        disabled={step === 4}>
                                                                     <option value="0" disabled>เลือกประเภทหน่วยงาน</option>
                                                                     {
                                                                         this.state.organizationTypeList.map((organizationType, index) =>
@@ -1159,6 +1204,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                {/*เบอร์โทร, อีเมล*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
@@ -1170,7 +1217,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_PHONE)}
                                                                        type="tel"
                                                                        placeholder="กรอกเบอร์โทรศัพท์"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_PHONE]}/>
                                                             </div>
@@ -1186,7 +1234,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_EMAIL)}
                                                                        type="email"
                                                                        placeholder="กรอกอีเมล"
-                                                                       className="form-control input-md"/>
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_EMAIL]}/>
                                                             </div>
@@ -1201,7 +1250,7 @@ export default class ServiceTrainingRegister extends React.Component {
                             }
 
                             {/*ขั้นตอน 3 กรอกข้อมูลการออกใบเสร็จ*/}
-                            {step === 3 &&
+                            {((step === 3) || (step === 4)) &&
                             <div>
                                 {/*ฟอร์มข้อมูลการออกใบเสร็จ*/}
                                 <Element name={'receipt-form'}>
@@ -1229,7 +1278,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ADDRESS)}
                                                                                    type="text"
                                                                                    placeholder="เลขที่ / อาคาร / หมู่ / ซอย / ถนน"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_ADDRESS]}/>
                                                                         </div>
@@ -1239,7 +1289,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_SUB_DISTRICT)}
                                                                                    type="text"
                                                                                    placeholder="แขวง / ตำบล"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_SUB_DISTRICT]}/>
                                                                         </div>
@@ -1248,7 +1299,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_DISTRICT)}
                                                                                    type="text"
                                                                                    placeholder="เขต / อำเภอ"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_DISTRICT]}/>
                                                                         </div>
@@ -1257,7 +1309,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                             <input value={receiptForm.fields[REGISTER_RECEIPT_PROVINCE] || ''}
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_PROVINCE)}
                                                                                    type="text" placeholder="จังหวัด"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_PROVINCE]}/>
                                                                         </div>
@@ -1266,7 +1319,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_POSTAL_CODE)}
                                                                                    type="number"
                                                                                    placeholder="รหัสไปรษณีย์"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_POSTAL_CODE]}/>
                                                                         </div>
@@ -1276,7 +1330,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                                    onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ORGANIZATION_PHONE)}
                                                                                    type="text"
                                                                                    placeholder="เบอร์โทรศัพท์หน่วยงาน"
-                                                                                   className="form-control input-md"/>
+                                                                                   className="form-control input-md"
+                                                                                   disabled={step === 4}/>
                                                                             <ErrorLabel
                                                                                 value={receiptForm.errors[REGISTER_RECEIPT_ORGANIZATION_PHONE]}/>
                                                                         </div>
@@ -1295,7 +1350,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                            onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_TAX_ID)}
                                                                            type="text"
                                                                            placeholder="เลขประจำตัวผู้เสียภาษี"
-                                                                           className="form-control input-md"/>
+                                                                           className="form-control input-md"
+                                                                           disabled={step === 4}/>
                                                                     <ErrorLabel
                                                                         value={receiptForm.errors[REGISTER_RECEIPT_TAX_ID]}/>
                                                                 </div>
@@ -1309,20 +1365,25 @@ export default class ServiceTrainingRegister extends React.Component {
                                 </Element>
 
                                 {/*ปุ่มลงทะเบียน*/}
-                                <div className="row mt-3 mb-3">
-                                    <div className="col">
-                                        <div className="btn-red-submit">
-                                            <button type="submit" value="submit" className="btn btn-danger">
-                                                ลงทะเบียน
-                                            </button>
+                                {step === 4 &&
+                                    <div className="row mt-3 mb-3">
+                                        <div className="col">
+                                            <div className="btn-red-submit">
+                                                <button type="submit" value="submit" className="btn btn-danger">
+                                                    ยืนยันการสมัครอบรม
+                                                </button>
+                                                <button type="button" className="btn btn-dark">
+                                                    พิมพ์
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                }
                             </div>
                             }
 
                             {/*ปุ่มย้อนกลับ/ถัดไป*/}
-                            <div className="container" style={{marginBottom: '40px'}}>
+                            <div className="container mt-4 mb-4" style={{marginBottom: '0px'}}>
                                 <div className="row">
                                     <div className="col-6 nopad">
                                         <div className="text-left">
@@ -1335,7 +1396,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                     </div>
                                     <div className="col-6 nopad">
                                         <div className="text-right">
-                                            {step !== 3 &&
+                                            {step !== 4 &&
                                             <button type="button" className="btn btn-normal" onClick={this.onClickNext}>
                                                 &nbsp;ถัดไป&nbsp;&nbsp;&nbsp;<i className="fas fa-arrow-right" style={{fontSize: '0.8rem'}}/>&nbsp;
                                             </button>

@@ -332,12 +332,12 @@ doRegisterCourse = (req, res, db) => {
                 let insertId = results.insertId;
 
                 /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
-                const formId = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
                          WHERE id = ?`,
-                    [formId, insertId],
+                    [formNumber, insertId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -350,14 +350,17 @@ doRegisterCourse = (req, res, db) => {
                             let placeHolder = '';
                             const data = [];
                             for (let i = 0; i < trainees.length; i++) {
-                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
 
                                 const {
                                     traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
                                     traineeOrganizationName, traineeOrganizationType, traineePhone, traineeEmail
                                 } = trainees[i];
 
+                                const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
+
                                 data.push(insertId);
+                                data.push(traineeFormNumber);
                                 data.push(traineeTitle.trim());
                                 data.push(traineeFirstName.trim());
                                 data.push(traineeLastName.trim());
@@ -371,7 +374,7 @@ doRegisterCourse = (req, res, db) => {
                             placeHolder = placeHolder.substring(0, placeHolder.length - 1);
 
                             db.query(
-                                    `INSERT INTO course_trainee(course_registration_id, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
+                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
                                      VALUES ` + placeHolder,
                                 data,
                                 function (err, results, fields) {
