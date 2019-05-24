@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {formatCourseDateLong, numberWithCommas} from "../../etc/utils";
+import {SERVICE_SOCIAL, SERVICE_TRAINING} from "../../etc/constants";
 
 export default class CourseList extends React.Component {
     constructor(props, context) {
@@ -16,16 +17,25 @@ export default class CourseList extends React.Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                serviceType: this.props.serviceType,
                 courseId: this.props.courseId
             }),
         })
             .then(result => result.json())
             .then(result => {
                 if (result['error']['code'] === 0) {
-                    this.setState({
-                        course: result['dataList'][0],
-                        errorMessage: null,
-                    });
+                    const courseList = result['dataList'];
+                    if (courseList.length > 0) {
+                        this.setState({
+                            course: courseList[0],
+                            errorMessage: null,
+                        });
+                    } else {
+                        this.setState({
+                            course: null,
+                            errorMessage: 'ไม่พบข้อมูล',
+                        });
+                    }
                 } else {
                     this.setState({
                         course: null,
@@ -36,7 +46,7 @@ export default class CourseList extends React.Component {
     }
 
     render() {
-        let course = this.state.course;
+        const {course, errorMessage} = this.state;
 
         return (
             <div>
@@ -55,8 +65,8 @@ export default class CourseList extends React.Component {
                             <div className="row">
                                 <div className="col">
                                     <Link
-                                        as={`/service-training-register/${course.id}`}
-                                        href={`/service-training-register?courseId=${course.id}`}
+                                        as={`/service-${course.serviceType}-register/${course.id}`}
+                                        href={`/service-${course.serviceType}-register?courseId=${course.id}`}
                                     >
                                         <a className="btn btn-regis">ลงทะเบียน <i className="far fa-edit"></i></a>
                                     </Link>
@@ -77,47 +87,9 @@ export default class CourseList extends React.Component {
                     <hr/>
                     <div className="row">
                         <div className="col-12 col-md-6">
-                            <div className="content mCustomScrollbar"><b>หลักการและเหตุผล</b>
-                                <br/>ระบบเรตติ้ง หรือ Rating System for Audit เป็นเครื่องมือที่
-                                สำคัญอย่างหนึ่งของงานการตรวจสอบภายในสมัยใหม่ เพราะสามารถ
-                                สะท้อนระดับความรุนแรงของผลที่พบจากการตรวจสอบได้อย่างชัดเจน มีเกณฑ์เงื่อนไขที่ชัดเจน
-                                ซึ่งจะช่วยให้เกิดประสิทธิภาพของงานตรวจสอบ ทั้งในมุมมอง
-                                ของผู้ตรวจสอบที่มีประสบการณ์ทักษะที่แตกต่างกันและทั้งหน่วยรับ
-                                ตรวจในการรับรู้ล่วงหน้าว่าจะปรับปรุงพัฒนาผลดำเนินงานของตนอย่างไรให้ระดับ Rating
-                                ดีขึ้นกว่าการตรวจสอบครั้งก่อนหน้า
-                                <br/>
-                                <br/> <b>วัตถุประสงค์ </b>
-                                <br/> 1. เพื่อให้ผู้เข้าอบรมเข้าใจมาตรฐานการพัฒนา Audit Risk-Based Rating System เพื่อนำไปใช้ในการพัฒนา
-                                ใช้งานตรวจสอบภายใน 2. เพื่อให้ผู้เข้าอบรมได้ทดสอบกรอกข้อมูลความเห็นตาม checklist
-                                เพื่อนำไปใช้เป็นต้นแบบการพัฒนา Audit Risk-Based Rating System ในอนาคต
-                                <br/>
-                                <br/><b>เนื้อหาการฝึกอบรม</b>
-                                <br/>1) มาตรฐานการพัฒนา Audit Risk-Based Rating System ในการให้ความเห็นในรายงานผลการตรวจสอบภายใน 2)
-                                เหตุผลและความจ าเป็นของการมี Audit Risk-Based Rating System 3) นิยามของ Audit Risk-Based Rating
-                                Systemในมุมของ Composite Rating ที่มาจากRisk Assessment และ Risk-Control Matrix 4) วิธีการด
-                                าเนินงานในการพัฒนา Audit Risk-Based Rating System เชิงคุณภาพ 5) ระดับของ Audit Risk-Based Rating Scale
-                                ที่เหมาะสม
+                            <div className="content mCustomScrollbar"
+                                 dangerouslySetInnerHTML={{__html: course.details}}>
                             </div>
-                            <br/>
-                            <table className="table table-price table-bordered">
-                                <tbody>
-                                <tr>
-                                    <td style={{width: '220px'}}>ราคาเต็ม</td>
-                                    <td>{numberWithCommas(course.applicationFee)} บาท</td>
-                                </tr>
-                                <tr>
-                                    <td style={{width: '220px'}}>Early Bird</td>
-                                    <td>{numberWithCommas(course.applicationFee)} บาท</td>
-                                </tr>
-                                <tr>
-                                    <td style={{width: '220px'}}>บุคลากร มธ. ลด 20%</td>
-                                    <td>{numberWithCommas(course.applicationFee)} บาท</td>
-                                </tr>
-                                <tr>
-                                    <td colSpan="2">10 แถม 1</td>
-                                </tr>
-                                </tbody>
-                            </table>
                         </div>
                         <div className="col-12 col-md-6">
                             <div id="slider" className="flexslider">
@@ -156,9 +128,9 @@ export default class CourseList extends React.Component {
                                         <br/> เบอร์โทร
                                         <br/> อีเมล
                                     </div>
-                                    <div className="col-md-8"> สุวิมล คุ้มเขต
-                                        <br/> 02-6133820-5 ต่อ 0 หรือ 100
-                                        <br/> Sermtham@tu.ac.th
+                                    <div className="col-md-8">{course.responsibleUser.firstName + ' ' + course.responsibleUser.lastName}
+                                        <br/>{course.responsibleUser.phoneOffice}
+                                        <br/>{course.responsibleUser.email}
                                     </div>
                                 </div>
                             </div>
@@ -171,6 +143,11 @@ export default class CourseList extends React.Component {
                         </div>
                     </div>
                 </div>
+                }
+
+                {/*กรณีเกิดข้อผิดพลาด หรือไม่มีข้อมูล (เช่น user แก้ตัวเลขที่ URL เอง)*/}
+                {course == null &&
+                <div style={{textAlign: 'center', marginTop: '20px', color: 'red'}}>{errorMessage}</div>
                 }
 
                 <style jsx>{`

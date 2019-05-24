@@ -22,6 +22,7 @@ app
             extended: true
         }));
 
+        /* ********** บริการวิชาการ (ฝึกอบรม) ********** */
         server.get('/service-training/:id', (req, res) => {
             const actualPage = '/service-training';
             const queryParams = {courseId: req.params.id};
@@ -35,6 +36,23 @@ app
         });
 
         server.get('/service-training-register', (req, res) => {
+            res.status(404).end();
+        });
+
+        /* ********** บริการสังคม ********** */
+        server.get('/service-social/:id', (req, res) => {
+            const actualPage = '/service-social';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-social-register/:id', (req, res) => {
+            const actualPage = '/service-social-register';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-social-register', (req, res) => {
             res.status(404).end();
         });
 
@@ -249,6 +267,7 @@ doRegisterMember = (req, res, db) => {
 };
 
 doGetCourse = (req, res, db) => {
+    const inputServiceType = req.body.serviceType;
     const inputCourseId = req.body.courseId;
 
     /*
@@ -257,19 +276,19 @@ doGetCourse = (req, res, db) => {
     . " ORDER BY c.begin_date";
     * */
 
-    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id ';
-    const whereClause = inputCourseId === undefined ? '' : ' WHERE c.id = ? ';
+    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title, cm.service_type, u.first_name, u.last_name, u.phone_office, u.email FROM course c INNER JOIN course_master cm INNER JOIN user u ON c.course_master_id = cm.id AND c.responsible_user_id = u.id ';
+    const whereClause = inputCourseId === undefined ? ' WHERE cm.service_type = ? ' : ' WHERE cm.service_type = ? AND c.id = ? ';
     const orderClause = ' ORDER BY c.begin_date';
     const sql = selectClause + whereClause + orderClause;
 
     db.query(
         sql,
-        inputCourseId === undefined ? null : [inputCourseId],
+        inputCourseId === undefined ? [inputServiceType] : [inputServiceType, inputCourseId],
 
         function (err, results, fields) {
             if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลหลักสูตรฝึกอบรม', 'error run query: ' + err.stack),
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
                 });
             } else {
                 /*
@@ -280,12 +299,19 @@ doGetCourse = (req, res, db) => {
                 results.forEach(row => {
                     dataList.push({
                         id: row.id,
+                        serviceType: row.service_type,
                         name: row.title + ' รุ่นที่ ' + row.batch_number,
                         details: row.details,
                         applicationFee: row.application_fee,
                         place: row.place,
                         beginDate: row.begin_date,
                         endDate: row.end_date,
+                        responsibleUser: {
+                            firstName: row.first_name,
+                            lastName: row.last_name,
+                            phoneOffice: row.phone_office,
+                            email: row.email,
+                        },
                         createdAt: row.created_at,
                     });
                 });

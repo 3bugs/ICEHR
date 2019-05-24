@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {formatCourseDateShort, numberWithCommas} from "../../etc/utils";
+import {SERVICE_SOCIAL, SERVICE_TRAINING} from "../../etc/constants";
 
 export default class CourseList extends React.Component {
 
@@ -14,8 +15,16 @@ export default class CourseList extends React.Component {
     componentDidMount() {
         console.log('CourseList componentDidMount() - ' + Math.random());
 
+        const {serviceType} = this.props;
+
         fetch('/api/get_course', {
-            method: 'post'
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                serviceType: serviceType
+            }),
         })
             .then(result => result.json())
             .then(result => {
@@ -34,6 +43,17 @@ export default class CourseList extends React.Component {
     }
 
     render() {
+        const {serviceType} = this.props;
+        /*let endPoint = 'service-';
+        switch (serviceType) {
+            case SERVICE_TRAINING:
+                endPoint += 'training';
+                break;
+            case SERVICE_SOCIAL:
+                endPoint += 'social';
+                break;
+        }*/
+
         return (
             <div>
                 <div className="container">
@@ -43,8 +63,10 @@ export default class CourseList extends React.Component {
                                 <thead>
                                 <tr>
                                     <th scope="col">วันที่อบรม</th>
-                                    <th scope="col">ชื่อหลักสูตร</th>
+                                    <th scope="col">ชื่อหลักสูตร / รุ่นที่</th>
+                                    {this.props.serviceType === SERVICE_TRAINING &&
                                     <th scope="col">ค่าลงทะเบียน</th>
+                                    }
                                     <th scope="col">สถานที่อบรม</th>
                                     <th scope="col">สถานะ</th>
                                 </tr>
@@ -56,13 +78,15 @@ export default class CourseList extends React.Component {
                                         return (
                                             <Link
                                                 key={index}
-                                                as={`/service-training/${course.id}`}
-                                                href={`/service-training?courseId=${course.id}`}
+                                                as={`/service-${serviceType}/${course.id}`}
+                                                href={`/service-${serviceType}?courseId=${course.id}`}
                                             >
                                                 <tr className={'course-row'}>
                                                     <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
                                                     <td>{course.name}</td>
+                                                    {this.props.serviceType === SERVICE_TRAINING &&
                                                     <td>{numberWithCommas(course.applicationFee)}</td>
+                                                    }
                                                     <td>{course.place}</td>
                                                     <td>เปิดรับสมัคร</td>
                                                 </tr>

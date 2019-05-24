@@ -87,7 +87,7 @@ export default class Index extends React.Component {
                                         </div>
                                         {/*บริการสังคม*/}
                                         <div className="col-sm-4 service-index">
-                                            <a href="service-3.php">
+                                            <a href="/service-social">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
                                                         <h4>บริการสังคม </h4>

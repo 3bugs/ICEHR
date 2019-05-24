@@ -7,8 +7,10 @@ import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
+import {SERVICE_TRAINING} from "../etc/constants";
 
 const TOP_OF_FORM = 'topOfForm';
+const ORGANIZATION_TYPE_OTHER = '9999';
 
 const REGISTER_TRAINEE_TITLE = 'registerTraineeTitle';
 const REGISTER_TRAINEE_FIRST_NAME = 'registerTraineeFirstName';
@@ -17,6 +19,7 @@ const REGISTER_TRAINEE_AGE = 'registerTraineeAge';
 const REGISTER_TRAINEE_JOB_POSITION = 'registerTraineeJobPosition';
 const REGISTER_TRAINEE_ORGANIZATION_NAME = 'registerTraineeOrganizationName';
 const REGISTER_TRAINEE_ORGANIZATION_TYPE = 'registerTraineeOrganizationType';
+const REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM = 'registerTraineeOrganizationTypeCustom';
 const REGISTER_TRAINEE_PHONE = 'registerTraineePhone';
 const REGISTER_TRAINEE_EMAIL = 'registerTraineeEmail';
 
@@ -27,6 +30,7 @@ const REGISTER_COORDINATOR_AGE = 'registerCoordinatorAge';
 const REGISTER_COORDINATOR_JOB_POSITION = 'registerCoordinatorJobPosition';
 const REGISTER_COORDINATOR_ORGANIZATION_NAME = 'registerCoordinatorOrganizationName';
 const REGISTER_COORDINATOR_ORGANIZATION_TYPE = 'registerCoordinatorOrganizationType';
+const REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM = 'registerCoordinatorOrganizationTypeCustom';
 const REGISTER_COORDINATOR_PHONE = 'registerCoordinatorPhone';
 const REGISTER_COORDINATOR_EMAIL = 'registerCoordinatorEmail';
 
@@ -129,10 +133,47 @@ class TraineeRegisterForm extends React.Component {
         super(props, context);
         this.state = {
             red: false,
+            showOrganizationTypeCustom: false,
         };
+        this.organizationTypeCustomInput = React.createRef();
+    }
+
+    focusOrganizationTypeCustomInput = () => {
+        this.organizationTypeCustomInput.current.focus();
+    };
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.showOrganizationTypeCustom !== this.state.showOrganizationTypeCustom) {
+            // You don't have to do this check first, but it can help prevent an unneeded render
+            this.setState({
+                showOrganizationTypeCustom: nextProps.showOrganizationTypeCustom
+            }, () => {
+                if (nextProps.showOrganizationTypeCustom) {
+                    this.focusOrganizationTypeCustomInput();
+                }
+            });
+        }
+    }
+
+    componentDidMount() {
+        this.setState({ showOrganizationTypeCustom: this.props.showOrganizationTypeCustom });
     }
 
     handleChange(formId, field, e) {
+        /*if (field === REGISTER_TRAINEE_ORGANIZATION_TYPE) {
+            if (e.target.value === ORGANIZATION_TYPE_OTHER) {
+                this.setState({
+                    showOrganizationTypeCustom: true,
+                }, () => {
+                    this.focusOrganizationTypeCustomInput();
+                });
+            } else {
+                this.setState({
+                    showOrganizationTypeCustom: false,
+                });
+            }
+        }*/
+
         this.props.handleChangeCallback(formId, field, e);
     }
 
@@ -172,6 +213,7 @@ class TraineeRegisterForm extends React.Component {
                                         <div className="row">
                                             <div className="col">
                                                 <div className="regisfo">
+
                                                     {/*คำนำหน้า*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
@@ -315,9 +357,35 @@ class TraineeRegisterForm extends React.Component {
                                                                                 <option key={index} value={organizationType.id}>{organizationType.name}</option>
                                                                             )
                                                                         }
+                                                                        <option value={ORGANIZATION_TYPE_OTHER}>อื่นๆ (ระบุ)</option>
                                                                     </select>
                                                                     <ErrorLabel
                                                                         value={formData.errors[REGISTER_TRAINEE_ORGANIZATION_TYPE]}/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/*ประเภทหน่วยงาน (user กรอกเอง)*/}
+                                                    <div className="row">
+                                                        <div className="col-md-6">
+                                                        </div>
+                                                        <div className="col-md-6">
+                                                            <div className="row">
+                                                                <div className="col-md-4">
+                                                                </div>
+                                                                <div className="col-md-8">
+                                                                    <div style={{display: this.state.showOrganizationTypeCustom ? 'block' : 'none'}}>
+                                                                        <input value={formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] || ''}
+                                                                               onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM)}
+                                                                               type="text"
+                                                                               placeholder="กรอกประเภทหน่วยงาน"
+                                                                               className="form-control input-md"
+                                                                               disabled={isReadOnly}
+                                                                               ref={this.organizationTypeCustomInput}/>
+                                                                        <ErrorLabel
+                                                                            value={formData.errors[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM]}/>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -398,7 +466,9 @@ export default class ServiceTrainingRegister extends React.Component {
             },
             nameTitleList: [],
             organizationTypeList: [],
+            showOrganizationTypeCustom: false,
         };
+        this.organizationTypeCustomInput = React.createRef();
     }
 
     static getInitialProps = async function ({req, query}) {
@@ -415,6 +485,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    serviceType: SERVICE_TRAINING,
                     courseId: query.courseId
                 }),
             });
@@ -428,6 +499,10 @@ export default class ServiceTrainingRegister extends React.Component {
             }
             return {course, errorMessage};
         }
+    };
+
+    focusOrganizationTypeCustomInput = () => {
+        this.organizationTypeCustomInput.current.focus();
     };
 
     doGetNameTitle = () => {
@@ -561,10 +636,25 @@ export default class ServiceTrainingRegister extends React.Component {
         let {traineeForms} = this.state;
         let {fields} = traineeForms[formId - 1];
         fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
-        this.setState({traineeRegisterForms: traineeForms});
+        this.setState({traineeForms});
     };
 
     handleChangeCoordinator = (field, e) => {
+        if (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) {
+            if (e.target.value === ORGANIZATION_TYPE_OTHER) {
+                //const self = this;
+                this.setState({
+                    showOrganizationTypeCustom: true,
+                }, () => {
+                    this.focusOrganizationTypeCustomInput();
+                });
+            } else {
+                this.setState({
+                    showOrganizationTypeCustom: false,
+                });
+            }
+        }
+
         let {coordinatorForm} = this.state;
         let {fields} = coordinatorForm;
         fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
@@ -692,7 +782,7 @@ export default class ServiceTrainingRegister extends React.Component {
                 currentFormIsValid = false;
             }
             if (!fields[REGISTER_TRAINEE_LAST_NAME] || fields[REGISTER_TRAINEE_LAST_NAME].trim().length === 0) {
-                errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกชื่อ';
+                errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกนามสกุล';
                 currentFormIsValid = false;
             }
             if (!fields[REGISTER_TRAINEE_AGE]) {
@@ -1003,6 +1093,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                     this.state.traineeForms.map(formData => (
                                         <TraineeRegisterForm
                                             formData={formData}
+                                            showOrganizationTypeCustom={formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER}
                                             isReadOnly={step === 4}
                                             nameTitleList={this.state.nameTitleList}
                                             organizationTypeList={this.state.organizationTypeList}
@@ -1197,9 +1288,36 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                             <option key={index} value={organizationType.id}>{organizationType.name}</option>
                                                                         )
                                                                     }
+                                                                    <option value={ORGANIZATION_TYPE_OTHER}>อื่นๆ (ระบุ)</option>
                                                                 </select>
                                                                 <ErrorLabel
                                                                     value={coordinatorForm.errors[REGISTER_COORDINATOR_ORGANIZATION_TYPE]}/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/*ประเภทหน่วยงาน (user กรอกเอง)*/}
+                                                <div className="row">
+                                                    <div className="col-md-6">
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <div className="row">
+                                                            <div className="col-md-4">
+                                                            </div>
+                                                            <div className="col-md-8">
+
+                                                                <div style={{display: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                    <input value={coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] || ''}
+                                                                           onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM)}
+                                                                           type="text"
+                                                                           placeholder="กรอกประเภทหน่วยงาน"
+                                                                           className="form-control input-md"
+                                                                           disabled={step === 4}
+                                                                           ref={this.organizationTypeCustomInput}/>
+                                                                    <ErrorLabel
+                                                                        value={coordinatorForm.errors[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM]}/>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1366,18 +1484,18 @@ export default class ServiceTrainingRegister extends React.Component {
 
                                 {/*ปุ่มลงทะเบียน*/}
                                 {step === 4 &&
-                                    <div className="row mt-3 mb-3">
-                                        <div className="col">
-                                            <div className="btn-red-submit">
-                                                <button type="submit" value="submit" className="btn btn-danger">
-                                                    ยืนยันการสมัครอบรม
-                                                </button>
-                                                <button type="button" className="btn btn-dark">
-                                                    พิมพ์
-                                                </button>
-                                            </div>
+                                <div className="row mt-3 mb-3">
+                                    <div className="col">
+                                        <div className="btn-red-submit">
+                                            <button type="submit" value="submit" className="btn btn-danger">
+                                                ยืนยันการสมัครอบรม
+                                            </button>
+                                            <button type="button" className="btn btn-dark">
+                                                พิมพ์
+                                            </button>
                                         </div>
                                     </div>
+                                </div>
                                 }
                             </div>
                             }
