@@ -203,6 +203,7 @@ doRegisterMember = (req, res, db) => {
     let inputJobPosition = req.body.jobPosition;
     let inputOrganizationName = req.body.organizationName;
     let inputOrganizationType = req.body.organizationType;
+    let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
     let inputPhone = req.body.phone;
     let inputEmail = req.body.email;
     let inputPassword = req.body.password;
@@ -242,12 +243,11 @@ doRegisterMember = (req, res, db) => {
                 let taxId = inputTaxId === undefined ? null : inputTaxId.trim();
 
                 db.query(
-                        `INSERT INTO member(title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email, password, address, sub_district, district, province,
-                                            postal_code, organization_phone, tax_id)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType,
-                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode,
-                        organizationPhone, taxId],
+                        `INSERT INTO member(title, first_name, last_name, age, job_position, organization_name, organization_type, organization_type_custom, phone, email, password, 
+                                            address, sub_district, district, province, postal_code, organization_phone, tax_id)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType, inputOrganizationTypeCustom.trim(),
+                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode, organizationPhone, taxId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -331,7 +331,7 @@ doRegisterCourse = (req, res, db) => {
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
     const {
         coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorAge, coordinatorJobPosition,
-        coordinatorOrganizationName, coordinatorOrganizationType, coordinatorPhone, coordinatorEmail
+        coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
     } = coordinator;
     const {
         receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
@@ -340,12 +340,13 @@ doRegisterCourse = (req, res, db) => {
 
     db.query(
             `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_age, coordinator_job_position,
-                                              coordinator_organization_name, coordinator_organization_type, coordinator_phone, coordinator_email,
+                                              coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
                                               receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorAge, coordinatorJobPosition.trim(),
-            coordinatorOrganizationName.trim(), coordinatorOrganizationType, coordinatorPhone.trim(), coordinatorEmail.trim(),
-            receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
+            coordinatorOrganizationName.trim(), coordinatorOrganizationType, coordinatorOrganizationTypeCustom === undefined ? coordinatorOrganizationTypeCustom : coordinatorOrganizationTypeCustom.trim(),
+            coordinatorPhone.trim(), coordinatorEmail.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(),
+            receiptOrganizationPhone.trim(), receiptTaxId.trim()],
 
         function (err, results, fields) {
             if (err) {
@@ -376,11 +377,11 @@ doRegisterCourse = (req, res, db) => {
                             let placeHolder = '';
                             const data = [];
                             for (let i = 0; i < trainees.length; i++) {
-                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
 
                                 const {
                                     traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
-                                    traineeOrganizationName, traineeOrganizationType, traineePhone, traineeEmail
+                                    traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
                                 } = trainees[i];
 
                                 const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
@@ -394,13 +395,14 @@ doRegisterCourse = (req, res, db) => {
                                 data.push(traineeJobPosition.trim());
                                 data.push(traineeOrganizationName.trim());
                                 data.push(traineeOrganizationType);
+                                data.push(traineeOrganizationTypeCustom === undefined ? traineeOrganizationTypeCustom : traineeOrganizationTypeCustom.trim());
                                 data.push(traineePhone.trim());
                                 data.push(traineeEmail.trim());
                             }
                             placeHolder = placeHolder.substring(0, placeHolder.length - 1);
 
                             db.query(
-                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, age, job_position, organization_name, organization_type, phone, email)
+                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, age, job_position, organization_name, organization_type, organization_type_custom, phone, email)
                                      VALUES ` + placeHolder,
                                 data,
                                 function (err, results, fields) {

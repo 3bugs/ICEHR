@@ -156,7 +156,7 @@ class TraineeRegisterForm extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({ showOrganizationTypeCustom: this.props.showOrganizationTypeCustom });
+        this.setState({showOrganizationTypeCustom: this.props.showOrganizationTypeCustom});
     }
 
     handleChange(formId, field, e) {
@@ -418,6 +418,11 @@ class TraineeRegisterForm extends React.Component {
                                                                 <div className="col-md-8">
                                                                     <input value={formData.fields[REGISTER_TRAINEE_EMAIL] || ''}
                                                                            onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_EMAIL)}
+                                                                           onKeyDown={e => {
+                                                                               if (e.key === ' ') {
+                                                                                   e.preventDefault();
+                                                                               }
+                                                                           }}
                                                                            type="email"
                                                                            placeholder="กรอกอีเมล"
                                                                            className="form-control input-md"
@@ -466,7 +471,6 @@ export default class ServiceTrainingRegister extends React.Component {
             },
             nameTitleList: [],
             organizationTypeList: [],
-            showOrganizationTypeCustom: false,
         };
         this.organizationTypeCustomInput = React.createRef();
     }
@@ -635,36 +639,42 @@ export default class ServiceTrainingRegister extends React.Component {
     handleChange = (formId, field, e) => {
         let {traineeForms} = this.state;
         let {fields} = traineeForms[formId - 1];
-        fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
+
+        if (field === REGISTER_TRAINEE_EMAIL) {
+            fields[field] = e.target.value.trim();
+        } else {
+            fields[field] = e.target.value;
+        }
+        //fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
         this.setState({traineeForms});
     };
 
     handleChangeCoordinator = (field, e) => {
-        if (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) {
-            if (e.target.value === ORGANIZATION_TYPE_OTHER) {
-                //const self = this;
-                this.setState({
-                    showOrganizationTypeCustom: true,
-                }, () => {
-                    this.focusOrganizationTypeCustomInput();
-                });
-            } else {
-                this.setState({
-                    showOrganizationTypeCustom: false,
-                });
-            }
-        }
-
         let {coordinatorForm} = this.state;
         let {fields} = coordinatorForm;
-        fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
-        this.setState({coordinatorForm});
+        //fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
+        fields[field] = e.target.value;
+
+        //ถ้าหากเลือก "อื่นๆ" ในช่อง "ประเภทหน่วยงาน" ก็จะ focus ไปที่ช่องกรอกประเภทหน่วยงานที่อยู่ถัดลงไป (ต้องรอ setState ทำงานก่อน)
+        let setFocus = (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
+
+        this.setState({coordinatorForm}, () => {
+            if (setFocus) {
+                this.focusOrganizationTypeCustomInput();
+            }
+        });
     };
 
     handleChangeReceipt = (field, e) => {
         let {receiptForm} = this.state;
         let {fields} = receiptForm;
-        fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
+
+        if (field === REGISTER_RECEIPT_PROVINCE) {
+            fields[field] = e.target.value.trim();
+        } else {
+            fields[field] = e.target.value;
+        }
+
         this.setState({receiptForm});
     };
 
@@ -800,6 +810,10 @@ export default class ServiceTrainingRegister extends React.Component {
             if (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) {
                 errors[REGISTER_TRAINEE_ORGANIZATION_TYPE] = 'กรุณากรอกเลือกประเภทหน่วยงาน';
                 currentFormIsValid = false;
+            } else if (fields[REGISTER_TRAINEE_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                && (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
+                errors[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
+                formIsValid = false;
             }
             if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {
                 errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
@@ -873,6 +887,10 @@ export default class ServiceTrainingRegister extends React.Component {
             }
             if (!coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) {
                 coordinatorErrors[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = 'กรุณาเลือกประเภทหน่วยงาน';
+                valid = false;
+            } else if (coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                && (!coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] || coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
+                coordinatorErrors[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
                 valid = false;
             }
             if (!coordinatorFields[REGISTER_COORDINATOR_PHONE] || coordinatorFields[REGISTER_COORDINATOR_PHONE].trim().length === 0) {
@@ -968,6 +986,7 @@ export default class ServiceTrainingRegister extends React.Component {
                 traineeJobPosition: formData.fields[REGISTER_TRAINEE_JOB_POSITION],
                 traineeOrganizationName: formData.fields[REGISTER_TRAINEE_ORGANIZATION_NAME],
                 traineeOrganizationType: formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE],
+                traineeOrganizationTypeCustom: formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM],
                 traineePhone: formData.fields[REGISTER_TRAINEE_PHONE],
                 traineeEmail: formData.fields[REGISTER_TRAINEE_EMAIL],
             });
@@ -990,6 +1009,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorJobPosition: coordinatorForm.fields[REGISTER_COORDINATOR_JOB_POSITION],
                     coordinatorOrganizationName: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_NAME],
                     coordinatorOrganizationType: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE],
+                    coordinatorOrganizationTypeCustom: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM],
                     coordinatorPhone: coordinatorForm.fields[REGISTER_COORDINATOR_PHONE],
                     coordinatorEmail: coordinatorForm.fields[REGISTER_COORDINATOR_EMAIL],
                 } : {
@@ -1000,6 +1020,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorJobPosition: traineeForms[0].fields[REGISTER_TRAINEE_JOB_POSITION],
                     coordinatorOrganizationName: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_NAME],
                     coordinatorOrganizationType: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_TYPE],
+                    coordinatorOrganizationTypeCustom: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM],
                     coordinatorPhone: traineeForms[0].fields[REGISTER_TRAINEE_PHONE],
                     coordinatorEmail: traineeForms[0].fields[REGISTER_TRAINEE_EMAIL],
                 },
@@ -1350,6 +1371,11 @@ export default class ServiceTrainingRegister extends React.Component {
                                                             <div className="col-md-8">
                                                                 <input value={coordinatorForm.fields[REGISTER_COORDINATOR_EMAIL] || ''}
                                                                        onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_EMAIL)}
+                                                                       onKeyDown={e => {
+                                                                           if (e.key === ' ') {
+                                                                               e.preventDefault();
+                                                                           }
+                                                                       }}
                                                                        type="email"
                                                                        placeholder="กรอกอีเมล"
                                                                        className="form-control input-md"

@@ -5,6 +5,8 @@ import './Header.css';
 import {getLoginUser, setLoginUser, isString, isValidEmail} from "../etc/utils";
 import ErrorLabel from './ErrorLabel';
 
+const ORGANIZATION_TYPE_OTHER = '9999';
+
 class CustomToggle extends React.Component {
     constructor(props, context) {
         super(props, context);
@@ -37,6 +39,7 @@ const REGISTER_PERSON_AGE = 'registerPersonAge';
 const REGISTER_PERSON_JOB_POSITION = 'registerPersonJobPosition';
 const REGISTER_PERSON_ORGANIZATION_NAME = 'registerPersonOrganizationName';
 const REGISTER_PERSON_ORGANIZATION_TYPE = 'registerPersonOrganizationType';
+const REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM = 'registerPersonOrganizationTypeCustom';
 const REGISTER_PERSON_PHONE = 'registerPersonPhone';
 const REGISTER_PERSON_EMAIL = 'registerPersonEmail';
 const REGISTER_PERSON_PASSWORD = 'registerPersonPassword';
@@ -49,6 +52,7 @@ const REGISTER_ORGANIZATION_AGE = 'registerOrganizationAge';
 const REGISTER_ORGANIZATION_JOB_POSITION = 'registerOrganizationJobPosition';
 const REGISTER_ORGANIZATION_ORGANIZATION_NAME = 'registerOrganizationOrganizationName';
 const REGISTER_ORGANIZATION_ORGANIZATION_TYPE = 'registerOrganizationOrganizationType';
+const REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM = 'registerOrganizationOrganizationTypeCustom';
 const REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS = 'registerOrganizationOrganizationAddress';
 const REGISTER_ORGANIZATION_ORGANIZATION_SUB_DISTRICT = 'registerOrganizationOrganizationSubDistrict';
 const REGISTER_ORGANIZATION_ORGANIZATION_DISTRICT = 'registerOrganizationOrganizationDistrict';
@@ -75,7 +79,16 @@ class LoginForm extends React.Component {
             nameTitleList: [],
             organizationTypeList: [],
         };
+        this.personForm_organizationTypeCustomInput = React.createRef();
+        this.organizationForm_organizationTypeCustomInput = React.createRef();
     }
+
+    focusPersonFormOrganizationTypeCustomInput = () => {
+        this.personForm_organizationTypeCustomInput.current.focus();
+    };
+    focusOrganizationFormOrganizationTypeCustomInput = () => {
+        this.organizationForm_organizationTypeCustomInput.current.focus();
+    };
 
     componentDidMount() {
         const loginUser = getLoginUser();
@@ -165,7 +178,19 @@ class LoginForm extends React.Component {
         } else {
             fields[field] = e.target.value;
         }
-        this.setState({fields});
+
+        //ถ้าหากเลือก "อื่นๆ" ในช่อง "ประเภทหน่วยงาน" ก็จะ focus ไปที่ช่องกรอกประเภทหน่วยงานที่อยู่ถัดลงไป (ต้องรอ setState ทำงานก่อน)
+        let setFocus1 = (field === REGISTER_PERSON_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
+        let setFocus2 = (field === REGISTER_ORGANIZATION_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
+
+        this.setState({fields}, () => {
+            if (setFocus1) {
+                this.personForm_organizationTypeCustomInput.current.focus();
+            }
+            if (setFocus2) {
+                this.organizationForm_organizationTypeCustomInput.current.focus();
+            }
+        });
     }
 
     handleSubmitLogin = event => {
@@ -242,6 +267,11 @@ class LoginForm extends React.Component {
                     errors[REGISTER_PERSON_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
                     formIsValid = false;
                 }
+                if (fields[REGISTER_PERSON_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                    && (!fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
+                    errors[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
+                    formIsValid = false;
+                }
                 if (!fields[REGISTER_PERSON_EMAIL] || fields[REGISTER_PERSON_EMAIL].trim().length === 0) {
                     errors[REGISTER_PERSON_EMAIL] = 'กรุณากรอกอีเมล';
                     formIsValid = false;
@@ -293,10 +323,16 @@ class LoginForm extends React.Component {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_NAME] = 'กรุณากรอกชื่อหน่วยงาน';
                     formIsValid = false;
                 }
+
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE]) {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] = 'กรุณาเลือกประเภทหน่วยงาน';
                     formIsValid = false;
+                } else if (fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                    && (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
+                    formIsValid = false;
                 }
+
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] || fields[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS].trim().length === 0) {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_ADDRESS] = 'กรุณากรอกเลขที่ / อาคาร / หมู่ / ซอย / ถนน';
                     formIsValid = false;
@@ -368,6 +404,7 @@ class LoginForm extends React.Component {
                 params['jobPosition'] = fields[REGISTER_PERSON_JOB_POSITION];
                 params['organizationName'] = fields[REGISTER_PERSON_ORGANIZATION_NAME];
                 params['organizationType'] = fields[REGISTER_PERSON_ORGANIZATION_TYPE];
+                params['organizationTypeCustom'] = fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM];
                 params['phone'] = fields[REGISTER_PERSON_PHONE];
                 params['email'] = fields[REGISTER_PERSON_EMAIL];
                 params['password'] = fields[REGISTER_PERSON_PASSWORD];
@@ -380,6 +417,7 @@ class LoginForm extends React.Component {
                 params['jobPosition'] = fields[REGISTER_ORGANIZATION_JOB_POSITION];
                 params['organizationName'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_NAME];
                 params['organizationType'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE];
+                params['organizationTypeCustom'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM];
                 params['phone'] = fields[REGISTER_ORGANIZATION_PHONE];
                 params['email'] = fields[REGISTER_ORGANIZATION_EMAIL];
                 params['password'] = fields[REGISTER_ORGANIZATION_PASSWORD];
@@ -639,6 +677,7 @@ class LoginForm extends React.Component {
                                                             <div className="row">
                                                                 <div className="col">
                                                                     <div className="regisfo">
+
                                                                         {/*คำนำหน้าชื่อ*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -671,6 +710,7 @@ class LoginForm extends React.Component {
 
                                                                             </div>
                                                                         </div>
+
                                                                         {/*ชื่อ, นามสกุล*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -712,6 +752,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*อายุ, ตำแหน่งงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -753,6 +794,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*ชื่อหน่วยงาน, ประเภทหน่วยงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -792,6 +834,7 @@ class LoginForm extends React.Component {
                                                                                                     <option key={index} value={organizationType.id}>{organizationType.name}</option>
                                                                                                 )
                                                                                             }
+                                                                                            <option value={ORGANIZATION_TYPE_OTHER}>อื่นๆ (ระบุ)</option>
                                                                                         </select>
                                                                                         <ErrorLabel
                                                                                             value={this.state.errors[REGISTER_PERSON_ORGANIZATION_TYPE]}/>
@@ -799,6 +842,32 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
+                                                                        {/*ประเภทหน่วยงาน (user กรอกเอง)*/}
+                                                                        <div className="row">
+                                                                            <div className="col-md-6">
+                                                                            </div>
+                                                                            <div className="col-md-6">
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <div
+                                                                                            style={{display: this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                                            <input value={this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] || ''}
+                                                                                                   onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM, true)}
+                                                                                                   type="text"
+                                                                                                   placeholder="กรอกประเภทหน่วยงาน"
+                                                                                                   className="form-control input-md"
+                                                                                                   ref={this.personForm_organizationTypeCustomInput}/>
+                                                                                            <ErrorLabel
+                                                                                                value={this.state.errors[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM]}/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
                                                                         {/*เบอร์โทร, อีเมล*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -847,6 +916,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*รหัสผ่าน, ยืนยันรหัสผ่าน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -919,6 +989,7 @@ class LoginForm extends React.Component {
                                                             <div className="row">
                                                                 <div className="col">
                                                                     <div className="regisfo2">
+
                                                                         {/*คำนำหน้า*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -950,6 +1021,7 @@ class LoginForm extends React.Component {
                                                                             <div className="col-md-6">
                                                                             </div>
                                                                         </div>
+
                                                                         {/*ชื่อ, นามสกุล*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -989,6 +1061,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*อายุ, ตำแหน่งงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -1028,6 +1101,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*ชื่อหน่วยงาน, ประเภทหน่วยงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -1063,12 +1137,41 @@ class LoginForm extends React.Component {
                                                                                             <option value="0" disabled
                                                                                                     selected>เลือกประเภทหน่วยงาน
                                                                                             </option>
-                                                                                            <option value="1">ราชการ</option>
-                                                                                            <option value="2">รัฐวิสาหกิจ</option>
-                                                                                            <option value="3">บริษัทเอกชน</option>
+                                                                                            <option value="0" disabled selected>เลือกประเภทหน่วยงาน</option>
+                                                                                            {
+                                                                                                this.state.organizationTypeList.map((organizationType, index) =>
+                                                                                                    <option key={index} value={organizationType.id}>{organizationType.name}</option>
+                                                                                                )
+                                                                                            }
+                                                                                            <option value={ORGANIZATION_TYPE_OTHER}>อื่นๆ (ระบุ)</option>
                                                                                         </select>
                                                                                         <ErrorLabel
                                                                                             value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE]}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/*ประเภทหน่วยงาน (user กรอกเอง)*/}
+                                                                        <div className="row">
+                                                                            <div className="col-md-6">
+                                                                            </div>
+                                                                            <div className="col-md-6">
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <div
+                                                                                            style={{display: this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                                            <input value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] || ''}
+                                                                                                   onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM, true)}
+                                                                                                   type="text"
+                                                                                                   placeholder="กรอกประเภทหน่วยงาน"
+                                                                                                   className="form-control input-md"
+                                                                                                   ref={this.organizationForm_organizationTypeCustomInput}/>
+                                                                                            <ErrorLabel
+                                                                                                value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM]}/>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1236,6 +1339,7 @@ class LoginForm extends React.Component {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+
                                                                         {/*รหัสผ่าน, ยืนยันรหัสผ่าน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
