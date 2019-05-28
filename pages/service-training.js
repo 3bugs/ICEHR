@@ -126,7 +126,7 @@ export default class ServiceTraining extends React.Component {
                     </div>
                 </div>
 
-                {
+                {/*รายการหลักสูตร*/
                     this.props.result.showList &&
                     <CourseList
                         serviceType={SERVICE_TRAINING}
@@ -134,7 +134,7 @@ export default class ServiceTraining extends React.Component {
                     />
                 }
 
-                {
+                {/*รายละเอียดหลักสูตร*/
                     !this.props.result.showList &&
                     <CourseDetails
                         serviceType={SERVICE_TRAINING}

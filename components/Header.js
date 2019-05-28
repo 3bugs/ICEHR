@@ -5,7 +5,7 @@ import './Header.css';
 import {getLoginUser, setLoginUser, isString, isValidEmail} from "../etc/utils";
 import ErrorLabel from './ErrorLabel';
 
-const ORGANIZATION_TYPE_OTHER = '9999';
+const ORGANIZATION_TYPE_OTHER = 9999;
 
 class CustomToggle extends React.Component {
     constructor(props, context) {
@@ -180,8 +180,8 @@ class LoginForm extends React.Component {
         }
 
         //ถ้าหากเลือก "อื่นๆ" ในช่อง "ประเภทหน่วยงาน" ก็จะ focus ไปที่ช่องกรอกประเภทหน่วยงานที่อยู่ถัดลงไป (ต้องรอ setState ทำงานก่อน)
-        let setFocus1 = (field === REGISTER_PERSON_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
-        let setFocus2 = (field === REGISTER_ORGANIZATION_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
+        let setFocus1 = (field === REGISTER_PERSON_ORGANIZATION_TYPE) && (parseInt(e.target.value) === ORGANIZATION_TYPE_OTHER);
+        let setFocus2 = (field === REGISTER_ORGANIZATION_ORGANIZATION_TYPE) && (parseInt(e.target.value) === ORGANIZATION_TYPE_OTHER);
 
         this.setState({fields}, () => {
             if (setFocus1) {
@@ -267,7 +267,7 @@ class LoginForm extends React.Component {
                     errors[REGISTER_PERSON_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
                     formIsValid = false;
                 }
-                if (fields[REGISTER_PERSON_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                if (parseInt(fields[REGISTER_PERSON_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER
                     && (!fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
                     errors[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
                     formIsValid = false;
@@ -327,7 +327,7 @@ class LoginForm extends React.Component {
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE]) {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] = 'กรุณาเลือกประเภทหน่วยงาน';
                     formIsValid = false;
-                } else if (fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+                } else if (parseInt(fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER
                     && (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
                     formIsValid = false;
@@ -475,12 +475,12 @@ class LoginForm extends React.Component {
 
                     const {
                         loginToken, id, title, firstName, lastName, age, jobPosition,
-                        organizationName, organizationType, phone, email,
+                        organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
                     } = memberData;
                     const loginUser = {
                         loginToken, id, title, firstName, lastName, age, jobPosition,
-                        organizationName, organizationType, phone, email,
+                        organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
                     };
                     setLoginUser(loginUser);
@@ -853,7 +853,7 @@ class LoginForm extends React.Component {
                                                                                     </div>
                                                                                     <div className="col-md-8">
                                                                                         <div
-                                                                                            style={{display: this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                                            style={{display: parseInt(this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
                                                                                             <input value={this.state.fields[REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM] || ''}
                                                                                                    onChange={this.handleChange.bind(this, REGISTER_PERSON_ORGANIZATION_TYPE_CUSTOM, true)}
                                                                                                    type="text"
@@ -1162,7 +1162,7 @@ class LoginForm extends React.Component {
                                                                                     </div>
                                                                                     <div className="col-md-8">
                                                                                         <div
-                                                                                            style={{display: this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                                            style={{display: parseInt(this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
                                                                                             <input value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM] || ''}
                                                                                                    onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TYPE_CUSTOM, true)}
                                                                                                    type="text"
@@ -1545,7 +1545,7 @@ export default class Header extends React.Component {
                     <div className="container-fluid wrap_menu">
                         <div className="row">
                             <div className="col-8 col-sm-4 logo">
-                                <a href="index.php">
+                                <a href="/">
                                     <img src="/static/images/logo_icess_LOGO%20ICT.svg" className="img-fluid"/>
                                 </a>
                             </div>

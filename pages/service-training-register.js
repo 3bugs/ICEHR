@@ -10,7 +10,7 @@ import Link from "next/link";
 import {SERVICE_TRAINING} from "../etc/constants";
 
 const TOP_OF_FORM = 'topOfForm';
-const ORGANIZATION_TYPE_OTHER = '9999';
+const ORGANIZATION_TYPE_OTHER = 9999;
 
 const REGISTER_TRAINEE_TITLE = 'registerTraineeTitle';
 const REGISTER_TRAINEE_FIRST_NAME = 'registerTraineeFirstName';
@@ -476,7 +476,7 @@ export default class ServiceTrainingRegister extends React.Component {
     }
 
     static getInitialProps = async function ({req, query}) {
-        let course = null;
+        let course = null, nameTitleList = null, organizationTypeList = null;
         let errorMessage = 'ผิดพลาด';
 
         if (query.courseId === undefined) {
@@ -496,12 +496,36 @@ export default class ServiceTrainingRegister extends React.Component {
             const result = await res.json();
             if (result['error']['code'] === 0) {
                 course = result['dataList'][0];
-                errorMessage = null;
+                //errorMessage = null;
+
+                const resNameTitle = await fetch(baseUrl + '/api/get_name_title', {
+                    method: 'post'
+                });
+                const resultNameTitle = await resNameTitle.json();
+                if (resultNameTitle['error']['code'] === 0) {
+                    nameTitleList = resultNameTitle['dataList'];
+                    //errorMessage = null;
+
+                    const resOrganizationType = await fetch(baseUrl + '/api/get_organization_type', {
+                        method: 'post'
+                    });
+                    const resultOrganizationType = await resOrganizationType.json();
+                    if (resultOrganizationType['error']['code'] === 0) {
+                        organizationTypeList = resultOrganizationType['dataList'];
+                        errorMessage = null;
+                    } else {
+                        nameTitleList = null;
+                        errorMessage = resultOrganizationType['error']['message'];
+                    }
+                } else {
+                    nameTitleList = null;
+                    errorMessage = resultNameTitle['error']['message'];
+                }
             } else {
                 course = null;
                 errorMessage = result['error']['message'];
             }
-            return {course, errorMessage};
+            return {course, nameTitleList, organizationTypeList, errorMessage};
         }
     };
 
@@ -548,8 +572,8 @@ export default class ServiceTrainingRegister extends React.Component {
     componentDidMount() {
         console.log('ServiceTrainingRegister componentDidMount() - ' + Math.random());
 
-        this.doGetNameTitle();
-        this.doGetOrganizationType();
+        //this.doGetNameTitle();
+        //this.doGetOrganizationType();
 
         let user = getLoginUser();
         let initialTraineeFields = {};
@@ -564,6 +588,7 @@ export default class ServiceTrainingRegister extends React.Component {
             initialTraineeFields[REGISTER_TRAINEE_JOB_POSITION] = user.jobPosition;
             initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_NAME] = user.organizationName;
             initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_TYPE] = user.organizationType;
+            initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] = user.organizationTypeCustom;
             initialTraineeFields[REGISTER_TRAINEE_PHONE] = user.phone;
             initialTraineeFields[REGISTER_TRAINEE_EMAIL] = user.email;
 
@@ -574,6 +599,7 @@ export default class ServiceTrainingRegister extends React.Component {
             initialCoordinatorFields[REGISTER_COORDINATOR_JOB_POSITION] = user.jobPosition;
             initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_NAME] = user.organizationName;
             initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = user.organizationType;
+            initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = user.organizationTypeCustom;
             initialCoordinatorFields[REGISTER_COORDINATOR_PHONE] = user.phone;
             initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;
 
@@ -656,7 +682,7 @@ export default class ServiceTrainingRegister extends React.Component {
         fields[field] = e.target.value;
 
         //ถ้าหากเลือก "อื่นๆ" ในช่อง "ประเภทหน่วยงาน" ก็จะ focus ไปที่ช่องกรอกประเภทหน่วยงานที่อยู่ถัดลงไป (ต้องรอ setState ทำงานก่อน)
-        let setFocus = (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) && (e.target.value === ORGANIZATION_TYPE_OTHER);
+        let setFocus = (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) && (parseInt(e.target.value) === ORGANIZATION_TYPE_OTHER);
 
         this.setState({coordinatorForm}, () => {
             if (setFocus) {
@@ -810,7 +836,7 @@ export default class ServiceTrainingRegister extends React.Component {
             if (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) {
                 errors[REGISTER_TRAINEE_ORGANIZATION_TYPE] = 'กรุณากรอกเลือกประเภทหน่วยงาน';
                 currentFormIsValid = false;
-            } else if (fields[REGISTER_TRAINEE_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+            } else if (parseInt(fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER
                 && (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
                 errors[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
                 formIsValid = false;
@@ -888,7 +914,7 @@ export default class ServiceTrainingRegister extends React.Component {
             if (!coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) {
                 coordinatorErrors[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = 'กรุณาเลือกประเภทหน่วยงาน';
                 valid = false;
-            } else if (coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER
+            } else if (parseInt(coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER
                 && (!coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] || coordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {
                 coordinatorErrors[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = 'กรุณากรอกประเภทหน่วยงาน';
                 valid = false;
@@ -1046,7 +1072,7 @@ export default class ServiceTrainingRegister extends React.Component {
     };
 
     render() {
-        let {coordinatorForm, receiptForm, step} = this.state;
+        let {traineeForms, coordinatorForm, receiptForm, step} = this.state;
 
         return (
             <MainLayout>
@@ -1114,10 +1140,10 @@ export default class ServiceTrainingRegister extends React.Component {
                                     this.state.traineeForms.map(formData => (
                                         <TraineeRegisterForm
                                             formData={formData}
-                                            showOrganizationTypeCustom={formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER}
+                                            showOrganizationTypeCustom={parseInt(formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER}
                                             isReadOnly={step === 4}
-                                            nameTitleList={this.state.nameTitleList}
-                                            organizationTypeList={this.state.organizationTypeList}
+                                            nameTitleList={this.props.nameTitleList}
+                                            organizationTypeList={this.props.organizationTypeList}
                                             handleChangeCallback={this.handleChange}
                                             onClickRemoveCallback={this.onClickRemoveTrainee}
                                         />
@@ -1136,7 +1162,7 @@ export default class ServiceTrainingRegister extends React.Component {
                             }
 
                             {/*ขั้นตอน 2 กรอกข้อมูลผู้ประสานงาน*/}
-                            {((step === 2) || (step === 4)) &&
+                            {((step === 2) || (step === 4 && traineeForms.length > 1)) &&
                             <Element name={'coordinator-form'}>
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
@@ -1184,7 +1210,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                         disabled={step === 4}>
                                                                     <option value="0" disabled selected>เลือกคำนำหน้า</option>
                                                                     {
-                                                                        this.state.nameTitleList.map((nameTitle, index) =>
+                                                                        this.props.nameTitleList.map((nameTitle, index) =>
                                                                             <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
                                                                         )
                                                                     }
@@ -1305,7 +1331,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                         disabled={step === 4}>
                                                                     <option value="0" disabled>เลือกประเภทหน่วยงาน</option>
                                                                     {
-                                                                        this.state.organizationTypeList.map((organizationType, index) =>
+                                                                        this.props.organizationTypeList.map((organizationType, index) =>
                                                                             <option key={index} value={organizationType.id}>{organizationType.name}</option>
                                                                         )
                                                                     }
@@ -1328,7 +1354,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                             </div>
                                                             <div className="col-md-8">
 
-                                                                <div style={{display: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                <div style={{display: parseInt(coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
                                                                     <input value={coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] || ''}
                                                                            onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM)}
                                                                            type="text"
@@ -1550,60 +1576,6 @@ export default class ServiceTrainingRegister extends React.Component {
                                 </div>
                             </div>
                         </form>
-
-                        <div id="normalModal" className="modal fade">
-                            <div className="modal-dialog">
-                                <div className="modal-content">
-                                    <div className="modal-body">
-                                        <div className="required">
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>ชื่อ</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกชื่อ"
-                                                           className="form-control input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>นามสกุล</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกนามสกุล"
-                                                           className="form-control input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>เบอร์โทรหน่วยงาน</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกเบอร์หน่วยงาน"
-                                                           className="form-control input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>เบอร์มือถือ</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกเบอร์มือถือ"
-                                                           className="form-control input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>อีเมล</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกอีเมล"
-                                                           className="form-control input-md"/></div>
-                                            </div>
-                                        </div>
-                                        <br/><a href="#" className="btn-submit">ตกลง</a></div>
-                                </div>
-                                {/*/.modal-content*/}
-                            </div>
-                            {/*/.modal-dialog*/}
-                        </div>
-                        {/*/.modal*/}
                     </div>
                 }
                 {

@@ -93,6 +93,9 @@ app
                     case 'register_course':
                         doRegisterCourse(req, res, db);
                         break;
+                    case 'register_course_social':
+                        doRegisterCourseSocial(req, res, db);
+                        break;
                     case 'get_name_title':
                         doGetNameTitle(req, res, db);
                         break;
@@ -173,6 +176,7 @@ doLoginMember = (req, res, db) => {
                 memberData.jobPosition = results[0].job_position;
                 memberData.organizationName = results[0].organization_name;
                 memberData.organizationType = results[0].organization_type;
+                memberData.organizationTypeCustom = results[0].organization_type_custom;
                 memberData.phone = results[0].phone;
                 memberData.email = results[0].email;
 
@@ -421,6 +425,65 @@ doRegisterCourse = (req, res, db) => {
                         }
                     }
                 );
+            }
+        }
+    );
+};
+
+doRegisterCourseSocial = (req, res, db) => {
+    const {loginToken, courseId, traineeData} = req.body;
+    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+
+    const {
+        traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+        traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease,
+        traineeNewsSourceWeb, traineeNewsSourceEmail, traineeNewsSourceBrochure, traineeNewsSourceOnline, traineeNewsSourceMouth
+    } = traineeData;
+
+    /*ใช้แต่ละ bit เก็บค่า news source แต่ละค่า*/
+    const newsSource = (traineeNewsSourceWeb ? 1 : 0) + (traineeNewsSourceEmail ? 2 : 0) + (traineeNewsSourceBrochure ? 4 : 0)
+        + (traineeNewsSourceOnline ? 8 : 0) + (traineeNewsSourceMouth ? 16 : 0);
+
+    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+
+    db.query(
+            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, age, occupation, work_place, address, sub_district, district, province, postal_code, phone, email, contact_name, contact_phone, disease, news_source)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+            traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+                db.end();
+            } else {
+                let insertId = results.insertId;
+
+                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
+                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                db.query(
+                        `UPDATE course_registration_social
+                         SET form_number = ?
+                         WHERE id = ?`,
+                    [formNumber, insertId],
+
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                            console.log(err.stack);
+                        } else {
+                            res.send({
+                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                            });
+                        }
+                    }
+                );
+                db.end();
             }
         }
     );
