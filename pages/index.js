@@ -101,7 +101,7 @@ export default class Index extends React.Component {
                                     <div className="row mt-3">
                                         {/*อบรมสอบใบขับขี่*/}
                                         <div className="col-sm-4 ">
-                                            <a href="service-2.php">
+                                            <a href="/service-driving-license">
                                                 <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
                                                     <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
                                                     <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem

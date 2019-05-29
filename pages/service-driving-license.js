@@ -2,9 +2,10 @@ import MainLayout from "../layouts/MainLayout";
 import NextHead from 'next/head';
 import CourseList from "../components/service-training/CourseList";
 import CourseDetails from "../components/service-training/CourseDetails";
-import {SERVICE_SOCIAL} from "../etc/constants";
+import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL, SERVICE_TRAINING} from "../etc/constants";
+import CalendarView from "../components/CalendarView";
 
-export default class ServiceSocial extends React.Component {
+export default class ServiceDrivingLicense extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -22,17 +23,58 @@ export default class ServiceSocial extends React.Component {
         }
     };
 
+    componentDidMount() {
+        const today = new Date();
+        const day = today.getDate();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+
+        this.updateCalendar(month, year);
+    }
+
+    updateCalendar = (month, year) => {
+        fetch('/api/get_course', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                serviceType: SERVICE_DRIVING_LICENSE,
+                month, year
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        month, year,
+                        courseList: result['dataList'],
+                        errorMessage: null,
+                    });
+                } else {
+                    this.setState({
+                        courseList: null,
+                        errorMessage: result['error']['message'],
+                    });
+                }
+            });
+    };
+
     render() {
+        const {month, year, courseList, errorMessage} = this.state;
+
         return (
             <MainLayout>
                 <NextHead>
+                    {/*<link rel="stylesheet" href="/static/css/jquery-ui.css"/>
+                    <script src="/static/js/jquery-ui.js"/>*/}
                 </NextHead>
 
-                {/*หัวข้อ "บริการสังคม"*/}
+                {/*หัวข้อ "บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่"*/}
                 <div className="container">
                     <div className="row">
                         <div className="col text-title-top">
-                            <h3 onClick={this.test}>บริการสังคม</h3></div>
+                            <h3 onClick={this.test}>บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
                     </div>
                 </div>
 
@@ -41,7 +83,11 @@ export default class ServiceSocial extends React.Component {
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
                             <div className="col-md-5 col-lg-6">
-                                <input id="textinput" name="textinput" type="text" placeholder="คำค้น" className="form-control input-md"/>
+                                <select id="selectbasic" name="selectbasic" className="form-control">
+                                    <option value="" disabled selected>ประเภทหลักสูตร</option>
+                                    <option value="1">Option one</option>
+                                    <option value="2">Option two</option>
+                                </select>
                             </div>
                             <div className="col-md-2 col-lg-2">
                                 <select id="selectbasic" name="selectbasic" className="form-control boxbox">
@@ -98,12 +144,16 @@ export default class ServiceSocial extends React.Component {
                     </div>
                 </div>
 
-                {/*รายการหลักสูตร*/
-                    this.props.result.showList &&
-                    <CourseList
-                        serviceType={SERVICE_SOCIAL}
-                        onClickCourseRow={this.onClickCourseRow}
+                {/*ปฏิทินหลักสูตร*/
+                    this.props.result.showList && courseList !== null &&
+                    <CalendarView month={month} year={year}
+                                  courseLilst={courseList}
+                                  handlePreviousNextMonthCallback={this.updateCalendar}
                     />
+                }
+                {
+                    this.props.result.showList && courseList === null &&
+                    <div className="mt-3" style={{textAlign: 'center', color: 'red'}}>{errorMessage}</div>
                 }
 
                 {/*รายละเอียดหลักสูตร*/
@@ -117,7 +167,7 @@ export default class ServiceSocial extends React.Component {
                 <style jsx>{`
                     .submitbox {
                         margin-top: 0px;
-                    }
+                    }                    
                 `}</style>
             </MainLayout>
         );

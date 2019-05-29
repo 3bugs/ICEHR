@@ -1568,14 +1568,14 @@ export default class Header extends React.Component {
                                                     </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li><a href="service-1.php"
+                                                            <li><a href="/service-training"
                                                                    target="_parent">บริการฝึกอบรม</a>
                                                             </li>
                                                             <li><a href="service-4.php" target="_parent">IN-HOUSE
                                                                 Training</a></li>
-                                                            <li><a href="service-3.php" target="_parent">บริการสังคม</a>
+                                                            <li><a href="/service-social" target="_parent">บริการสังคม</a>
                                                             </li>
-                                                            <li><a href="service-2.php"
+                                                            <li><a href="/service-driving-license"
                                                                    target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</a>
                                                             </li>
                                                             <li><a href="service-5.php"

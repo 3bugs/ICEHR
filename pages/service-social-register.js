@@ -284,8 +284,8 @@ class TraineeRegisterForm extends React.Component {
                                                 <input value={traineeForm.fields[REGISTER_TRAINEE_DISEASE] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISEASE)}
                                                        type="text"
-                                                       placeholder="กรอกโรคประจำตัว"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       placeholder="กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว"
+                                                       className="form-control input-md mt-2"/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_DISEASE]}/>
                                             </div>
@@ -521,7 +521,9 @@ export default class ServiceSocialRegister extends React.Component {
         } else {
             fields[field] = e.target.value;
         }
-        this.setState({traineeForm});
+        this.setState({traineeForm}, () => {
+            //this.validateForm();
+        });
     };
 
     handleSubmit = (event) => {
@@ -605,7 +607,7 @@ export default class ServiceSocialRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_DISEASE] || fields[REGISTER_TRAINEE_DISEASE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_DISEASE] = 'กรุณากรอกเบอร์มือถือของบุคคลที่สามารถติดต่อได้';
+            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
             formIsValid = false;
         }
 
@@ -706,7 +708,7 @@ export default class ServiceSocialRegister extends React.Component {
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
                                         <h4 className="text-black" style={{marginTop: '20px'}}>
-                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม
+                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม&nbsp;
                                         </h4>
                                     </div>
                                 </div>

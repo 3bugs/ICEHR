@@ -103,7 +103,11 @@ app
                         doGetOrganizationType(req, res, db);
                         break;
                     default:
-                        res.status(404).end();
+                        //res.status(404).end();
+                        res.send({
+                            error: new Error(1, 'Invalid API endpoint', ''),
+                            dataList: null
+                        });
                         break;
                 }
 
@@ -273,6 +277,8 @@ doRegisterMember = (req, res, db) => {
 doGetCourse = (req, res, db) => {
     const inputServiceType = req.body.serviceType;
     const inputCourseId = req.body.courseId;
+    const inputMonth = req.body.month;
+    const inputYear = req.body.year;
 
     /*
     * SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
@@ -281,13 +287,26 @@ doGetCourse = (req, res, db) => {
     * */
 
     const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title, cm.service_type, u.first_name, u.last_name, u.phone_office, u.email FROM course c INNER JOIN course_master cm INNER JOIN user u ON c.course_master_id = cm.id AND c.responsible_user_id = u.id ';
-    const whereClause = inputCourseId === undefined ? ' WHERE cm.service_type = ? ' : ' WHERE cm.service_type = ? AND c.id = ? ';
+    let whereClause = ' WHERE cm.service_type = ? ';
+
+    if (inputCourseId !== undefined) {
+        whereClause += ' AND c.id = ? ';
+    }
+
+    const monthString = ('0' + inputMonth).slice(-2);
+    const yearString = String(inputYear);
+    const monthYearString = `${yearString}-${monthString}-%`;
+
+    if (inputMonth !== undefined && inputYear !== undefined) {
+        whereClause += ' AND c.begin_date LIKE ? ';
+    }
+
     const orderClause = ' ORDER BY c.begin_date';
     const sql = selectClause + whereClause + orderClause;
 
     db.query(
         sql,
-        inputCourseId === undefined ? [inputServiceType] : [inputServiceType, inputCourseId],
+        inputCourseId === undefined ? ((inputMonth === undefined || inputYear === undefined) ? [inputServiceType] : [inputServiceType, monthYearString]) : [inputServiceType, inputCourseId],
 
         function (err, results, fields) {
             if (err) {
@@ -322,6 +341,8 @@ doGetCourse = (req, res, db) => {
 
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    sql,
+                    monthYearString,
                     dataList
                 });
             }
@@ -429,6 +450,17 @@ doRegisterCourse = (req, res, db) => {
         }
     );
 };
+
+/*doGetCourseByServiceType = (req, res, db) => {
+    const inputServiceType = req.body.serviceType;
+    const inputMonth = req.body.month;
+    const inputYear = req.body.year;
+
+    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title, cm.service_type, u.first_name, u.last_name, u.phone_office, u.email FROM course c INNER JOIN course_master cm INNER JOIN user u ON c.course_master_id = cm.id AND c.responsible_user_id = u.id ';
+    const whereClause = inputCourseId === undefined ? ' WHERE cm.service_type = ? ' : ' WHERE cm.service_type = ? AND c.id = ? ';
+    const orderClause = ' ORDER BY c.begin_date';
+    const sql = selectClause + whereClause + orderClause;
+};*/
 
 doRegisterCourseSocial = (req, res, db) => {
     const {loginToken, courseId, traineeData} = req.body;
