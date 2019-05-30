@@ -4,6 +4,7 @@ import CourseList from "../components/service-training/CourseList";
 import CourseDetails from "../components/service-training/CourseDetails";
 import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL, SERVICE_TRAINING} from "../etc/constants";
 import CalendarView from "../components/CalendarView";
+import Router from 'next/router';
 
 export default class ServiceDrivingLicense extends React.Component {
     constructor(props, context) {
@@ -59,6 +60,14 @@ export default class ServiceDrivingLicense extends React.Component {
                 }
             });
     };
+
+    showCourseDetails = (courseId) => {
+        Router.push('/service-driving-license/' + courseId);
+    };
+
+    /***************************************
+     https://medium.com/the-web-tub/managing-your-react-state-with-redux-affab72de4b1
+    ****************************************/
 
     render() {
         const {month, year, courseList, errorMessage} = this.state;
@@ -145,13 +154,14 @@ export default class ServiceDrivingLicense extends React.Component {
                 </div>
 
                 {/*ปฏิทินหลักสูตร*/
-                    this.props.result.showList && courseList !== null &&
+                    this.props.result.showList && (courseList !== null) &&
                     <CalendarView month={month} year={year}
-                                  courseLilst={courseList}
+                                  courseList={courseList}
                                   handlePreviousNextMonthCallback={this.updateCalendar}
+                                  handleClickCourseCallback={this.showCourseDetails}
                     />
                 }
-                {
+                {/*กรณีเกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตรจาก server*/
                     this.props.result.showList && courseList === null &&
                     <div className="mt-3" style={{textAlign: 'center', color: 'red'}}>{errorMessage}</div>
                 }
@@ -159,7 +169,7 @@ export default class ServiceDrivingLicense extends React.Component {
                 {/*รายละเอียดหลักสูตร*/
                     !this.props.result.showList &&
                     <CourseDetails
-                        serviceType={SERVICE_SOCIAL}
+                        serviceType={SERVICE_DRIVING_LICENSE}
                         courseId={this.props.result.courseId}
                     />
                 }

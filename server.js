@@ -56,6 +56,23 @@ app
             res.status(404).end();
         });
 
+        /* ********** บริการอบรมสอบใบขับขี่ ********** */
+        server.get('/service-driving-license/:id', (req, res) => {
+            const actualPage = '/service-driving-license';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-driving-license-register/:id', (req, res) => {
+            const actualPage = '/service-driving-license-register';
+            const queryParams = {courseId: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
+        server.get('/service-driving-license-register', (req, res) => {
+            res.status(404).end();
+        });
+
         /*จัดการ api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -95,6 +112,9 @@ app
                         break;
                     case 'register_course_social':
                         doRegisterCourseSocial(req, res, db);
+                        break;
+                    case 'register_course_driving_license':
+                        doRegisterCourseDrivingLicense(req, res, db);
                         break;
                     case 'get_name_title':
                         doGetNameTitle(req, res, db);
@@ -451,17 +471,6 @@ doRegisterCourse = (req, res, db) => {
     );
 };
 
-/*doGetCourseByServiceType = (req, res, db) => {
-    const inputServiceType = req.body.serviceType;
-    const inputMonth = req.body.month;
-    const inputYear = req.body.year;
-
-    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title, cm.service_type, u.first_name, u.last_name, u.phone_office, u.email FROM course c INNER JOIN course_master cm INNER JOIN user u ON c.course_master_id = cm.id AND c.responsible_user_id = u.id ';
-    const whereClause = inputCourseId === undefined ? ' WHERE cm.service_type = ? ' : ' WHERE cm.service_type = ? AND c.id = ? ';
-    const orderClause = ' ORDER BY c.begin_date';
-    const sql = selectClause + whereClause + orderClause;
-};*/
-
 doRegisterCourseSocial = (req, res, db) => {
     const {loginToken, courseId, traineeData} = req.body;
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
@@ -483,6 +492,63 @@ doRegisterCourseSocial = (req, res, db) => {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
             traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+                db.end();
+            } else {
+                let insertId = results.insertId;
+
+                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
+                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                db.query(
+                        `UPDATE course_registration_social
+                         SET form_number = ?
+                         WHERE id = ?`,
+                    [formNumber, insertId],
+
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                            console.log(err.stack);
+                        } else {
+                            res.send({
+                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
+};
+
+doRegisterCourseDrivingLicense = (req, res, db) => {
+    const {loginToken, courseId, traineeData} = req.body;
+    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+
+    const {
+        traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode,
+        traineePhone, traineeSelectedCourseType, traineeSelectedLicenseTypeCar, traineeSelectedLicenseTypeBicycle, traineeSelectedLicenseTypeTricycle
+    } = traineeData;
+
+    /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
+    const licenseType = (traineeSelectedLicenseTypeCar ? 1 : 0) + (traineeSelectedLicenseTypeBicycle ? 2 : 0) + (traineeSelectedLicenseTypeTricycle ? 4 : 0);
+
+    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+
+    db.query(
+            `INSERT INTO course_registration_driving_license (course_id, member_id, title, first_name, last_name, pid, address, sub_district, district, province, postal_code, phone, course_type, license_type)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeSubDistrict, traineeDistrict,
+            traineeProvince, traineePostalCode, traineePhone, traineeSelectedCourseType, licenseType],
 
         function (err, results, fields) {
             if (err) {

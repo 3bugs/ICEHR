@@ -2,37 +2,30 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isValidPid} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
-import {SERVICE_SOCIAL} from "../etc/constants";
+import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL} from "../etc/constants";
+import Dialog from "../components/Dialog";
 
 const TOP_OF_FORM = 'topOfForm';
-//const ORGANIZATION_TYPE_OTHER = '9999';
 
 const REGISTER_TRAINEE_TITLE = 'traineeTitle';
 const REGISTER_TRAINEE_FIRST_NAME = 'traineeFirstName';
 const REGISTER_TRAINEE_LAST_NAME = 'traineeLastName';
-const REGISTER_TRAINEE_AGE = 'traineeAge';
-const REGISTER_TRAINEE_OCCUPATION = 'traineeOccupation';
-const REGISTER_TRAINEE_WORK_PLACE = 'traineeWorkPlace';
+const REGISTER_TRAINEE_PID = 'traineePid';
 const REGISTER_TRAINEE_ADDRESS = 'traineeAddress';
 const REGISTER_TRAINEE_SUB_DISTRICT = 'traineeSubDistrict';
 const REGISTER_TRAINEE_DISTRICT = 'traineeDistrict';
 const REGISTER_TRAINEE_PROVINCE = 'traineeProvince';
 const REGISTER_TRAINEE_POSTAL_CODE = 'traineePostalCode';
 const REGISTER_TRAINEE_PHONE = 'traineePhone';
-const REGISTER_TRAINEE_EMAIL = 'traineeEmail';
-const REGISTER_TRAINEE_CONTACT_PERSON_NAME = 'traineeContactPersonName'; //ชื่อบุคคลที่สามารถติดต่อได้ในกรณีฉุกเฉิน
-const REGISTER_TRAINEE_CONTACT_PERSON_PHONE = 'traineeContactPersonPhone'; //เบอร์โทรบุคคลที่สามารถติดต่อได้ในกรณีฉุกเฉิน
-const REGISTER_TRAINEE_DISEASE = 'traineeDisease'; //โรคประจำตัว
-const REGISTER_TRAINEE_NEWS_SOURCE_WEB = 'traineeNewsSourceWeb'; // 1
-const REGISTER_TRAINEE_NEWS_SOURCE_EMAIL = 'traineeNewsSourceEmail'; // 2
-const REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE = 'traineeNewsSourceBrochure'; // 4
-const REGISTER_TRAINEE_NEWS_SOURCE_ONLINE = 'traineeNewsSourceOnline'; // 8
-const REGISTER_TRAINEE_NEWS_SOURCE_MOUTH = 'traineeNewsSourceMouth'; // 16ne
+const REGISTER_TRAINEE_SELECTED_COURSE_TYPE = 'traineeSelectedCourseType';
+const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR = 'traineeSelectedLicenseTypeCar';
+const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE = 'traineeSelectedLicenseTypeBicycle';
+const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE = 'traineeSelectedLicenseTypeTricycle';
 
 class TraineeRegisterForm extends React.Component {
     constructor(props, context) {
@@ -106,49 +99,22 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">อายุ</label>
+                                                <label className="mt-2">เลขประจำตัวประชาชน</label>
                                             </div>
                                             <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_AGE] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_AGE)}
-                                                       type="number"
-                                                       placeholder="กรอกอายุ"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_AGE]}/>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">อาชีพ</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_OCCUPATION] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_OCCUPATION)}
+                                                <input value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
+                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
                                                        type="text"
-                                                       placeholder="กรอกอาชีพ"
+                                                       maxLength={13}
+                                                       placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก"
                                                        className="form-control-2 input-md mt-2"/>
                                                 <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_OCCUPATION]}/>
+                                                    value={traineeForm.errors[REGISTER_TRAINEE_PID]}/>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">สถานที่ทำงาน (ถ้ามี)</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_WORK_PLACE] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_WORK_PLACE)}
-                                                       type="text"
-                                                       placeholder="กรอกสถานทีทำงาน"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_WORK_PLACE]}/>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">ที่อยู่ปัจจุบัน</label>
+                                                <label className="mt-2">ที่อยู่ตามบัตรประชาชน</label>
                                             </div>
                                             <div className="col-md-9">
                                                 <div className="row">
@@ -161,16 +127,6 @@ class TraineeRegisterForm extends React.Component {
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
                                                     </div>
-                                                    {/*<div className="col nopadleft">
-                                                        <input id="textinput" name="textinput" type="text" placeholder="หมู่" className="form-control input-md"/>
-                                                    </div>
-                                                    <div className="w-100"></div>
-                                                    <div className="col-12 col-md-6">
-                                                        <input id="textinput" name="textinput" type="text" placeholder="ซอย" className="form-control input-md"/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        <input id="textinput" name="textinput" type="text" placeholder="ถนน" className="form-control input-md"/>
-                                                    </div>*/}
                                                     <div className="w-100"></div>
                                                     <div className="col-12 col-md-6">
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT] || ''}
@@ -230,103 +186,74 @@ class TraineeRegisterForm extends React.Component {
                                                     value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
                                             </div>
                                         </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">อีเมล</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_EMAIL] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_EMAIL)}
-                                                       type="email"
-                                                       onKeyDown={e => {
-                                                           if (e.key === ' ') {
-                                                               e.preventDefault();
-                                                           }
-                                                       }}
-                                                       placeholder="อีเมล"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_EMAIL]}/>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label>บุคคลที่สามารถติดต่อได้ในกรณีฉุกเฉิน</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <div className="row">
-                                                    <div className="col-12 col-md-6">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_CONTACT_PERSON_NAME] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_CONTACT_PERSON_NAME)}
-                                                               type="text"
-                                                               placeholder="ชื่อบุคคลที่สามารถติดต่อได้"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_CONTACT_PERSON_NAME]}/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_CONTACT_PERSON_PHONE] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_CONTACT_PERSON_PHONE)}
-                                                               type="text"
-                                                               placeholder="เบอร์โทรศัพท์มือถือ"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_CONTACT_PERSON_PHONE]}/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">โรคประจำตัว</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_DISEASE] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISEASE)}
-                                                       type="text"
-                                                       placeholder="กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว"
-                                                       className="form-control input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_DISEASE]}/>
-                                            </div>
-                                        </div>
                                     </div>
-                                    <div className="row">
-                                        <div className="col-md-3">
-                                            <label className="required-2 mt-2">ทราบข่าวการอบรมจากที่ไหน (ตอบได้มากกว่า 1 ข้อ)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col">
+                                <div className="bg-gray">
+                                    <h2>มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้</h2>
+                                    <ErrorLabel
+                                        value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]}/>
+                                    <div className="check-box-2"
+                                         onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_COURSE_TYPE)}>
+                                        <div className="md-radio md-radio-inline radiocheck">
+                                            <input id="course-type-5-hours" name="course-type" type="radio"
+                                                   value={'5-hours'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '5-hours'}/>
+                                            <label htmlFor="course-type-5-hours"> หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</label>
                                         </div>
-                                        <div className="col-md-9 mt-3">
-                                            <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_WEB]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_WEB)}
-                                                   type="checkbox" id="news-source-web"/>
-                                            <label htmlFor="news-source-web">เว็บไซต์</label><br/>
-
-                                            <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_EMAIL]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_EMAIL)}
-                                                   type="checkbox" id="news-source-email"/>
-                                            <label htmlFor="news-source-email">อีเมล</label><br/>
-
-                                            <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE)}
-                                                   type="checkbox" id="news-source-brochure"/>
-                                            <label htmlFor="news-source-brochure">แผ่นประชาสัมพันธ์</label><br/>
-
-                                            <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_ONLINE]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_ONLINE)}
-                                                   type="checkbox" id="news-source-online"/>
-                                            <label htmlFor="news-source-online">สื่อสังคมออนไลน์</label><br/>
-
-                                            <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_MOUTH]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_MOUTH)}
-                                                   type="checkbox" id="news-source-mouth"/>
-                                            <label htmlFor="news-source-mouth">บอกต่อ</label>
+                                        <br/>
+                                        <div className="md-radio md-radio-inline radiocheck">
+                                            <input id="course-type-2-hours" name="course-type" type="radio"
+                                                   value={'2-hours'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '2-hours'}/>
+                                            <label htmlFor="course-type-2-hours"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 2 ชั่วโมง </label>
+                                        </div>
+                                        <br/>
+                                        <div className="md-radio md-radio-inline radiocheck">
+                                            <input id="course-type-1-hour" name="course-type" type="radio"
+                                                   value={'1-hour'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '1-hour'}/>
+                                            <label htmlFor="course-type-1-hour"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 1 ชั่วโมง</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="btn-red-submit" style={{marginTop: '20px'}}>
-                                <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <div className="title-sm">
+                                    <h2>ประเภทใบอนุญาตขับรถ</h2>
+                                    <ErrorLabel
+                                        value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}/>
+                                    <div className="row">
+                                        <div className="col-12 col-md-4">
+                                            <input type="checkbox" id="license-type-car"
+                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}
+                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR)}/>
+                                            <label htmlFor="license-type-car">รถยนต์ส่วนบุคคลชั่วคราว</label>
+                                        </div>
+                                        <div className="col-12 col-md-4">
+                                            <input type="checkbox" id="license-type-bicycle"
+                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]}
+                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE)}/>
+                                            <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคลชั่วคราว</label>
+                                        </div>
+                                        <div className="col-12 col-md-4">
+                                            <input type="checkbox" id="license-type-tricycle"
+                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]}
+                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE)}/>
+                                            <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคลชั่วคราว</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="border-red"></div>
+
+                        <div className="btn-red-submit" style={{marginTop: '20px'}}>
+                            <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
                         </div>
                     </div>
                 </div>
@@ -431,14 +358,14 @@ class TraineeRegisterForm extends React.Component {
                     
                     [type="checkbox"]:disabled + label {
                         color: #aaa;
-                    }                    
+                    }                                        
                 `}</style>
             </React.Fragment>
         );
     }
 }
 
-export default class ServiceSocialRegister extends React.Component {
+export default class ServiceDrivingLicenseRegister extends React.Component {
 
     constructor(props, context) {
         super(props, context);
@@ -450,6 +377,12 @@ export default class ServiceSocialRegister extends React.Component {
                 errors: {}
             },
             nameTitleList: [],
+            dialog: {
+                isOpen: false,
+                message: '',
+                textColor: '#000',
+                onCloseCallback: null,
+            },
         };
     }
 
@@ -468,7 +401,7 @@ export default class ServiceSocialRegister extends React.Component {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    serviceType: SERVICE_SOCIAL,
+                    serviceType: SERVICE_DRIVING_LICENSE,
                     courseId: query.courseId
                 }),
             });
@@ -507,9 +440,7 @@ export default class ServiceSocialRegister extends React.Component {
             initialTraineeFields[REGISTER_TRAINEE_TITLE] = user.title;
             initialTraineeFields[REGISTER_TRAINEE_FIRST_NAME] = user.firstName;
             initialTraineeFields[REGISTER_TRAINEE_LAST_NAME] = user.lastName;
-            initialTraineeFields[REGISTER_TRAINEE_AGE] = user.age;
             initialTraineeFields[REGISTER_TRAINEE_PHONE] = user.phone;
-            initialTraineeFields[REGISTER_TRAINEE_EMAIL] = user.email;
         }
 
         let {traineeForm} = this.state;
@@ -522,7 +453,7 @@ export default class ServiceSocialRegister extends React.Component {
         let {fields} = traineeForm;
         let {target} = e;
 
-        if (field === REGISTER_TRAINEE_EMAIL || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
+        if (field === REGISTER_TRAINEE_PID || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
         } else {
             fields[field] = target.type === 'checkbox' ? target.checked : target.value;
@@ -537,7 +468,17 @@ export default class ServiceSocialRegister extends React.Component {
         if (this.validateForm()) {
             this.doRegister();
         } else {
-            //alert('กรุณากรอกข้อมูลในหน้านี้ให้ครบถ้วน');
+            this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                scroller.scrollTo(TOP_OF_FORM, {
+                    duration: 500,
+                    smooth: true,
+                    offset: -80,
+                    //delay: 100,
+                    //containerId: 'ContainerElementID',
+                    //offset: 50, // Scrolls to element + 50 pixels down the page
+                });
+                this.dismissDialog();
+            });
         }
     };
 
@@ -561,16 +502,11 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกนามสกุล';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_AGE]) {
-            errors[REGISTER_TRAINEE_AGE] = 'กรุณากรอกอายุ';
+        if (!fields[REGISTER_TRAINEE_PID] || fields[REGISTER_TRAINEE_PID].trim().length !== 13) {
+            errors[REGISTER_TRAINEE_PID] = 'กรุณากรอกเลขประจำตัวประชาชน 13 หลัก';
             formIsValid = false;
-        }
-        if (!fields[REGISTER_TRAINEE_OCCUPATION] || fields[REGISTER_TRAINEE_OCCUPATION].trim().length === 0) {
-            errors[REGISTER_TRAINEE_OCCUPATION] = 'กรุณากรอกอาชีพ';
-            formIsValid = false;
-        }
-        if (!fields[REGISTER_TRAINEE_WORK_PLACE] || fields[REGISTER_TRAINEE_WORK_PLACE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_WORK_PLACE] = 'กรุณากรอกสถานที่ทำงาน';
+        } else if (!isValidPid(fields[REGISTER_TRAINEE_PID].trim())) {
+            errors[REGISTER_TRAINEE_PID] = 'เลขประจำตัวประชาชนไม่ถูกต้อง';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_ADDRESS] || fields[REGISTER_TRAINEE_ADDRESS].trim().length === 0) {
@@ -597,23 +533,14 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_EMAIL] || fields[REGISTER_TRAINEE_EMAIL].trim().length === 0) {
-            errors[REGISTER_TRAINEE_EMAIL] = 'กรุณากรอกอีเมล';
-            formIsValid = false;
-        } else if (!isValidEmail(fields[REGISTER_TRAINEE_EMAIL])) {
-            errors[REGISTER_TRAINEE_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
+        if (!fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]) {
+            errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] = 'กรุณาเลือกประเภทหลักสูตร';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_CONTACT_PERSON_NAME] || fields[REGISTER_TRAINEE_CONTACT_PERSON_NAME].trim().length === 0) {
-            errors[REGISTER_TRAINEE_CONTACT_PERSON_NAME] = 'กรุณากรอกชื่อบุคคลที่สามารถติดต่อได้';
-            formIsValid = false;
-        }
-        if (!fields[REGISTER_TRAINEE_CONTACT_PERSON_PHONE] || fields[REGISTER_TRAINEE_CONTACT_PERSON_PHONE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_CONTACT_PERSON_PHONE] = 'กรุณากรอกเบอร์มือถือของบุคคลที่สามารถติดต่อได้';
-            formIsValid = false;
-        }
-        if (!fields[REGISTER_TRAINEE_DISEASE] || fields[REGISTER_TRAINEE_DISEASE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
+        if (!fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]
+            && !fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]
+            && !fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]) {
+            errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = 'กรุณาเลือกประเภทใบอนุญาตขับรถอย่างน้อย 1 ประเภท';
             formIsValid = false;
         }
 
@@ -623,14 +550,14 @@ export default class ServiceSocialRegister extends React.Component {
             traineeForm: traineeForm,
         }, () => {
             if (!formIsValid) {
-                scroller.scrollTo(TOP_OF_FORM, {
+                /*scroller.scrollTo(TOP_OF_FORM, {
                     duration: 500,
                     smooth: true,
                     offset: -80,
                     //delay: 100,
                     //containerId: 'ContainerElementID',
                     //offset: 50, // Scrolls to element + 50 pixels down the page
-                });
+                });*/
             }
         });
 
@@ -643,7 +570,7 @@ export default class ServiceSocialRegister extends React.Component {
         const {traineeForm} = this.state;
         const traineeData = traineeForm.fields;
 
-        fetch('/api/register_course_social', {
+        fetch('/api/register_course_driving_license', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
@@ -656,16 +583,37 @@ export default class ServiceSocialRegister extends React.Component {
         })
             .then(result => result.json())
             .then(result => {
-                let msg = result['error']['message'];
-                alert(msg);
+                const msg = result['error']['message'];
                 if (result['error']['code'] === 0) {
-                    Router.back();
+                    this.showDialog(msg, 'success', () => {
+                        this.dismissDialog();
+                        Router.back();
+                    });
                 }
             });
     };
 
+    showDialog = (message, textColor, onCloseCallback) => {
+        const dialog = {
+            isOpen: true,
+            message, textColor,
+            onCloseCallback
+        };
+        this.setState({dialog});
+    };
+
+    dismissDialog = () => {
+        const dialog = {
+            isOpen: false,
+            message: '',
+            textColor: '#000',
+            onCloseCallback: null,
+        };
+        this.setState({dialog});
+    };
+
     render() {
-        let {traineeForm, step} = this.state;
+        let {traineeForm, step, dialog} = this.state;
 
         return (
             <MainLayout>
@@ -679,7 +627,7 @@ export default class ServiceSocialRegister extends React.Component {
                         <div className="row">
                             <div className="col text-title-top">
                                 {/*<p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>*/}
-                                <h3>แบบฟอร์มสมัครอบรมโครงการบริการสังคม</h3></div>
+                                <h3>แบบฟอร์มสมัครอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -738,6 +686,11 @@ export default class ServiceSocialRegister extends React.Component {
                     !this.props.course &&
                     <div style={{textAlign: 'center', color: 'red'}}>{this.props.errorMessage}</div>
                 }
+
+                <Dialog message={dialog.message}
+                        textColor={dialog.textColor}
+                        isOpen={dialog.isOpen}
+                        onCloseCallback={dialog.onCloseCallback}/>
 
                 <style jsx>{`
                     

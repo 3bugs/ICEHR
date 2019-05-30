@@ -1,6 +1,6 @@
 export const SERVICE_TRAINING = 'training';
 export const SERVICE_SOCIAL = 'social';
-export const SERVICE_DRIVING_LICENSE = 'driving_license';
+export const SERVICE_DRIVING_LICENSE = 'driving-license';
 
 export const longMonthNames = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',

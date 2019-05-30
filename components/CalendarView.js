@@ -1,6 +1,7 @@
 import MainLayout from "../layouts/MainLayout";
 import {getDaysInMonth} from "../backend/bower_components/moment/src/lib/units/month";
 import {longDayNames, longMonthNames} from "../etc/constants";
+import Floater from 'react-floater';
 
 class DayCell extends React.Component {
 
@@ -14,27 +15,41 @@ class DayCell extends React.Component {
     }
 
     render() {
+        const {number, active, course, onClickCourseCallback} = this.props;
+
         return (
             <React.Fragment>
-                {this.props.active &&
+                {active &&
                 <div className="day col-sm p-2 border border-left-0 border-top-0 ">
                     <h5 className="row align-items-center">
-                        <span className="date col-1">{this.props.number}</span>
-                        <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                        <span className="col-1"/>
+                        <span className="date col-1">{number}</span>
+                        {/*<small className="col d-sm-none text-center text-muted">x</small>
+                        <span className="col-1"/>*/}
                     </h5>
-                    {
-                        this.props.children
+                    {/*<Floater event="hover"
+                             eventDelay={0}
+                             placement="top"
+                             content={'<strong>test</strong>'}>
+                    </Floater>*/}
+                    {course != null &&
+                    <div style={{cursor: 'pointer'}} onClick={() => onClickCourseCallback(course.id)}>
+                        <div className="event d-block book_detail">
+                            <i className="far fa-check-circle"/>
+                            {/*<i className="fas fa-minus-circle" style={{color: '#ddd'}}/>*/}
+                            <p>{course.name}</p>
+                        </div>
+                        <div href="javascript:void(0)" className="book-btn">รายละเอียด/สมัคร</div>
+                    </div>
                     }
                     {/*<p className="d-sm-none"></p>*/}
                 </div>
                 }
-                {!this.props.active &&
+                {!active &&
                 <div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
                     <h5 className="row align-items-center">
-                        <span className="date col-1">{this.props.number}</span>
-                        <small className="col d-sm-none text-center text-muted">Monday</small>
-                        <span className="col-1"/>
+                        <span className="date col-1">{/*this.props.number*/}</span>
+                        {/*<small className="col d-sm-none text-center text-muted">x</small>
+                        <span className="col-1"/>*/}
                     </h5>
                     {/*<p className="d-sm-none"></p>*/}
                 </div>
@@ -44,10 +59,15 @@ class DayCell extends React.Component {
                         margin: 0 auto;
                         text-align: center;
                         border: 1px solid #6c6c6c;
-                        padding: 0px 20px;
+                        padding: 3px 10px;
                         color: #6c6c6c;
                         display: table;
+                        font-size: 0.9em;
                         margin-top: 10px;
+                    }
+                    
+                    .book-btn:hover {
+                        color: #b50303;
                     }
                     
                     .book_detail {
@@ -65,10 +85,6 @@ class DayCell extends React.Component {
                         font-size: 2rem;
                         margin-bottom: 5px;
                         margin-top: -30px;
-                    }
-                    
-                    .fullbook i {
-                        color: #dddddd;
                     }
                     
                     .date-event {
@@ -197,7 +213,8 @@ export default class CalendarView extends React.Component {
     };
 
     render() {
-        const {month, year} = this.props;
+        const {month, year, courseList, handleClickCourseCallback} = this.props;
+
         const currentMonthString = ('0' + month).slice(-2);
         const currentYearString = String(year);
         const daysInCurrentMonth = this.daysInMonth(month, year);
@@ -230,7 +247,6 @@ export default class CalendarView extends React.Component {
                 days.push(0);
             }
         }
-
         // ช่องวันที่ของเดือนถัดไป (ถ้ามี, เติมให้เต็มแถว)
         for (let j = 0; (i % 7 !== 0) && (j < 7 - i % 7); j++) {
             days.push(j + 1);
@@ -238,8 +254,18 @@ export default class CalendarView extends React.Component {
 
         let currentMonthStatus = false;
 
+        const sparseCourseList = [];
+        if (courseList != null) {
+            for (let i = 0; i < courseList.length; i++) {
+                const course = courseList[i];
+                const beginCourseDay = new Date(course.beginDate).getDate();
+                sparseCourseList[beginCourseDay] = course;
+            }
+        }
+
         return (
             <React.Fragment>
+                {courseList != null &&
                 <div className="container mt-4">
                     <div className="row mt-3">
                         <div className="col">
@@ -280,322 +306,19 @@ export default class CalendarView extends React.Component {
                                                     currentMonthStatus = !currentMonthStatus;
                                                 }
                                                 return (
-                                                    <DayCell number={day} active={currentMonthStatus}>
-                                                        <a href="#" className="event d-block book_detail" title="Test Event 1">
-                                                            <i className="far fa-check-circle"></i>
-                                                            <p>หลักสูตรการอบรม สำหรับผู้ขอรับใบอนุญาตขับรถ</p>
-                                                        </a>
-                                                        <a href="service-2-1.php" className="book-btn">จอง</a>
-                                                    </DayCell>
+                                                    <DayCell number={day} active={currentMonthStatus}
+                                                             course={sparseCourseList[day]}
+                                                             onClickCourseCallback={(courseId) => handleClickCourseCallback(courseId)}/>
                                                 );
                                             }
                                         })
                                     }
-                                    {/*<div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">29</span>
-                                            <small className="col d-sm-none text-center text-muted">Sunday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">30</span>
-                                            <small className="col d-sm-none text-center text-muted">Monday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">31</span>
-                                            <small className="col d-sm-none text-center text-muted">Tuesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 ">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">1</span>
-                                            <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 ">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">2</span>
-                                            <small className="col d-sm-none text-center text-muted">Thursday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row date-event align-items-center">
-                                            <span className="date col-1">3</span>
-                                            <small className="col d-sm-none text-center text-muted">Friday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <a href="#" className="event d-block book_detail" title="Test Event 1">
-                                            <i className="far fa-check-circle"></i>
-                                            <p>หลักสูตรการอบรม สำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</p>
-                                        </a>
-                                        <a href="service-2-1.php" className="book-btn">จอง</a>
-                                    </div>
-
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 ">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">4</span>
-                                            <small className="col d-sm-none text-center text-muted">Saturday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-
-                                    <div className="w-100"></div>
-
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 ">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">5</span>
-                                            <small className="col d-sm-none text-center text-muted">Sunday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <a href="#" className="event d-block book_detail" title="Test Event 1"><i className="far fa-check-circle"></i>
-                                            <p>หลักสูตรการอบรม สำหรับผู้ขอรับ
-                                                ใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</p></a> <a href="#" className="book-btn">จอง</a>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">6</span>
-                                            <small className="col d-sm-none text-center text-muted">Monday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">7</span>
-                                            <small className="col d-sm-none text-center text-muted">Tuesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">8</span>
-                                            <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <a href="#" className="event d-block book_detail fullbook" title="Test Event 1"><i className="fas fa-minus-circle"></i>
-                                            <p>หลักสูตรการอบรม สำหรับผู้ขอรับ
-                                                ใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</p></a> <a href="#" className="book-btn">เต็ม</a></div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 text-truncate ">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">9</span>
-                                            <small className="col d-sm-none text-center text-muted">Thursday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">10</span>
-                                            <small className="col d-sm-none text-center text-muted">Friday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">11</span>
-                                            <small className="col d-sm-none text-center text-muted">Saturday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-
-                                    <div className="w-100"></div>
-
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">12</span>
-                                            <small className="col d-sm-none text-center text-muted">Sunday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">13</span>
-                                            <small className="col d-sm-none text-center text-muted">Monday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">14</span>
-                                            <small className="col d-sm-none text-center text-muted">Tuesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">15</span>
-                                            <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">16</span>
-                                            <small className="col d-sm-none text-center text-muted">Thursday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">17</span>
-                                            <small className="col d-sm-none text-center text-muted">Friday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">18</span>
-                                            <small className="col d-sm-none text-center text-muted">Saturday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="w-100"></div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">19</span>
-                                            <small className="col d-sm-none text-center text-muted">Sunday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">20</span>
-                                            <small className="col d-sm-none text-center text-muted">Monday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <a href="#" className="event d-block book_detail" title="Test Event 1"><i className="far fa-check-circle"></i>
-                                            <p>หลักสูตรการอบรม สำหรับผู้ขอรับ
-                                                ใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</p></a> <a href="#" className="book-btn">จอง</a></div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">21</span>
-                                            <small className="col d-sm-none text-center text-muted">Tuesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">22</span>
-                                            <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">23</span>
-                                            <small className="col d-sm-none text-center text-muted">Thursday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">24</span>
-                                            <small className="col d-sm-none text-center text-muted">Friday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">25</span>
-                                            <small className="col d-sm-none text-center text-muted">Saturday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="w-100"></div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">26</span>
-                                            <small className="col d-sm-none text-center text-muted">Sunday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">27</span>
-                                            <small className="col d-sm-none text-center text-muted">Monday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">28</span>
-                                            <small className="col d-sm-none text-center text-muted">Tuesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">29</span>
-                                            <small className="col d-sm-none text-center text-muted">Wednesday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1">30</span>
-                                            <small className="col d-sm-none text-center text-muted">Thursday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1"></span>
-                                            <small className="col d-sm-none text-center text-muted">Friday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>
-                                    <div className="day col-sm p-2 border border-left-0 border-top-0 d-none d-sm-inline-block bg-light text-muted">
-                                        <h5 className="row align-items-center">
-                                            <span className="date col-1"></span>
-                                            <small className="col d-sm-none text-center text-muted">Saturday</small>
-                                            <span className="col-1"></span>
-                                        </h5>
-                                        <p className="d-sm-none"></p>
-                                    </div>*/}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                }
                 <br/><br/><br/>
 
                 <style jsx>{`
@@ -603,38 +326,7 @@ export default class CalendarView extends React.Component {
                         cursor: pointer;
                         color: #b50303;                     
                     }
-                    
-                    .book-btn {
-                        margin: 0 auto;
-                        text-align: center;
-                        border: 1px solid #6c6c6c;
-                        padding: 0px 20px;
-                        color: #6c6c6c;
-                        display: table;
-                        margin-top: 10px;
-                    }
-                    
-                    .book_detail {
-                        text-align: center;
-                        line-height: 20px;
-                    }
-                    
-                    .book_detail p {
-                        margin-bottom: 0px;
-                        font-size: 0.95em;
-                    }
-                    
-                    .book_detail i {
-                        color: #1cc951;
-                        font-size: 2rem;
-                        margin-bottom: 5px;
-                        margin-top: -30px;
-                    }
-                    
-                    .fullbook i {
-                        color: #dddddd;
-                    }
-                    
+                                        
                     .date-event {
                         margin-bottom: 10px;
                     }

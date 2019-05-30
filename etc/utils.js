@@ -106,3 +106,14 @@ export function isValidEmail(value) {
     let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
     return emailRegex.test(value);
 }
+
+export function isValidPid(pid) {
+    if (pid.length !== 13) return false;
+
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += parseFloat(pid.charAt(i)) * (13 - i);
+    }
+
+    return (11 - sum % 11) % 10 === parseInt(pid.charAt(12));
+}

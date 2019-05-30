@@ -8,6 +8,7 @@ import ErrorLabel from '../components/ErrorLabel';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_TRAINING} from "../etc/constants";
+import Dialog from "../components/Dialog";
 
 const TOP_OF_FORM = 'topOfForm';
 const ORGANIZATION_TYPE_OTHER = 9999;
@@ -471,6 +472,12 @@ export default class ServiceTrainingRegister extends React.Component {
             },
             nameTitleList: [],
             organizationTypeList: [],
+            dialog: {
+                isOpen: false,
+                message: '',
+                textColor: '#000',
+                onCloseCallback: null,
+            },
         };
         this.organizationTypeCustomInput = React.createRef();
     }
@@ -727,7 +734,14 @@ export default class ServiceTrainingRegister extends React.Component {
         if (this.validateFormReceipt()) {
             this.doRegister();
         } else {
-            //alert('กรุณากรอกข้อมูลในหน้านี้ให้ครบถ้วน');
+            /*this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                scroller.scrollTo('receipt-form', {
+                    duration: 500,
+                    smooth: true,
+                    offset: -80,
+                });
+                this.dismissDialog();
+            });*/
         }
     };
 
@@ -864,14 +878,19 @@ export default class ServiceTrainingRegister extends React.Component {
         this.setState({
             traineeForms: traineeForms,
         }, () => {
-            if (firstErrorFormId > 0) {
-                scroller.scrollTo(firstErrorFormId.toString(), {
-                    duration: 500,
-                    smooth: true,
-                    offset: -80,
-                    //delay: 100,
-                    //containerId: 'ContainerElementID',
-                    //offset: 50, // Scrolls to element + 50 pixels down the page
+            if (!formIsValid) {
+                this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                    this.dismissDialog();
+                    if (firstErrorFormId > 0) {
+                        scroller.scrollTo(firstErrorFormId.toString(), {
+                            duration: 500,
+                            smooth: true,
+                            offset: -80,
+                            //delay: 100,
+                            //containerId: 'ContainerElementID',
+                            //offset: 50, // Scrolls to element + 50 pixels down the page
+                        });
+                    }
                 });
             }
         });
@@ -934,10 +953,13 @@ export default class ServiceTrainingRegister extends React.Component {
             coordinatorForm: coordinatorForm,
         }, () => {
             if (!valid) {
-                scroller.scrollTo('coordinator-form', {
-                    duration: 500,
-                    smooth: true,
-                    offset: -80,
+                this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                    scroller.scrollTo('coordinator-form', {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                    this.dismissDialog();
                 });
             }
         });
@@ -948,6 +970,7 @@ export default class ServiceTrainingRegister extends React.Component {
     /*validate ฟอร์ม ข้อมูลการออกใบเสร็จ*/
     validateFormReceipt = () => {
         let valid = true;
+
         let {receiptForm} = this.state;
         let receiptFields = receiptForm.fields;
         let receiptErrors = {};
@@ -968,8 +991,8 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptErrors[REGISTER_RECEIPT_PROVINCE] = 'กรุณากรอกจังหวัด';
             valid = false;
         }
-        if (!receiptFields[REGISTER_RECEIPT_POSTAL_CODE] || receiptFields[REGISTER_RECEIPT_POSTAL_CODE].trim().length === 0) {
-            receiptErrors[REGISTER_RECEIPT_POSTAL_CODE] = 'กรุณากรอกรหัสไปรษณีย์';
+        if (!receiptFields[REGISTER_RECEIPT_POSTAL_CODE] || receiptFields[REGISTER_RECEIPT_POSTAL_CODE].trim().length !== 5) {
+            receiptErrors[REGISTER_RECEIPT_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             valid = false;
         }
         if (!receiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE] || receiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE].trim().length === 0) {
@@ -986,10 +1009,13 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptForm: receiptForm,
         }, () => {
             if (!valid) {
-                scroller.scrollTo('receipt-form', {
-                    duration: 500,
-                    smooth: true,
-                    offset: -80,
+                this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                    scroller.scrollTo('receipt-form', {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                    this.dismissDialog();
                 });
             }
         });
@@ -1063,16 +1089,36 @@ export default class ServiceTrainingRegister extends React.Component {
         })
             .then(result => result.json())
             .then(result => {
-                let msg = result['error']['message'];
-                alert(msg);
+                const msg = result['error']['message'];
                 if (result['error']['code'] === 0) {
-                    Router.back();
+                    this.showDialog(msg, 'success', () => {
+                        Router.back();
+                    });
                 }
             });
     };
 
+    showDialog = (message, textColor, onCloseCallback) => {
+        const dialog = {
+            isOpen: true,
+            message, textColor,
+            onCloseCallback
+        };
+        this.setState({dialog});
+    };
+
+    dismissDialog = () => {
+        const dialog = {
+            isOpen: false,
+            message: '',
+            textColor: '#000',
+            onCloseCallback: null,
+        };
+        this.setState({dialog});
+    };
+
     render() {
-        let {traineeForms, coordinatorForm, receiptForm, step} = this.state;
+        let {traineeForms, coordinatorForm, receiptForm, step, dialog} = this.state;
 
         return (
             <MainLayout>
@@ -1086,7 +1132,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <div className="row">
                             <div className="col text-title-top">
                                 <p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3>แบบฟอร์มลงทะเบียน</h3></div>
+                                <h3>แบบฟอร์มสมัครอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -1163,12 +1209,14 @@ export default class ServiceTrainingRegister extends React.Component {
 
                             {/*ขั้นตอน 2 กรอกข้อมูลผู้ประสานงาน*/}
                             {((step === 2) || (step === 4 && traineeForms.length > 1)) &&
-                            <Element name={'coordinator-form'}>
+                            <React.Fragment>
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
-                                        <h4 className="text-black" style={{marginTop: '20px'}}>
-                                            <i className="fas fa-user-friends" style={{fontSize: '1rem', marginBottom: '15px'}}/>&nbsp;ข้อมูลผู้ประสานงาน
-                                        </h4>
+                                        <Element name={'coordinator-form'}>
+                                            <h4 className="text-black" style={{marginTop: '20px'}}>
+                                                <i className="fas fa-user-friends" style={{fontSize: '1rem', marginBottom: '15px'}}/>&nbsp;ข้อมูลผู้ประสานงาน
+                                            </h4>
+                                        </Element>
                                         {step !== 4 &&
                                         <select
                                             onChange={this.handleChangeSelectCoordinator}
@@ -1190,7 +1238,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                         }
                                     </div>
                                 </div>
-                                <div className="border-inside" style={{marginTop: '15px', marginBottom: '30px'}}>
+                                < div className="border-inside" style={{marginTop: '15px', marginBottom: '30px'}}>
                                     <div className="row">
                                         <div className="col">
                                             <div className="regisfo">
@@ -1354,7 +1402,8 @@ export default class ServiceTrainingRegister extends React.Component {
                                                             </div>
                                                             <div className="col-md-8">
 
-                                                                <div style={{display: parseInt(coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
+                                                                <div
+                                                                    style={{display: parseInt(coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER ? 'block' : 'none'}}>
                                                                     <input value={coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] || ''}
                                                                            onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM)}
                                                                            type="text"
@@ -1416,115 +1465,115 @@ export default class ServiceTrainingRegister extends React.Component {
                                         </div>
                                     </div>
                                 </div>
-                            </Element>
+                            </React.Fragment>
                             }
 
                             {/*ขั้นตอน 3 กรอกข้อมูลการออกใบเสร็จ*/}
                             {((step === 3) || (step === 4)) &&
                             <div>
                                 {/*ฟอร์มข้อมูลการออกใบเสร็จ*/}
-                                <Element name={'receipt-form'}>
-                                    <div className="row" style={{border: '0 solid red', clear: 'both'}}>
-                                        <div className="col">
+                                <div className="row" style={{border: '0 solid red', clear: 'both'}}>
+                                    <div className="col">
+                                        <Element name={'receipt-form'}>
                                             <h4 className="text-black" style={{marginTop: '20px'}}>
                                                 ข้อมูลการออกใบเสร็จ
                                             </h4>
-                                        </div>
+                                        </Element>
                                     </div>
-                                    <div className="row">
-                                        <div className="col">
-                                            <div className="border-inside" style={{marginTop: '10px'}}>
-                                                <div className="regisfo">
-                                                    <div className="row">
-                                                        <div className="col-md-12">
-                                                            <div className="row">
-                                                                <div className="col-12 col-md-2" style={{paddingRight: 0}}>
-                                                                    <label className="label required-label">ที่อยู่หน่วยงาน</label>
-                                                                </div>
-                                                                <div className="col-12 col-md-9">
-                                                                    <div className="row">
-                                                                        <div className="col-12 col-md-12">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_ADDRESS] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ADDRESS)}
-                                                                                   type="text"
-                                                                                   placeholder="เลขที่ / อาคาร / หมู่ / ซอย / ถนน"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_ADDRESS]}/>
-                                                                        </div>
-                                                                        <div className="w-100"></div>
-                                                                        <div className="col-12 col-md-6">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_SUB_DISTRICT] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_SUB_DISTRICT)}
-                                                                                   type="text"
-                                                                                   placeholder="แขวง / ตำบล"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_SUB_DISTRICT]}/>
-                                                                        </div>
-                                                                        <div className="col-12 col-md-6 nopadleft">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_DISTRICT] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_DISTRICT)}
-                                                                                   type="text"
-                                                                                   placeholder="เขต / อำเภอ"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_DISTRICT]}/>
-                                                                        </div>
-                                                                        <div className="w-100"></div>
-                                                                        <div className="col-12 col-md-6">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_PROVINCE] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_PROVINCE)}
-                                                                                   type="text" placeholder="จังหวัด"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_PROVINCE]}/>
-                                                                        </div>
-                                                                        <div className="col-12 col-md-6 nopadleft">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_POSTAL_CODE] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_POSTAL_CODE)}
-                                                                                   type="number"
-                                                                                   placeholder="รหัสไปรษณีย์"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_POSTAL_CODE]}/>
-                                                                        </div>
-                                                                        <div className="w-100"></div>
-                                                                        <div className="col-12 col-md-6">
-                                                                            <input value={receiptForm.fields[REGISTER_RECEIPT_ORGANIZATION_PHONE] || ''}
-                                                                                   onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ORGANIZATION_PHONE)}
-                                                                                   type="text"
-                                                                                   placeholder="เบอร์โทรศัพท์หน่วยงาน"
-                                                                                   className="form-control input-md"
-                                                                                   disabled={step === 4}/>
-                                                                            <ErrorLabel
-                                                                                value={receiptForm.errors[REGISTER_RECEIPT_ORGANIZATION_PHONE]}/>
-                                                                        </div>
-                                                                        <div className="col-12 col-md-6 nopadleft">
-                                                                        </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <div className="border-inside" style={{marginTop: '10px'}}>
+                                            <div className="regisfo">
+                                                <div className="row">
+                                                    <div className="col-md-12">
+                                                        <div className="row">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">ที่อยู่หน่วยงาน</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <div className="row">
+                                                                    <div className="col-12 col-md-12">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_ADDRESS] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ADDRESS)}
+                                                                               type="text"
+                                                                               placeholder="เลขที่ / อาคาร / หมู่ / ซอย / ถนน"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_ADDRESS]}/>
+                                                                    </div>
+                                                                    <div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_SUB_DISTRICT] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_SUB_DISTRICT)}
+                                                                               type="text"
+                                                                               placeholder="แขวง / ตำบล"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_SUB_DISTRICT]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_DISTRICT] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_DISTRICT)}
+                                                                               type="text"
+                                                                               placeholder="เขต / อำเภอ"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_DISTRICT]}/>
+                                                                    </div>
+                                                                    <div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_PROVINCE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_PROVINCE)}
+                                                                               type="text" placeholder="จังหวัด"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_PROVINCE]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_POSTAL_CODE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_POSTAL_CODE)}
+                                                                               type="text"
+                                                                               placeholder="รหัสไปรษณีย์"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_POSTAL_CODE]}/>
+                                                                    </div>
+                                                                    <div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_ORGANIZATION_PHONE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ORGANIZATION_PHONE)}
+                                                                               type="text"
+                                                                               placeholder="เบอร์โทรศัพท์หน่วยงาน"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 4}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_ORGANIZATION_PHONE]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                        </div>
 
-                                                            <div className="row mt-2 mb-1">
-                                                                <div className="col-12 col-md-2" style={{paddingRight: 0}}>
-                                                                    <label className="label required-label">เลขประจำตัวผู้เสียภาษี</label>
-                                                                </div>
-                                                                <div className="col-12 col-md-9">
-                                                                    <input value={receiptForm.fields[REGISTER_RECEIPT_TAX_ID] || ''}
-                                                                           onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_TAX_ID)}
-                                                                           type="text"
-                                                                           placeholder="เลขประจำตัวผู้เสียภาษี"
-                                                                           className="form-control input-md"
-                                                                           disabled={step === 4}/>
-                                                                    <ErrorLabel
-                                                                        value={receiptForm.errors[REGISTER_RECEIPT_TAX_ID]}/>
-                                                                </div>
+                                                        <div className="row mt-2 mb-1">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">เลขประจำตัวผู้เสียภาษี</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <input value={receiptForm.fields[REGISTER_RECEIPT_TAX_ID] || ''}
+                                                                       onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_TAX_ID)}
+                                                                       type="text"
+                                                                       placeholder="เลขประจำตัวผู้เสียภาษี"
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
+                                                                <ErrorLabel
+                                                                    value={receiptForm.errors[REGISTER_RECEIPT_TAX_ID]}/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1532,7 +1581,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                </Element>
+                                </div>
 
                                 {/*ปุ่มลงทะเบียน*/}
                                 {step === 4 &&
@@ -1583,17 +1632,22 @@ export default class ServiceTrainingRegister extends React.Component {
                     <div style={{textAlign: 'center', color: 'red'}}>{this.props.errorMessage}</div>
                 }
 
+                <Dialog message={dialog.message}
+                        textColor={dialog.textColor}
+                        isOpen={dialog.isOpen}
+                        onCloseCallback={dialog.onCloseCallback}/>
+
                 <style jsx>{`
-                    .btn-normal {
-                        color: black;
-                        background-color: #d0d0d0;
-                    }
-                    
-                    .btn-normal:hover {
-                        color: white;
-                        background-color: #999999;
-                    }
-                `}</style>
+                                .btn-normal {
+                                color: black;
+                                background-color: #d0d0d0;
+                                }
+
+                                .btn-normal:hover {
+                                color: white;
+                                background-color: #999999;
+                                }
+                                `}</style>
             </MainLayout>
         );
     }
