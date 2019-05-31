@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
@@ -702,7 +702,7 @@ export default class ServiceTrainingRegister extends React.Component {
         let {receiptForm} = this.state;
         let {fields} = receiptForm;
 
-        if (field === REGISTER_RECEIPT_PROVINCE) {
+        if (field === REGISTER_RECEIPT_PROVINCE || field === REGISTER_RECEIPT_POSTAL_CODE) {
             fields[field] = e.target.value.trim();
         } else {
             fields[field] = e.target.value;
@@ -991,7 +991,9 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptErrors[REGISTER_RECEIPT_PROVINCE] = 'กรุณากรอกจังหวัด';
             valid = false;
         }
-        if (!receiptFields[REGISTER_RECEIPT_POSTAL_CODE] || receiptFields[REGISTER_RECEIPT_POSTAL_CODE].trim().length !== 5) {
+        if (!receiptFields[REGISTER_RECEIPT_POSTAL_CODE]
+            || receiptFields[REGISTER_RECEIPT_POSTAL_CODE].trim().length !== 5
+            || !isPositiveInteger(receiptFields[REGISTER_RECEIPT_POSTAL_CODE])) {
             receiptErrors[REGISTER_RECEIPT_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             valid = false;
         }
@@ -1538,6 +1540,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                         <input value={receiptForm.fields[REGISTER_RECEIPT_POSTAL_CODE] || ''}
                                                                                onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_POSTAL_CODE)}
                                                                                type="text"
+                                                                               maxLength={5}
                                                                                placeholder="รหัสไปรษณีย์"
                                                                                className="form-control input-md"
                                                                                disabled={step === 4}/>

@@ -1599,3 +1599,15 @@ a:hover {
 		padding: 4px 10px 0px;
 	}
 }
+
+.my-react-date-picker {
+	display: block !important;
+	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	max-width: 1000px !important;
+}
+
+.react-date-picker-calendar div {
+
+}

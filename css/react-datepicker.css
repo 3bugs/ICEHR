@@ -1,8 +1,3 @@
-.modal-register-form {
-    width: 100%;
-    max-width: 1000px;
-}
-
 .react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle, .react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle, .react-datepicker__year-read-view--down-arrow,
 .react-datepicker__month-read-view--down-arrow,
 .react-datepicker__month-year-read-view--down-arrow {
@@ -662,7 +657,7 @@
     bottom: 0;
     box-sizing: border-box;
     color: #fff;
-    content: "\D7";
+    content: "\00d7";
     cursor: pointer;
     font-size: 12px;
     height: 16px;
@@ -748,6 +743,3 @@
     border-left-color: #e6e6e6;
     cursor: default;
 }
-
-
-/*# sourceMappingURL=styles.chunk.css.map*/

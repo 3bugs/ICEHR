@@ -2,12 +2,13 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_SOCIAL} from "../etc/constants";
+import Dialog from "../components/Dialog";
 
 const TOP_OF_FORM = 'topOfForm';
 //const ORGANIZATION_TYPE_OTHER = '9999';
@@ -204,6 +205,7 @@ class TraineeRegisterForm extends React.Component {
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_POSTAL_CODE)}
                                                                type="text"
+                                                               maxLength={5}
                                                                placeholder="รหัสไปรษณีย์"
                                                                className="form-control input-md mt-2"/>
                                                         <ErrorLabel
@@ -450,6 +452,12 @@ export default class ServiceSocialRegister extends React.Component {
                 errors: {}
             },
             nameTitleList: [],
+            dialog: {
+                isOpen: false,
+                message: '',
+                textColor: '#000',
+                onCloseCallback: null,
+            },
         };
     }
 
@@ -537,7 +545,17 @@ export default class ServiceSocialRegister extends React.Component {
         if (this.validateForm()) {
             this.doRegister();
         } else {
-            //alert('กรุณากรอกข้อมูลในหน้านี้ให้ครบถ้วน');
+            this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                scroller.scrollTo(TOP_OF_FORM, {
+                    duration: 500,
+                    smooth: true,
+                    offset: -80,
+                    //delay: 100,
+                    //containerId: 'ContainerElementID',
+                    //offset: 50, // Scrolls to element + 50 pixels down the page
+                });
+                this.dismissDialog();
+            });
         }
     };
 
@@ -589,8 +607,10 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_PROVINCE] = 'กรุณากรอกจังหวัด';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_POSTAL_CODE] || fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกรหัสไปรษณีย์';
+        if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
+            || (fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length !== 5)
+            || !isPositiveInteger(fields[REGISTER_TRAINEE_POSTAL_CODE])) {
+            errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {
@@ -623,14 +643,14 @@ export default class ServiceSocialRegister extends React.Component {
             traineeForm: traineeForm,
         }, () => {
             if (!formIsValid) {
-                scroller.scrollTo(TOP_OF_FORM, {
+                /*scroller.scrollTo(TOP_OF_FORM, {
                     duration: 500,
                     smooth: true,
                     offset: -80,
                     //delay: 100,
                     //containerId: 'ContainerElementID',
                     //offset: 50, // Scrolls to element + 50 pixels down the page
-                });
+                });*/
             }
         });
 
@@ -664,8 +684,27 @@ export default class ServiceSocialRegister extends React.Component {
             });
     };
 
+    showDialog = (message, textColor, onCloseCallback) => {
+        const dialog = {
+            isOpen: true,
+            message, textColor,
+            onCloseCallback
+        };
+        this.setState({dialog});
+    };
+
+    dismissDialog = () => {
+        const dialog = {
+            isOpen: false,
+            message: '',
+            textColor: '#000',
+            onCloseCallback: null,
+        };
+        this.setState({dialog});
+    };
+
     render() {
-        let {traineeForm, step} = this.state;
+        let {traineeForm, step, dialog} = this.state;
 
         return (
             <MainLayout>
@@ -738,6 +777,11 @@ export default class ServiceSocialRegister extends React.Component {
                     !this.props.course &&
                     <div style={{textAlign: 'center', color: 'red'}}>{this.props.errorMessage}</div>
                 }
+
+                <Dialog message={dialog.message}
+                        textColor={dialog.textColor}
+                        isOpen={dialog.isOpen}
+                        onCloseCallback={dialog.onCloseCallback}/>
 
                 <style jsx>{`
                     

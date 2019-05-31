@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isValidPid} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isValidPid, isPositiveInteger} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
@@ -160,6 +160,7 @@ class TraineeRegisterForm extends React.Component {
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_POSTAL_CODE)}
                                                                type="text"
+                                                               maxLength={5}
                                                                placeholder="รหัสไปรษณีย์"
                                                                className="form-control input-md mt-2"/>
                                                         <ErrorLabel
@@ -468,7 +469,15 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         if (this.validateForm()) {
             this.doRegister();
         } else {
-            this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+            /*const {errors} = this.state.traineeForm;
+            let errorListText = 'กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง\n\n';
+            Object.keys(errors).forEach(function(key, index) {
+                // key: the name of the object key
+                // index: the ordinal position of the key within the object
+                errorListText += errors[key] + '\n';
+            });*/
+
+            this.showDialog('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง', "error", () => {
                 scroller.scrollTo(TOP_OF_FORM, {
                     duration: 500,
                     smooth: true,
@@ -525,8 +534,10 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             errors[REGISTER_TRAINEE_PROVINCE] = 'กรุณากรอกจังหวัด';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_POSTAL_CODE] || fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกรหัสไปรษณีย์';
+        if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
+            || fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length !== 5
+            || !isPositiveInteger(fields[REGISTER_TRAINEE_POSTAL_CODE])) {
+            errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {

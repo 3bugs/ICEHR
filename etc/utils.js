@@ -102,6 +102,10 @@ export function isString(value) {
     return typeof value === 'string' || value instanceof String;
 }
 
+export function isPositiveInteger(s) {
+    return /^\+?[1-9][\d]*$/.test(s);
+}
+
 export function isValidEmail(value) {
     let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
     return emailRegex.test(value);
@@ -116,4 +120,11 @@ export function isValidPid(pid) {
     }
 
     return (11 - sum % 11) % 10 === parseInt(pid.charAt(12));
+}
+
+export function getDateFormatFromDateObject(d) {
+    let yyyy = d.getFullYear();
+    let mm = d.getMonth() + 1;
+    let dd = d.getDate();
+    return `${yyyy}-${mm}-${dd}`;
 }

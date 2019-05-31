@@ -2,8 +2,17 @@ import Link from 'next/link';
 import Modal from 'react-bootstrap/Modal';
 import $ from 'jquery';
 import './Header.css';
-import {getLoginUser, setLoginUser, isString, isValidEmail} from "../etc/utils";
+import {getLoginUser, setLoginUser, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject} from "../etc/utils";
 import ErrorLabel from './ErrorLabel';
+import Dialog from "./Dialog";
+import DatePicker from "react-datepicker";
+import {subDays} from "react-datepicker";
+import "../css/react-datepicker.css";
+
+import th from 'date-fns/locale/th';
+import {registerLocale, setDefaultLocale} from "react-datepicker";
+registerLocale('th', th);
+setDefaultLocale('th');
 
 const ORGANIZATION_TYPE_OTHER = 9999;
 
@@ -35,7 +44,7 @@ const LOGIN_PASSWORD = 'loginPassword';
 const REGISTER_PERSON_TITLE = 'registerPersonTitle';
 const REGISTER_PERSON_FIRST_NAME = 'registerPersonFirstName';
 const REGISTER_PERSON_LAST_NAME = 'registerPersonLastName';
-const REGISTER_PERSON_AGE = 'registerPersonAge';
+const REGISTER_PERSON_BIRTH_DATE = 'registerPersonBirthDate';
 const REGISTER_PERSON_JOB_POSITION = 'registerPersonJobPosition';
 const REGISTER_PERSON_ORGANIZATION_NAME = 'registerPersonOrganizationName';
 const REGISTER_PERSON_ORGANIZATION_TYPE = 'registerPersonOrganizationType';
@@ -48,7 +57,7 @@ const REGISTER_PERSON_CONFIRM_PASSWORD = 'registerPersonConfirmPassword';
 const REGISTER_ORGANIZATION_TITLE = 'registerOrganizationTitle';
 const REGISTER_ORGANIZATION_FIRST_NAME = 'registerOrganizationFirstName';
 const REGISTER_ORGANIZATION_LAST_NAME = 'registerOrganizationLastName';
-const REGISTER_ORGANIZATION_AGE = 'registerOrganizationAge';
+const REGISTER_ORGANIZATION_BIRTH_DATE = 'registerOrganizationBirthDate';
 const REGISTER_ORGANIZATION_JOB_POSITION = 'registerOrganizationJobPosition';
 const REGISTER_ORGANIZATION_ORGANIZATION_NAME = 'registerOrganizationOrganizationName';
 const REGISTER_ORGANIZATION_ORGANIZATION_TYPE = 'registerOrganizationOrganizationType';
@@ -78,9 +87,17 @@ class LoginForm extends React.Component {
             registerType: 1,
             nameTitleList: [],
             organizationTypeList: [],
+            dialog: {
+                isOpen: false,
+                message: '',
+                textColor: '#000',
+                onCloseCallback: null,
+            },
         };
         this.personForm_organizationTypeCustomInput = React.createRef();
         this.organizationForm_organizationTypeCustomInput = React.createRef();
+
+        //registerLocale('th', th);
     }
 
     focusPersonFormOrganizationTypeCustomInput = () => {
@@ -173,7 +190,16 @@ class LoginForm extends React.Component {
 
     handleChange(field, allowSpace, e) {
         let fields = this.state.fields;
-        if (!allowSpace) {
+
+        if (field === REGISTER_PERSON_BIRTH_DATE || field === REGISTER_ORGANIZATION_BIRTH_DATE) {
+            let d = e; //new Date();
+            let yyyy = d.getFullYear();
+            let mm = d.getMonth() + 1;
+            let dd = d.getDate();
+            //alert(`${yyyy}-${mm}-${dd}`);
+
+            fields[field] = e;
+        } else if (!allowSpace) {
             fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
         } else {
             fields[field] = e.target.value;
@@ -230,7 +256,9 @@ class LoginForm extends React.Component {
         if (this.validateRegisterForm(registerType)) {
             this.doRegister(registerType);
         } else {
-            //alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+            /*this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                this.dismissDialog();
+            });*/
         }
     };
 
@@ -253,15 +281,9 @@ class LoginForm extends React.Component {
                     errors[REGISTER_PERSON_LAST_NAME] = 'กรุณากรอกนามสกุล';
                     formIsValid = false;
                 }
-                if (!fields[REGISTER_PERSON_AGE] || fields[REGISTER_PERSON_AGE].trim().length === 0) {
-                    errors[REGISTER_PERSON_AGE] = 'กรุณากรอกอายุ';
+                if (!fields[REGISTER_PERSON_BIRTH_DATE]) {
+                    errors[REGISTER_PERSON_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
                     formIsValid = false;
-                } else {
-                    let ageValue = +fields[REGISTER_PERSON_AGE];
-                    if (ageValue <= 0 || ageValue > 200) {
-                        errors[REGISTER_PERSON_AGE] = 'กรุณากรอกอายุเป็นตัวเลขที่เหมาะสม';
-                        formIsValid = false;
-                    }
                 }
                 if (!fields[REGISTER_PERSON_PHONE] || fields[REGISTER_PERSON_PHONE].trim().length === 0) {
                     errors[REGISTER_PERSON_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
@@ -305,15 +327,9 @@ class LoginForm extends React.Component {
                     errors[REGISTER_ORGANIZATION_LAST_NAME] = 'กรุณากรอกนามสกุล';
                     formIsValid = false;
                 }
-                if (!fields[REGISTER_ORGANIZATION_AGE] || fields[REGISTER_ORGANIZATION_AGE].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_AGE] = 'กรุณากรอกอายุ';
+                if (!fields[REGISTER_ORGANIZATION_BIRTH_DATE]) {
+                    errors[REGISTER_ORGANIZATION_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
                     formIsValid = false;
-                } else {
-                    let ageValue = +fields[REGISTER_ORGANIZATION_AGE];
-                    if (ageValue <= 0 || ageValue > 200) {
-                        errors[REGISTER_ORGANIZATION_AGE] = 'กรุณากรอกอายุเป็นตัวเลขที่เหมาะสม';
-                        formIsValid = false;
-                    }
                 }
                 if (!fields[REGISTER_ORGANIZATION_JOB_POSITION] || fields[REGISTER_ORGANIZATION_JOB_POSITION].trim().length === 0) {
                     errors[REGISTER_ORGANIZATION_JOB_POSITION] = 'กรุณากรอกตำแหน่งงาน';
@@ -349,8 +365,10 @@ class LoginForm extends React.Component {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_PROVINCE] = 'กรุณากรอกจังหวัด';
                     formIsValid = false;
                 }
-                if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] || fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] = 'กรุณากรอกรหัสไปรษณีย์';
+                if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE]
+                    || fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE].trim().length !== 5
+                    || !isPositiveInteger(fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE])) {
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
                     formIsValid = false;
                 }
                 if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_PHONE] || fields[REGISTER_ORGANIZATION_ORGANIZATION_PHONE].trim().length === 0) {
@@ -400,7 +418,7 @@ class LoginForm extends React.Component {
                 params['title'] = fields[REGISTER_PERSON_TITLE];
                 params['firstName'] = fields[REGISTER_PERSON_FIRST_NAME];
                 params['lastName'] = fields[REGISTER_PERSON_LAST_NAME];
-                params['age'] = fields[REGISTER_PERSON_AGE];
+                params['birthDate'] = getDateFormatFromDateObject(fields[REGISTER_PERSON_BIRTH_DATE]);
                 params['jobPosition'] = fields[REGISTER_PERSON_JOB_POSITION];
                 params['organizationName'] = fields[REGISTER_PERSON_ORGANIZATION_NAME];
                 params['organizationType'] = fields[REGISTER_PERSON_ORGANIZATION_TYPE];
@@ -413,7 +431,7 @@ class LoginForm extends React.Component {
                 params['title'] = fields[REGISTER_ORGANIZATION_TITLE];
                 params['firstName'] = fields[REGISTER_ORGANIZATION_FIRST_NAME];
                 params['lastName'] = fields[REGISTER_ORGANIZATION_LAST_NAME];
-                params['age'] = fields[REGISTER_ORGANIZATION_AGE];
+                params['birthDate'] = getDateFormatFromDateObject(fields[REGISTER_ORGANIZATION_BIRTH_DATE]);
                 params['jobPosition'] = fields[REGISTER_ORGANIZATION_JOB_POSITION];
                 params['organizationName'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_NAME];
                 params['organizationType'] = fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE];
@@ -474,12 +492,12 @@ class LoginForm extends React.Component {
                     let memberData = result['memberData'];
 
                     const {
-                        loginToken, id, title, firstName, lastName, age, jobPosition,
+                        loginToken, id, title, firstName, lastName, birthDate, jobPosition,
                         organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
                     } = memberData;
                     const loginUser = {
-                        loginToken, id, title, firstName, lastName, age, jobPosition,
+                        loginToken, id, title, firstName, lastName, birthDate, jobPosition,
                         organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
                     };
@@ -489,6 +507,11 @@ class LoginForm extends React.Component {
                         fields: {},
                         loginUser,
                         showLoginModal: false,
+                    }, () => {
+                        let msg = `ยินดีต้อนรับคุณ ${memberData.firstName} ${memberData.lastName}`;
+                        this.showDialog(msg, "ok", () => {
+                            this.dismissDialog();
+                        });
                     });
                 } else {
                     let errors = {};
@@ -530,8 +553,43 @@ class LoginForm extends React.Component {
         }
     }
 
+    showDialog = (message, textColor, onCloseCallback) => {
+        const dialog = {
+            isOpen: true,
+            message, textColor,
+            onCloseCallback
+        };
+        this.setState({dialog});
+    };
+
+    dismissDialog = () => {
+        const dialog = {
+            isOpen: false,
+            message: '',
+            textColor: '#000',
+            onCloseCallback: null,
+        };
+        this.setState({dialog});
+    };
+
+    setDatePickerMinDate = () => {
+        const d = new Date();
+        const year = 1900;
+        const month = 0;
+        const day = 1;
+        return new Date(year, month, day)
+    };
+
+    /*setDatePickerMaxDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = d.getMonth();
+        const day = d.getDate();
+        return new Date(year, month, day)
+    };*/
+
     render() {
-        const {loginUser} = this.state;
+        const {loginUser, dialog} = this.state;
         let displayName = loginUser == null ? 'เข้าสู่ระบบ' : loginUser.firstName + ' ' + loginUser.lastName;
 
         return (
@@ -760,17 +818,29 @@ class LoginForm extends React.Component {
                                                                                 <div className="row">
                                                                                     <div className="col-md-4">
                                                                                         <label
-                                                                                            className="label required-label">อายุ</label>
+                                                                                            className="label required-label">วันเกิด</label>
                                                                                     </div>
                                                                                     <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_PERSON_AGE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_AGE, false)}
+                                                                                        <DatePicker
+                                                                                            selected={this.state.fields[REGISTER_PERSON_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_BIRTH_DATE, true)}
+                                                                                            showMonthDropdown
+                                                                                            showYearDropdown
+                                                                                            dropdownMode="select"
+                                                                                            placeholderText="ระบุวันเกิด"
+                                                                                            dateFormat="dd/MM/yyyy"
+                                                                                            minDate={this.setDatePickerMinDate()}
+                                                                                            maxDate={new Date()}
+                                                                                            className="form-control input-md my-react-date-picker"/>
+
+                                                                                        {/*<input
+                                                                                            value={this.state.fields[REGISTER_PERSON_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_PERSON_BIRTH_DATE, false)}
                                                                                             type="number"
                                                                                             placeholder="กรอกอายุ"
-                                                                                            className="form-control input-md"/>
+                                                                                            className="form-control input-md"/>*/}
                                                                                         <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_PERSON_AGE]}/>
+                                                                                            value={this.state.errors[REGISTER_PERSON_BIRTH_DATE]}/>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1069,16 +1139,27 @@ class LoginForm extends React.Component {
                                                                                 <div className="row">
                                                                                     <div className="col-md-4">
                                                                                         <label
-                                                                                            className="label required-label">อายุ</label>
+                                                                                            className="label required-label">วันเกิด</label>
                                                                                     </div>
                                                                                     <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_AGE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_AGE, false)}
+                                                                                        <DatePicker
+                                                                                            selected={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, true)}
+                                                                                            showMonthDropdown
+                                                                                            showYearDropdown
+                                                                                            dropdownMode="select"
+                                                                                            placeholderText="ระบุวันเกิด"
+                                                                                            dateFormat="dd/MM/yyyy"
+                                                                                            minDate={this.setDatePickerMinDate()}
+                                                                                            maxDate={new Date()}
+                                                                                            className="form-control input-md my-react-date-picker"/>
+                                                                                        {/*<input
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, false)}
                                                                                             type="number" placeholder="กรอกอายุ"
-                                                                                            className="form-control input-md"/>
+                                                                                            className="form-control input-md"/>*/}
                                                                                         <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_AGE]}/>
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_BIRTH_DATE]}/>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1243,6 +1324,7 @@ class LoginForm extends React.Component {
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] || ''}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE, false)}
                                                                                             type="number"
+                                                                                            maxLength={5}
                                                                                             placeholder="รหัสไปรษณีย์"
                                                                                             className="form-control input-md"/>
                                                                                         <ErrorLabel
@@ -1406,6 +1488,11 @@ class LoginForm extends React.Component {
                         </Modal>
                     </div>
                 </div>
+
+                <Dialog message={dialog.message}
+                        textColor={dialog.textColor}
+                        isOpen={dialog.isOpen}
+                        onCloseCallback={dialog.onCloseCallback}/>
 
                 <style jsx>{`
                     .icon_top {

@@ -196,7 +196,7 @@ doLoginMember = (req, res, db) => {
                 memberData.title = results[0].title;
                 memberData.firstName = results[0].first_name;
                 memberData.lastName = results[0].last_name;
-                memberData.age = results[0].age;
+                memberData.birthDate = results[0].birth_date;
                 memberData.jobPosition = results[0].job_position;
                 memberData.organizationName = results[0].organization_name;
                 memberData.organizationType = results[0].organization_type;
@@ -227,7 +227,7 @@ doRegisterMember = (req, res, db) => {
     let inputTitle = req.body.title;
     let inputFirstName = req.body.firstName;
     let inputLastName = req.body.lastName;
-    let inputAge = req.body.age;
+    let inputBirthDate = req.body.birthDate;
     let inputJobPosition = req.body.jobPosition;
     let inputOrganizationName = req.body.organizationName;
     let inputOrganizationType = req.body.organizationType;
@@ -262,6 +262,7 @@ doRegisterMember = (req, res, db) => {
                 });
                 db.end();
             } else {
+                let organizationTypeCustom = inputOrganizationTypeCustom === undefined ? null : inputOrganizationTypeCustom.trim();
                 let address = inputAddress === undefined ? null : inputAddress.trim();
                 let subDistrict = inputSubDistrict === undefined ? null : inputSubDistrict.trim();
                 let district = inputDistrict === undefined ? null : inputDistrict.trim();
@@ -271,10 +272,10 @@ doRegisterMember = (req, res, db) => {
                 let taxId = inputTaxId === undefined ? null : inputTaxId.trim();
 
                 db.query(
-                        `INSERT INTO member(title, first_name, last_name, age, job_position, organization_name, organization_type, organization_type_custom, phone, email, password, 
+                        `INSERT INTO member(title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password, 
                                             address, sub_district, district, province, postal_code, organization_phone, tax_id)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputAge, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType, inputOrganizationTypeCustom.trim(),
+                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType, organizationTypeCustom,
                         inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode, organizationPhone, taxId],
 
                     function (err, results, fields) {
@@ -403,8 +404,8 @@ doRegisterCourse = (req, res, db) => {
             } else {
                 let insertId = results.insertId;
 
-                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
-                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                /*เลขที่ใบสมัคร รูปแบบ AC-2019-0001*/
+                const formNumber = 'AC-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
@@ -503,8 +504,8 @@ doRegisterCourseSocial = (req, res, db) => {
             } else {
                 let insertId = results.insertId;
 
-                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
-                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
+                const formNumber = 'SO-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration_social
                          SET form_number = ?
@@ -560,10 +561,10 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
             } else {
                 let insertId = results.insertId;
 
-                /*เลขที่ใบสมัคร รูปแบบ 2019-0001*/
-                const formNumber = new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
+                const formNumber = 'DL-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
-                        `UPDATE course_registration_social
+                        `UPDATE course_registration_driving_license
                          SET form_number = ?
                          WHERE id = ?`,
                     [formNumber, insertId],
