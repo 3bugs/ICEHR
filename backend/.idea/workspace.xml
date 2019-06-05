@@ -2,14 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3a66e0ef-5da3-4947-a51b-d282721e6f8f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../css/react-datepicker.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/dictionaries/promlert.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../db-config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pages/test-pdf.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pdf.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/build-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/build-manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/server/pages-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/server/pages-manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/chunks/styles.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" afterDir="false" />
@@ -18,11 +18,9 @@
       <change beforePath="$PROJECT_DIR$/../etc/utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/../etc/utils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pages/service-driving-license-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-driving-license-register.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../pages/service-social-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-social-register.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../pages/service-training-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-training-register.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../static/css/layout.css" beforeDir="false" afterPath="$PROJECT_DIR$/../static/css/layout.css" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,7 +37,11 @@
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.php">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="42">
+              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -72,11 +74,11 @@
   <component name="PhpServers">
     <servers />
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="65" />
-    <option name="y" value="24" />
-    <option name="width" value="1301" />
-    <option name="height" value="744" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="4717" />
+    <option name="y" value="-4" />
+    <option name="width" value="1855" />
+    <option name="height" value="1084" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -84,7 +86,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -101,6 +102,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -146,18 +148,20 @@
       <workItem from="1554181835802" duration="1215000" />
       <workItem from="1559273571433" duration="599000" />
       <workItem from="1559280467409" duration="599000" />
-      <workItem from="1559289696539" duration="599000" />
+      <workItem from="1559289696539" duration="1213000" />
+      <workItem from="1559629399588" duration="1204000" />
+      <workItem from="1559701671370" duration="630000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7232000" />
+    <option name="totallyTimeSpent" value="9680000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1301" height="744" extended-state="1" />
+    <frame x="4717" y="-4" width="1855" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.17855169" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2636816" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -210,7 +214,11 @@
     <entry file="file://$PROJECT_DIR$/course.php" />
     <entry file="file://$PROJECT_DIR$/member.php" />
     <entry file="file://$PROJECT_DIR$/index.php">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/header.inc">
       <provider selected="true" editor-type-id="text-editor" />

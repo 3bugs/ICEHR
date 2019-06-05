@@ -189,13 +189,13 @@ class LoginForm extends React.Component {
     };
 
     handleChange(field, allowSpace, e) {
-        let fields = this.state.fields;
+        let {fields} = this.state;
 
         if (field === REGISTER_PERSON_BIRTH_DATE || field === REGISTER_ORGANIZATION_BIRTH_DATE) {
-            let d = e; //new Date();
+            /*let d = e; //new Date();
             let yyyy = d.getFullYear();
             let mm = d.getMonth() + 1;
-            let dd = d.getDate();
+            let dd = d.getDate();*/
             //alert(`${yyyy}-${mm}-${dd}`);
 
             fields[field] = e;
@@ -811,10 +811,10 @@ class LoginForm extends React.Component {
                                                                             </div>
                                                                         </div>
 
-                                                                        {/*อายุ, ตำแหน่งงาน*/}
+                                                                        {/*วันเกิด, ตำแหน่งงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
-                                                                                {/*อายุ*/}
+                                                                                {/*วันเกิด*/}
                                                                                 <div className="row">
                                                                                     <div className="col-md-4">
                                                                                         <label
@@ -824,6 +824,11 @@ class LoginForm extends React.Component {
                                                                                         <DatePicker
                                                                                             selected={this.state.fields[REGISTER_PERSON_BIRTH_DATE] || ''}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_PERSON_BIRTH_DATE, true)}
+                                                                                            onKeyDown={e => {
+                                                                                                //if (e.key === ' ') {
+                                                                                                e.preventDefault();
+                                                                                                //}
+                                                                                            }}
                                                                                             showMonthDropdown
                                                                                             showYearDropdown
                                                                                             dropdownMode="select"
@@ -1145,6 +1150,11 @@ class LoginForm extends React.Component {
                                                                                         <DatePicker
                                                                                             selected={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, true)}
+                                                                                            onKeyDown={e => {
+                                                                                                //if (e.key === ' ') {
+                                                                                                e.preventDefault();
+                                                                                                //}
+                                                                                            }}
                                                                                             showMonthDropdown
                                                                                             showYearDropdown
                                                                                             dropdownMode="select"

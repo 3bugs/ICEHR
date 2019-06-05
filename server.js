@@ -1,8 +1,10 @@
 const express = require('express');
 const next = require('next');
 const mysql = require('mysql');
+const dbConfig = require('./db-config');
 const jwt = require('jsonwebtoken');
 const Error = require('./model/Error');
+const pdf = require("./pdf");
 
 const SECRET_KEY = 'icehr_and_2fellows';
 const INVALID_TOKEN = -1;
@@ -80,10 +82,10 @@ app
             app.render(req, res, actualPage, queryParams);*/
 
             let db = mysql.createConnection({
-                host: 'localhost',
-                user: 'root',
-                password: '',
-                database: 'icehr'
+                host: dbConfig.HOST,
+                user: dbConfig.USER,
+                password: dbConfig.PASSWORD,
+                database: dbConfig.DATABASE,
             });
             db.connect(function (err) {
                 if (err) {
@@ -135,6 +137,54 @@ app
             });
         });
 
+        const docDefinition = {
+            content: ['This will show up in the file created สวัสดี']
+        };
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        /*ทดสอบการสร้าง PDF*/
+        server.get('/test-pdf', (req, res) => {
+            pdf.generateRegistrationFormTrainingPdf(
+                'AC-2019-0099',
+                {
+                    courseTitle: 'การเขียนอีเมลภาษาอังกฤษสู่ความสำเร็จยุค THAILAND 4.0',
+                    courseBatchNumber: 15,
+                    coursePlace: 'ม.ธรรมศาสตร์ ท่าพระจันทร์ กรุงเทพฯ',
+                    courseBeginDate: '2019-05-01',
+                    courseEndDate: '2019-05-03',
+                    courseDetails: '',
+                    courseResponsibleUserId: 1
+                },
+                [
+                    {
+                        traineeTitle: 'นาย',
+                        traineeFirstName: 'พร้อมเลิศ',
+                        traineeLastName: 'หล่อวิจิตร',
+                        traineePhone: '085-058-1776',
+                        traineeEmail: 'promlert@gmail.com',
+                    },
+                    {
+                        traineeTitle: 'นาง',
+                        traineeFirstName: 'จิตริณีย์',
+                        traineeLastName: 'หล่อวิจิตร',
+                        traineePhone: '086-999-1827',
+                        traineeEmail: 'chitrinee_l@gmail.com',
+                    },
+                    {
+                        traineeTitle: 'นาย',
+                        traineeFirstName: 'บัลลพ',
+                        traineeLastName: 'หล่อวิจิตร',
+                        traineePhone: '099-999-9999',
+                        traineeEmail: 'banlop2553@gmail.com',
+                    },
+                ],
+                {},
+                (success, message) => {
+                    res.send(message);
+                });
+        });
+        /////////////////////////////////////////////////////////////////////////////////////
+
         /*default สำหรับ post*/
         server.post('*', (req, res) => {
             res.status(404).end();
@@ -148,7 +198,8 @@ app
         server.listen(3000, err => {
             if (err) throw err;
             console.log('> Ready on http://localhost:3000');
-        })
+        });
+
     })
     .catch(ex => {
         console.error(ex.stack);
@@ -272,7 +323,7 @@ doRegisterMember = (req, res, db) => {
                 let taxId = inputTaxId === undefined ? null : inputTaxId.trim();
 
                 db.query(
-                        `INSERT INTO member(title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password, 
+                        `INSERT INTO member(title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
                                             address, sub_district, district, province, postal_code, organization_phone, tax_id)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, inputJobPosition.trim(), inputOrganizationName.trim(), inputOrganizationType, organizationTypeCustom,
@@ -376,7 +427,7 @@ doRegisterCourse = (req, res, db) => {
     const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
     const {
-        coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorAge, coordinatorJobPosition,
+        coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
         coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
     } = coordinator;
     const {
@@ -385,11 +436,11 @@ doRegisterCourse = (req, res, db) => {
     } = receipt;
 
     db.query(
-            `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_age, coordinator_job_position,
+            `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_birth_date, coordinator_job_position,
                                               coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
                                               receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorAge, coordinatorJobPosition.trim(),
+        [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorBirthDate, coordinatorJobPosition.trim(),
             coordinatorOrganizationName.trim(), coordinatorOrganizationType, coordinatorOrganizationTypeCustom === undefined ? coordinatorOrganizationTypeCustom : coordinatorOrganizationTypeCustom.trim(),
             coordinatorPhone.trim(), coordinatorEmail.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(),
             receiptOrganizationPhone.trim(), receiptTaxId.trim()],
@@ -402,15 +453,15 @@ doRegisterCourse = (req, res, db) => {
                 console.log(err.stack);
                 db.end();
             } else {
-                let insertId = results.insertId;
+                let insertCourseRegId = results.insertId;
 
                 /*เลขที่ใบสมัคร รูปแบบ AC-2019-0001*/
-                const formNumber = 'AC-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                const formNumber = 'AC-' + new Date().getFullYear() + '-' + ('000' + insertCourseRegId).slice(-4);
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
                          WHERE id = ?`,
-                    [formNumber, insertId],
+                    [formNumber, insertCourseRegId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -426,18 +477,19 @@ doRegisterCourse = (req, res, db) => {
                                 placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
 
                                 const {
-                                    traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeJobPosition,
+                                    traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeJobPosition,
                                     traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
                                 } = trainees[i];
 
                                 const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
+                                trainees[i].traineeFormNumber = traineeFormNumber;
 
-                                data.push(insertId);
+                                data.push(insertCourseRegId);
                                 data.push(traineeFormNumber);
                                 data.push(traineeTitle.trim());
                                 data.push(traineeFirstName.trim());
                                 data.push(traineeLastName.trim());
-                                data.push(traineeAge);
+                                data.push(traineeBirthDate);
                                 data.push(traineeJobPosition.trim());
                                 data.push(traineeOrganizationName.trim());
                                 data.push(traineeOrganizationType);
@@ -448,7 +500,8 @@ doRegisterCourse = (req, res, db) => {
                             placeHolder = placeHolder.substring(0, placeHolder.length - 1);
 
                             db.query(
-                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, age, job_position, organization_name, organization_type, organization_type_custom, phone, email)
+                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
+                                                                organization_type_custom, phone, email)
                                      VALUES ` + placeHolder,
                                 data,
                                 function (err, results, fields) {
@@ -458,8 +511,23 @@ doRegisterCourse = (req, res, db) => {
                                         });
                                         console.log(err.stack);
                                     } else {
-                                        res.send({
-                                            error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                        // สร้างอาร์เรย์ของหมายเลขใบสมัครแต่ละคน
+                                        const traineeFormNumberList = [];
+                                        for (let i = 0; i < trainees.length; i++) {
+                                            const trainee = trainees[i];
+                                            traineeFormNumberList.push(trainee.traineeFormNumber);
+                                        }
+
+                                        pdf.generateTraineeForm_Training(traineeFormNumberList, (success, message) => {
+                                            if (success) {
+                                                res.send({
+                                                    error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                                });
+                                            } else {
+                                                res.send({
+                                                    error: new Error(1, message, ''),
+                                                });
+                                            }
                                         });
                                     }
                                 });
@@ -477,7 +545,7 @@ doRegisterCourseSocial = (req, res, db) => {
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
 
     const {
-        traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+        traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
         traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease,
         traineeNewsSourceWeb, traineeNewsSourceEmail, traineeNewsSourceBrochure, traineeNewsSourceOnline, traineeNewsSourceMouth
     } = traineeData;
@@ -489,9 +557,10 @@ doRegisterCourseSocial = (req, res, db) => {
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
     db.query(
-            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, age, occupation, work_place, address, sub_district, district, province, postal_code, phone, email, contact_name, contact_phone, disease, news_source)
+            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district, province, postal_code,
+                                                     phone, email, contact_name, contact_phone, disease, news_source)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeAge, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
             traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource],
 
         function (err, results, fields) {
@@ -546,7 +615,8 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
     db.query(
-            `INSERT INTO course_registration_driving_license (course_id, member_id, title, first_name, last_name, pid, address, sub_district, district, province, postal_code, phone, course_type, license_type)
+            `INSERT INTO course_registration_driving_license (course_id, member_id, title, first_name, last_name, pid, address, sub_district, district, province, postal_code, phone, course_type,
+                                                              license_type)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeSubDistrict, traineeDistrict,
             traineeProvince, traineePostalCode, traineePhone, traineeSelectedCourseType, licenseType],

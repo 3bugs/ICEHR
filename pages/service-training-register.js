@@ -2,13 +2,14 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_TRAINING} from "../etc/constants";
 import Dialog from "../components/Dialog";
+import DatePicker from "react-datepicker";
 
 const TOP_OF_FORM = 'topOfForm';
 const ORGANIZATION_TYPE_OTHER = 9999;
@@ -16,7 +17,7 @@ const ORGANIZATION_TYPE_OTHER = 9999;
 const REGISTER_TRAINEE_TITLE = 'registerTraineeTitle';
 const REGISTER_TRAINEE_FIRST_NAME = 'registerTraineeFirstName';
 const REGISTER_TRAINEE_LAST_NAME = 'registerTraineeLastName';
-const REGISTER_TRAINEE_AGE = 'registerTraineeAge';
+const REGISTER_TRAINEE_BIRTH_DATE = 'registerTraineeBirthDate';
 const REGISTER_TRAINEE_JOB_POSITION = 'registerTraineeJobPosition';
 const REGISTER_TRAINEE_ORGANIZATION_NAME = 'registerTraineeOrganizationName';
 const REGISTER_TRAINEE_ORGANIZATION_TYPE = 'registerTraineeOrganizationType';
@@ -27,7 +28,7 @@ const REGISTER_TRAINEE_EMAIL = 'registerTraineeEmail';
 const REGISTER_COORDINATOR_TITLE = 'registerCoordinatorTitle';
 const REGISTER_COORDINATOR_FIRST_NAME = 'registerCoordinatorFirstName';
 const REGISTER_COORDINATOR_LAST_NAME = 'registerCoordinatorLastName';
-const REGISTER_COORDINATOR_AGE = 'registerCoordinatorAge';
+const REGISTER_COORDINATOR_BIRTH_DATE = 'registerCoordinatorBirthDate';
 const REGISTER_COORDINATOR_JOB_POSITION = 'registerCoordinatorJobPosition';
 const REGISTER_COORDINATOR_ORGANIZATION_NAME = 'registerCoordinatorOrganizationName';
 const REGISTER_COORDINATOR_ORGANIZATION_TYPE = 'registerCoordinatorOrganizationType';
@@ -191,6 +192,14 @@ class TraineeRegisterForm extends React.Component {
         });
     };
 
+    setDatePickerMinDate = () => {
+        const d = new Date();
+        const year = 1900;
+        const month = 0;
+        const day = 1;
+        return new Date(year, month, day)
+    };
+
     render() {
         let {formData, isReadOnly} = this.props;
 
@@ -285,22 +294,39 @@ class TraineeRegisterForm extends React.Component {
                                                         </div>
                                                     </div>
 
-                                                    {/*อายุ, ตำแหน่งงาน*/}
+                                                    {/*วันเกิด, ตำแหน่งงาน*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <div className="row">
                                                                 <div className="col-md-4">
-                                                                    <label className="label required-label">อายุ</label>
+                                                                    <label className="label required-label">วันเกิด</label>
                                                                 </div>
                                                                 <div className="col-md-8">
-                                                                    <input value={formData.fields[REGISTER_TRAINEE_AGE] || ''}
-                                                                           onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_AGE)}
+                                                                    <DatePicker
+                                                                        selected={formData.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                                        onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_BIRTH_DATE)}
+                                                                        onKeyDown={e => {
+                                                                            //if (e.key === ' ') {
+                                                                            e.preventDefault();
+                                                                            //}
+                                                                        }}
+                                                                        showMonthDropdown
+                                                                        showYearDropdown
+                                                                        dropdownMode="select"
+                                                                        placeholderText="ระบุวันเกิด"
+                                                                        dateFormat="dd/MM/yyyy"
+                                                                        minDate={this.setDatePickerMinDate()}
+                                                                        maxDate={new Date()}
+                                                                        className="form-control input-md my-react-date-picker"
+                                                                        disabled={isReadOnly}/>
+                                                                    {/*<input value={formData.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                                           onChange={this.handleChange.bind(this, formData.id, REGISTER_TRAINEE_BIRTH_DATE)}
                                                                            type="number"
                                                                            placeholder="กรอกอายุ"
                                                                            className="form-control input-md"
-                                                                           disabled={isReadOnly}/>
+                                                                           disabled={isReadOnly}/>*/}
                                                                     <ErrorLabel
-                                                                        value={formData.errors[REGISTER_TRAINEE_AGE]}/>
+                                                                        value={formData.errors[REGISTER_TRAINEE_BIRTH_DATE]}/>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -591,7 +617,7 @@ export default class ServiceTrainingRegister extends React.Component {
             initialTraineeFields[REGISTER_TRAINEE_TITLE] = user.title;
             initialTraineeFields[REGISTER_TRAINEE_FIRST_NAME] = user.firstName;
             initialTraineeFields[REGISTER_TRAINEE_LAST_NAME] = user.lastName;
-            initialTraineeFields[REGISTER_TRAINEE_AGE] = user.age;
+            initialTraineeFields[REGISTER_TRAINEE_BIRTH_DATE] = new Date(user.birthDate);
             initialTraineeFields[REGISTER_TRAINEE_JOB_POSITION] = user.jobPosition;
             initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_NAME] = user.organizationName;
             initialTraineeFields[REGISTER_TRAINEE_ORGANIZATION_TYPE] = user.organizationType;
@@ -602,7 +628,7 @@ export default class ServiceTrainingRegister extends React.Component {
             initialCoordinatorFields[REGISTER_COORDINATOR_TITLE] = user.title;
             initialCoordinatorFields[REGISTER_COORDINATOR_FIRST_NAME] = user.firstName;
             initialCoordinatorFields[REGISTER_COORDINATOR_LAST_NAME] = user.lastName;
-            initialCoordinatorFields[REGISTER_COORDINATOR_AGE] = user.age;
+            initialCoordinatorFields[REGISTER_COORDINATOR_BIRTH_DATE] = new Date(user.birthDate);
             initialCoordinatorFields[REGISTER_COORDINATOR_JOB_POSITION] = user.jobPosition;
             initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_NAME] = user.organizationName;
             initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = user.organizationType;
@@ -673,7 +699,15 @@ export default class ServiceTrainingRegister extends React.Component {
         let {traineeForms} = this.state;
         let {fields} = traineeForms[formId - 1];
 
-        if (field === REGISTER_TRAINEE_EMAIL) {
+        if (field === REGISTER_TRAINEE_BIRTH_DATE || field === REGISTER_COORDINATOR_BIRTH_DATE) {
+            /*let d = e; //new Date();
+            let yyyy = d.getFullYear();
+            let mm = d.getMonth() + 1;
+            let dd = d.getDate();*/
+            //alert(`${yyyy}-${mm}-${dd}`);
+
+            fields[field] = e;
+        } else if (field === REGISTER_TRAINEE_EMAIL) {
             fields[field] = e.target.value.trim();
         } else {
             fields[field] = e.target.value;
@@ -719,7 +753,7 @@ export default class ServiceTrainingRegister extends React.Component {
         coordinatorForm.fields[REGISTER_COORDINATOR_TITLE] = selectedTraineeForm.fields[REGISTER_TRAINEE_TITLE];
         coordinatorForm.fields[REGISTER_COORDINATOR_FIRST_NAME] = selectedTraineeForm.fields[REGISTER_TRAINEE_FIRST_NAME];
         coordinatorForm.fields[REGISTER_COORDINATOR_LAST_NAME] = selectedTraineeForm.fields[REGISTER_TRAINEE_LAST_NAME];
-        coordinatorForm.fields[REGISTER_COORDINATOR_AGE] = selectedTraineeForm.fields[REGISTER_TRAINEE_AGE];
+        coordinatorForm.fields[REGISTER_COORDINATOR_BIRTH_DATE] = selectedTraineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE];
         coordinatorForm.fields[REGISTER_COORDINATOR_JOB_POSITION] = selectedTraineeForm.fields[REGISTER_TRAINEE_JOB_POSITION];
         coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_NAME] = selectedTraineeForm.fields[REGISTER_TRAINEE_ORGANIZATION_NAME];
         coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = selectedTraineeForm.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE];
@@ -835,8 +869,8 @@ export default class ServiceTrainingRegister extends React.Component {
                 errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกนามสกุล';
                 currentFormIsValid = false;
             }
-            if (!fields[REGISTER_TRAINEE_AGE]) {
-                errors[REGISTER_TRAINEE_AGE] = 'กรุณากรอกอายุ';
+            if (!fields[REGISTER_TRAINEE_BIRTH_DATE]) {
+                errors[REGISTER_TRAINEE_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
                 currentFormIsValid = false;
             }
             if (!fields[REGISTER_TRAINEE_JOB_POSITION] || fields[REGISTER_TRAINEE_JOB_POSITION].trim().length === 0) {
@@ -918,8 +952,8 @@ export default class ServiceTrainingRegister extends React.Component {
                 coordinatorErrors[REGISTER_COORDINATOR_LAST_NAME] = 'กรุณากรอกนามสกุล';
                 valid = false;
             }
-            if (!coordinatorFields[REGISTER_COORDINATOR_AGE]) {
-                coordinatorErrors[REGISTER_COORDINATOR_AGE] = 'กรุณากรอกอายุ';
+            if (!coordinatorFields[REGISTER_COORDINATOR_BIRTH_DATE]) {
+                coordinatorErrors[REGISTER_COORDINATOR_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
                 valid = false;
             }
             if (!coordinatorFields[REGISTER_COORDINATOR_JOB_POSITION] || coordinatorFields[REGISTER_COORDINATOR_JOB_POSITION].trim().length === 0) {
@@ -1032,11 +1066,12 @@ export default class ServiceTrainingRegister extends React.Component {
         const trainees = [];
         for (let i = 0; i < traineeForms.length; i++) {
             let formData = traineeForms[i];
+
             trainees.push({
                 traineeTitle: formData.fields[REGISTER_TRAINEE_TITLE],
                 traineeFirstName: formData.fields[REGISTER_TRAINEE_FIRST_NAME],
                 traineeLastName: formData.fields[REGISTER_TRAINEE_LAST_NAME],
-                traineeAge: formData.fields[REGISTER_TRAINEE_AGE],
+                traineeBirthDate: getDateFormatFromDateObject(formData.fields[REGISTER_TRAINEE_BIRTH_DATE]),
                 traineeJobPosition: formData.fields[REGISTER_TRAINEE_JOB_POSITION],
                 traineeOrganizationName: formData.fields[REGISTER_TRAINEE_ORGANIZATION_NAME],
                 traineeOrganizationType: formData.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE],
@@ -1059,7 +1094,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorTitle: coordinatorForm.fields[REGISTER_COORDINATOR_TITLE],
                     coordinatorFirstName: coordinatorForm.fields[REGISTER_COORDINATOR_FIRST_NAME],
                     coordinatorLastName: coordinatorForm.fields[REGISTER_COORDINATOR_LAST_NAME],
-                    coordinatorAge: coordinatorForm.fields[REGISTER_COORDINATOR_AGE],
+                    coordinatorBirthDate: getDateFormatFromDateObject(coordinatorForm.fields[REGISTER_COORDINATOR_BIRTH_DATE]),
                     coordinatorJobPosition: coordinatorForm.fields[REGISTER_COORDINATOR_JOB_POSITION],
                     coordinatorOrganizationName: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_NAME],
                     coordinatorOrganizationType: coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE],
@@ -1070,7 +1105,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorTitle: traineeForms[0].fields[REGISTER_TRAINEE_TITLE],
                     coordinatorFirstName: traineeForms[0].fields[REGISTER_TRAINEE_FIRST_NAME],
                     coordinatorLastName: traineeForms[0].fields[REGISTER_TRAINEE_LAST_NAME],
-                    coordinatorAge: traineeForms[0].fields[REGISTER_TRAINEE_AGE],
+                    coordinatorBirthDate: getDateFormatFromDateObject(traineeForms[0].fields[REGISTER_TRAINEE_BIRTH_DATE]),
                     coordinatorJobPosition: traineeForms[0].fields[REGISTER_TRAINEE_JOB_POSITION],
                     coordinatorOrganizationName: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_NAME],
                     coordinatorOrganizationType: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_TYPE],
@@ -1117,6 +1152,14 @@ export default class ServiceTrainingRegister extends React.Component {
             onCloseCallback: null,
         };
         this.setState({dialog});
+    };
+
+    setDatePickerMinDate = () => {
+        const d = new Date();
+        const year = 1900;
+        const month = 0;
+        const day = 1;
+        return new Date(year, month, day)
     };
 
     render() {
@@ -1312,22 +1355,39 @@ export default class ServiceTrainingRegister extends React.Component {
                                                     </div>
                                                 </div>
 
-                                                {/*อายุ, ตำแหน่งงาน*/}
+                                                {/*วันเกิด, ตำแหน่งงาน*/}
                                                 <div className="row">
                                                     <div className="col-md-6">
                                                         <div className="row">
                                                             <div className="col-md-4">
-                                                                <label className="label required-label">อายุ</label>
+                                                                <label className="label required-label">วันเกิด</label>
                                                             </div>
                                                             <div className="col-md-8">
-                                                                <input value={coordinatorForm.fields[REGISTER_COORDINATOR_AGE] || ''}
-                                                                       onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_AGE)}
+                                                                <DatePicker
+                                                                    selected={coordinatorForm.fields[REGISTER_COORDINATOR_BIRTH_DATE] || ''}
+                                                                    onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_BIRTH_DATE)}
+                                                                    onKeyDown={e => {
+                                                                        //if (e.key === ' ') {
+                                                                            e.preventDefault();
+                                                                        //}
+                                                                    }}
+                                                                    showMonthDropdown
+                                                                    showYearDropdown
+                                                                    dropdownMode="select"
+                                                                    placeholderText="ระบุวันเกิด"
+                                                                    dateFormat="dd/MM/yyyy"
+                                                                    minDate={this.setDatePickerMinDate()}
+                                                                    maxDate={new Date()}
+                                                                    className="form-control input-md my-react-date-picker"
+                                                                    disabled={step === 4}/>
+                                                                {/*<input value={coordinatorForm.fields[REGISTER_COORDINATOR_BIRTH_DATE] || ''}
+                                                                       onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_BIRTH_DATE)}
                                                                        type="number"
-                                                                       placeholder="กรอกอายุ"
+                                                                       placeholder="ระบุวันเกิด"
                                                                        className="form-control input-md"
-                                                                       disabled={step === 4}/>
+                                                                       disabled={step === 4}/>*/}
                                                                 <ErrorLabel
-                                                                    value={coordinatorForm.errors[REGISTER_COORDINATOR_AGE]}/>
+                                                                    value={coordinatorForm.errors[REGISTER_COORDINATOR_BIRTH_DATE]}/>
                                                             </div>
                                                         </div>
                                                     </div>

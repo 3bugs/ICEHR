@@ -19,112 +19,115 @@ memberData.taxId = results[0].tax_id;*/
 
 const KEY_USER = 'user';
 
-export function getLoginUser() {
-    let userJsonString = localStorage.getItem(KEY_USER);
+module.exports = {
+    getLoginUser: () => {
+        let userJsonString = localStorage.getItem(KEY_USER);
 
-    if (userJsonString != null) {
-        return JSON.parse(userJsonString);
-    } else {
-        return null;
-    }
-}
+        if (userJsonString != null) {
+            return JSON.parse(userJsonString);
+        } else {
+            return null;
+        }
+    },
 
-export function setLoginUser(user) {
-    if (user == null) {
-        localStorage.removeItem(KEY_USER);
-    } else {
-        localStorage.setItem(KEY_USER, JSON.stringify(user));
-    }
-}
+    setLoginUser: (user) => {
+        if (user == null) {
+            localStorage.removeItem(KEY_USER);
+        } else {
+            localStorage.setItem(KEY_USER, JSON.stringify(user));
+        }
+    },
 
-export function formatCourseDateShort(beginDate, endDate) {
-    const monthNames = [
-        'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
-    ];
+    formatCourseDateShort: (beginDate, endDate) => {
+        const monthNames = [
+            'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+            'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+        ];
 
-    let bDateObj = new Date(beginDate);
-    let bDate = bDateObj.getDate();
-    let bMonth = monthNames[bDateObj.getMonth()];
-    let bYear = (parseInt(bDateObj.getFullYear()) + 543).toString().substr(2);
+        let bDateObj = new Date(beginDate);
+        let bDate = bDateObj.getDate();
+        let bMonth = monthNames[bDateObj.getMonth()];
+        let bYear = (parseInt(bDateObj.getFullYear()) + 543).toString().substr(2);
 
-    let eDateObj = new Date(endDate);
-    let eDate = eDateObj.getDate();
-    let eMonth = monthNames[eDateObj.getMonth()];
-    let eYear = (parseInt(eDateObj.getFullYear()) + 543).toString().substr(2);
+        let eDateObj = new Date(endDate);
+        let eDate = eDateObj.getDate();
+        let eMonth = monthNames[eDateObj.getMonth()];
+        let eYear = (parseInt(eDateObj.getFullYear()) + 543).toString().substr(2);
 
-    if (bDate === eDate && bMonth === eMonth && bYear === eYear) {
-        return `${bDate} ${bMonth} ${bYear}`;
-    } else if (bMonth === eMonth && bYear === eYear) {
-        return `${bDate}-${eDate} ${bMonth} ${bYear}`;
-    } else if (bYear === eYear) {
-        return `${bDate} ${bMonth} - ${eDate} ${eMonth} ${bYear}`;
-    } else {
-        return `${bDate} ${bMonth} ${eYear} - ${eDate} ${eMonth} ${eYear}`;
-    }
-}
+        if (bDate === eDate && bMonth === eMonth && bYear === eYear) {
+            return `${bDate} ${bMonth} ${bYear}`;
+        } else if (bMonth === eMonth && bYear === eYear) {
+            return `${bDate}-${eDate} ${bMonth} ${bYear}`;
+        } else if (bYear === eYear) {
+            return `${bDate} ${bMonth} - ${eDate} ${eMonth} ${bYear}`;
+        } else {
+            return `${bDate} ${bMonth} ${eYear} - ${eDate} ${eMonth} ${eYear}`;
+        }
+    },
 
-export function formatCourseDateLong(beginDate, endDate) {
-    const monthNames = [
-        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-    ];
-    const dayNames = [
-        'อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'
-    ];
+    formatCourseDateLong: (beginDate, endDate) => {
+        const monthNames = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        const dayNames = [
+            'อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'
+        ];
 
-    let bDateObj = new Date(beginDate);
-    let bDay = dayNames[bDateObj.getDay()];
-    let bDate = bDateObj.getDate();
-    let bMonth = monthNames[bDateObj.getMonth()];
-    let bYear = (parseInt(bDateObj.getFullYear()) + 543).toString();
+        let bDateObj = new Date(beginDate);
+        let bDay = dayNames[bDateObj.getDay()];
+        let bDate = bDateObj.getDate();
+        let bMonth = monthNames[bDateObj.getMonth()];
+        let bYear = (parseInt(bDateObj.getFullYear()) + 543).toString();
 
-    let eDateObj = new Date(endDate);
-    let eDay = dayNames[eDateObj.getDay()];
-    let eDate = eDateObj.getDate();
-    let eMonth = monthNames[eDateObj.getMonth()];
-    let eYear = (parseInt(eDateObj.getFullYear()) + 543).toString();
+        let eDateObj = new Date(endDate);
+        let eDay = dayNames[eDateObj.getDay()];
+        let eDate = eDateObj.getDate();
+        let eMonth = monthNames[eDateObj.getMonth()];
+        let eYear = (parseInt(eDateObj.getFullYear()) + 543).toString();
 
-    if (bDate === eDate && bMonth === eMonth && bYear === eYear) {
-        return `วัน${bDay}ที่ ${bDate} ${bMonth} ${bYear}`;
-    } else {
-        return `วัน${bDay}ที่ ${bDate} ${bMonth} ${eYear} - วัน${eDay}ที่ ${eDate} ${eMonth} ${eYear}`;
-    }
-}
+        if (bDate === eDate && bMonth === eMonth && bYear === eYear) {
+            return `วัน${bDay}ที่ ${bDate} ${bMonth} ${bYear}`;
+        } else {
+            return `วัน${bDay}ที่ ${bDate} ${bMonth} ${eYear} - วัน${eDay}ที่ ${eDate} ${eMonth} ${eYear}`;
+        }
+    },
 
-export function numberWithCommas(n) {
-    var parts = n.toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
-}
+    numberWithCommas: (n) => {
+        var parts = n.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    },
 
-export function isString(value) {
-    return typeof value === 'string' || value instanceof String;
-}
+    isString: (value) => {
+        return typeof value === 'string' || value instanceof String;
+    },
 
-export function isPositiveInteger(s) {
-    return /^\+?[1-9][\d]*$/.test(s);
-}
+    isPositiveInteger: (s) => {
+        return /^\+?[1-9][\d]*$/.test(s);
+    },
 
-export function isValidEmail(value) {
-    let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
-    return emailRegex.test(value);
-}
+    isValidEmail: (value) => {
+        let emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
+        return emailRegex.test(value);
+    },
 
-export function isValidPid(pid) {
-    if (pid.length !== 13) return false;
+    isValidPid: (pid) => {
+        if (pid.length !== 13) return false;
 
-    let sum = 0;
-    for (let i = 0; i < 12; i++) {
-        sum += parseFloat(pid.charAt(i)) * (13 - i);
-    }
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            sum += parseFloat(pid.charAt(i)) * (13 - i);
+        }
 
-    return (11 - sum % 11) % 10 === parseInt(pid.charAt(12));
-}
+        return (11 - sum % 11) % 10 === parseInt(pid.charAt(12));
+    },
 
-export function getDateFormatFromDateObject(d) {
-    let yyyy = d.getFullYear();
-    let mm = d.getMonth() + 1;
-    let dd = d.getDate();
-    return `${yyyy}-${mm}-${dd}`;
-}
+    getDateFormatFromDateObject: (d) => {
+        let yyyy = d.getFullYear();
+        let mm = d.getMonth() + 1;
+        let dd = d.getDate();
+        return `${yyyy}-${mm}-${dd}`;
+    },
+
+};

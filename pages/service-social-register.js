@@ -2,13 +2,14 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
+import DatePicker from "react-datepicker/es";
 
 const TOP_OF_FORM = 'topOfForm';
 //const ORGANIZATION_TYPE_OTHER = '9999';
@@ -16,7 +17,7 @@ const TOP_OF_FORM = 'topOfForm';
 const REGISTER_TRAINEE_TITLE = 'traineeTitle';
 const REGISTER_TRAINEE_FIRST_NAME = 'traineeFirstName';
 const REGISTER_TRAINEE_LAST_NAME = 'traineeLastName';
-const REGISTER_TRAINEE_AGE = 'traineeAge';
+const REGISTER_TRAINEE_BIRTH_DATE = 'traineeBirthDate';
 const REGISTER_TRAINEE_OCCUPATION = 'traineeOccupation';
 const REGISTER_TRAINEE_WORK_PLACE = 'traineeWorkPlace';
 const REGISTER_TRAINEE_ADDRESS = 'traineeAddress';
@@ -44,6 +45,14 @@ class TraineeRegisterForm extends React.Component {
     handleChange(field, e) {
         this.props.handleChangeCallback(field, e);
     }
+
+    setDatePickerMinDate = () => {
+        const d = new Date();
+        const year = 1900;
+        const month = 0;
+        const day = 1;
+        return new Date(year, month, day)
+    };
 
     render() {
         let {traineeForm, isReadOnly} = this.props;
@@ -107,16 +116,34 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">อายุ</label>
+                                                <label className="mt-2">วันเกิด</label>
                                             </div>
                                             <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_AGE] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_AGE)}
+                                                <DatePicker
+                                                    selected={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
+                                                    onKeyDown={e => {
+                                                        //if (e.key === ' ') {
+                                                        e.preventDefault();
+                                                        //}
+                                                    }}
+                                                    showMonthDropdown
+                                                    showYearDropdown
+                                                    dropdownMode="select"
+                                                    placeholderText="ระบุวันเกิด"
+                                                    dateFormat="dd/MM/yyyy"
+                                                    minDate={this.setDatePickerMinDate()}
+                                                    maxDate={new Date()}
+                                                    className="form-control input-md my-react-date-picker"/>
+
+                                                {/*<input value={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
                                                        type="number"
                                                        placeholder="กรอกอายุ"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"/>*/}
+
                                                 <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_AGE]}/>
+                                                    value={traineeForm.errors[REGISTER_TRAINEE_BIRTH_DATE]}/>
                                             </div>
                                         </div>
                                         <div className="row">
@@ -515,7 +542,7 @@ export default class ServiceSocialRegister extends React.Component {
             initialTraineeFields[REGISTER_TRAINEE_TITLE] = user.title;
             initialTraineeFields[REGISTER_TRAINEE_FIRST_NAME] = user.firstName;
             initialTraineeFields[REGISTER_TRAINEE_LAST_NAME] = user.lastName;
-            initialTraineeFields[REGISTER_TRAINEE_AGE] = user.age;
+            initialTraineeFields[REGISTER_TRAINEE_BIRTH_DATE] = new Date(user.birthDate);
             initialTraineeFields[REGISTER_TRAINEE_PHONE] = user.phone;
             initialTraineeFields[REGISTER_TRAINEE_EMAIL] = user.email;
         }
@@ -530,7 +557,15 @@ export default class ServiceSocialRegister extends React.Component {
         let {fields} = traineeForm;
         let {target} = e;
 
-        if (field === REGISTER_TRAINEE_EMAIL || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
+        if (field === REGISTER_TRAINEE_BIRTH_DATE) {
+            /*let d = e; //new Date();
+            let yyyy = d.getFullYear();
+            let mm = d.getMonth() + 1;
+            let dd = d.getDate();*/
+            //alert(`${yyyy}-${mm}-${dd}`);
+
+            fields[field] = e;
+        } else if (field === REGISTER_TRAINEE_EMAIL || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
         } else {
             fields[field] = target.type === 'checkbox' ? target.checked : target.value;
@@ -579,8 +614,8 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกนามสกุล';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_AGE]) {
-            errors[REGISTER_TRAINEE_AGE] = 'กรุณากรอกอายุ';
+        if (!fields[REGISTER_TRAINEE_BIRTH_DATE]) {
+            errors[REGISTER_TRAINEE_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_OCCUPATION] || fields[REGISTER_TRAINEE_OCCUPATION].trim().length === 0) {
@@ -662,6 +697,8 @@ export default class ServiceSocialRegister extends React.Component {
         const loginToken = user === null ? null : getLoginUser().loginToken;
         const {traineeForm} = this.state;
         const traineeData = traineeForm.fields;
+
+        traineeData[REGISTER_TRAINEE_BIRTH_DATE] = getDateFormatFromDateObject(traineeData[REGISTER_TRAINEE_BIRTH_DATE]);
 
         fetch('/api/register_course_social', {
             method: 'post',
