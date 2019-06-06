@@ -2,25 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3a66e0ef-5da3-4947-a51b-d282721e6f8f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/dictionaries/promlert.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../db-config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pages/test-pdf.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pdf.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/get_course_details_form.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/course_details.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/course_registration_old.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/build-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/build-manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/server/pages-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/server/pages-manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/chunks/styles.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css.map" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../components/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/../components/Header.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../etc/utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/../etc/utils.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pages/service-social-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-social-register.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pages/service-training-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-training-register.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/global.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/global.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/course.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/course_add_edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course_add_edit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/course_registration.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course_registration.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,7 +37,7 @@
         <entry file="file://$PROJECT_DIR$/index.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="42">
-              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+              <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -74,11 +72,11 @@
   <component name="PhpServers">
     <servers />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="4717" />
-    <option name="y" value="-4" />
-    <option name="width" value="1855" />
-    <option name="height" value="1084" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="4835" />
+    <option name="y" value="79" />
+    <option name="width" value="1440" />
+    <option name="height" value="782" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -97,6 +95,11 @@
               <item name="ICEHR Backend PHP" type="b2602c69:ProjectViewProjectNode" />
               <item name="backend" type="462c0819:PsiDirectoryNode" />
               <item name="include" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ICEHR Backend PHP" type="b2602c69:ProjectViewProjectNode" />
+              <item name="backend" type="462c0819:PsiDirectoryNode" />
+              <item name="pages" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -151,17 +154,19 @@
       <workItem from="1559289696539" duration="1213000" />
       <workItem from="1559629399588" duration="1204000" />
       <workItem from="1559701671370" duration="630000" />
+      <workItem from="1559800604399" duration="276000" />
+      <workItem from="1559801227900" duration="683000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9680000" />
+    <option name="totallyTimeSpent" value="10639000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="4717" y="-4" width="1855" height="1084" extended-state="6" />
+    <frame x="4835" y="79" width="1440" height="782" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2636816" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.35150644" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -216,7 +221,7 @@
     <entry file="file://$PROJECT_DIR$/index.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="42">
-          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+          <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
         </state>
       </provider>
     </entry>

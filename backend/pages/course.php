@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../include/head_php.inc';
 
 $sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
@@ -110,16 +111,18 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $traineeCount; ?></td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="post" action="course_add_edit.php">
+                                                    <form method="post" action="course_details.php" style="display: inline">
+                                                        <input type="hidden" name="courseId" value="<?php echo $courseId; ?>"/>
+                                                        <button type="submit" class="btn btn-info">
+                                                            <span class="fa fa-info"></span>&nbsp;
+                                                            ใบสมัคร
+                                                        </button>
+                                                    </form>
+                                                    <form method="post" action="course_add_edit.php" style="display: inline">
                                                         <input type="hidden" name="courseId" value="<?php echo $courseId; ?>"/>
                                                         <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger"
-                                                                onclick="onClickDelete(this, <?php echo $courseId; ?>, '<?php echo $courseName; ?>')">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            ลบ
                                                         </button>
                                                     </form>
                                                 </td>
@@ -188,7 +191,7 @@ if ($result = $db->query($sql)) {
                         self.close();
                     },
                     cssClass: 'btn-primary'
-                },{
+                }, {
                     label: 'ยกเลิก',
                     action: function (self) {
                         self.close();

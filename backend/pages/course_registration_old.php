@@ -1,37 +1,73 @@
 <?php
-session_start();
 require_once '../include/head_php.inc';
 
-$sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.created_at, ct.register_status, ct.course_registration_id,
-               cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
-            FROM course_trainee ct 
-                INNER JOIN course_registration cr 
-                    ON ct.course_registration_id = cr.id
-            ORDER BY ct.id DESC";
+/*$sql = "SELECT cr.id, cr.member_id, m.first_name AS member_first_name, m.last_name AS member_last_name, m.email AS member_email, "
+    . "     cr.form_number, cm.title, c.batch_number, cr.status, cr.created_at, "
+    . "     cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, "
+    . "     cr.coordinator_email, cr.coordinator_organization_name, cr.coordinator_job_position "
+    . " FROM course_registration cr INNER JOIN member m INNER JOIN course c INNER JOIN course_master cm "
+    . " ON cr.member_id = m.id AND cr.course_id = c.id AND c.course_master_id = cm.id "
+    . " ORDER BY cr.created_at DESC";*/
+
+$sql = "SELECT crm.*, cm.title, c.batch_number FROM
+            (SELECT cr.id, cr.member_id, m.first_name AS member_first_name, m.last_name AS member_last_name, m.email AS member_email,
+                cr.form_number, cr.course_id, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email,
+                cr.coordinator_job_position, cr.coordinator_organization_name, cr.status, cr.created_at
+            FROM course_registration cr 
+            LEFT JOIN member m 
+                ON cr.member_id = m.id) crm
+        INNER JOIN course c INNER JOIN course_master cm
+            ON crm.course_id = c.id AND c.course_master_id = cm.id
+        ORDER BY crm.created_at DESC";
 
 if ($result = $db->query($sql)) {
-    $traineeList = array();
+    $courseRegList = array();
     while ($row = $result->fetch_assoc()) {
-        $trainee = array();
-        $trainee['id'] = (int)$row['id'];
-        $trainee['form_number'] = $row['form_number'];
-        $trainee['title'] = $row['title'];
-        $trainee['first_name'] = $row['first_name'];
-        $trainee['last_name'] = $row['last_name'];
-        $trainee['phone'] = $row['phone'];
-        $trainee['email'] = $row['email'];
-        $trainee['created_at'] = $row['created_at'];
-        $trainee['register_status'] = $row['register_status'];
-        $trainee['coordinator'] = array(
+        $courseReg = array();
+        $courseReg['id'] = (int)$row['id'];
+        $courseRegId = $courseReg['id'];
+
+        $memberId = (int)$row['member_id'];
+        $courseReg['member'] = array(
+            'id' => $memberId,
+            'email' => $memberId === 0 ? '' : $row['member_email'],
+            'first_name' => $memberId === 0 ? 'Guest' : $row['member_first_name'],
+            'last_name' => $memberId === 0 ? '' : $row['member_last_name']
+        );
+        $courseReg['form_number'] = $row['form_number'];
+        $courseReg['course_name'] = $row['title'] . ' รุ่นที่ ' . $row['batch_number'];
+        $courseReg['status'] = $row['status'];
+        $courseReg['created_at'] = $row['created_at'];
+        $courseReg['coordinator'] = array(
             'title' => $row['coordinator_title'],
             'first_name' => $row['coordinator_first_name'],
             'last_name' => $row['coordinator_last_name'],
             'phone' => $row['coordinator_phone'],
-            'email' => $row['coordinator_email']
+            'email' => $row['coordinator_email'],
+            'job_position' => $row['coordinator_job_position'],
+            'organization_name' => $row['coordinator_organization_name']
         );
-        $trainee['course_id'] = (int)$row['course_id'];
+        $courseReg['trainee_list'] = array();
 
-        array_push($traineeList, $trainee);
+        $traineeSql = "SELECT * FROM course_trainee WHERE course_registration_id=$courseRegId";
+        if ($traineeResult = $db->query($traineeSql)) {
+            while ($traineeRow = $traineeResult->fetch_assoc()) {
+                $trainee['title'] = $traineeRow['title'];
+                $trainee['first_name'] = $traineeRow['first_name'];
+                $trainee['last_name'] = $traineeRow['last_name'];
+                $trainee['phone'] = $traineeRow['phone'];
+
+                array_push($courseReg['trainee_list'], $trainee);
+            }
+            $traineeResult->close();
+        } else {
+            echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+            $result->close();
+            $db->close();
+            exit();
+        }
+
+        array_push($courseRegList, $courseReg);
     }
     $result->close();
 } else {
@@ -100,12 +136,9 @@ if ($result = $db->query($sql)) {
                                     <thead>
                                     <tr>
                                         <th style="width: 10%; text-align: center">เลขที่</th>
-                                        <!--<th style="width: 50%; text-align: center">หลักสูตรที่สมัคร</th>-->
-                                        <!--<th style="width: 10%; text-align: center">จำนวน</th>-->
-                                        <!--<th style="width: 15%; text-align: center">ผู้กรอกใบสมัคร</th>-->
-                                        <th style="width: 23%; text-align: center">ผู้สมัคร</th>
-                                        <th style="width: 22%; text-align: center">ผู้ประสานงาน</th>
-                                        <th style="width: 30%; text-align: center">หลักสูตรที่สมัคร</th>
+                                        <th style="width: 50%; text-align: center">หลักสูตรที่สมัคร</th>
+                                        <th style="width: 10%; text-align: center">จำนวน</th>
+                                        <th style="width: 15%; text-align: center">ผู้กรอกใบสมัคร</th>
                                         <th style="width: 15%; text-align: center">วัน/เวลาที่สมัคร</th>
                                         <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center" nowrap>ใบเสร็จ</th>
@@ -113,27 +146,24 @@ if ($result = $db->query($sql)) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (sizeof($traineeList) == 0) {
+                                    if (sizeof($courseRegList) == 0) {
                                         ?>
                                         <tr valign="middle">
                                             <td colspan="7" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
-                                        foreach ($traineeList as $trainee) {
-                                            $traineeId = $trainee['id'];
-                                            $formNumber = $trainee['form_number'];
-                                            $traineeDetails = sprintf(
-                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                                $trainee['title'], $trainee['first_name'], $trainee['last_name'],
-                                                $trainee['phone'], $trainee['email'], $trainee['email']
-                                            );
-                                            $coordinatorDetails = sprintf(
-                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                                $trainee['coordinator']['title'], $trainee['coordinator']['first_name'], $trainee['coordinator']['last_name'],
-                                                $trainee['coordinator']['phone'], $trainee['coordinator']['email'], $trainee['coordinator']['email']
-                                            );
-                                            $createdAt = $trainee['created_at'];
+                                        foreach ($courseRegList as $courseReg) {
+                                            $formNumber = $courseReg['form_number'];
+                                            $courseName = $courseReg['course_name'];
+
+                                            $traineeCount = sizeof($courseReg['trainee_list']);
+
+                                            $memberId = $courseReg['member']['id'];
+                                            $memberName = $courseReg['member']['first_name'] . ' ' . $courseReg['member']['last_name'];
+                                            $memberEmail = $courseReg['member']['email'];
+
+                                            $createdAt = $courseReg['created_at'];
                                             $dateTimePart = explode(' ', $createdAt);
                                             $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
                                             $timePart = explode(':', $dateTimePart[1]);
@@ -141,61 +171,69 @@ if ($result = $db->query($sql)) {
                                             $displayDateTime = "$displayDate<br>$displayTime";
                                             $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
 
-                                            $registerStatus = $trainee['register_status'];
-
-                                            $courseId = $trainee['course_id'];
-                                            $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date 
-                                                        FROM course_master cm 
-                                                            INNER JOIN course c ON c.course_master_id = cm.id 
-                                                        WHERE c.id=$courseId";
-                                            if ($result = $db->query($sql)) {
-                                                if ($row = $result->fetch_assoc()) {
-                                                    $courseDetails = sprintf(
-                                                        '%s รุ่นที่ %d',
-                                                        $row['title'], $row['batch_number']
-                                                    );
-                                                } else {
-                                                    $courseDetails = '<span style="color: red">ไม่พบข้อมูล!</span>';
-                                                }
-                                            } else {
-                                                $courseDetails = '<span style="color: red">เกิดข้อผิดพลาดในการอ่านข้อมูล!</span>';
-                                            }
                                             ?>
 
                                             <tr>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $formNumber; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $traineeDetails; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $coordinatorDetails; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $courseDetails; ?></td>
+                                                <td style="vertical-align: middle"><?php echo $courseName; ?></td>
+
+                                                <?php
+                                                $title = "ใบสมัครเลขที่ $formNumber";
+
+                                                $traineeListText = "<h4>รายชื่อผู้สมัครอบรม ($traineeCount ท่าน)</h4>";
+                                                foreach ($courseReg['trainee_list'] as $trainee) {
+                                                    $traineeFirstName = $trainee['first_name'];
+                                                    $traineeLastName = $trainee['last_name'];
+                                                    $traineePhone = $trainee['phone'];
+                                                    $traineeListText .= "<strong>$traineeFirstName $traineeLastName</strong><ul><li>โทร. $traineePhone</li></ul>";
+                                                }
+                                                if (sizeof($courseReg['trainee_list']) > 1) {
+                                                    $coordinatorFirstName = $courseReg['coordinator']['first_name'];
+                                                    $coordinatorLastName = $courseReg['coordinator']['last_name'];
+                                                    $coordinatorPhone = $courseReg['coordinator']['phone'];
+                                                    $coordinatorEmail = $courseReg['coordinator']['email'];
+                                                    $coordinatorJobPosition = $courseReg['coordinator']['job_position'];
+                                                    $coordinatorOrganizationName = $courseReg['coordinator']['organization_name'];
+
+                                                    $traineeListText .= "<hr><h4>ผู้ประสานงาน</h4>";
+                                                    $traineeListText .= "<strong>$coordinatorFirstName $coordinatorLastName</strong><ul><li>ตำแหน่ง: $coordinatorJobPosition</li><li>ชื่อหน่วยงาน: $coordinatorOrganizationName</li><li>อีเมล: $coordinatorEmail</li><li>โทร: $coordinatorPhone</li></ul>";
+                                                }
+                                                ?>
+
+                                                <td style="vertical-align: middle; text-align: center; cursor: pointer"
+                                                    onclick="onClickTraineeCountLink(this, '<?php echo $title; ?>', '<?php echo $traineeListText; ?>')">
+                                                    <a href="javascript:void(0)"><?php echo $traineeCount; ?></a>
+                                                </td>
+                                                <td style="vertical-align: middle"><?php echo "$memberName<br>$memberEmail"; ?></td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
                                                 <td style="vertical-align: middle; text-align: center" nowrap>
                                                     <form method="post" action="course_add_edit.php">
-                                                        <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
+                                                        <input type="hidden" name="courseRegId" value="<?php echo $courseRegId; ?>"/>
                                                         <?php
-                                                        switch ($registerStatus) {
-                                                            case 'start':
+                                                        switch ($courseReg['status']) {
+                                                            case 'started':
                                                                 ?>
                                                                 <button type="button" class="btn-xs btn-warning" style="width: 90px;">
                                                                     รอชำระเงิน
                                                                 </button>
                                                                 <?php
                                                                 break;
-                                                            case 'wait-approve':
+                                                            case 'approve_waiting':
                                                                 ?>
                                                                 <button type="button" class="btn-xs btn-info" style="width: 90px;">
                                                                     แจ้งชำระเงิน
                                                                 </button>
                                                                 <?php
                                                                 break;
-                                                            case 'complete':
+                                                            case 'completed':
                                                                 ?>
                                                                 <button type="button" class="btn-xs btn-success" style="width: 90px;">
                                                                     สมบูรณ์
                                                                 </button>
                                                                 <?php
                                                                 break;
-                                                            case 'cancel':
+                                                            case 'canceled':
                                                                 ?>
                                                                 <button type="button" class="btn-xs btn-danger" style="width: 90px;">
                                                                     ยกเลิก
@@ -203,6 +241,7 @@ if ($result = $db->query($sql)) {
                                                                 <?php
                                                                 break;
                                                         }
+                                                        $courseReg['status']
                                                         ?>
 
                                                         <!--<button type="button" class="btn btn-danger"
@@ -214,7 +253,7 @@ if ($result = $db->query($sql)) {
                                                 </td>
                                                 <td style="vertical-align: middle; text-align: center" nowrap>
                                                     <?php
-                                                    if ($registerStatus === 'complete') {
+                                                    if ($courseReg['status'] === 'completed') {
                                                         ?>
                                                         <a class="btn" style="padding: 0">
                                                             <i class="fa fa-print"></i> พิมพ์

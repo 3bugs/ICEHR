@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../include/head_php.inc';
 
 $courseId = $_POST['courseId'];
@@ -12,6 +13,7 @@ if (isset($courseId)) {
             $course['course_master_id'] = (int)$row['course_master_id'];
             $course['batch_number'] = (int)$row['batch_number'];
             $course['details'] = $row['details'];
+            $course['trainee_limit'] = (int)$row['trainee_limit'];
             $course['application_fee'] = (int)$row['application_fee'];
             $course['place'] = $row['place'];
             $course['begin_date'] = $row['begin_date'];
@@ -64,8 +66,11 @@ if ($result = $db->query($sql)) {
 }
 
 if (isset($courseId)) {
-    $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, coordinator_email, coordinator_phone "
-        . " FROM course_registration WHERE course_id=$courseId ORDER BY created_at DESC";
+    $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, coordinator_email, coordinator_phone 
+                FROM course_registration 
+                WHERE course_id=$courseId 
+                ORDER BY created_at DESC";
+
     if ($result = $db->query($sql)) {
         $courseRegList = array();
         while ($row = $result->fetch_assoc()) {
@@ -212,7 +217,23 @@ if (isset($courseId)) {
 
                                     <!--ค่าสมัครและวันอบรม-->
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="inputTraineeLimit">รับผู้เข้าอบรมจำนวน (ท่าน):</label>
+                                                <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                                    <input type="number" class="form-control"
+                                                           id="inputTraineeLimit"
+                                                           value="<?php echo(!empty($course) ? $course['trainee_limit'] : ''); ?>"
+                                                           placeholder="กรอกจำนวนผู้เข้าอบรมที่รับได้" required
+                                                           oninvalid="this.setCustomValidity('กรอกจำนวนผู้เข้าอบรมที่รับได้')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="inputApplicationFee">ค่าสมัคร (บาท):</label>
                                                 <div class="input-group">
@@ -228,7 +249,7 @@ if (isset($courseId)) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="inputBeginDate">วันอบรมวันแรก:</label>
                                                 <div class="input-group date">
@@ -253,7 +274,7 @@ if (isset($courseId)) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="inputEndDate">วันอบรมวันสุดท้าย:</label>
                                                 <div class="input-group date">
@@ -367,134 +388,27 @@ if (isset($courseId)) {
                             </div>
                             <!-- /.box -->
 
-                            <?php
-                            if (isset($courseId)) {
-                            ?>
-                            <!--รายชื่อผู้สมัคร แยกตามใบสมัคร-->
-                            <div class="box box-success">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">รายชื่อผู้สมัคร
-                                        <small>แยกตามใบสมัคร</small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <!-- /. tools -->
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <button id="buttonSave" type="submit"
+                                            class="btn btn-info">
+                                        <span class="fa fa-save"></span>&nbsp;
+                                        บันทึก
+                                    </button>
                                 </div>
-                                <!-- /.box-header -->
-                                <div class="box-body pad">
-                                    <?php
-                                    $courseRegListCount = sizeof($courseRegList);
-                                    $numRows = $courseRegListCount / 3;
-                                    $numRows += $courseRegListCount % 3 === 0 ? 0 : 1;
-
-                                    for ($i = 0; $i < $courseRegListCount; $i++) {
-                                        $courseReg = $courseRegList[$i];
-
-                                        if ($i % 3 === 0) {
-                                            ?>
-                                            <div class="row">
-                                            <?php
-                                        }
-                                        ?>
-                                        <div class="col-md-4">
-                                            <?php
-                                            switch ($courseReg['status']) {
-                                                case 'started':
-                                                    $boxType = 'box-warning';
-                                                    $statusText = 'รอชำระเงิน';
-                                                    break;
-                                                case 'approve_waiting':
-                                                    $boxType = 'box-info';
-                                                    $statusText = 'แจ้งชำระเงิน';
-                                                    break;
-                                                case 'completed':
-                                                    $boxType = 'box-success';
-                                                    $statusText = 'สมบูรณ์';
-                                                    break;
-                                                case 'canceled':
-                                                    $boxType = 'box-danger';
-                                                    $statusText = 'ยกเลิก';
-                                                    break;
-                                            }
-                                            ?>
-                                            <div class="box <?php echo $boxType; ?> box-solid">
-                                                <div class="box-header with-border">
-                                                    <h3 class="box-title"><?php echo $courseReg['form_number'] . " - $statusText"; ?></h3>
-
-                                                    <div class="box-tools pull-right">
-                                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                                                        </button>
-                                                    </div>
-                                                    <!-- /.box-tools -->
-                                                </div>
-                                                <!-- /.box-header -->
-                                                <div class="box-body">
-                                                    <ul>
-                                                        <?php
-                                                        foreach ($courseReg['trainee_list'] as $trainee) {
-                                                            ?>
-                                                            <li><?php echo('<strong>' . $trainee['first_name'] . '</strong> <strong>' . $trainee['last_name'] . '</strong> โทร. ' . $trainee['phone']); ?></li>
-                                                            <?php
-                                                        }
-                                                        if (sizeof($courseReg['trainee_list']) > 1) {
-                                                            ?>
-                                                            <li><?php echo('<u>ผู้ประสานงาน</u>: <strong>' . $courseReg['coordinator']['first_name'] . '</strong> <strong>' . $courseReg['coordinator']['last_name'] . '</strong> โทร. ' . $courseReg['coordinator']['phone']); ?></li>
-                                                            <?php
-                                                        }
-                                                        ?>
-                                                    </ul>
-                                                </div>
-                                                <!-- /.box-body -->
-                                            </div>
-                                            <!-- /.box -->
-                                        </div>
-                                        <!-- /.col -->
-                                        <?php
-                                        if ($i % 3 === 2) {
-                                            ?>
-                                            </div>
-                                            <?php
-                                        }
-                                    }
-                                    if ($i % 3 !== 0) {
-                                    ?>
-                                </div>
-                                <?php
-                                }
-                                ?>
                             </div>
-                        </div>
-                        <!-- /.box -->
-                        <?php
-                        }
-                        ?>
 
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <button id="buttonSave" type="submit"
-                                        class="btn btn-info">
-                                    <span class="fa fa-save"></span>&nbsp;
-                                    บันทึก
-                                </button>
-                            </div>
                         </div>
-
+                        <!-- /.col -->
                     </div>
-                    <!-- /.col -->
+                    <!-- /.row -->
+                </form>
+            </section>
+            <!-- /.content -->
         </div>
-        <!-- /.row -->
-        </form>
-        </section>
-        <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
+        <!-- /.content-wrapper -->
 
-    <?php require_once('../include/footer.inc'); ?>
+        <?php require_once('../include/footer.inc'); ?>
     </div>
     <!-- ./wrapper -->
 
