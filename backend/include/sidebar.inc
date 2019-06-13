@@ -12,15 +12,20 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li style="margin-left: 20px"><a href="course_master.php"><i class="fa fa-circle-o"></i>ชื่อหลักสูตร</a></li>
-                    <li style="margin-left: 20px"><a href="course.php"><i class="fa fa-circle-o"></i>หลักสูตร</a></li>
-                    <li style="margin-left: 20px"><a href="course_add_edit.php"><i class="fa fa-circle-o"></i>เพิ่มหลักสูตร</a></li>
-                    <li style="margin-left: 20px"><a href="course_registration.php"><i class="fa fa-circle-o"></i>ใบสมัคร</a></li>
+                    <li style="margin-left: 20px"><a href="../pages/course_master.php"><i class="fa fa-circle-o"></i>ชื่อหลักสูตร</a></li>
+                    <li style="margin-left: 20px"><a href="../pages/course.php"><i class="fa fa-circle-o"></i>หลักสูตร</a></li>
+                    <li style="margin-left: 20px"><a href="../pages/course_add_edit.php"><i class="fa fa-circle-o"></i>เพิ่มหลักสูตร</a></li>
+                    <li style="margin-left: 20px"><a href="../pages/course_registration.php"><i class="fa fa-circle-o"></i>ใบสมัคร</a></li>
                 </ul>
             </li>
             <li>
-                <a href="member.php">
-                    <i class="fa fa-user"></i> <span>สมาชิกเว็บไซท์</span>
+                <a href="../pages/member.php">
+                    <i class="fa fa-users"></i> <span>สมาชิกเว็บไซท์</span>
+                </a>
+            </li>
+            <li>
+                <a href="../pages/user.php">
+                    <i class="fa fa-user-circle"></i> <span>ผู้ใช้งานระบบ</span>
                 </a>
             </li>
             <li>

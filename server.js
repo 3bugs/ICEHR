@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const dbConfig = require('./db-config');
 const jwt = require('jsonwebtoken');
 const Error = require('./model/Error');
+const fs = require('fs');
 const pdf = require("./pdf");
 
 const SECRET_KEY = 'icehr_and_2fellows';
@@ -13,6 +14,7 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({dev});
 const handle = app.getRequestHandler();
 const bodyParser = require('body-parser');
+const multer = require('multer');
 
 app
     .prepare()
@@ -75,7 +77,7 @@ app
             res.status(404).end();
         });
 
-        /*จัดการ api call*/
+        /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
             const queryParams = { title: req.params.id };
@@ -124,6 +126,15 @@ app
                     case 'get_organization_type':
                         doGetOrganizationType(req, res, db);
                         break;
+                    case 'get_registration_list_by_member':
+                        doGetRegistrationListByMember(req, res, db);
+                        break;
+                    case 'get_trainee_by_form_number':
+                        doGetTraineeByFormNumber(req, res, db);
+                        break;
+                    case 'add_transfer_notification':
+                        doAddTransferNotification(req, res, db);
+                        break;
                     default:
                         //res.status(404).end();
                         res.send({
@@ -132,7 +143,44 @@ app
                         });
                         break;
                 }
+                //db.end();
+            });
+        });
 
+        /*จัดการ GET api call*/
+        server.get('/api/:action', (req, res) => {
+            /*const actualPage = '/post';
+            const queryParams = { title: req.params.id };
+            app.render(req, res, actualPage, queryParams);*/
+
+            let db = mysql.createConnection({
+                host: dbConfig.HOST,
+                user: dbConfig.USER,
+                password: dbConfig.PASSWORD,
+                database: dbConfig.DATABASE,
+            });
+            db.connect(function (err) {
+                if (err) {
+                    res.send({
+                        error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error connect db: ' + err.stack),
+                    });
+                    return;
+                }
+
+                console.log('Db connected as id ' + db.threadId);
+
+                switch (req.params.action) {
+                    case 'get_trainee_form_pdf':
+                        doGetTraineeFormPdf(req, res, db);
+                        break;
+                    default:
+                        res.status(404).end();
+                        /*res.send({
+                            error: new Error(1, 'Invalid API endpoint', ''),
+                            dataList: null
+                        });*/
+                        break;
+                }
                 //db.end();
             });
         });
@@ -313,14 +361,14 @@ doRegisterMember = (req, res, db) => {
                 });
                 db.end();
             } else {
-                let organizationTypeCustom = inputOrganizationTypeCustom === undefined ? null : inputOrganizationTypeCustom.trim();
-                let address = inputAddress === undefined ? null : inputAddress.trim();
-                let subDistrict = inputSubDistrict === undefined ? null : inputSubDistrict.trim();
-                let district = inputDistrict === undefined ? null : inputDistrict.trim();
-                let province = inputProvince === undefined ? null : inputProvince.trim();
-                let postalCode = inputPostalCode === undefined ? null : inputPostalCode.trim();
-                let organizationPhone = inputOrganizationPhone === undefined ? null : inputOrganizationPhone.trim();
-                let taxId = inputTaxId === undefined ? null : inputTaxId.trim();
+                let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
+                let address = inputAddress == null ? null : inputAddress.trim();
+                let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
+                let district = inputDistrict == null ? null : inputDistrict.trim();
+                let province = inputProvince == null ? null : inputProvince.trim();
+                let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
+                let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
+                let taxId = inputTaxId == null ? null : inputTaxId.trim();
 
                 db.query(
                         `INSERT INTO member(title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
@@ -390,7 +438,7 @@ doGetCourse = (req, res, db) => {
                 * ถ้าจะแปลง js date ไปเป็น mysql date format ใช้ .toISOString().slice(0, 19).replace('T', ' ')
                 * */
 
-                let dataList = [];
+                const dataList = [];
                 results.forEach(row => {
                     dataList.push({
                         id: row.id,
@@ -426,7 +474,7 @@ doGetCourse = (req, res, db) => {
 doRegisterCourse = (req, res, db) => {
     const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
-    const {
+    let {
         coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
         coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
     } = coordinator;
@@ -435,15 +483,24 @@ doRegisterCourse = (req, res, db) => {
         receiptPostalCode, receiptOrganizationPhone, receiptTaxId
     } = receipt;
 
+    coordinatorTitle = coordinatorTitle == null ? null : coordinatorTitle.trim();
+    coordinatorFirstName = coordinatorFirstName == null ? null : coordinatorFirstName.trim();
+    coordinatorLastName = coordinatorLastName == null ? null : coordinatorLastName.trim();
+    coordinatorJobPosition = coordinatorJobPosition == null ? null : coordinatorJobPosition.trim();
+    coordinatorOrganizationName = coordinatorOrganizationName == null ? null : coordinatorOrganizationName.trim();
+    coordinatorOrganizationTypeCustom = coordinatorOrganizationTypeCustom == null ? null : coordinatorOrganizationTypeCustom.trim();
+    coordinatorPhone = coordinatorPhone == null ? null : coordinatorPhone.trim();
+    coordinatorEmail = coordinatorEmail == null ? null : coordinatorEmail.trim();
+
     db.query(
             `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_birth_date, coordinator_job_position,
                                               coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
                                               receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, coordinatorTitle.trim(), coordinatorFirstName.trim(), coordinatorLastName.trim(), coordinatorBirthDate, coordinatorJobPosition.trim(),
-            coordinatorOrganizationName.trim(), coordinatorOrganizationType, coordinatorOrganizationTypeCustom === undefined ? coordinatorOrganizationTypeCustom : coordinatorOrganizationTypeCustom.trim(),
-            coordinatorPhone.trim(), coordinatorEmail.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(), receiptPostalCode.trim(),
-            receiptOrganizationPhone.trim(), receiptTaxId.trim()],
+        [courseId, memberId, coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
+            coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom,
+            coordinatorPhone, coordinatorEmail, receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(),
+            receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
 
         function (err, results, fields) {
             if (err) {
@@ -511,8 +568,13 @@ doRegisterCourse = (req, res, db) => {
                                         });
                                         console.log(err.stack);
                                     } else {
+                                        res.send({
+                                            error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                            courseRegId: insertCourseRegId,
+                                        });
+
                                         // สร้างอาร์เรย์ของหมายเลขใบสมัครแต่ละคน
-                                        const traineeFormNumberList = [];
+                                        /*const traineeFormNumberList = [];
                                         for (let i = 0; i < trainees.length; i++) {
                                             const trainee = trainees[i];
                                             traineeFormNumberList.push(trainee.traineeFormNumber);
@@ -528,7 +590,7 @@ doRegisterCourse = (req, res, db) => {
                                                     error: new Error(1, message, ''),
                                                 });
                                             }
-                                        });
+                                        });*/
                                     }
                                 });
                             db.end();
@@ -704,6 +766,335 @@ doGetOrganizationType = (req, res, db) => {
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
                     dataList
                 });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetRegistrationListByMember = (req, res, db) => {
+    const {memberId} = req.body;
+
+    db.query(
+            `SELECT cm.title       AS courseTitle,
+                    c.batch_number AS courseBatchNumber,
+                    cr.id          AS registrationId,
+                    cr.course_id   AS courseId,
+                    cr.form_number AS registrationFormNumber,
+                    cr.created_at  AS registrationDateTime,
+                    ct.id          AS traineeId,
+                    ct.form_number AS traineeFormNumber,
+                    ct.first_name  AS traineeFirstName,
+                    ct.last_name   AS traineeLastName
+             FROM course_registration cr
+                      INNER JOIN course_trainee ct
+                                 ON ct.course_registration_id = cr.id
+                      INNER JOIN course c
+                                 ON cr.course_id = c.id
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+             WHERE cr.member_id = ?
+             ORDER BY registrationId DESC, traineeId`,
+        [memberId],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                const dataList = [];
+                let reg;
+                let previousRegistrationId = 0;
+                results.forEach(row => {
+                    const {
+                        courseId, courseTitle, courseBatchNumber,
+                        registrationId, registrationFormNumber, registrationDateTime,
+                        traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+                    } = row;
+
+                    if (registrationId !== previousRegistrationId) {
+                        previousRegistrationId = registrationId;
+
+                        reg = {
+                            courseId, courseTitle, courseBatchNumber,
+                            registrationId, registrationFormNumber, registrationDateTime,
+                            traineeList: [{
+                                traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+                            }],
+                        };
+                        dataList.push(reg);
+                    } else {
+                        reg.traineeList.push({
+                            traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+                        });
+                    }
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetTraineeByFormNumber = (req, res, db) => {
+    const {formNumber} = req.body;
+
+    db.query(
+            `SELECT cm.title       AS courseTitle,
+                    c.batch_number AS courseBatchNumber,
+                    c.place        AS coursePlace,
+                    c.begin_date   AS courseBeginDate,
+                    c.end_date     AS courseEndDate,
+                    ct.id          AS traineeId,
+                    ct.title       AS traineeTitle,
+                    ct.first_name  AS traineeFirstName,
+                    ct.last_name   AS traineeLastName
+             FROM course_registration cr
+                      INNER JOIN course_trainee ct
+                                 ON ct.course_registration_id = cr.id
+                      INNER JOIN course c
+                                 ON cr.course_id = c.id
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+             WHERE ct.form_number = ?`,
+        [formNumber],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                if (results.length > 0) {
+                    const {
+                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+                        traineeId, traineeTitle, traineeFirstName, traineeLastName,
+                    } = results[0];
+
+                    res.send({
+                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                        data: {
+                            course: {
+                                title: courseTitle,
+                                batchNumber: courseBatchNumber,
+                                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
+                                beginDate: courseBeginDate,
+                                endDate: courseEndDate,
+                                place: coursePlace,
+                            },
+                            trainee: {
+                                id: traineeId,
+                                title: traineeTitle,
+                                firstName: traineeFirstName,
+                                lastName: traineeLastName,
+                            },
+                            formNumber,
+                        }
+                    });
+
+                } else {
+                    res.send({
+                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
+                    });
+                }
+            }
+        }
+    );
+    db.end();
+};
+
+const slipImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'backend/uploads/slip_images')
+    },
+    filename: function (req, file, cb) {
+        const fileName = Date.now() + '-' + file.originalname;
+        cb(null, fileName);
+    }
+});
+
+const upload = multer({storage: slipImageStorage}).single('file');
+
+doAddTransferNotification = (req, res, db) => {
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+            });
+            return;
+        } else if (err) {
+            res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+            });
+            return;
+        }
+
+        const {memberId, traineeId, amount, transferDate} = req.body;
+        const {filename} = req.file;
+        db.query(
+                `INSERT INTO payment_notification
+                     (member_id, trainee_id, amount, transfer_date, slip_file_name)
+                 VALUES (?, ?, ?, ?, ?)`,
+            [memberId, traineeId, amount, transferDate, filename],
+            function (err, results, fields) {
+                if (err) {
+                    res.send({
+                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล(1)', 'error run query: ' + err.stack),
+                    });
+                    db.end();
+                } else {
+                    db.query(
+                            `UPDATE course_trainee
+                             SET register_status = 'wait-approve'
+                             WHERE id = ?
+                               AND register_status <> 'complete'`,
+                        [traineeId],
+                        function (err, results, fields) {
+                            if (err) {
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล(2)', 'error run query: ' + err.stack),
+                                });
+                            } else {
+                                res.send({
+                                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                                    debug: `ชื่อไฟล์ ${filename}, ยอดโอน ${amount} บาท, โอนเมื่อ ${transferDate}`,
+                                });
+                            }
+                        }
+                    );
+                    db.end();
+                }
+            }
+        );
+    })
+};
+
+/*doGetRegistrationListByMember = (req, res, db) => {
+    const {memberId} = req.body;
+
+    db.query(
+            `SELECT cm.title       AS courseTitle,
+                    c.batch_number AS courseBatchNumber,
+                    cr.id          AS registrationId,
+                    cr.form_number AS registrationFormNumber,
+                    cr.created_at  AS registrationDateTime
+             FROM course c
+                      INNER JOIN course_registration cr
+                                 ON cr.course_id = c.id
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+             WHERE cr.member_id = ?`,
+        [memberId],
+        function (err, results, fields) {
+            let courseName = '';
+            if (err) {
+                db.end();
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                const dataList = [];
+                results.forEach(row => {
+                    const {
+                        courseTitle, courseBatchNumber,
+                        registrationId, registrationFormNumber, registrationDateTime,
+                    } = row;
+
+                    const reg = {
+                        courseTitle, courseBatchNumber,
+                        registrationId, registrationFormNumber, registrationDateTime,
+                        traineeList: [],
+                    };
+                    dataList.push(reg);
+
+                    db.query(
+                            `SELECT ct.id          AS traineeId,
+                                    ct.form_number AS traineeFormNumber,
+                                    ct.first_name  AS traineeFirstName,
+                                    ct.last_name   AS traineeLastName
+                             FROM course_registration cr
+                                      INNER JOIN course_trainee ct
+                                                 ON ct.course_registration_id = cr.id
+                             WHERE cr.id = ?`,
+                        [registrationId],
+                        function (err, results, fields) {
+                            let courseName = '';
+                            if (err) {
+                                db.end();
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                                });
+                            } else {
+                                results.forEach(row => {
+                                   reg.traineeList.push(row);
+                                });
+                            }
+                        }
+                    );
+                });
+                db.end();
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
+                });
+            }
+        }
+    );
+};*/
+
+doGetTraineeFormPdf = (req, res, db) => {
+    //const {courseRegId} = req.body;
+
+    /*traineeId ไว้สำหรับสร้าง PDF รายบุคคลที่หลังบ้าน*/
+    const {courseRegId, traineeId, download} = req.query;
+
+    db.query(
+            `SELECT cr.form_number AS regFormNumber, ct.form_number
+             FROM course_registration cr
+                      INNER JOIN course_trainee ct
+                                 ON ct.course_registration_id = cr.id
+             WHERE cr.id = ?`,
+        [courseRegId],
+
+        function (err, results, fields) {
+            if (err) {
+                res.status(500).end();
+                console.log(err.stack);
+            } else {
+                const {regFormNumber} = results[0];
+                const traineeFormNumberList = [];
+                results.forEach(row => {
+                    traineeFormNumberList.push(row.form_number);
+                });
+
+                const pdfFilePath = `${__dirname}/static/public/${regFormNumber}.pdf`;
+
+                if (download && fs.existsSync(pdfFilePath)) {
+                    //มี pdf แล้ว
+                    console.log(`${pdfFilePath} exists.`);
+                    res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
+                        console.log('Error download.');
+                    });
+                } else {
+                    pdf.generateTraineeForm_Training(traineeFormNumberList, download, (success, result) => {
+                        if (success) {
+                            if (download) {
+                                res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
+                                    console.log('Error download.');
+                                });
+                            } else {
+                                res.setHeader('Content-Type', 'application/pdf');
+                                res.send(result);
+                            }
+                        } else {
+                            res.status(500).end();
+                        }
+                    });
+                }
             }
         }
     );

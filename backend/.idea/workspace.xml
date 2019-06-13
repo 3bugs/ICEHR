@@ -2,23 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3a66e0ef-5da3-4947-a51b-d282721e6f8f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/components/get_course_details_form.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/course_details.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/course_registration_old.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/image-test.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/pdf.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/mdb/mdb.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/mdb/mdb.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/user.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/build-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/build-manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/server/pages-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/server/pages-manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/chunks/styles.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/css/styles.chunk.css.map" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../.next/static/runtime/webpack.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.next/static/webpack/627037b59951965739ba.hot-update.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/global.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/global.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/course.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/sidebar.inc" beforeDir="false" afterPath="$PROJECT_DIR$/include/sidebar.inc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/course_add_edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course_add_edit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/course_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course_details.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/course_registration.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/course_registration.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/member.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/member.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pages/service-training-register.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pages/service-training-register.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pdf.js" beforeDir="false" afterPath="$PROJECT_DIR$/../pdf.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../server.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,7 +38,7 @@
         <entry file="file://$PROJECT_DIR$/index.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="42">
-              <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -73,10 +74,10 @@
     <servers />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="4835" />
-    <option name="y" value="79" />
+    <option name="x" value="1613" />
+    <option name="y" value="181" />
     <option name="width" value="1440" />
-    <option name="height" value="782" />
+    <option name="height" value="810" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -156,17 +157,18 @@
       <workItem from="1559701671370" duration="630000" />
       <workItem from="1559800604399" duration="276000" />
       <workItem from="1559801227900" duration="683000" />
+      <workItem from="1560138458364" duration="1201000" />
+      <workItem from="1560155186339" duration="15000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10639000" />
+    <option name="totallyTimeSpent" value="11855000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="4835" y="79" width="1440" height="782" extended-state="0" />
-    <editor active="true" />
+    <frame x="1613" y="181" width="1440" height="810" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.35150644" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.5164993" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -221,7 +223,7 @@
     <entry file="file://$PROJECT_DIR$/index.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="42">
-          <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
         </state>
       </provider>
     </entry>

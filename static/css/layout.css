@@ -717,9 +717,10 @@ a:hover {
 }
 
 .number-check {
+	text-align: right;
 	background-color: #ffd440;
 	color: black;
-	padding: 20px 50px;
+	padding: 20px 30px;
 	display: inline-block;
 	position: absolute;
 	right: 0;
@@ -1603,6 +1604,14 @@ a:hover {
 .my-react-date-picker {
 	display: block !important;
 	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	max-width: 1000px !important;
+}
+
+.my-react-date-picker-2 {
+	display: block !important;
+	width: 200px;
 	margin-left: 0 !important;
 	margin-right: 0 !important;
 	max-width: 1000px !important;

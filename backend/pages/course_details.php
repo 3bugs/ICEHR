@@ -511,7 +511,7 @@ if ($result = $db->query($sql)) {
                                             <tr>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $formNumber; ?></td>
                                                 <td style="vertical-align: middle"><?php echo $traineeDetails; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $coordinatorDetails; ?></td>
+                                                <td style="vertical-align: middle"><?php echo ($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
                                                 <td style="vertical-align: middle; text-align: center" nowrap>
@@ -558,9 +558,9 @@ if ($result = $db->query($sql)) {
                                                             <span class="sr-only">Toggle Dropdown</span>
                                                         </button>
                                                         <ul class="dropdown-menu pull-right" role="menu">
-                                                            <li><a><i class="fa fa-print"></i>ใบสมัคร</a></li>
-                                                            <li><a><i class="fa fa-print"></i>ใบเสร็จรับเงิน</a></li>
-                                                            <li><a><i class="fa fa-print"></i>ใบรับรองการผ่านอบรม</a></li>
+                                                            <li><a href="javascript:void(0)" onClick="doPrintRegForm()"><i class="fa fa-print"></i>ใบสมัคร</a></li>
+                                                            <li><a href="javascript:void(0)" onClick="doPrintReceipt()"><i class="fa fa-print"></i>ใบเสร็จรับเงิน</a></li>
+                                                            <li><a href="javascript:void(0)" onClick="doPrintCertificate()"><i class="fa fa-print"></i>ใบรับรองการผ่านอบรม</a></li>
                                                             <!--<li class="divider"></li>-->
                                                         </ul>
                                                     </div>
@@ -684,6 +684,20 @@ if ($result = $db->query($sql)) {
                 e.target.setCustomValidity('');
             });
         });
+
+        function doPrintRegForm() {
+
+        }
+
+        function doPrintReceipt() {
+            //$('#formEditCourseMaster #inputCourseMasterId').val(courseMasterId);
+            //$('#formEditCourseMaster #inputCourseMasterTitle').val(courseMasterTitle);
+            //$('#printReceiptModal').modal('show');
+        }
+
+        function doPrintCertificate() {
+
+        }
 
     </script>
 

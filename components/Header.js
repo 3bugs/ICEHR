@@ -11,6 +11,7 @@ import "../css/react-datepicker.css";
 
 import th from 'date-fns/locale/th';
 import {registerLocale, setDefaultLocale} from "react-datepicker";
+
 registerLocale('th', th);
 setDefaultLocale('th');
 
@@ -1782,7 +1783,9 @@ export default class Header extends React.Component {
                                     {/*สถานะการลงทะเบียน*/}
                                     <li><a href="checkstatus.php" className="bgyellow_btn">สถานะการลงทะเบียน </a></li>
                                     {/*ส่งหลักฐานการโอนเงิน*/}
-                                    <li><a href="uploadreceipt.php" className="bgyellow_btn">ส่งหลักฐานโอนเงิน</a></li>
+                                    <Link href="/upload-slip">
+                                        <li><a href="javascript:void(0)" className="bgyellow_btn">ส่งหลักฐานโอนเงิน</a></li>
+                                    </Link>
                                 </ul>
                             </div>
                         </div>

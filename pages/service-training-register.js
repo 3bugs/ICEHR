@@ -10,6 +10,7 @@ import Link from "next/link";
 import {SERVICE_TRAINING} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import DatePicker from "react-datepicker";
+import {Modal, Button} from 'react-bootstrap';
 
 const TOP_OF_FORM = 'topOfForm';
 const ORGANIZATION_TYPE_OTHER = 9999;
@@ -126,6 +127,36 @@ class RegisterProgress extends React.Component {
                     }
                 `}</style>
             </div>
+        );
+    }
+}
+
+class RegisterSuccessDialog extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
+
+    render() {
+        return (
+            <Modal
+                {...this.props}
+                size="md"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        {this.props.title}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{textAlign: 'center'}}>
+                    {this.props.children}
+                </Modal.Body>
+                <Modal.Footer>
+                    <button className="btn btn-danger" onClick={this.props.onHide}>ปิด</button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
@@ -504,6 +535,10 @@ export default class ServiceTrainingRegister extends React.Component {
                 textColor: '#000',
                 onCloseCallback: null,
             },
+            registerSuccessDialog: {
+                show: false,
+                title: null,
+            },
         };
         this.organizationTypeCustomInput = React.createRef();
     }
@@ -757,6 +792,7 @@ export default class ServiceTrainingRegister extends React.Component {
         coordinatorForm.fields[REGISTER_COORDINATOR_JOB_POSITION] = selectedTraineeForm.fields[REGISTER_TRAINEE_JOB_POSITION];
         coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_NAME] = selectedTraineeForm.fields[REGISTER_TRAINEE_ORGANIZATION_NAME];
         coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = selectedTraineeForm.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE];
+        coordinatorForm.fields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = selectedTraineeForm.fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM];
         coordinatorForm.fields[REGISTER_COORDINATOR_PHONE] = selectedTraineeForm.fields[REGISTER_TRAINEE_PHONE];
         coordinatorForm.fields[REGISTER_COORDINATOR_EMAIL] = selectedTraineeForm.fields[REGISTER_TRAINEE_EMAIL];
 
@@ -1102,7 +1138,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorPhone: coordinatorForm.fields[REGISTER_COORDINATOR_PHONE],
                     coordinatorEmail: coordinatorForm.fields[REGISTER_COORDINATOR_EMAIL],
                 } : {
-                    coordinatorTitle: traineeForms[0].fields[REGISTER_TRAINEE_TITLE],
+                    /*coordinatorTitle: traineeForms[0].fields[REGISTER_TRAINEE_TITLE],
                     coordinatorFirstName: traineeForms[0].fields[REGISTER_TRAINEE_FIRST_NAME],
                     coordinatorLastName: traineeForms[0].fields[REGISTER_TRAINEE_LAST_NAME],
                     coordinatorBirthDate: getDateFormatFromDateObject(traineeForms[0].fields[REGISTER_TRAINEE_BIRTH_DATE]),
@@ -1111,7 +1147,18 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorOrganizationType: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_TYPE],
                     coordinatorOrganizationTypeCustom: traineeForms[0].fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM],
                     coordinatorPhone: traineeForms[0].fields[REGISTER_TRAINEE_PHONE],
-                    coordinatorEmail: traineeForms[0].fields[REGISTER_TRAINEE_EMAIL],
+                    coordinatorEmail: traineeForms[0].fields[REGISTER_TRAINEE_EMAIL],*/
+
+                    coordinatorTitle: null,
+                    coordinatorFirstName: null,
+                    coordinatorLastName: null,
+                    coordinatorBirthDate: null,
+                    coordinatorJobPosition: null,
+                    coordinatorOrganizationName: null,
+                    coordinatorOrganizationType: null,
+                    coordinatorOrganizationTypeCustom: null,
+                    coordinatorPhone: null,
+                    coordinatorEmail: null,
                 },
                 receipt: {
                     receiptAddress: receiptForm.fields[REGISTER_RECEIPT_ADDRESS],
@@ -1128,8 +1175,17 @@ export default class ServiceTrainingRegister extends React.Component {
             .then(result => {
                 const msg = result['error']['message'];
                 if (result['error']['code'] === 0) {
-                    this.showDialog(msg, 'success', () => {
+                    /*this.showDialog(msg, 'success', () => {
                         Router.back();
+                    });*/
+                    const courseRegId = result['courseRegId'];
+                    const registerSuccessDialog = {
+                        show: true,
+                        title: 'ลงทะเบียนสำเร็จ'
+                    };
+                    this.setState({
+                        courseRegId,
+                        registerSuccessDialog,
                     });
                 }
             });
@@ -1162,6 +1218,30 @@ export default class ServiceTrainingRegister extends React.Component {
         return new Date(year, month, day)
     };
 
+    handleDownloadTraineeFormPdf = () => {
+        fetch('/api/download_trainee_form_pdf', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                courseRegId: this.state.courseRegId //todo:
+            }),
+        });
+        /*.then(result => result.json())
+        .then(result => {
+            if (result['error']['code'] === 0) {
+                this.setState({
+                    nameTitleList: result['dataList'],
+                });
+            } else {
+                /!*let errors = {};
+                errors[RESULT_ERROR] = result['error_message'];
+                this.setState({errors: errors});*!/
+            }
+        });*/
+    };
+
     render() {
         let {traineeForms, coordinatorForm, receiptForm, step, dialog} = this.state;
 
@@ -1177,7 +1257,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <div className="row">
                             <div className="col text-title-top">
                                 <p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3>แบบฟอร์มสมัครอบรม</h3></div>
+                                <h3>แบบฟอร์มลงทะเบียนอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -1206,7 +1286,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <Element name={TOP_OF_FORM}>
                             <RegisterProgress
                                 text={[
-                                    'ข้อมูลผู้สมัครอบรม', 'ข้อมูลผู้ประสานงาน' + '\n' + '(กรณีผู้สมัครมากกว่า 1 ท่าน)', 'ข้อมูลการออกใบเสร็จ', 'ตรวจสอบข้อมูล'
+                                    'ข้อมูลผู้สมัคร', 'ข้อมูลผู้ประสานงาน' + '\n' + '(กรณีผู้สมัครมากกว่า 1 ท่าน)', 'ข้อมูลการออกใบเสร็จ', 'ตรวจสอบข้อมูล'
                                 ]}
                                 activeStep={step}
                             /><br/>
@@ -1221,7 +1301,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
                                         <h4 className="text-black" style={{marginTop: '20px'}}>
-                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม
+                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัคร
                                         </h4>
                                     </div>
                                 </div>
@@ -1245,7 +1325,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                 {step === 1 &&
                                 <div style={{border: '0px solid blue', marginTop: '15px', textAlign: 'center', marginBottom: '30px'}}>
                                     <a href="javascript:void(0);" className="addmoreuser" onClick={this.onClickAddTrainee}>
-                                        <i className="fas fa-plus-circle" style={{fontSize: '0.8rem'}}/>&nbsp;&nbsp;&nbsp;เพิ่มผู้สมัครอบรม
+                                        <i className="fas fa-plus-circle" style={{fontSize: '0.8rem'}}/>&nbsp;&nbsp;&nbsp;เพิ่มผู้สมัคร
                                     </a>
                                 </div>
                                 }
@@ -1368,7 +1448,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                     onChange={this.handleChangeCoordinator.bind(this, REGISTER_COORDINATOR_BIRTH_DATE)}
                                                                     onKeyDown={e => {
                                                                         //if (e.key === ' ') {
-                                                                            e.preventDefault();
+                                                                        e.preventDefault();
                                                                         //}
                                                                     }}
                                                                     showMonthDropdown
@@ -1652,10 +1732,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                     <div className="col">
                                         <div className="btn-red-submit">
                                             <button type="submit" value="submit" className="btn btn-danger">
-                                                ยืนยันการสมัครอบรม
-                                            </button>
-                                            <button type="button" className="btn btn-dark">
-                                                พิมพ์
+                                                ยืนยันลงทะเบียนอบรม
                                             </button>
                                         </div>
                                     </div>
@@ -1700,17 +1777,51 @@ export default class ServiceTrainingRegister extends React.Component {
                         isOpen={dialog.isOpen}
                         onCloseCallback={dialog.onCloseCallback}/>
 
-                <style jsx>{`
-                                .btn-normal {
-                                color: black;
-                                background-color: #d0d0d0;
-                                }
+                <RegisterSuccessDialog
+                    title={this.state.registerSuccessDialog.title}
+                    show={this.state.registerSuccessDialog.show}
+                    onHide={() => {
+                        const registerSuccessDialog = {
+                            show: false,
+                        };
+                        this.setState({registerSuccessDialog}, () => {
+                            Router.back();
+                        });
+                    }}>
+                    <div>
+                        {/*<button type="button"
+                                className="btn btn-dark"
+                                style={{marginLeft: 0, padding: '5px 20px'}}
+                                onClick={this.handleDownloadTraineeFormPdf}>
+                            Save ใบสมัคร <i className="far fa-save" style={{color: '#aaa'}}></i>
+                        </button>*/}
+                        <a className="btn btn-dark"
+                           style={{marginLeft: 0, padding: '5px 20px'}}
+                           href={`/api/get_trainee_form_pdf?courseRegId=${this.state.courseRegId}&download=true`}>
+                            Save ใบสมัคร{/*<i className="far fa-save" style={{color: '#aaa'}}></i>*/}
+                        </a>
+                        <a className="btn btn-dark"
+                           style={{marginRight: 0, padding: '5px 20px'}}
+                           href={`/api/get_trainee_form_pdf?courseRegId=${this.state.courseRegId}`}
+                           target="_blank">
+                            แสดงใบสมัคร{/*<i className="fa fa-print" style={{color: '#aaa'}}></i>*/}
+                        </a>
+                    </div>
+                </RegisterSuccessDialog>
 
-                                .btn-normal:hover {
-                                color: white;
-                                background-color: #999999;
-                                }
-                                `}</style>
+                < style
+                    jsx> {`
+                    .btn-normal {
+                    color: black;
+                    background-color: #d0d0d0;
+                    }
+
+                    .btn-normal:hover {
+                    color: white;
+                    background-color: #999999;
+                    }
+                `
+                }</style>
             </MainLayout>
         );
     }

@@ -9,7 +9,7 @@ import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
-import DatePicker from "react-datepicker/es";
+import DatePicker from "react-datepicker";
 
 const TOP_OF_FORM = 'topOfForm';
 //const ORGANIZATION_TYPE_OTHER = '9999';
@@ -119,31 +119,33 @@ class TraineeRegisterForm extends React.Component {
                                                 <label className="mt-2">วันเกิด</label>
                                             </div>
                                             <div className="col-md-9">
-                                                <DatePicker
-                                                    selected={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
-                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
-                                                    onKeyDown={e => {
-                                                        //if (e.key === ' ') {
-                                                        e.preventDefault();
-                                                        //}
-                                                    }}
-                                                    showMonthDropdown
-                                                    showYearDropdown
-                                                    dropdownMode="select"
-                                                    placeholderText="ระบุวันเกิด"
-                                                    dateFormat="dd/MM/yyyy"
-                                                    minDate={this.setDatePickerMinDate()}
-                                                    maxDate={new Date()}
-                                                    className="form-control input-md my-react-date-picker"/>
+                                                <div style={{width: '48.5%'}} className="mt-2">
+                                                    <DatePicker
+                                                        selected={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
+                                                        onKeyDown={e => {
+                                                            //if (e.key === ' ') {
+                                                            e.preventDefault();
+                                                            //}
+                                                        }}
+                                                        showMonthDropdown
+                                                        showYearDropdown
+                                                        dropdownMode="select"
+                                                        placeholderText="ระบุวันเกิด"
+                                                        dateFormat="dd/MM/yyyy"
+                                                        minDate={this.setDatePickerMinDate()}
+                                                        maxDate={new Date()}
+                                                        className="form-control my-react-date-picker"/>
 
-                                                {/*<input value={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
+                                                    {/*<input value={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
                                                        type="number"
                                                        placeholder="กรอกอายุ"
                                                        className="form-control-2 input-md mt-2"/>*/}
 
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_BIRTH_DATE]}/>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_BIRTH_DATE]}/>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="row">
@@ -754,8 +756,8 @@ export default class ServiceSocialRegister extends React.Component {
                     <div className="container">
                         <div className="row">
                             <div className="col text-title-top">
-                                {/*<p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>*/}
-                                <h3>แบบฟอร์มสมัครอบรมโครงการบริการสังคม</h3></div>
+                                <p>โครงการบริการสังคม สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
+                                <h3>แบบฟอร์มลงทะเบียนอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -768,7 +770,7 @@ export default class ServiceSocialRegister extends React.Component {
                                                 <div className="col-sm-9 text-gray">{this.props.course.name}</div>
                                             </div>
                                             <div className="row">
-                                                <div className="col-sm-3 text-black ">วันที่จัด</div>
+                                                <div className="col-sm-3 text-black ">วันที่อบรม</div>
                                                 <div className="col-sm-9 text-gray">{formatCourseDateLong(this.props.course.beginDate, this.props.course.endDate)}</div>
                                             </div>
                                             {/*<div className="row">
@@ -790,7 +792,7 @@ export default class ServiceSocialRegister extends React.Component {
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
                                         <h4 className="text-black" style={{marginTop: '20px'}}>
-                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม&nbsp;
+                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัคร&nbsp;
                                         </h4>
                                     </div>
                                 </div>

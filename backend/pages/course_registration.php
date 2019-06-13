@@ -51,31 +51,113 @@ if ($result = $db->query($sql)) {
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
+
+    <!-- Print receipt modal -->
+    <div class="modal fade" id="printReceiptModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">พิมพ์ใบเสร็จรับเงิน, ใบสมัครเลขที่ <span id="spanFormNumber"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <form action="print_receipt.php" method="get"
+                          id="formPrintReceipt" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <div class="box-body">
+                            <input type="hidden" id="inputTraineeId" name="trainee_id">
+
+                            <!--ชื่อ-นามสกุลผู้สมัคร-->
+                            <div class="form-group">
+                                <label for="inputTraineeName">ผู้สมัคร:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" disabled
+                                           id="inputTraineeName">
+                                </div>
+                            </div>
+                            <!--หลักสูตรที่สมัคร-->
+                            <div class="form-group">
+                                <label for="inputCourseName">หลักสูตรที่สมัคร:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-font"></i>
+                                    </span>
+                                    <input type="text" class="form-control" disabled
+                                           id="inputCourseName">
+                                </div>
+                            </div>
+                            <!--ราคาเต็ม-->
+                            <div class="form-group">
+                                <label for="inputCourseFee">ราคาเต็ม (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputCourseFee"
+                                           placeholder="กรอกราคาเต็มของหลักสูตรนี้" required
+                                           oninvalid="this.setCustomValidity('กรอกราคาเต็มของหลักสูตรนี้')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <!--ส่วนลด-->
+                            <div class="form-group" style="display: none">
+                                <label for="inputDiscount">ส่วนลด (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputDiscount"
+                                           placeholder="กรอกส่วนลด"
+                                           oninvalid="this.setCustomValidity('กรอกส่วนลด')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <!--ราคาที่ลูกค้าจ่ายจริง-->
+                            <div class="form-group">
+                                <label for="inputPaid">ราคาที่ลูกค้าจ่ายจริง (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputPaid" name="paid"
+                                           placeholder="กรอกราคาที่ลูกค้าจ่ายจริง" required
+                                           oninvalid="this.setCustomValidity('กรอกราคาที่ลูกค้าจ่ายจริง')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <div id="responseText"
+                                 style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer">
+                            <button id="buttonPrint" type="submit"
+                                    class="btn btn-info pull-right">
+                                <span class="fa fa-save"></span>&nbsp;
+                                พิมพ์
+                            </button>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+                <!--<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>-->
+            </div>
+        </div>
+    </div>
+
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
-
-        <div class="modal fade" id="modalTraineeList">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="title">Default Modal</h4>
-                    </div>
-                    <div class="modal-body" id="body">
-                        <p>One fine body&hellip;</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-        <!-- /.modal -->
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
@@ -144,7 +226,7 @@ if ($result = $db->query($sql)) {
                                             $registerStatus = $trainee['register_status'];
 
                                             $courseId = $trainee['course_id'];
-                                            $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date 
+                                            $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
                                                         FROM course_master cm 
                                                             INNER JOIN course c ON c.course_master_id = cm.id 
                                                         WHERE c.id=$courseId";
@@ -154,6 +236,7 @@ if ($result = $db->query($sql)) {
                                                         '%s รุ่นที่ %d',
                                                         $row['title'], $row['batch_number']
                                                     );
+                                                    $courseApplicationFee = (int)$row['application_fee'];
                                                 } else {
                                                     $courseDetails = '<span style="color: red">ไม่พบข้อมูล!</span>';
                                                 }
@@ -165,7 +248,7 @@ if ($result = $db->query($sql)) {
                                             <tr>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $formNumber; ?></td>
                                                 <td style="vertical-align: middle"><?php echo $traineeDetails; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $coordinatorDetails; ?></td>
+                                                <td style="vertical-align: middle"><?php echo ($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
                                                 <td style="vertical-align: middle"><?php echo $courseDetails; ?></td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
@@ -204,24 +287,21 @@ if ($result = $db->query($sql)) {
                                                                 break;
                                                         }
                                                         ?>
-
-                                                        <!--<button type="button" class="btn btn-danger"
-                                                                onclick="onClickDelete(this, <?php /*echo $courseId; */ ?>, '<?php /*echo $courseName; */ ?>')">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            ลบ
-                                                        </button>-->
                                                     </form>
                                                 </td>
                                                 <td style="vertical-align: middle; text-align: center" nowrap>
-                                                    <?php
-                                                    if ($registerStatus === 'complete') {
-                                                        ?>
-                                                        <a class="btn" style="padding: 0">
-                                                            <i class="fa fa-print"></i> พิมพ์
-                                                        </a>
-                                                        <?php
-                                                    }
-                                                    ?>
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                            <span class="sr-only">Toggle Dropdown</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu pull-right" role="menu">
+                                                            <li><a href="javascript:void(0)" onClick="onClickPrintRegForm()"><i class="fa fa-print"></i>ใบสมัคร</a></li>
+                                                            <li><a href="javascript:void(0)" onClick="onClickPrintReceipt('<?php echo $formNumber; ?>', <?php echo $traineeId; ?>, '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?php echo $courseDetails; ?>', <?php echo $courseApplicationFee; ?>)"><i class="fa fa-print"></i>ใบเสร็จรับเงิน</a></li>
+                                                            <li><a href="javascript:void(0)" onClick="onClickPrintCertificate()"><i class="fa fa-print"></i>ใบรับรองการผ่านอบรม</a></li>
+                                                            <!--<li class="divider"></li>-->
+                                                        </ul>
+                                                    </div>
                                                 </td>
                                             </tr>
 
@@ -271,6 +351,34 @@ if ($result = $db->query($sql)) {
                     },
                 }
             });
+        });
+
+        function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee) {
+            $('#printReceiptModal #spanFormNumber').text(formNumber);
+            $('#formPrintReceipt #inputTraineeId').val(traineeId);
+            $('#formPrintReceipt #inputTraineeName').val(traineeName);
+            $('#formPrintReceipt #inputCourseName').val(courseName);
+            $('#formPrintReceipt #inputCourseFee').val(courseApplicationFee);
+            $('#printReceiptModal').modal('show');
+        }
+
+        $('#inputDiscount').on('input', e => {
+            const courseFee = $('#formPrintReceipt #inputCourseFee').val();
+            const discount = $('#inputDiscount').val();
+            if (discount.trim() === '' || isNaN(discount)) {
+                $('#inputPaid').val('');
+            } else {
+                $('#inputPaid').val(courseFee - discount);
+            }
+        });
+        $('#inputPaid').on('input', e => {
+            const courseFee = $('#formPrintReceipt #inputCourseFee').val();
+            const paid = $('#inputPaid').val();
+            if (paid.trim() === '' || isNaN(paid)) {
+                $('#inputDiscount').val('');
+            } else {
+                $('#inputDiscount').val(courseFee - paid);
+            }
         });
 
         function onClickTraineeCountLink(element, title, message) {

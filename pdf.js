@@ -45,6 +45,24 @@ function createPdfContent(course, coordinator, trainees) {
         );
     }*/
 
+    const coordinatorContent = coordinatorFirstName == null ? [{}] : [
+        {
+            text: 'ผู้ประสานงาน',
+            style: 'subHeader'
+        },
+        {
+            text: `${coordinatorTitle} ${coordinatorFirstName} ${coordinatorLastName}`,
+            style: 'body',
+        },
+        {
+            ul: [
+                `เบอร์โทร: ${coordinatorPhone}`,
+                `อีเมล: ${coordinatorEmail}`,
+            ],
+            style: 'list',
+        },
+    ];
+
     let contentList = [];
     for (let i = 0; i < trainees.length; i++) {
         const {
@@ -59,15 +77,15 @@ function createPdfContent(course, coordinator, trainees) {
                 text: `หน้า ${i + 1}/${trainees.length}`,
                 alignment: 'right',
                 style: 'small',
+                pageBreak: pageBreak,
             },
             {
                 image: './static/images/mainlogo.png',
                 alignment: 'center',
                 margin: [0, 0, 0, 20],
-                pageBreak: pageBreak,
             },
             {
-                text: 'ใบสมัครเลขที่ ' + traineeFormNumber,
+                text: 'ใบสมัครเลขที่\n' + traineeFormNumber,
                 alignment: 'right',
                 style: 'body',
             },
@@ -102,21 +120,37 @@ function createPdfContent(course, coordinator, trainees) {
                 ],
                 style: 'list',
             },
+
             {
-                text: 'ผู้สมัครอบรม',
-                style: 'subHeader'
+                table: {
+                    widths: ['50%', '50%'],
+                    body: [
+                        [
+                            [
+                                {
+                                    text: 'ผู้สมัครอบรม',
+                                    style: 'subHeader'
+                                },
+                                {
+                                    text: `${traineeTitle} ${traineeFirstName} ${traineeLastName}`,
+                                    style: 'body',
+                                },
+                                {
+                                    ul: [
+                                        `เบอร์โทร: ${traineePhone}`,
+                                        `อีเมล: ${traineeEmail}`,
+                                    ],
+                                    style: 'list',
+                                },
+                            ],
+                            coordinatorContent,
+                        ],
+                    ],
+                },
+                layout: 'noBorders',
+                style: 'bodyNoIndent',
             },
-            {
-                text: `${traineeTitle} ${traineeFirstName} ${traineeLastName}`,
-                style: 'body',
-            },
-            {
-                ul: [
-                    `เบอร์โทร: ${traineePhone}`,
-                    `อีเมล: ${traineeEmail}`,
-                ],
-                style: 'list',
-            },
+
             /*{
                 table: {
                     widths: ['auto', '*', '*', '*'],
@@ -165,8 +199,12 @@ function createPdfContent(course, coordinator, trainees) {
 }
 
 module.exports = {
-    generateTraineeForm_Training: (traineeFormNumberList, callback) => { // callback(success, message)
-        let db = mysql.createConnection({
+    generateTraineeForm_Training: (traineeFormNumberList, download, callback) => { // callback(success, result)
+        /*เอาไว้ทดสอบกรณี error, สร้าง pdf ไม่ได้*/
+        /*callback(false, null);
+        return;*/
+
+        const db = mysql.createConnection({
             host: dbConfig.HOST,
             user: dbConfig.USER,
             password: dbConfig.PASSWORD,
@@ -283,13 +321,37 @@ module.exports = {
                                                 course, coordinator, trainees
                                             );
                                             const doc = printer.createPdfKitDocument(content);
-                                            doc.pipe(fs.createWriteStream(`./static/public/${courseRegFormNumber}.pdf`).on('error', err => {
-                                                callback(false, err.message);
-                                            }));
-                                            doc.on('end', () => {
-                                                callback(true, 'สร้าง PDF ใบสมัครสำเร็จ');
-                                            });
-                                            doc.end();
+
+                                            if (download) {
+                                                /*กรณีต้องการ save ลงไฟล์*/
+                                                const pdfFilePath = `${__dirname}/static/public/${courseRegFormNumber}.pdf`;
+                                                console.log(`Creating ${pdfFilePath}...`);
+
+                                                const writeStream = fs.createWriteStream(pdfFilePath);
+
+                                                doc.pipe(writeStream.on('error', err => {
+                                                    callback(false, err.message);
+                                                }));
+                                                /*doc.on('end', () => {
+                                                    callback(true, 'สร้าง PDF ใบสมัครสำเร็จ');
+                                                });*/
+                                                doc.end();
+                                                writeStream.on('finish', function () {
+                                                    callback(true, 'สร้าง PDF ใบสมัครสำเร็จ');
+                                                });
+                                            } else {
+                                                let chunks = [];
+
+                                                doc.on('data', (chunk) => {
+                                                    chunks.push(chunk);
+                                                });
+                                                doc.on('end', () => {
+                                                    const result = Buffer.concat(chunks);
+                                                    callback(true, result);
+                                                    //callback(true, 'data:application/pdf;base64,' + result.toString('base64'));
+                                                });
+                                                doc.end();
+                                            }
                                         }
                                     }
                                 }
@@ -302,7 +364,7 @@ module.exports = {
         });
     },
 
-    generateRegistrationFormTrainingPdf: (formNumber, course, trainees, coordinator, callback) => {
+    /*generateRegistrationFormTrainingPdf: (formNumber, course, trainees, coordinator, callback) => {
         const {
             courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
             courseDetails, courseResponsibleUserId
@@ -340,6 +402,7 @@ module.exports = {
                 trainees,
             );
             const doc = printer.createPdfKitDocument(content);
+
             doc.pipe(fs.createWriteStream(`./static/public/${formNumber}.pdf`).on('error', err => {
                 callback(false, err.message);
             }));
@@ -348,21 +411,8 @@ module.exports = {
             });
             doc.end();
 
-            /*let chunks = [];
-
-            doc.on('data', (chunk) => {
-                chunks.push(chunk);
-            });
-
-            doc.on('end', () => {
-                const result = Buffer.concat(chunks);
-                callback('data:application/pdf;base64,' + result.toString('base64'));
-            });
-
-            doc.end();*/
-
         } catch (err) {
             throw(err);
         }
-    }, //generateRegistrationFormTrainingPdf()
+    },*/ //generateRegistrationFormTrainingPdf()
 };

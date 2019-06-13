@@ -122,8 +122,23 @@ if (isset($courseId)) {
     <html lang="th">
     <head>
         <?php require_once('../include/head.inc'); ?>
+        <!-- Material Design Bootstrap -->
+        <!--<link href="../lib/mdb/mdb.min.css" rel="stylesheet">-->
+        <!-- Material Design Bootstrap -->
+        <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/css/mdb.min.css" rel="stylesheet">-->
         <style>
-
+            input[type="file"] {
+                display: none;
+            }
+            .custom-file-upload {
+                border: 1px solid #ccc;
+                display: inline-block;
+                padding: 6px 12px;
+                cursor: pointer;
+            }
+            .custom-file-upload:hover {
+                background: #f4f4f4;
+            }
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
@@ -368,7 +383,7 @@ if (isset($courseId)) {
                             <div class="box box-info">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">รายละเอียดเพิ่มเติม
-                                        <small>หลักการและเหตุผล / วัตถุประสงค์ / เนื้อหาการอบรม / ตารางราคา</small>
+                                        <small>หลักการและเหตุผล / วัตถุประสงค์ / เนื้อหาการอบรม</small>
                                     </h3>
                                     <!-- tools box -->
                                     <div class="pull-right box-tools">
@@ -384,6 +399,74 @@ if (isset($courseId)) {
                                 <textarea id="editor" rows="20" cols="80">
                                     <?php echo(!empty($course) ? $course['details'] : ''); ?>
                                 </textarea>
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
+                            <!--pictures gallery-->
+                            <div class="box box-success">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Picture Gallery
+                                        <!--<small>อัพโหลดรูปภาพ</small>-->
+                                    </h3>
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad">
+                                    <label for="file-upload" class="custom-file-upload">
+                                        <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลดรูปภาพ
+                                    </label>
+                                    <input id="file-upload" type="file"/>
+                                    <div style="margin-top: 10px">
+                                        <img src="../images/image-test.png" style="width: 200px; margin: 0 0 10px 10px"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
+                            <!--pdf gallery-->
+                            <div class="box box-danger">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">เอกสาร PDF
+                                        <!--<small></small>-->
+                                    </h3>
+
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad">
+                                    <label for="file-upload" class="custom-file-upload">
+                                        <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
+                                    </label>
+                                    <input id="file-upload" type="file"/>
+                                    <div style="margin-top: 10px">
+                                        <a class="btn btn-app">
+                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 1
+                                        </a>
+                                        <a class="btn btn-app">
+                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 2
+                                        </a>
+                                        <a class="btn btn-app">
+                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 3
+                                        </a>
+                                        <a class="btn btn-app">
+                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 4
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /.box -->
@@ -507,6 +590,8 @@ if (isset($courseId)) {
     <?php require_once('../include/foot.inc'); ?>
     <!-- CK Editor -->
     <script src="../bower_components/ckeditor/ckeditor.js"></script>
+    <!-- MDB core JavaScript -->
+    <!--<script type="text/javascript" src="../lib/mdb/mdb.min.js"></script>-->
     </body>
     </html>
 
