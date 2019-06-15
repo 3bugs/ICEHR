@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once '../include/head_php.inc';
 
 $traineeId = $_GET['trainee_id'];
@@ -47,5 +46,5 @@ if ($result = $db->query($sql)) {
     </body>
     </html>
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

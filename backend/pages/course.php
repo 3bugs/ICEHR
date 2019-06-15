@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once '../include/head_php.inc';
 
 $sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
@@ -245,5 +244,5 @@ if ($result = $db->query($sql)) {
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

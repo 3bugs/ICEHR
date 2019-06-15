@@ -30,6 +30,8 @@ if ($db->connect_errno) {
 }
 $db->set_charset("utf8");
 
+sleep(1); //todo: *****************************************************************************************
+
 switch ($action) {
     case 'test':
         doTest();
@@ -60,6 +62,12 @@ switch ($action) {
         break;
     case 'update_course':
         doUpdateCourse();
+        break;
+    case 'update_register_status':
+        doUpdateRegisterStatus();
+        break;
+    case 'get_payment_notification':
+        doGetPaymentNotification();
         break;
 
     default:
@@ -251,6 +259,85 @@ function doUpdateCourse()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขหลักสูตร';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateRegisterStatus()
+{
+    global $db, $response;
+
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+    $newRegisterStatus = $db->real_escape_string($_POST['registerStatus']);
+
+    $sql = "UPDATE course_trainee 
+                SET register_status = '$newRegisterStatus' 
+                WHERE id = $traineeId ";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะการลงทะเบียนสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะการลงทะเบียน';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doGetPaymentNotification()
+{
+    global $db, $response;
+
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+
+    $sql = "SELECT p.id, p.trainee_id, p.amount, p.transfer_date, p.slip_file_name, p.created_at,
+                   m.id AS member_id, m.title AS member_title, m.first_name AS member_first_name, m.last_name AS member_last_name,
+                   m.phone AS member_phone, m.email AS member_email
+                FROM payment_notification p 
+                    LEFT JOIN member m 
+                        ON p.member_id = m.id  
+                WHERE trainee_id = $traineeId 
+                ORDER BY id DESC";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $response[KEY_DATA_LIST] = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $paymentNotification = array();
+            $paymentNotification['id'] = (int)$row['id'];
+            $paymentNotification['trainee_id'] = (int)$row['trainee_id'];
+            $paymentNotification['amount'] = (int)$row['amount'];
+            $paymentNotification['transfer_date'] = $row['transfer_date'];
+            $paymentNotification['slip_file_name'] = $row['slip_file_name'];
+            $paymentNotification['created_at'] = $row['created_at'];
+
+            $createdAt = $row['created_at'];
+            $dateTimePart = explode(' ', $createdAt);
+            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+            $timePart = explode(':', $dateTimePart[1]);
+            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+
+            $paymentNotification['notification_date_format'] = $displayDate;
+            $paymentNotification['notification_time_format'] = $displayTime;
+
+            $paymentNotification['member'] = array(
+                'id' => (int)$row['member_id'], //กรณีผู้ใช้ไม่ได้ login : $row['member_id'] จะเป็น null และ id จะเป็น 0
+                'title' => $row['member_title'],
+                'first_name' => $row['member_first_name'],
+                'last_name' => $row['member_last_name'],
+                'phone' => $row['member_phone'],
+                'email' => $row['member_email']
+            );
+            array_push($response[KEY_DATA_LIST], $paymentNotification);
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

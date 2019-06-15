@@ -362,5 +362,5 @@ if ($result = $db->query($sql)) {
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

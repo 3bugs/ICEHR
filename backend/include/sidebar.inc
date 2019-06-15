@@ -6,7 +6,7 @@
         <ul class="sidebar-menu" data-widget="tree">
             <li class="treeview">
                 <a href="#">
-                    <i class="fa fa-pencil"></i> <span>บริการฝึกอบรม</span>
+                    <i class="fa fa-pencil"></i> <span>บริการวิชาการ</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
@@ -15,7 +15,18 @@
                     <li style="margin-left: 20px"><a href="../pages/course_master.php"><i class="fa fa-circle-o"></i>ชื่อหลักสูตร</a></li>
                     <li style="margin-left: 20px"><a href="../pages/course.php"><i class="fa fa-circle-o"></i>หลักสูตร</a></li>
                     <li style="margin-left: 20px"><a href="../pages/course_add_edit.php"><i class="fa fa-circle-o"></i>เพิ่มหลักสูตร</a></li>
-                    <li style="margin-left: 20px"><a href="../pages/course_registration.php"><i class="fa fa-circle-o"></i>ใบสมัคร</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-files-o"></i> <span>ใบสมัคร</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li style="margin-left: 20px"><a href="../pages/course_registration.php"><i class="fa fa-circle-o"></i>วิชาการ</a></li>
+                    <li style="margin-left: 20px"><a href="../pages/course_registration.php"><i class="fa fa-circle-o"></i>ใบขับขี่</a></li>
                 </ul>
             </li>
             <li>
@@ -24,7 +35,7 @@
                 </a>
             </li>
             <li>
-                <a href="../pages/user.php">
+                <a href="../pages/user.php" id="linkUser">
                     <i class="fa fa-user-circle"></i> <span>ผู้ใช้งานระบบ</span>
                 </a>
             </li>

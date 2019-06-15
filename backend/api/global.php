@@ -37,6 +37,10 @@ define('ROLE_USER', 'user');
 define('ROLE_ADMIN', 'admin');
 define('ROLE_SUPER_ADMIN', 'super_admin');
 
+define('SERVICE_TYPE_TRAINING', 'training');
+define('SERVICE_TYPE_SOCIAL', 'social');
+define('SERVICE_TYPE_DRIVING_LICENSE', 'driving-license');
+
 $monthNames = array(
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
     'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'

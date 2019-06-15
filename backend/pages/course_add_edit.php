@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once '../include/head_php.inc';
 
 $courseId = $_POST['courseId'];
@@ -596,5 +595,5 @@ if (isset($courseId)) {
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

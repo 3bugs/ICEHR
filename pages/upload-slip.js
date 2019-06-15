@@ -107,7 +107,7 @@ export default class UploadSlip extends React.Component {
             errors.amount = 'กรุณากรอกยอดเงินที่โอน';
             formIsValid = false;
         } else if (fields.amount <= 0) {
-            errors.amount = 'กรุณากรอกจำนวนเงินที่มากกว่า 0';
+            errors.amount = 'กรุณากรอกจำนวนเงินมากกว่า 0';
             formIsValid = false;
         }
         if (!fields.transferDate) {

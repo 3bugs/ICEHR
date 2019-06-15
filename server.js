@@ -517,8 +517,8 @@ doRegisterCourse = (req, res, db) => {
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
-                         WHERE id = ?`,
-                    [formNumber, insertCourseRegId],
+                         WHERE id = ?`, cd
+                        [formNumber, insertCourseRegId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -677,8 +677,9 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
     db.query(
-            `INSERT INTO course_registration_driving_license (course_id, member_id, title, first_name, last_name, pid, address, sub_district, district, province, postal_code, phone, course_type,
-                                                              license_type)
+            `INSERT INTO course_registration_driving_license
+             (course_id, member_id, title, first_name, last_name, pid, address, sub_district, district,
+              province, postal_code, phone, course_type, license_type)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeSubDistrict, traineeDistrict,
             traineeProvince, traineePostalCode, traineePhone, traineeSelectedCourseType, licenseType],
