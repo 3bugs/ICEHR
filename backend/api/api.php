@@ -46,7 +46,8 @@ switch ($action) {
         break;
     case 'add_course_master':
         $courseMasterTitle = $db->real_escape_string($_POST['courseMasterTitle']);
-        doAddCourseMaster($courseMasterTitle);
+        $serviceType = $db->real_escape_string($_POST['serviceType']);
+        doAddCourseMaster($courseMasterTitle, $serviceType);
         break;
     case 'update_course_master':
         $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
@@ -153,13 +154,20 @@ function doLogoutUser()
     }
 }
 
-function doAddCourseMaster($courseMasterTitle)
+function doAddCourseMaster($courseMasterTitle, $serviceType)
 {
-    global $db, $response;
+    global $db, $response, $serviceTypeText;
+
+    if (!array_key_exists($serviceType, $serviceTypeText)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มชื่อหลักสูตร: โปรแกรมระบุ Service Type ไม่ถูกต้อง, กรุณาติดต่อผูัพัฒนา';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
 
     $courseMasterTitle = trim($courseMasterTitle);
 
-    $sql = "INSERT INTO course_master (title) VALUES ('$courseMasterTitle')";
+    $sql = "INSERT INTO course_master (title, service_type) VALUES ('$courseMasterTitle', '$serviceType')";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'เพิ่มชื่อหลักสูตรสำเร็จ';
@@ -213,23 +221,24 @@ function doAddCourse()
     global $db, $response;
 
     $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
-    $batchNumber = $db->real_escape_string($_POST['batchNumber']);
-    $applicationFee = $db->real_escape_string($_POST['applicationFee']);
+    $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
+    $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
+    $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
     $beginDate = $db->real_escape_string($_POST['beginDate']);
     $endDate = $db->real_escape_string($_POST['endDate']);
     $place = $db->real_escape_string($_POST['place']);
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
-    $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, place, begin_date, end_date, responsible_user_id) "
-        . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, '$place', '$beginDate', '$endDate', $responsibleUserId)";
+    $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id) "
+        . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId)";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'เพิ่มหลักสูตรสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มหลักสูตร';
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มหลักสูตร: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -241,8 +250,9 @@ function doUpdateCourse()
 
     $courseId = $db->real_escape_string($_POST['courseId']);
     $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
-    $batchNumber = $db->real_escape_string($_POST['batchNumber']);
-    $applicationFee = $db->real_escape_string($_POST['applicationFee']);
+    $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
+    $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
+    $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
     $beginDate = $db->real_escape_string($_POST['beginDate']);
     $endDate = $db->real_escape_string($_POST['endDate']);
     $place = $db->real_escape_string($_POST['place']);
@@ -250,7 +260,7 @@ function doUpdateCourse()
     $details = $db->real_escape_string($_POST['details']);
 
     $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
-        . " place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
+        . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
         . " WHERE id = $courseId";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -268,12 +278,23 @@ function doUpdateRegisterStatus()
 {
     global $db, $response;
 
+    $serviceType = $db->real_escape_string($_POST['serviceType']);
     $traineeId = $db->real_escape_string($_POST['traineeId']);
     $newRegisterStatus = $db->real_escape_string($_POST['registerStatus']);
 
-    $sql = "UPDATE course_trainee 
+    switch ($serviceType) {
+        case SERVICE_TYPE_TRAINING:
+            $sql = "UPDATE course_trainee 
                 SET register_status = '$newRegisterStatus' 
                 WHERE id = $traineeId ";
+            break;
+        case SERVICE_TYPE_DRIVING_LICENSE:
+            $sql = "UPDATE course_registration_driving_license 
+                SET register_status = '$newRegisterStatus' 
+                WHERE id = $traineeId ";
+            break;
+    }
+
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะการลงทะเบียนสำเร็จ';
@@ -290,6 +311,7 @@ function doGetPaymentNotification()
 {
     global $db, $response;
 
+    $serviceType = $db->real_escape_string($_POST['serviceType']);
     $traineeId = $db->real_escape_string($_POST['traineeId']);
 
     $sql = "SELECT p.id, p.trainee_id, p.amount, p.transfer_date, p.slip_file_name, p.created_at,
@@ -298,7 +320,7 @@ function doGetPaymentNotification()
                 FROM payment_notification p 
                     LEFT JOIN member m 
                         ON p.member_id = m.id  
-                WHERE trainee_id = $traineeId 
+                WHERE trainee_id = $traineeId AND service_type = '$serviceType'
                 ORDER BY id DESC";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;

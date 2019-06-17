@@ -1,7 +1,18 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT * FROM course_master";
+$serviceType = $_GET['service_type'];
+if (!isset($serviceType)) {
+    echo '<div style="color: red">ERROR: ไม่ได้ระบุ service type</div>';
+    $db->close();
+    exit();
+} else if (!array_key_exists($serviceType, $serviceTypeText)) {
+    echo '<div style="color: red">ERROR: ระบุ service type ไม่ถูกต้อง</div>';
+    $db->close();
+    exit();
+}
+
+$sql = "SELECT * FROM course_master WHERE service_type = '$serviceType'";
 if ($result = $db->query($sql)) {
     $courseMasterList = array();
     while ($row = $result->fetch_assoc()) {
@@ -43,6 +54,9 @@ if ($result = $db->query($sql)) {
                 <div class="modal-body">
                     <form id="formAddCourseMaster" role="form"
                           style="margin-top: 0; margin-bottom: 0">
+                        <input type="hidden"
+                               id="inputServiceType"
+                               value="<?php echo $serviceType; ?>"/>
                         <div class="box-body">
                             <!--ชื่อคอร์ส-->
                             <div class="form-group">
@@ -57,6 +71,9 @@ if ($result = $db->query($sql)) {
                                            oninvalid="this.setCustomValidity('กรอกชื่อหลักสูตร')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
+                            </div>
+                            <div id="divLoading" style="text-align: center">
+                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                             </div>
                             <div id="responseText"
                                  style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
@@ -109,6 +126,9 @@ if ($result = $db->query($sql)) {
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
+                            <div id="divLoading" style="text-align: center">
+                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                            </div>
                             <div id="responseText"
                                  style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
                             </div>
@@ -140,7 +160,8 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    ชื่อหลักสูตร <small>บริการฝึกอบรม</small>
+                    ชื่อหลักสูตร
+                    <small><?php echo $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 
@@ -220,6 +241,9 @@ if ($result = $db->query($sql)) {
 
     <script>
         $(document).ready(function () {
+            $('#formAddCourseMaster #divLoading').hide();
+            $('#formEditCourseMaster #divLoading').hide();
+
             $('#tableCourseMaster').DataTable({
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
@@ -251,18 +275,25 @@ if ($result = $db->query($sql)) {
         });
 
         function doAddCourseMaster() {
+            $('#formAddCourseMaster #buttonSave').prop('disabled', true);
+            $('#formAddCourseMaster #divLoading').show();
             $.post(
                 '../api/api.php/add_course_master',
                 {
                     courseMasterTitle: $('#formAddCourseMaster #inputCourseMasterTitle').val(),
+                    serviceType: $('#formAddCourseMaster #inputServiceType').val(),
                 }
             ).done(function (data) {
+                $('#formAddCourseMaster #buttonSave').prop('disabled', false);
+                $('#formAddCourseMaster #divLoading').hide();
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
                     $('#formAddCourseMaster #responseText').text(data.error_message);
                 }
             }).fail(function () {
+                $('#formAddCourseMaster #buttonSave').prop('disabled', false);
+                $('#formAddCourseMaster #divLoading').hide();
                 $('#formAddCourseMaster #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
             });
         }
@@ -274,6 +305,8 @@ if ($result = $db->query($sql)) {
         }
 
         function doUpdateCourseMaster() {
+            $('#formEditCourseMaster #buttonSave').prop('disabled', true);
+            $('#formEditCourseMaster #divLoading').show();
             $.post(
                 '../api/api.php/update_course_master',
                 {
@@ -281,12 +314,16 @@ if ($result = $db->query($sql)) {
                     courseMasterTitle: $('#formEditCourseMaster #inputCourseMasterTitle').val(),
                 }
             ).done(function (data) {
+                $('#formEditCourseMaster #buttonSave').prop('disabled', false);
+                $('#formEditCourseMaster #divLoading').hide();
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
                     $('#formEditCourseMaster #responseText').text(data.error_message);
                 }
             }).fail(function () {
+                $('#formEditCourseMaster #buttonSave').prop('disabled', false);
+                $('#formEditCourseMaster #divLoading').hide();
                 $('#formEditCourseMaster #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
             });
         }
@@ -302,7 +339,7 @@ if ($result = $db->query($sql)) {
                         self.close();
                     },
                     cssClass: 'btn-primary'
-                },{
+                }, {
                     label: 'ยกเลิก',
                     action: function (self) {
                         self.close();

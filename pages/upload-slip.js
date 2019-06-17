@@ -127,6 +127,7 @@ export default class UploadSlip extends React.Component {
         const user = getLoginUser();
         const {fields, traineeFormData} = this.state;
         const formData = new FormData();
+        formData.append('formNumber', traineeFormData.formNumber); //ส่ง form number เพื่อไปแยกประเภท service
         formData.append('memberId', user ? user.id : 0);
         formData.append('traineeId', traineeFormData.trainee.id);
         formData.append('amount', fields.amount);

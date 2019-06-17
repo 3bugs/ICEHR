@@ -202,19 +202,22 @@ class TraineeRegisterForm extends React.Component {
                                          onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_COURSE_TYPE)}>
                                         <div className="md-radio md-radio-inline radiocheck">
                                             <input id="course-type-5-hours" name="course-type" type="radio"
-                                                   value={'5-hours'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '5-hours'}/>
+                                                   value={1}
+                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 1}/>
                                             <label htmlFor="course-type-5-hours"> หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</label>
                                         </div>
                                         <br/>
                                         <div className="md-radio md-radio-inline radiocheck">
                                             <input id="course-type-2-hours" name="course-type" type="radio"
-                                                   value={'2-hours'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '2-hours'}/>
+                                                   value={2}
+                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 2}/>
                                             <label htmlFor="course-type-2-hours"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 2 ชั่วโมง </label>
                                         </div>
                                         <br/>
                                         <div className="md-radio md-radio-inline radiocheck">
                                             <input id="course-type-1-hour" name="course-type" type="radio"
-                                                   value={'1-hour'} defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '1-hour'}/>
+                                                   value={3}
+                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 3}/>
                                             <label htmlFor="course-type-1-hour"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 1 ชั่วโมง</label>
                                         </div>
                                     </div>

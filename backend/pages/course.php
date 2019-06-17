@@ -1,29 +1,49 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
-    . " FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id "
-    . " ORDER BY c.begin_date DESC";
+$serviceType = $_GET['service_type'];
+if (!isset($serviceType)) {
+    echo '<div style="color: red">ERROR: ไม่ได้ระบุ service type</div>';
+    $db->close();
+    exit();
+} else if (!array_key_exists($serviceType, $serviceTypeText)) {
+    echo '<div style="color: red">ERROR: ระบุ service type ไม่ถูกต้อง</div>';
+    $db->close();
+    exit();
+}
 
-//$sql = "SELECT * FROM course ORDER BY begin_date";
+$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title 
+        FROM course c 
+            INNER JOIN course_master cm 
+                ON c.course_master_id = cm.id 
+        WHERE cm.service_type = '$serviceType'
+        ORDER BY c.begin_date DESC";
+
 if ($result = $db->query($sql)) {
     $courseList = array();
     while ($row = $result->fetch_assoc()) {
         $course = array();
         $course['id'] = (int)$row['id'];
-        $course['name'] = $row['title'] . ' รุ่นที่ ' . $row['batch_number'];
+        /*บริการใบขับขี่ ไม่ต้องมีคำว่า "รุ่นที่ xx"*/
+        $course['name'] = $row['title']
+            . ($serviceType === SERVICE_TYPE_DRIVING_LICENSE ? '' : (' รุ่นที่ ' . $row['batch_number']));
         $course['details'] = $row['details'];
         $course['application_fee'] = (int)$row['application_fee'];
         $course['place'] = $row['place'];
         $course['begin_date'] = $row['begin_date'];
         $course['end_date'] = $row['end_date'];
 
-        $sql = "SELECT cr.id FROM course_registration cr INNER JOIN course_trainee ct ON cr.id = ct.course_registration_id WHERE course_id = " . $course['id'];
+        $sql = "SELECT cr.id 
+                FROM course_registration cr 
+                    INNER JOIN course_trainee ct 
+                        ON cr.id = ct.course_registration_id 
+                WHERE course_id = " . $course['id'];
+
         if ($resultCount = $db->query($sql)) {
             $course['trainee_count'] = $resultCount->num_rows;
             $resultCount->close();
         } else {
-            echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+            echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
             $db->close();
             exit();
         }
@@ -32,7 +52,7 @@ if ($result = $db->query($sql)) {
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
@@ -58,7 +78,7 @@ if ($result = $db->query($sql)) {
             <section class="content-header">
                 <h1>
                     หลักสูตร
-                    <small>บริการฝึกอบรม</small>
+                    <small><?php echo $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 
@@ -110,15 +130,16 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $traineeCount; ?></td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="post" action="course_details.php" style="display: inline">
-                                                        <input type="hidden" name="courseId" value="<?php echo $courseId; ?>"/>
+                                                    <form method="get" action="course_details.php" style="display: inline">
+                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
                                                         <button type="submit" class="btn btn-info">
                                                             <span class="fa fa-info"></span>&nbsp;
                                                             ใบสมัคร
                                                         </button>
                                                     </form>
-                                                    <form method="post" action="course_add_edit.php" style="display: inline">
-                                                        <input type="hidden" name="courseId" value="<?php echo $courseId; ?>"/>
+                                                    <form method="get" action="course_add_edit.php" style="display: inline">
+                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
+                                                        <input type="hidden" name="service_type" value="<?php echo $serviceType; ?>"/>
                                                         <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
@@ -176,7 +197,7 @@ if ($result = $db->query($sql)) {
         });
 
         function onClickAdd() {
-            window.location.href = 'course_add_edit.php';
+            window.location.href = 'course_add_edit.php?service_type=<?php echo $serviceType; ?>';
         }
 
         function onClickDelete(element, courseId, courseName) {

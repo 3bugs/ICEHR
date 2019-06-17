@@ -4,20 +4,37 @@ require_once '../api/global.php';
 /**
  * @param mysqli $db
  * @param string $serviceType
+ * @param int $courseId
  */
-function getCourseRegistrationDataTable($db, $serviceType)
+function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null)
 {
+    $whereClause = ' TRUE ';
+    if ($paramCourseId !== null) {
+        $whereClause = " course_id = $paramCourseId ";
+    }
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
-            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.created_at, ct.register_status, ct.course_registration_id,
-               cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
-            FROM course_trainee ct 
-                INNER JOIN course_registration cr 
-                    ON ct.course_registration_id = cr.id
-            ORDER BY ct.id DESC";
+            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.register_status, ct.created_at, ct.course_registration_id,
+                           cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
+                    FROM course_trainee ct 
+                        INNER JOIN course_registration cr 
+                            ON ct.course_registration_id = cr.id
+                    WHERE $whereClause
+                    ORDER BY ct.id DESC ";
             break;
+
+        case SERVICE_TYPE_DRIVING_LICENSE:
+            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.register_status, cr.created_at, cr.course_id,
+                    ct.title AS course_type_title, ct.application_fee AS fee
+                    FROM course_registration_driving_license cr 
+                        INNER JOIN driving_license_course_type ct 
+                            ON cr.course_type = ct.id 
+                    WHERE $whereClause
+                    ORDER BY id DESC";
+            break;
+
         default:
-            echo '<div style="color: red; text-align: center">ERROR: ไม่ได้ระบุ Service Type</div>';
+            echo '<div style="color: red; text-align: center">ERROR: ไม่ได้ระบุ Service Type หรือระบุ Service Type ไม่ถูกต้อง</div>';
             return;
     }
 
@@ -43,6 +60,10 @@ function getCourseRegistrationDataTable($db, $serviceType)
             );
             $trainee['course_id'] = (int)$row['course_id'];
 
+            /*สำหรับบริการใบขับขี่*/
+            $trainee['driving_license_course_type'] = $row['course_type_title'];
+            $trainee['driving_license_course_fee'] = (int)$row['fee'];
+
             array_push($traineeList, $trainee);
         }
         $result->close();
@@ -54,200 +75,201 @@ function getCourseRegistrationDataTable($db, $serviceType)
 
     ?>
 
-    <!-- Main content -->
-    <section class="content">
-        <!-- Print receipt modal -->
-        <div class="modal fade" id="printReceiptModal" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;
-                        </button>
-                        <h4 class="modal-title">พิมพ์ใบเสร็จรับเงิน: ใบสมัครเลขที่ <span id="spanFormNumber"></span></h4>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formPrintReceipt" role="form"
-                              style="margin-top: 0; margin-bottom: 0">
-                            <div class="box-body">
-                                <input type="hidden" id="inputTraineeId" name="trainee_id">
+    <!-- Print receipt modal -->
+    <div class="modal fade" id="printReceiptModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">พิมพ์ใบเสร็จรับเงิน: ใบสมัครเลขที่ <span id="spanFormNumber"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formPrintReceipt" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <div class="box-body">
+                            <input type="hidden" id="inputTraineeId" name="trainee_id">
 
-                                <div id="alertCanNotPrint" class="alert alert-danger alert-dismissible">
-                                    <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                                    <i class="icon fa fa-warning"></i>ไม่สามารถพิมพ์ใบเสร็จรับเงินของใบสมัครนี้ได้ เนื่องจากสถานะการชำระเงินยังไม่สมบูรณ์
-                                </div>
+                            <div id="alertCanNotPrint" class="alert alert-danger alert-dismissible">
+                                <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                                <i class="icon fa fa-warning"></i>ไม่สามารถพิมพ์ใบเสร็จรับเงินของใบสมัครนี้ได้ เนื่องจากสถานะการชำระเงินยังไม่สมบูรณ์
+                            </div>
 
-                                <!--<div class="callout callout-danger" id="divCallout">
-                                    <p>ไม่สามารถพิมพ์ใบเสร็จรับเงินของใบสมัครนี้ได้ เนื่องจากสถานะการชำระเงินยังไม่สมบูรณ์</p>
-                                </div>-->
+                            <!--<div class="callout callout-danger" id="divCallout">
+                                <p>ไม่สามารถพิมพ์ใบเสร็จรับเงินของใบสมัครนี้ได้ เนื่องจากสถานะการชำระเงินยังไม่สมบูรณ์</p>
+                            </div>-->
 
-                                <!--ชื่อ-นามสกุลผู้สมัคร-->
-                                <div class="form-group">
-                                    <label for="inputTraineeName">ผู้สมัคร:</label>
-                                    <div class="input-group">
+                            <!--ชื่อ-นามสกุลผู้สมัคร-->
+                            <div class="form-group">
+                                <label for="inputTraineeName">ผู้สมัคร:</label>
+                                <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-user"></i>
                                     </span>
-                                        <input type="text" class="form-control" disabled
-                                               id="inputTraineeName">
-                                    </div>
+                                    <input type="text" class="form-control" disabled
+                                           id="inputTraineeName">
                                 </div>
-                                <!--หลักสูตรที่สมัคร-->
-                                <div class="form-group">
-                                    <label for="inputCourseName">หลักสูตรที่สมัคร:</label>
-                                    <div class="input-group">
+                            </div>
+                            <!--หลักสูตรที่สมัคร-->
+                            <div class="form-group">
+                                <label for="inputCourseName">หลักสูตรที่สมัคร:</label>
+                                <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-font"></i>
                                     </span>
-                                        <input type="text" class="form-control" disabled
-                                               id="inputCourseName">
-                                    </div>
-                                </div>
-                                <!--ราคาเต็ม-->
-                                <div class="form-group">
-                                    <label for="inputCourseFee">ราคาเต็ม (บาท):</label>
-                                    <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
-                                    </span>
-                                        <input type="text" class="form-control"
-                                               id="inputCourseFee"
-                                               placeholder="กรอกราคาเต็มของหลักสูตรนี้" required
-                                               oninvalid="this.setCustomValidity('กรอกราคาเต็มของหลักสูตรนี้')"
-                                               oninput="this.setCustomValidity('')">
-                                    </div>
-                                </div>
-                                <!--ส่วนลด-->
-                                <div class="form-group" style="display: none">
-                                    <label for="inputDiscount">ส่วนลด (บาท):</label>
-                                    <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
-                                    </span>
-                                        <input type="text" class="form-control"
-                                               id="inputDiscount"
-                                               placeholder="กรอกส่วนลด"
-                                               oninvalid="this.setCustomValidity('กรอกส่วนลด')"
-                                               oninput="this.setCustomValidity('')">
-                                    </div>
-                                </div>
-                                <!--ราคาที่ลูกค้าจ่ายจริง-->
-                                <div class="form-group">
-                                    <label for="inputPaid">ราคาที่ลูกค้าจ่ายจริง (บาท):</label>
-                                    <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
-                                    </span>
-                                        <input type="text" class="form-control"
-                                               id="inputPaid" name="paid"
-                                               placeholder="กรอกราคาที่ลูกค้าจ่ายจริง" required
-                                               oninvalid="this.setCustomValidity('กรอกราคาที่ลูกค้าจ่ายจริง')"
-                                               oninput="this.setCustomValidity('')">
-                                    </div>
-                                </div>
-                                <div id="responseText"
-                                     style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
+                                    <input type="text" class="form-control" disabled
+                                           id="inputCourseName">
                                 </div>
                             </div>
-                            <!-- /.box-body -->
-                            <div class="box-footer">
-                                <button id="buttonPrint" type="submit"
-                                        class="btn btn-info pull-right">
-                                    <span class="fa fa-save"></span>&nbsp;
-                                    พิมพ์
-                                </button>
+                            <!--ราคาเต็ม-->
+                            <div class="form-group">
+                                <label for="inputCourseFee">ราคาเต็ม (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputCourseFee"
+                                           placeholder="กรอกราคาเต็มของหลักสูตรนี้" required
+                                           oninvalid="this.setCustomValidity('กรอกราคาเต็มของหลักสูตรนี้')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
                             </div>
-                            <!-- /.box-footer -->
-                        </form>
-                    </div>
-                    <!--<div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>-->
+                            <!--ส่วนลด-->
+                            <div class="form-group" style="display: none">
+                                <label for="inputDiscount">ส่วนลด (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputDiscount"
+                                           placeholder="กรอกส่วนลด"
+                                           oninvalid="this.setCustomValidity('กรอกส่วนลด')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <!--ราคาที่ลูกค้าจ่ายจริง-->
+                            <div class="form-group">
+                                <label for="inputPaid">ราคาที่ลูกค้าจ่ายจริง (บาท):</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-dollar"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputPaid" name="paid"
+                                           placeholder="กรอกราคาที่ลูกค้าจ่ายจริง" required
+                                           oninvalid="this.setCustomValidity('กรอกราคาที่ลูกค้าจ่ายจริง')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <div id="responseText"
+                                 style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer">
+                            <button id="buttonPrint" type="submit"
+                                    class="btn btn-info pull-right">
+                                <span class="fa fa-save"></span>&nbsp;
+                                พิมพ์
+                            </button>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
                 </div>
+                <!--<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>-->
             </div>
         </div>
+    </div>
 
-        <!-- Manage register status modal -->
-        <div class="modal fade" id="manageRegisterStatusModal" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <!--<button type="button" class="close" data-dismiss="modal">&times;
-                        </button>-->
-                        <h4 class="modal-title">
-                            จัดการสถานะการลงทะเบียน: ใบสมัครเลขที่ <span id="spanFormNumber"></span>
+    <!-- Manage register status modal -->
+    <div class="modal fade" id="manageRegisterStatusModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;
+                    </button>-->
+                    <h4 class="modal-title">
+                        จัดการสถานะการลงทะเบียน: ใบสมัครเลขที่ <span id="spanFormNumber"></span>
 
-                            <!--สถานะการลงทะเบียน-->
-                            <div class="btn-group pull-right">
-                                <button id="buttonStatus" type="button" class="btn btn-default">
-                                    <span id="spanCurrentStatus" style="color: white">&nbsp;</span>
-                                </button>
-                                <button id="buttonStatusDropDown" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret" style="color: white"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">รอชำระเงิน</a></li>
-                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">แจ้งชำระเงิน</a></li>
-                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิก</a></li>
-                                </ul>
-                            </div>
-                        </h4>
+                        <!--สถานะการลงทะเบียน-->
+                        <div class="btn-group pull-right">
+                            <button id="buttonStatus" type="button" class="btn btn-default">
+                                <span id="spanCurrentStatus" style="color: white">&nbsp;</span>
+                            </button>
+                            <button id="buttonStatusDropDown" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret" style="color: white"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">รอชำระเงิน</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">แจ้งชำระเงิน</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
+                                <li class="divider"></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิก</a></li>
+                            </ul>
+                        </div>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                     </div>
-                    <div class="modal-body">
-                        <div id="spanLoading" style="text-align: center">
-                            <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
-                        </div>
-                        <div id="alertSuccess" class="alert alert-success alert-dismissible">
-                            <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
-                            <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
-                        </div>
-                        <div id="alertError" class="alert alert-danger alert-dismissible">
-                            <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
-                            <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
-                        </div>
+                    <div id="alertSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
+                    </div>
+                    <div id="alertError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                    </div>
 
-                        <form id="formManageRegisterStatus" role="form"
-                              style="margin-top: 0; margin-bottom: 0">
-                            <!-- Custom Tabs -->
-                            <div class="nav-tabs-custom" style="margin-bottom: 0">
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a href="#tab_1" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
-                                    <li><a href="#tab_2" data-toggle="tab">การแจ้งโอนเงิน</a></li>
-                                </ul>
-                                <div class="tab-content">
+                    <form id="formManageRegisterStatus" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <!-- Custom Tabs -->
+                        <div class="nav-tabs-custom" style="margin-bottom: 0">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#tab_1" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
+                                <li><a href="#tab_2" data-toggle="tab">การแจ้งโอนเงิน</a></li>
+                            </ul>
+                            <div class="tab-content">
 
-                                    <!--แท็บ 1 - ข้อมูลใบสมัคร-->
-                                    <div class="tab-pane active" id="tab_1">
-                                        <div class="box-body">
-                                            <input type="hidden" id="inputTraineeId">
-                                            <!--<input type="hidden" id="inputRegisterStatus">-->
+                                <!--แท็บ 1 - ข้อมูลใบสมัคร-->
+                                <div class="tab-pane active" id="tab_1">
+                                    <div class="box-body">
+                                        <input type="hidden" id="inputTraineeId">
+                                        <!--<input type="hidden" id="inputRegisterStatus">-->
 
-                                            <!--ชื่อ-นามสกุล-เบอร์โทร-อีเมล ผู้สมัคร-->
-                                            <div class="form-group">
-                                                <label for="inputTraineeName">ผู้สมัคร:</label>
-                                                <div class="input-group">
+                                        <!--ชื่อ-นามสกุล-เบอร์โทร-อีเมล ผู้สมัคร-->
+                                        <div class="form-group">
+                                            <label for="inputTraineeName">ผู้สมัคร:</label>
+                                            <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-user"></i>
                                                     </span>
-                                                    <input type="text" class="form-control" disabled
-                                                           id="inputTraineeName">
-                                                </div>
+                                                <input type="text" class="form-control" disabled
+                                                       id="inputTraineeName">
                                             </div>
-                                            <!--ชื่อ-นามสกุล-เบอร์โทร-อีเมล ผู้สมัคร-->
-                                            <div class="form-group" id="divCoordinatorName">
-                                                <label for="inputCoordinatorName">ผู้ประสานงาน:</label>
-                                                <div class="input-group">
+                                        </div>
+                                        <!--ชื่อ-นามสกุล-เบอร์โทร-อีเมล ผู้ประสานงาน-->
+                                        <div class="form-group" id="divCoordinatorName">
+                                            <label for="inputCoordinatorName">ผู้ประสานงาน:</label>
+                                            <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-user"></i>
                                                     </span>
-                                                    <input type="text" class="form-control" disabled
-                                                           id="inputCoordinatorName">
-                                                </div>
+                                                <input type="text" class="form-control" disabled
+                                                       id="inputCoordinatorName">
                                             </div>
+                                        </div>
+                                        <?php
+                                        if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                            ?>
                                             <!--หลักสูตรที่สมัคร-->
                                             <div class="form-group">
                                                 <label for="inputCourseName">หลักสูตรที่สมัคร:</label>
@@ -261,273 +283,321 @@ function getCourseRegistrationDataTable($db, $serviceType)
                                             </div>
                                             <!--ราคาเต็ม-->
                                             <div class="form-group">
-                                                <label for="inputCourseFee">ราคาเต็ม (บาท):</label>
+                                                <label for="inputCourseFee">ราคาปกติ (บาท):</label>
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
-                                                        <i class="fa fa-dollar"></i>
+                                                        <strong>฿</strong>
                                                     </span>
                                                     <input type="text" class="form-control" disabled
                                                            id="inputCourseFee">
                                                 </div>
                                             </div>
-                                        </div>
-                                        <!-- /.box-body -->
+                                            <?php
+                                        } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                                            ?>
+                                            <div class="row">
+                                                <!--ประเภทการอบรม-->
+                                                <div class="form-group col-md-8">
+                                                    <label for="inputCourseName">ประเภทการอบรม:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-font"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputCourseName">
+                                                    </div>
+                                                </div>
+                                                <!--ราคา-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputCourseFee">ราคา (บาท):</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputCourseFee">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php
+                                        }
+                                        ?>
                                     </div>
-                                    <!-- /.tab-pane -->
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.tab-pane -->
 
-                                    <!--แท็บ 2 - หลักฐานการโอนเงิน-->
-                                    <div class="tab-pane" id="tab_2">
-                                        <div class="box-body">
-                                            <div id="paymentNotificationDetails">
-                                                <div class="row">
-                                                    <!--ผู้แจ้งโอนเงิน (สมาชิกที่ login)-->
-                                                    <div class="form-group col-md-8">
-                                                        <label for="inputMemberName">แจ้งโดย:</label>
-                                                        <div class="input-group">
+                                <!--แท็บ 2 - หลักฐานการโอนเงิน-->
+                                <div class="tab-pane" id="tab_2">
+                                    <div class="box-body">
+                                        <div id="paymentNotificationDetails">
+                                            <div class="row">
+                                                <!--ผู้แจ้งโอนเงิน (สมาชิกที่ login)-->
+                                                <div class="form-group col-md-8">
+                                                    <label for="inputMemberName">แจ้งโดย:</label>
+                                                    <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-user"></i>
                                                             </span>
-                                                            <input type="text" class="form-control" disabled
-                                                                   id="inputMemberName">
-                                                        </div>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputMemberName">
                                                     </div>
-                                                    <!--วัน/เวลาที่แจ้ง-->
-                                                    <div class="form-group col-md-4">
-                                                        <label for="inputNotificationDateTime">เมื่อ:</label>
-                                                        <div class="input-group">
+                                                </div>
+                                                <!--วัน/เวลาที่แจ้ง-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputNotificationDateTime">เมื่อ:</label>
+                                                    <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-clock-o"></i>
                                                             </span>
-                                                            <input type="text" class="form-control" disabled
-                                                                   id="inputNotificationDateTime">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-12" style="text-align: center">
-                                                        <img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputNotificationDateTime">
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div id="spanGetPaymentNotificationLoading" style="text-align: center">
-                                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
-                                            </div>
-                                            <div id="alertNoPaymentNotification" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
-                                                <i class="icon fa fa-warning"></i>ไม่พบข้อมูลการแจ้งโอนเงินสำหรับใบสมัครนี้
+                                            <div class="row">
+                                                <div class="col-md-12" style="text-align: center">
+                                                    <img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div id="spanGetPaymentNotificationLoading" style="text-align: center">
+                                            <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                                        </div>
+                                        <div id="alertNoPaymentNotification" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
+                                            <i class="icon fa fa-warning"></i>ไม่พบข้อมูลการแจ้งโอนเงินสำหรับใบสมัครนี้
+                                        </div>
                                     </div>
-                                    <!-- /.tab-pane -->
                                 </div>
-                                <!-- /.tab-content -->
+                                <!-- /.tab-pane -->
                             </div>
-                            <!-- nav-tabs-custom -->
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
-                    </div>
+                            <!-- /.tab-content -->
+                        </div>
+                        <!-- nav-tabs-custom -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="box">
-                    <div class="box-header">
-                        <h3 class="box-title">&nbsp;</h3>
+    <!--Data table-->
+    <table id="tableRegistration" class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <?php
+            if ($serviceType === SERVICE_TYPE_TRAINING) {
+                ?>
+                <th style="width: 10%; text-align: center">เลขที่</th>
+                <th style="width: 20%; text-align: center">ผู้สมัคร</th>
+                <th style="width: 20%; text-align: center">ผู้ประสานงาน</th>
+                <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
+                <th style="width: 10%; text-align: center">วันอบรม</th>
+                <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
+                <th style="text-align: center">สถานะ</th>
+                <th style="text-align: center" nowrap>พิมพ์</th>
+                <?php
+            } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                ?>
+                <th style="width: 15%; text-align: center">เลขที่</th>
+                <th style="width: 25%; text-align: center">ผู้สมัคร</th>
+                <th style="width: 35%; text-align: center">ประเภท/ราคา</th>
+                <th style="width: 10%; text-align: center">วันอบรม</th>
+                <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                <th style="text-align: center">สถานะ</th>
+                <th style="text-align: center" nowrap>พิมพ์</th>
+                <?php
+            }
+            ?>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        if (sizeof($traineeList) == 0) {
+            ?>
+            <tr valign="middle">
+                <td colspan="20" align="center">ไม่มีข้อมูล</td>
+            </tr>
+            <?php
+        } else {
+            foreach ($traineeList as $trainee) {
+                $traineeId = $trainee['id'];
+                $formNumber = $trainee['form_number'];
+                if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                    $traineeDetails = sprintf(
+                        '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
+                        $trainee['title'], $trainee['first_name'], $trainee['last_name'],
+                        $trainee['phone'], $trainee['email'], $trainee['email']
+                    );
+                } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                    $traineeDetails = sprintf(
+                        '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s',
+                        $trainee['title'], $trainee['first_name'], $trainee['last_name'],
+                        $trainee['phone']
+                    );
+                }
+                $coordinatorDetails = sprintf(
+                    '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
+                    $trainee['coordinator']['title'], $trainee['coordinator']['first_name'], $trainee['coordinator']['last_name'],
+                    $trainee['coordinator']['phone'], $trainee['coordinator']['email'], $trainee['coordinator']['email']
+                );
+                $createdAt = $trainee['created_at'];
+                $dateTimePart = explode(' ', $createdAt);
+                $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                $timePart = explode(':', $dateTimePart[1]);
+                $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                $displayDateTime = "$displayDate<br>$displayTime";
+                $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
 
-                        <!--<div class="row" style="margin-top: 0px">
-                            <div class="col-md-4">&nbsp;</div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="selectInterval" class="col-sm-4 control-label" style="text-align: right; margin-top: 8px">ช่วงเวลา</label>
+                $registerStatus = $trainee['register_status'];
 
-                                    <div class="col-sm-8" style="padding: 0">
-                                        <select class="form-control" id="selectInterval">
-                                            <option>ทั้งหมด</option>
-                                            <option>30 วันล่าสุด</option>
-                                            <option>3 เดือนล่าสุด</option>
-                                            <option>6 เดือนล่าสุด</option>
-                                            <option>1 ปีล่าสุด</option>
-                                            <option>ทั้งหมด</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">&nbsp;</div>
-                        </div>-->
-                    </div>
-                    <div class="box-body">
-                        <table id="tableRegistration" class="table table-bordered table-striped">
-                            <thead>
-                            <tr>
-                                <th style="width: 10%; text-align: center">เลขที่</th>
-                                <th style="width: 23%; text-align: center">ผู้สมัคร</th>
-                                <th style="width: 22%; text-align: center">ผู้ประสานงาน</th>
-                                <th style="width: 30%; text-align: center">หลักสูตรที่สมัคร</th>
-                                <th style="width: 15%; text-align: center">วัน/เวลาที่สมัคร</th>
-                                <th style="text-align: center">สถานะ</th>
-                                <th style="text-align: center" nowrap>พิมพ์</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            if (sizeof($traineeList) == 0) {
-                                ?>
-                                <tr valign="middle">
-                                    <td colspan="7" align="center">ไม่มีข้อมูล</td>
-                                </tr>
-                                <?php
-                            } else {
-                                foreach ($traineeList as $trainee) {
-                                    $traineeId = $trainee['id'];
-                                    $formNumber = $trainee['form_number'];
-                                    $traineeDetails = sprintf(
-                                        '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                        $trainee['title'], $trainee['first_name'], $trainee['last_name'],
-                                        $trainee['phone'], $trainee['email'], $trainee['email']
-                                    );
-                                    $coordinatorDetails = sprintf(
-                                        '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                        $trainee['coordinator']['title'], $trainee['coordinator']['first_name'], $trainee['coordinator']['last_name'],
-                                        $trainee['coordinator']['phone'], $trainee['coordinator']['email'], $trainee['coordinator']['email']
-                                    );
-                                    $createdAt = $trainee['created_at'];
-                                    $dateTimePart = explode(' ', $createdAt);
-                                    $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
-                                    $timePart = explode(':', $dateTimePart[1]);
-                                    $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
-                                    $displayDateTime = "$displayDate<br>$displayTime";
-                                    $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
-
-                                    $registerStatus = $trainee['register_status'];
-
-                                    $courseId = $trainee['course_id'];
-                                    $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
+                $courseId = $trainee['course_id'];
+                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
                                                         FROM course_master cm 
                                                             INNER JOIN course c ON c.course_master_id = cm.id 
-                                                        WHERE c.id=$courseId";
-                                    if ($result = $db->query($sql)) {
-                                        if ($row = $result->fetch_assoc()) {
-                                            $courseDetails = sprintf(
-                                                '%s รุ่นที่ %d',
-                                                $row['title'], $row['batch_number']
-                                            );
-                                            $courseApplicationFee = (int)$row['application_fee'];
-                                        } else {
-                                            $courseDetails = '<span style="color: red">ไม่พบข้อมูล!</span>';
-                                        }
-                                    } else {
-                                        $courseDetails = '<span style="color: red">เกิดข้อผิดพลาดในการอ่านข้อมูล!</span>';
-                                    }
-                                    ?>
+                                                        WHERE c.id = $courseId";
+                if ($result = $db->query($sql)) {
+                    if ($row = $result->fetch_assoc()) {
+                        $courseDetails = sprintf(
+                            '%s รุ่นที่ %d',
+                            $row['title'], $row['batch_number']
+                        );
+                        $courseApplicationFee = (int)$row['application_fee'];
 
-                                    <tr>
-                                        <td style="vertical-align: top; text-align: center"><?php echo $formNumber; ?></td>
-                                        <td style="vertical-align: top"><?php echo $traineeDetails; ?></td>
-                                        <td style="vertical-align: top"><?php echo($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
-                                        <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
-                                        <td style="vertical-align: top; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                        $beginDate = date_create($row['begin_date']);
+                        $endDate = date_create($row['end_date']);
+                        $courseDate = ($row['begin_date'] === $row['end_date'] ? getThaiShortDate($beginDate) : getThaiIntervalShortDate($beginDate, $endDate));
+                        $courseDateHidden = '<span style="display: none">' . $row['begin_date'] . '</span></span>';
+                    } else {
+                        $courseDetails = '<span style="color: red">ไม่พบข้อมูล!</span>';
+                        $courseDate = '';
+                        $courseDateHidden = '';
+                    }
+                } else {
+                    $courseDetails = '<span style="color: red">เกิดข้อผิดพลาดในการอ่านข้อมูล!</span>';
+                    $courseDate = '';
+                    $courseDateHidden = '';
+                }
+                ?>
 
-                                        <td style="vertical-align: middle; text-align: center" nowrap>
-                                            <?php
-                                            $btnClass = '';
-                                            $btnText = '';
-                                            $sortOrder = 0;
-                                            switch ($registerStatus) {
-                                                case 'start':
-                                                    $btnClass = 'btn-warning';
-                                                    $btnText = 'รอชำระเงิน';
-                                                    $sortOrder = 3;
-                                                    break;
-                                                case 'wait-approve':
-                                                    $btnClass = 'btn-info';
-                                                    $btnText = 'แจ้งชำระเงิน';
-                                                    $sortOrder = 1;
-                                                    break;
-                                                case 'complete':
-                                                    $btnClass = 'btn-success';
-                                                    $btnText = 'สมบูรณ์';
-                                                    $sortOrder = 2;
-                                                    break;
-                                                case 'cancel':
-                                                    $btnClass = 'btn-danger';
-                                                    $btnText = 'ยกเลิก';
-                                                    $sortOrder = 4;
-                                                    break;
-                                            }
-                                            ?>
-                                            <span style="display: none"><?php echo $sortOrder; ?></span>
-                                            <button id="buttonStatus<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo $btnClass; ?>" style="width: 90px;"
-                                                    onClick="onClickStatus(
-                                                            '<?php echo $formNumber; ?>',
-                                                    <?php echo $traineeId; ?>,
-                                                            '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
-                                                            '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
-                                                            '<?php echo $courseDetails; ?>',
-                                                    <?php echo $courseApplicationFee; ?>
-                                                            )">
-                                                <?php echo $btnText ?>
-                                            </button>
-                                            <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
-                                            <input id="inputRegisterStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $registerStatus; ?>"/>
-                                        </td>
-                                        <td style="vertical-align: middle; text-align: center" nowrap>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                    <span class="caret"></span>
-                                                    <span class="sr-only">Toggle Dropdown</span>
-                                                </button>
-                                                <ul class="dropdown-menu pull-right" role="menu">
-                                                    <li><a href="javascript:void(0)"
-                                                           onClick="onClickPrintRegForm()">
-                                                            <i class="fa fa-print"></i>ใบสมัคร
-                                                        </a>
-                                                    </li>
-                                                    <li><a href="javascript:void(0)"
-                                                           onClick="onClickPrintRegForm()">
-                                                            <i class="fa fa-print"></i>รูปสลิปการโอนเงิน
-                                                        </a>
-                                                    </li>
-                                                    <li><a href="javascript:void(0)"
-                                                           onClick="onClickPrintReceipt('<?php echo $formNumber; ?>', <?php echo $traineeId; ?>, '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?php echo $courseDetails; ?>', <?php echo $courseApplicationFee; ?>)">
-                                                            <i class="fa fa-print"></i>ใบเสร็จรับเงิน
-                                                        </a>
-                                                    </li>
-                                                    <li><a href="javascript:void(0)"
-                                                           onClick="onClickPrintCertificate()">
-                                                            <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
-                                                        </a>
-                                                    </li>
-                                                    <!--<li class="divider"></li>-->
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                <tr>
+                    <td style="vertical-align: top; text-align: center"><?php echo $formNumber; ?></td>
+                    <td style="vertical-align: top"><?php echo $traineeDetails; ?></td>
+                    <?php
+                    if ($serviceType === SERVICE_TYPE_TRAINING) {
+                        ?>
+                        <td style="vertical-align: top"><?php echo($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
+                        <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
 
-                                    <?php
-                                }
-                            }
+                        <?php
+                    } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                        ?>
+                        <td style="vertical-align: top">
+                            <?php
+                            echo sprintf(
+                                '%s<br/><strong>฿</strong> %s บาท',
+                                $trainee['driving_license_course_type'],
+                                $trainee['driving_license_course_fee']
+                            );
                             ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- /.box-body -->
-                </div>
-                <!-- /.box -->
-            </div>
-            <!-- /.col -->
-        </div>
-        <!-- /.row -->
-    </section>
-    <!-- /.content -->
+                        </td>
+                        <?php
+                    }
+                    ?>
+
+                    <td style="vertical-align: top; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
+                    <td style="vertical-align: top; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+
+                    <td style="vertical-align: middle; text-align: center" nowrap>
+                        <?php
+                        $btnClass = '';
+                        $btnText = '';
+                        $sortOrder = 0;
+                        switch ($registerStatus) {
+                            case 'start':
+                                $btnClass = 'btn-warning';
+                                $btnText = 'รอชำระเงิน';
+                                $sortOrder = 3;
+                                break;
+                            case 'wait-approve':
+                                $btnClass = 'btn-info';
+                                $btnText = 'แจ้งชำระเงิน';
+                                $sortOrder = 1;
+                                break;
+                            case 'complete':
+                                $btnClass = 'btn-success';
+                                $btnText = 'สมบูรณ์';
+                                $sortOrder = 2;
+                                break;
+                            case 'cancel':
+                                $btnClass = 'btn-danger';
+                                $btnText = 'ยกเลิก';
+                                $sortOrder = 4;
+                                break;
+                        }
+                        ?>
+                        <span style="display: none"><?php echo $sortOrder; ?></span>
+                        <button id="buttonStatus<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo $btnClass; ?>" style="width: 90px;"
+                                onClick="onClickStatus(
+                                        '<?php echo $formNumber; ?>',
+                                <?php echo $traineeId; ?>,
+                                        '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
+                                        '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
+                                        '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? $courseDetails : $trainee['driving_license_course_type']); ?>',
+                                        '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>'
+                                        )">
+                            <?php echo $btnText ?>
+                        </button>
+                        <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
+                        <input id="inputRegisterStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $registerStatus; ?>"/>
+                    </td>
+                    <td style="vertical-align: middle; text-align: center" nowrap>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintRegForm()">
+                                        <i class="fa fa-print"></i>ใบสมัคร
+                                    </a>
+                                </li>
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintRegForm()">
+                                        <i class="fa fa-print"></i>รูปสลิปการโอนเงิน
+                                    </a>
+                                </li>
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintReceipt('<?php echo $formNumber; ?>', <?php echo $traineeId; ?>, '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?php echo $courseDetails; ?>', <?php echo $courseApplicationFee; ?>)">
+                                        <i class="fa fa-print"></i>ใบเสร็จรับเงิน
+                                    </a>
+                                </li>
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintCertificate()">
+                                        <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
+                                    </a>
+                                </li>
+                                <!--<li class="divider"></li>-->
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <?php
+            }
+        }
+        ?>
+        </tbody>
+    </table>
 
     <script>
         $(document).ready(function () {
             $('#tableRegistration').DataTable({
-                order: [[4, 'desc']],
+                order: [[0, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -668,6 +738,7 @@ function getCourseRegistrationDataTable($db, $serviceType)
                     $.post(
                         '../api/api.php/update_register_status',
                         {
+                            serviceType: '<?php echo $serviceType; ?>',
                             traineeId: traineeId,
                             registerStatus: newStatus,
                         }
@@ -739,6 +810,7 @@ function getCourseRegistrationDataTable($db, $serviceType)
             $.post(
                 '../api/api.php/get_payment_notification',
                 {
+                    serviceType: '<?php echo $serviceType; ?>',
                     traineeId: traineeId,
                 }
             ).done(function (data) {

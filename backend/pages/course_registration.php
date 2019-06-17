@@ -22,16 +22,53 @@ require_once '../components/get_course_registration_data_table.php';
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <section class="content-header">
+                <?php
+                $serviceType = $_GET['service_type'];
+                $serviceTypeText = '';
+                switch ($serviceType) {
+                    case SERVICE_TYPE_TRAINING:
+                        $serviceTypeText = 'บริการวิชาการ';
+                        break;
+                    case SERVICE_TYPE_SOCIAL:
+                        $serviceTypeText = 'บริการสังคม';
+                        break;
+                    case SERVICE_TYPE_DRIVING_LICENSE:
+                        $serviceTypeText = 'อบรมใบขับขี่';
+                        break;
+                }
+                ?>
                 <h1>
                     ใบสมัคร
-                    <small>บริการฝึกอบรม</small>
+                    <small><?php echo $serviceTypeText; ?></small>
                 </h1>
             </section>
 
-            <?php
-            getCourseRegistrationDataTable($db, '');
-            ?>
-
+            <!-- Main content -->
+            <section class="content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="box">
+                            <div class="box-header">
+                                <h3 class="box-title">&nbsp;</h3>
+                            </div>
+                            <div class="box-body">
+                                <?php
+                                if (!isset($serviceType)) {
+                                    echo '<div style="color: red; text-align: center">ERROR: ไม่ได้ระบุ Service Type</div>';
+                                } else {
+                                    getCourseRegistrationDataTable($db, $serviceType);
+                                }
+                                ?>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </section>
+            <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
 

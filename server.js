@@ -1,3 +1,10 @@
+/*import {
+    SERVICE_TRAINING, SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL,
+    SERVICE_PREFIX_TRAINING, SERVICE_PREFIX_DRIVING_LICENSE, SERVICE_PREFIX_SOCIAL
+} from "./etc/constants";*/
+
+const constants = require('./etc/constants');
+
 const express = require('express');
 const next = require('next');
 const mysql = require('mysql');
@@ -513,7 +520,7 @@ doRegisterCourse = (req, res, db) => {
                 let insertCourseRegId = results.insertId;
 
                 /*เลขที่ใบสมัคร รูปแบบ AC-2019-0001*/
-                const formNumber = 'AC-' + new Date().getFullYear() + '-' + ('000' + insertCourseRegId).slice(-4);
+                const formNumber = constants.SERVICE_PREFIX_TRAINING + '-' + new Date().getFullYear() + '-' + ('000' + insertCourseRegId).slice(-4);
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
@@ -636,7 +643,7 @@ doRegisterCourseSocial = (req, res, db) => {
                 let insertId = results.insertId;
 
                 /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
-                const formNumber = 'SO-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                const formNumber = constants.SERVICE_PREFIX_SOCIAL + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration_social
                          SET form_number = ?
@@ -695,7 +702,7 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
                 let insertId = results.insertId;
 
                 /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
-                const formNumber = 'DL-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
                         `UPDATE course_registration_driving_license
                          SET form_number = ?
@@ -850,6 +857,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                     c.place        AS coursePlace,
                     c.begin_date   AS courseBeginDate,
                     c.end_date     AS courseEndDate,
+                    ct.form_number AS formNumber,
                     ct.id          AS traineeId,
                     ct.title       AS traineeTitle,
                     ct.first_name  AS traineeFirstName,
@@ -866,13 +874,14 @@ doGetTraineeByFormNumber = (req, res, db) => {
         function (err, results, fields) {
             if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
                 });
+                db.end();
             } else {
                 if (results.length > 0) {
                     const {
                         courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                        traineeId, traineeTitle, traineeFirstName, traineeLastName,
+                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName,
                     } = results[0];
 
                     res.send({
@@ -895,16 +904,71 @@ doGetTraineeByFormNumber = (req, res, db) => {
                             formNumber,
                         }
                     });
-
+                    db.end();
                 } else {
-                    res.send({
-                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
-                    });
+                    db.query(
+                            `SELECT cm.title         AS courseTitle,
+                                    c.batch_number   AS courseBatchNumber,
+                                    c.place          AS coursePlace,
+                                    c.begin_date     AS courseBeginDate,
+                                    c.end_date       AS courseEndDate,
+                                    crdl.form_number AS formNumber,
+                                    crdl.id          AS traineeId,
+                                    crdl.title       AS traineeTitle,
+                                    crdl.first_name  AS traineeFirstName,
+                                    crdl.last_name   AS traineeLastName
+                             FROM course_registration_driving_license crdl
+                                      INNER JOIN course c
+                                                 ON crdl.course_id = c.id
+                                      INNER JOIN course_master cm
+                                                 ON c.course_master_id = cm.id
+                             WHERE crdl.form_number = ?`,
+                        [formNumber],
+                        function (err, results, fields) {
+                            if (err) {
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                                });
+                            } else {
+                                if (results.length > 0) {
+                                    const {
+                                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName,
+                                    } = results[0];
+
+                                    res.send({
+                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                        data: {
+                                            course: {
+                                                title: courseTitle,
+                                                batchNumber: courseBatchNumber,
+                                                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
+                                                beginDate: courseBeginDate,
+                                                endDate: courseEndDate,
+                                                place: coursePlace,
+                                            },
+                                            trainee: {
+                                                id: traineeId,
+                                                title: traineeTitle,
+                                                firstName: traineeFirstName,
+                                                lastName: traineeLastName,
+                                            },
+                                            formNumber,
+                                        }
+                                    });
+                                } else {
+                                    res.send({
+                                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
+                                    });
+                                }
+                            }
+                        }
+                    );
+                    db.end();
                 }
             }
         }
     );
-    db.end();
 };
 
 const slipImageStorage = multer.diskStorage({
@@ -933,30 +997,42 @@ doAddTransferNotification = (req, res, db) => {
             return;
         }
 
-        const {memberId, traineeId, amount, transferDate} = req.body;
+        const {formNumber, memberId, traineeId, amount, transferDate} = req.body;
+        const serviceTypePrefix = formNumber.substring(0, 2).toUpperCase();
+        let serviceType = serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING // AC
+            ? constants.SERVICE_TRAINING
+            : (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE // DL
+                ? constants.SERVICE_DRIVING_LICENSE
+                : null);
         const {filename} = req.file;
         db.query(
                 `INSERT INTO payment_notification
-                     (member_id, trainee_id, amount, transfer_date, slip_file_name)
-                 VALUES (?, ?, ?, ?, ?)`,
-            [memberId, traineeId, amount, transferDate, filename],
+                     (member_id, trainee_id, service_type, amount, transfer_date, slip_file_name)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+            [memberId, traineeId, serviceType, amount, transferDate, filename],
             function (err, results, fields) {
                 if (err) {
                     res.send({
-                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล(1)', 'error run query: ' + err.stack),
+                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
                     });
                     db.end();
                 } else {
                     db.query(
-                            `UPDATE course_trainee
-                             SET register_status = 'wait-approve'
-                             WHERE id = ?
-                               AND register_status <> 'complete'`,
+                        serviceType === constants.SERVICE_TRAINING ?
+                                `UPDATE course_trainee
+                                 SET register_status = 'wait-approve'
+                                 WHERE id = ?
+                                   AND register_status <> 'complete'` :
+                            (serviceType === constants.SERVICE_DRIVING_LICENSE ?
+                                    `UPDATE course_registration_driving_license
+                                     SET register_status = 'wait-approve'
+                                     WHERE id = ?
+                                       AND register_status <> 'complete'` : ''),
                         [traineeId],
                         function (err, results, fields) {
                             if (err) {
                                 res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล(2)', 'error run query: ' + err.stack),
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
                                 });
                             } else {
                                 res.send({

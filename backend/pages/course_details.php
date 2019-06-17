@@ -1,11 +1,18 @@
 <?php
 require_once '../include/head_php.inc';
+require_once '../components/get_course_registration_data_table.php';
 
-$courseId = $_POST['courseId'];
+$courseId = $_GET['course_id'];
 $course = array();
 if (isset($courseId)) {
     $courseId = $db->real_escape_string($courseId);
-    $sql = "SELECT * FROM course WHERE id=$courseId";
+    $sql = "SELECT c.course_master_id, c.batch_number, c.details, c.trainee_limit, c.application_fee, 
+                   c.place, c.begin_date, c.end_date, c.responsible_user_id, cm.service_type
+            FROM course c 
+                INNER JOIN course_master cm 
+                    ON c.course_master_id = cm.id 
+            WHERE c.id = $courseId";
+
     if ($result = $db->query($sql)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -18,10 +25,11 @@ if (isset($courseId)) {
             $course['begin_date'] = $row['begin_date'];
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
+            $course['service_type'] = $row['service_type'];
         }
         $result->close();
     } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
         $db->close();
         exit();
     }
@@ -43,7 +51,7 @@ if ($result = $db->query($sql)) {
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
@@ -63,26 +71,55 @@ if ($result = $db->query($sql)) {
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
 
-$sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.created_at, ct.register_status, ct.course_registration_id,
+/*$sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.created_at, ct.register_status, ct.course_registration_id,
                cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
-            FROM course_registration cr  
+            FROM course_registration cr
                 INNER JOIN course c
                     ON cr.course_id = c.id
                 INNER JOIN course_trainee ct
                     ON ct.course_registration_id = cr.id
             WHERE c.id = $courseId
-            ORDER BY ct.id DESC";
+            ORDER BY ct.id DESC";*/
+
+switch ($course['service_type']) {
+    case SERVICE_TYPE_TRAINING:
+        $sql = "SELECT ct.register_status
+        FROM course_registration cr
+            INNER JOIN course c
+                ON cr.course_id = c.id
+            INNER JOIN course_trainee ct
+                ON ct.course_registration_id = cr.id
+        WHERE c.id = $courseId";
+        break;
+
+    case SERVICE_TYPE_SOCIAL:
+        $sql = "SELECT cr.register_status 
+        FROM course_registration_social cr 
+            INNER JOIN course c 
+                ON cr.course_id = c.id 
+        WHERE c.id = $courseId";
+        break;
+
+    case SERVICE_TYPE_DRIVING_LICENSE:
+        $sql = "SELECT cr.register_status 
+        FROM course_registration_driving_license cr 
+            INNER JOIN course c 
+                ON cr.course_id = c.id 
+        WHERE c.id = $courseId";
+        break;
+}
 
 if ($result = $db->query($sql)) {
     $traineeList = array();
     while ($row = $result->fetch_assoc()) {
         $trainee = array();
-        $trainee['id'] = (int)$row['id'];
+        $trainee['register_status'] = $row['register_status'];
+        /*$trainee['id'] = (int)$row['id'];
         $trainee['form_number'] = $row['form_number'];
         $trainee['title'] = $row['title'];
         $trainee['first_name'] = $row['first_name'];
@@ -90,7 +127,6 @@ if ($result = $db->query($sql)) {
         $trainee['phone'] = $row['phone'];
         $trainee['email'] = $row['email'];
         $trainee['created_at'] = $row['created_at'];
-        $trainee['register_status'] = $row['register_status'];
         $trainee['coordinator'] = array(
             'title' => $row['coordinator_title'],
             'first_name' => $row['coordinator_first_name'],
@@ -98,13 +134,13 @@ if ($result = $db->query($sql)) {
             'phone' => $row['coordinator_phone'],
             'email' => $row['coordinator_email']
         );
-        $trainee['course_id'] = (int)$row['course_id'];
+        $trainee['course_id'] = (int)$row['course_id'];*/
 
         array_push($traineeList, $trainee);
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
@@ -132,13 +168,12 @@ if ($result = $db->query($sql)) {
             <section class="content-header">
                 <h1>
                     ข้อมูลการสมัคร
-                    <small>บริการฝึกอบรม</small>
+                    <small><?php echo $serviceTypeText[$course['service_type']]; ?></small>
                 </h1>
             </section>
 
             <!-- Main content -->
             <section class="content">
-
                 <?php
                 $registerStatusStart = 0;
                 $registerStatusWaitApprove = 0;
@@ -177,32 +212,40 @@ if ($result = $db->query($sql)) {
                         <!-- /.info-box -->
                     </div>
                     <!-- /.col -->
-                    <div class="col-md-3 col-sm-6 col-xs-12">
-                        <div class="info-box">
-                            <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
 
-                            <div class="info-box-content">
-                                <span class="info-box-text">ชำระเงินและตรวจสอบแล้ว</span>
-                                <span class="info-box-number"><?php echo $registerStatusComplete; ?></span>
-                            </div>
-                            <!-- /.info-box-content -->
-                        </div>
-                        <!-- /.info-box -->
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-md-3 col-sm-6 col-xs-12">
-                        <div class="info-box">
-                            <span class="info-box-icon bg-yellow"><i class="fa fa-hourglass-start"></i></span>
+                    <?php
+                    if ($course['service_type'] !== SERVICE_TYPE_SOCIAL) {
+                        ?>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
 
-                            <div class="info-box-content">
-                                <span class="info-box-text">รอตรวจสอบการชำระเงิน</span>
-                                <span class="info-box-number"><?php echo $registerStatusWaitApprove; ?></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">ชำระเงินและตรวจสอบแล้ว</span>
+                                    <span class="info-box-number"><?php echo $registerStatusComplete; ?></span>
+                                </div>
+                                <!-- /.info-box-content -->
                             </div>
-                            <!-- /.info-box-content -->
+                            <!-- /.info-box -->
                         </div>
-                        <!-- /.info-box -->
-                    </div>
-                    <!-- /.col -->
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-yellow"><i class="fa fa-hourglass-start"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">รอตรวจสอบการชำระเงิน</span>
+                                    <span class="info-box-number"><?php echo $registerStatusWaitApprove; ?></span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <?php
+                    }
+                    ?>
+
                     <div class="col-md-3 col-sm-6 col-xs-12">
                         <div class="info-box">
                             <span class="info-box-icon bg-red"><i class="fa fa-times-circle"></i></span>
@@ -273,21 +316,27 @@ if ($result = $db->query($sql)) {
 
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="inputBatchNumber">รุ่นที่:</label>
-                                            <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-hashtag"></i>
-                                            </span>
-                                                <input type="number" class="form-control"
-                                                       id="inputBatchNumber"
-                                                       value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
-                                                       placeholder="กรอกเลขรุ่น" required
-                                                       oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
-                                                       oninput="this.setCustomValidity('')"
-                                                       disabled>
+                                        <?php
+                                        if ($course['service_type'] !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                            ?>
+                                            <div class="form-group">
+                                                <label for="inputBatchNumber">รุ่นที่:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-hashtag"></i>
+                                                    </span>
+                                                    <input type="number" class="form-control"
+                                                           id="inputBatchNumber"
+                                                           value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
+                                                           placeholder="กรอกเลขรุ่น" required
+                                                           oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
+                                                           oninput="this.setCustomValidity('')"
+                                                           disabled>
+                                                </div>
                                             </div>
-                                        </div>
+                                            <?php
+                                        }
+                                        ?>
                                     </div>
                                 </div>
 
@@ -295,7 +344,7 @@ if ($result = $db->query($sql)) {
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="inputTraineeLimit">รับผู้เข้าอบรมจำนวน (ท่าน):</label>
+                                            <label for="inputTraineeLimit">จำนวนผู้เข้าอบรมที่รับ (คน):</label>
                                             <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-users"></i>
@@ -310,23 +359,30 @@ if ($result = $db->query($sql)) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="inputApplicationFee">ค่าสมัคร (บาท):</label>
-                                            <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-dollar"></i>
-                                            </span>
-                                                <input type="number" class="form-control"
-                                                       id="inputApplicationFee"
-                                                       value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
-                                                       placeholder="กรอกค่าสมัคร" required
-                                                       oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
-                                                       oninput="this.setCustomValidity('')"
-                                                       disabled>
+                                    <?php
+                                    if ($course['service_type'] === SERVICE_TYPE_TRAINING) {
+                                        ?>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="inputApplicationFee">ค่าสมัคร (บาท):</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <strong>฿</strong>
+                                                    </span>
+                                                    <!--แสดงผลอย่างเดียว ไม่ได้ให้กรอก ดังนั้นกำหนด type เป็น text แทนที่จะเป็น number จะได้แสดง comma ได้-->
+                                                    <input type="text" class="form-control"
+                                                           id="inputApplicationFee"
+                                                           value="<?php echo(!empty($course) ? number_format($course['application_fee']) : ''); ?>"
+                                                           placeholder="กรอกค่าสมัคร" required
+                                                           oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
+                                                           oninput="this.setCustomValidity('')"
+                                                           disabled>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                        <?php
+                                    }
+                                    ?>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="inputBeginDate">วันอบรมวันแรก:</label>
@@ -460,118 +516,9 @@ if ($result = $db->query($sql)) {
                                 <!-- /.box-tools -->
                             </div>
                             <div class="box-body">
-                                <table id="tableCourse" class="table table-bordered table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th style="width: 15%; text-align: center">เลขที่</th>
-                                        <!--<th style="width: 50%; text-align: center">หลักสูตรที่สมัคร</th>-->
-                                        <!--<th style="width: 10%; text-align: center">จำนวน</th>-->
-                                        <!--<th style="width: 15%; text-align: center">ผู้กรอกใบสมัคร</th>-->
-                                        <th style="width: 30%; text-align: center">ผู้สมัคร</th>
-                                        <th style="width: 30%; text-align: center">ผู้ประสานงาน</th>
-                                        <th style="width: 15%; text-align: center">วัน/เวลาที่สมัคร</th>
-                                        <th style="text-align: center">สถานะ</th>
-                                        <th style="text-align: center" nowrap>พิมพ์</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php
-                                    if (sizeof($traineeList) == 0) {
-                                        ?>
-                                        <tr valign="middle">
-                                            <td colspan="7" align="center">ไม่มีข้อมูล</td>
-                                        </tr>
-                                        <?php
-                                    } else {
-                                        foreach ($traineeList as $trainee) {
-                                            $traineeId = $trainee['id'];
-                                            $formNumber = $trainee['form_number'];
-                                            $traineeDetails = sprintf(
-                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                                $trainee['title'], $trainee['first_name'], $trainee['last_name'],
-                                                $trainee['phone'], $trainee['email'], $trainee['email']
-                                            );
-                                            $coordinatorDetails = sprintf(
-                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
-                                                $trainee['coordinator']['title'], $trainee['coordinator']['first_name'], $trainee['coordinator']['last_name'],
-                                                $trainee['coordinator']['phone'], $trainee['coordinator']['email'], $trainee['coordinator']['email']
-                                            );
-                                            $createdAt = $trainee['created_at'];
-                                            $dateTimePart = explode(' ', $createdAt);
-                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
-                                            $timePart = explode(':', $dateTimePart[1]);
-                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
-                                            $displayDateTime = "$displayDate<br>$displayTime";
-                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
-
-                                            $registerStatus = $trainee['register_status'];
-                                            ?>
-
-                                            <tr>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo $formNumber; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $traineeDetails; ?></td>
-                                                <td style="vertical-align: middle"><?php echo ($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
-
-                                                <td style="vertical-align: middle; text-align: center" nowrap>
-                                                    <form method="post" action="course_add_edit.php">
-                                                        <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
-                                                        <?php
-                                                        switch ($registerStatus) {
-                                                            case 'start':
-                                                                ?>
-                                                                <button type="button" class="btn-xs btn-warning" style="width: 90px;">
-                                                                    รอชำระเงิน
-                                                                </button>
-                                                                <?php
-                                                                break;
-                                                            case 'wait-approve':
-                                                                ?>
-                                                                <button type="button" class="btn-xs btn-info" style="width: 90px;">
-                                                                    แจ้งชำระเงิน
-                                                                </button>
-                                                                <?php
-                                                                break;
-                                                            case 'complete':
-                                                                ?>
-                                                                <button type="button" class="btn-xs btn-success" style="width: 90px;">
-                                                                    สมบูรณ์
-                                                                </button>
-                                                                <?php
-                                                                break;
-                                                            case 'cancel':
-                                                                ?>
-                                                                <button type="button" class="btn-xs btn-danger" style="width: 90px;">
-                                                                    ยกเลิก
-                                                                </button>
-                                                                <?php
-                                                                break;
-                                                        }
-                                                        ?>
-                                                    </form>
-                                                </td>
-                                                <td style="vertical-align: middle; text-align: center" nowrap>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                            <span class="caret"></span>
-                                                            <span class="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <ul class="dropdown-menu pull-right" role="menu">
-                                                            <li><a href="javascript:void(0)" onClick="doPrintRegForm()"><i class="fa fa-print"></i>ใบสมัคร</a></li>
-                                                            <li><a href="javascript:void(0)" onClick="doPrintReceipt()"><i class="fa fa-print"></i>ใบเสร็จรับเงิน</a></li>
-                                                            <li><a href="javascript:void(0)" onClick="doPrintCertificate()"><i class="fa fa-print"></i>ใบรับรองการผ่านอบรม</a></li>
-                                                            <!--<li class="divider"></li>-->
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                    </tbody>
-                                </table>
+                                <?php
+                                getCourseRegistrationDataTable($db, $course['service_type'], $courseId);
+                                ?>
                             </div>
                             <!-- /.box-body -->
                         </div>

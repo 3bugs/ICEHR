@@ -1,11 +1,31 @@
 <?php
 require_once '../include/head_php.inc';
 
-$courseId = $_POST['courseId'];
+$courseId = $_GET['course_id'];
+$serviceType = $_GET['service_type'];
+if (!isset($serviceType)) {
+    echo '<div style="color: red">ERROR: ไม่ได้ระบุ service type</div>';
+    $db->close();
+    exit();
+} else if (!array_key_exists($serviceType, $serviceTypeText)) {
+    echo '<div style="color: red">ERROR: ระบุ service type ไม่ถูกต้อง</div>';
+    $db->close();
+    exit();
+}
+
 $course = array();
 if (isset($courseId)) {
     $courseId = $db->real_escape_string($courseId);
-    $sql = "SELECT * FROM course WHERE id=$courseId";
+
+    $sql = "SELECT * FROM course WHERE id = $courseId";
+
+    /*$sql = "SELECT c.course_master_id, c.batch_number, c.details, c.trainee_limit, c.application_fee,
+                   c.place, c.begin_date, c.end_date, c.responsible_user_id, cm.service_type
+            FROM course c 
+                INNER JOIN course_master cm 
+                    ON c.course_master_id = cm.id 
+            WHERE c.id = $courseId";*/
+
     if ($result = $db->query($sql)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -18,16 +38,17 @@ if (isset($courseId)) {
             $course['begin_date'] = $row['begin_date'];
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
+            //$course['service_type'] = $row['service_type'];
         }
         $result->close();
     } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
         $db->close();
         exit();
     }
 }
 
-$sql = "SELECT * FROM course_master";
+$sql = "SELECT * FROM course_master WHERE service_type = '$serviceType'";
 if ($result = $db->query($sql)) {
     $courseMasterList = array();
     while ($row = $result->fetch_assoc()) {
@@ -39,7 +60,7 @@ if ($result = $db->query($sql)) {
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
@@ -59,16 +80,17 @@ if ($result = $db->query($sql)) {
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
 
 if (isset($courseId)) {
-    $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, coordinator_email, coordinator_phone 
-                FROM course_registration 
-                WHERE course_id=$courseId 
-                ORDER BY created_at DESC";
+    $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, 
+                   coordinator_email, coordinator_phone 
+            FROM course_registration 
+            WHERE course_id = $courseId 
+            ORDER BY created_at DESC";
 
     if ($result = $db->query($sql)) {
         $courseRegList = array();
@@ -88,7 +110,10 @@ if (isset($courseId)) {
             );
             $courseReg['trainee_list'] = array();
 
-            $traineeSql = "SELECT title, first_name, last_name, phone FROM course_trainee WHERE course_registration_id=$courseRegId";
+            $traineeSql = "SELECT title, first_name, last_name, phone 
+                           FROM course_trainee 
+                           WHERE course_registration_id = $courseRegId";
+
             if ($traineeResult = $db->query($traineeSql)) {
                 while ($traineeRow = $traineeResult->fetch_assoc()) {
                     $trainee['title'] = $traineeRow['title'];
@@ -100,7 +125,7 @@ if (isset($courseId)) {
                 }
                 $traineeResult->close();
             } else {
-                echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+                echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
                 $result->close();
                 $db->close();
                 exit();
@@ -110,7 +135,7 @@ if (isset($courseId)) {
         }
         $result->close();
     } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
         $db->close();
         exit();
     }
@@ -129,12 +154,14 @@ if (isset($courseId)) {
             input[type="file"] {
                 display: none;
             }
+
             .custom-file-upload {
                 border: 1px solid #ccc;
                 display: inline-block;
                 padding: 6px 12px;
                 cursor: pointer;
             }
+
             .custom-file-upload:hover {
                 background: #f4f4f4;
             }
@@ -152,7 +179,7 @@ if (isset($courseId)) {
             <section class="content-header">
                 <h1>
                     <?php echo(isset($courseId) ? 'แก้ไข' : 'เพิ่ม'); ?>หลักสูตร
-                    <small>บริการฝึกอบรม</small>
+                    <small><?php echo $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 
@@ -212,20 +239,26 @@ if (isset($courseId)) {
 
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="inputBatchNumber">รุ่นที่:</label>
-                                                <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-hashtag"></i>
-                                            </span>
-                                                    <input type="number" class="form-control"
-                                                           id="inputBatchNumber"
-                                                           value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
-                                                           placeholder="กรอกเลขรุ่น" required
-                                                           oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
-                                                           oninput="this.setCustomValidity('')">
+                                            <?php
+                                            if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                                ?>
+                                                <div class="form-group">
+                                                    <label for="inputBatchNumber">รุ่นที่:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-hashtag"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control"
+                                                               id="inputBatchNumber"
+                                                               value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
+                                                               placeholder="กรอกเลขรุ่น" required
+                                                               oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <?php
+                                            }
+                                            ?>
                                         </div>
                                     </div>
 
@@ -233,7 +266,7 @@ if (isset($courseId)) {
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="inputTraineeLimit">รับผู้เข้าอบรมจำนวน (ท่าน):</label>
+                                                <label for="inputTraineeLimit">จำนวนผู้เข้าอบรมที่รับ (คน):</label>
                                                 <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-users"></i>
@@ -247,22 +280,28 @@ if (isset($courseId)) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="inputApplicationFee">ค่าสมัคร (บาท):</label>
-                                                <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-dollar"></i>
-                                            </span>
-                                                    <input type="number" class="form-control"
-                                                           id="inputApplicationFee"
-                                                           value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
-                                                           placeholder="กรอกค่าสมัคร" required
-                                                           oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
-                                                           oninput="this.setCustomValidity('')">
+                                        <?php
+                                        if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                            ?>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="inputApplicationFee">ค่าสมัคร (บาท):</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <strong>฿</strong>
+                                                        </span>
+                                                        <input type="number" class="form-control"
+                                                               id="inputApplicationFee"
+                                                               value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
+                                                               placeholder="กรอกค่าสมัคร" required
+                                                               oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                            <?php
+                                        }
+                                        ?>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="inputBeginDate">วันอบรมวันแรก:</label>
@@ -472,6 +511,9 @@ if (isset($courseId)) {
 
                             <div class="row">
                                 <div class="col-12 text-center">
+                                    <div id="divLoading" style="text-align: center; margin-bottom: 10px;">
+                                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                                    </div>
                                     <button id="buttonSave" type="submit"
                                             class="btn btn-info">
                                         <span class="fa fa-save"></span>&nbsp;
@@ -517,6 +559,8 @@ if (isset($courseId)) {
         });
 
         $(document).ready(function () {
+            $('#formAddCourse #divLoading').hide();
+
             $('#formAddCourse').submit(event => {
                 event.preventDefault();
                 doAddCourse();
@@ -532,6 +576,9 @@ if (isset($courseId)) {
             let endDatePart = endDate.split('/');
             endDate = endDatePart[2] + '-' + endDatePart[1] + '-' + endDatePart[0];
 
+            $('#formAddCourse #buttonSave').prop('disabled', true);
+            $('#formAddCourse #divLoading').show();
+
             $.post(
                 '../api/api.php/<?php echo(isset($courseId) ? 'update_course' : 'add_course'); ?>',
                 {
@@ -539,6 +586,7 @@ if (isset($courseId)) {
                     courseMasterId: $('#selectCourseMaster').val(),
                     batchNumber: $('#inputBatchNumber').val(),
                     applicationFee: $('#inputApplicationFee').val(),
+                    traineeLimit: $('#inputTraineeLimit').val(),
                     beginDate,
                     endDate,
                     place: $('#inputPlace').val(),
@@ -546,6 +594,9 @@ if (isset($courseId)) {
                     details: CKEDITOR.instances.editor.getData(),
                 }
             ).done(function (data) {
+                $('#formAddCourse #buttonSave').prop('disabled', false);
+                $('#formAddCourse #divLoading').hide();
+
                 if (data.error_code === 0) {
                     BootstrapDialog.show({
                         title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
@@ -554,10 +605,16 @@ if (isset($courseId)) {
                             label: 'ปิด',
                             action: function (self) {
                                 self.close();
+                                <?php
+                                if (!isset($courseId)) {
+                                ?>
+                                window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                <?php
+                                }
+                                ?>
                             }
                         }]
                     });
-                    //window.location.href = 'course.php';
                 } else {
                     BootstrapDialog.show({
                         title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
@@ -571,6 +628,9 @@ if (isset($courseId)) {
                     });
                 }
             }).fail(function () {
+                $('#formAddCourse #buttonSave').prop('disabled', false);
+                $('#formAddCourse #divLoading').hide();
+
                 BootstrapDialog.show({
                     title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                     message: data.error_message,
