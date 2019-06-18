@@ -12,7 +12,7 @@ if (!isset($serviceType)) {
     exit();
 }
 
-$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title 
+$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, c.trainee_limit, cm.title 
         FROM course c 
             INNER JOIN course_master cm 
                 ON c.course_master_id = cm.id 
@@ -32,12 +32,27 @@ if ($result = $db->query($sql)) {
         $course['place'] = $row['place'];
         $course['begin_date'] = $row['begin_date'];
         $course['end_date'] = $row['end_date'];
+        $course['trainee_limit'] = (int)$row['trainee_limit'];
 
-        $sql = "SELECT cr.id 
-                FROM course_registration cr 
-                    INNER JOIN course_trainee ct 
-                        ON cr.id = ct.course_registration_id 
-                WHERE course_id = " . $course['id'];
+        switch ($serviceType) {
+            case SERVICE_TYPE_TRAINING:
+                $sql = "SELECT cr.id 
+                        FROM course_registration cr 
+                            INNER JOIN course_trainee ct 
+                                ON cr.id = ct.course_registration_id 
+                        WHERE course_id = {$course['id']} AND ct.register_status <> 'cancel'";
+                break;
+            case SERVICE_TYPE_SOCIAL:
+                $sql = "SELECT cr.id 
+                        FROM course_registration_social cr 
+                        WHERE cr.course_id = {$course['id']} AND cr.register_status <> 'cancel'";
+                break;
+            case SERVICE_TYPE_DRIVING_LICENSE:
+                $sql = "SELECT cr.id 
+                        FROM course_registration_driving_license cr 
+                        WHERE cr.course_id = {$course['id']} AND cr.register_status <> 'cancel'";
+                break;
+        }
 
         if ($resultCount = $db->query($sql)) {
             $course['trainee_count'] = $resultCount->num_rows;
@@ -122,27 +137,28 @@ if ($result = $db->query($sql)) {
                                             $courseDate = ($course['begin_date'] === $course['end_date'] ? getThaiShortDate($beginDate) : getThaiIntervalShortDate($beginDate, $endDate));
                                             $courseDateHidden = '<span style="display: none">' . $course['begin_date'] . '</span></span>';
                                             $traineeCount = $course['trainee_count'];
+                                            $traineeLimit = $course['trainee_limit'];
                                             ?>
 
                                             <tr style="">
                                                 <td style="vertical-align: middle"><?php echo $courseName; ?></td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo $traineeCount; ?></td>
+                                                <td style="vertical-align: middle; text-align: center"><?php echo "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="get" action="course_details.php" style="display: inline">
-                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
-                                                        <button type="submit" class="btn btn-info">
-                                                            <span class="fa fa-info"></span>&nbsp;
-                                                            ใบสมัคร
-                                                        </button>
-                                                    </form>
                                                     <form method="get" action="course_add_edit.php" style="display: inline">
                                                         <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
                                                         <input type="hidden" name="service_type" value="<?php echo $serviceType; ?>"/>
                                                         <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
+                                                        </button>
+                                                    </form>
+                                                    <form method="get" action="course_details.php" style="display: inline">
+                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
+                                                        <button type="submit" class="btn btn-info">
+                                                            <span class="fa fa-files-o"></span>&nbsp;
+                                                            ใบสมัคร
                                                         </button>
                                                     </form>
                                                 </td>

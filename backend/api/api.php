@@ -281,16 +281,17 @@ function doUpdateRegisterStatus()
     $serviceType = $db->real_escape_string($_POST['serviceType']);
     $traineeId = $db->real_escape_string($_POST['traineeId']);
     $newRegisterStatus = $db->real_escape_string($_POST['registerStatus']);
+    $paidAmount = $db->real_escape_string($_POST['paidAmount']);
 
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
             $sql = "UPDATE course_trainee 
-                SET register_status = '$newRegisterStatus' 
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
                 WHERE id = $traineeId ";
             break;
         case SERVICE_TYPE_DRIVING_LICENSE:
             $sql = "UPDATE course_registration_driving_license 
-                SET register_status = '$newRegisterStatus' 
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
                 WHERE id = $traineeId ";
             break;
     }

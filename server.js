@@ -851,17 +851,18 @@ doGetRegistrationListByMember = (req, res, db) => {
 doGetTraineeByFormNumber = (req, res, db) => {
     const {formNumber} = req.body;
 
-    db.query(
-            `SELECT cm.title       AS courseTitle,
-                    c.batch_number AS courseBatchNumber,
-                    c.place        AS coursePlace,
-                    c.begin_date   AS courseBeginDate,
-                    c.end_date     AS courseEndDate,
-                    ct.form_number AS formNumber,
-                    ct.id          AS traineeId,
-                    ct.title       AS traineeTitle,
-                    ct.first_name  AS traineeFirstName,
-                    ct.last_name   AS traineeLastName
+    db.query( // หาในบริการวิชาการก่อน
+            `SELECT cm.title           AS courseTitle,
+                    c.batch_number     AS courseBatchNumber,
+                    c.place            AS coursePlace,
+                    c.begin_date       AS courseBeginDate,
+                    c.end_date         AS courseEndDate,
+                    ct.form_number     AS formNumber,
+                    ct.id              AS traineeId,
+                    ct.title           AS traineeTitle,
+                    ct.first_name      AS traineeFirstName,
+                    ct.last_name       AS traineeLastName,
+                    ct.register_status AS registerStatus
              FROM course_registration cr
                       INNER JOIN course_trainee ct
                                  ON ct.course_registration_id = cr.id
@@ -881,7 +882,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                 if (results.length > 0) {
                     const {
                         courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName,
+                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
                     } = results[0];
 
                     res.send({
@@ -902,26 +903,31 @@ doGetTraineeByFormNumber = (req, res, db) => {
                                 lastName: traineeLastName,
                             },
                             formNumber,
+                            registerStatus,
                         }
                     });
                     db.end();
                 } else {
-                    db.query(
-                            `SELECT cm.title         AS courseTitle,
-                                    c.batch_number   AS courseBatchNumber,
-                                    c.place          AS coursePlace,
-                                    c.begin_date     AS courseBeginDate,
-                                    c.end_date       AS courseEndDate,
-                                    crdl.form_number AS formNumber,
-                                    crdl.id          AS traineeId,
-                                    crdl.title       AS traineeTitle,
-                                    crdl.first_name  AS traineeFirstName,
-                                    crdl.last_name   AS traineeLastName
+                    db.query( // ถ้าหาในบริการวิชาการไม่เจอ ก็ไปหาในใบขับขี่ต่อ
+                            `SELECT cm.title             AS courseTitle,
+                                    c.batch_number       AS courseBatchNumber,
+                                    c.place              AS coursePlace,
+                                    c.begin_date         AS courseBeginDate,
+                                    c.end_date           AS courseEndDate,
+                                    ct.title             AS courseType,
+                                    crdl.form_number     AS formNumber,
+                                    crdl.id              AS traineeId,
+                                    crdl.title           AS traineeTitle,
+                                    crdl.first_name      AS traineeFirstName,
+                                    crdl.last_name       AS traineeLastName,
+                                    crdl.register_status AS registerStatus
                              FROM course_registration_driving_license crdl
                                       INNER JOIN course c
                                                  ON crdl.course_id = c.id
                                       INNER JOIN course_master cm
                                                  ON c.course_master_id = cm.id
+                                      INNER JOIN driving_license_course_type ct
+                                                 ON crdl.course_type = ct.id
                              WHERE crdl.form_number = ?`,
                         [formNumber],
                         function (err, results, fields) {
@@ -933,7 +939,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                                 if (results.length > 0) {
                                     const {
                                         courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName,
+                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, courseType, registerStatus
                                     } = results[0];
 
                                     res.send({
@@ -942,10 +948,11 @@ doGetTraineeByFormNumber = (req, res, db) => {
                                             course: {
                                                 title: courseTitle,
                                                 batchNumber: courseBatchNumber,
-                                                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
+                                                name: `${courseTitle}`,
                                                 beginDate: courseBeginDate,
                                                 endDate: courseEndDate,
                                                 place: coursePlace,
+                                                type: courseType,
                                             },
                                             trainee: {
                                                 id: traineeId,
@@ -954,6 +961,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                                                 lastName: traineeLastName,
                                             },
                                             formNumber,
+                                            registerStatus,
                                         }
                                     });
                                 } else {

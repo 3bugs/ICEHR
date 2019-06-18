@@ -4,7 +4,7 @@ require_once '../api/global.php';
 /**
  * @param mysqli $db
  * @param string $serviceType
- * @param int $courseId
+ * @param int $paramCourseId
  */
 function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null)
 {
@@ -14,7 +14,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
     }
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
-            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.register_status, ct.created_at, ct.course_registration_id,
+            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.register_status, ct.created_at, ct.course_registration_id, ct.paid_amount,
                            cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
                     FROM course_trainee ct 
                         INNER JOIN course_registration cr 
@@ -23,8 +23,16 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     ORDER BY ct.id DESC ";
             break;
 
+        case SERVICE_TYPE_SOCIAL:
+            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.email, cr.contact_name, cr.contact_phone, 
+                           cr.register_status, cr.created_at, cr.course_id
+                    FROM course_registration_social cr  
+                    WHERE $whereClause
+                    ORDER BY id DESC";
+            break;
+
         case SERVICE_TYPE_DRIVING_LICENSE:
-            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.register_status, cr.created_at, cr.course_id,
+            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.register_status, cr.created_at, cr.course_id, cr.paid_amount,
                     ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
                         INNER JOIN driving_license_course_type ct 
@@ -51,6 +59,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['email'] = $row['email'];
             $trainee['created_at'] = $row['created_at'];
             $trainee['register_status'] = $row['register_status'];
+            $trainee['paid_amount'] = $row['paid_amount'];
             $trainee['coordinator'] = array(
                 'title' => $row['coordinator_title'],
                 'first_name' => $row['coordinator_first_name'],
@@ -59,6 +68,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 'email' => $row['coordinator_email']
             );
             $trainee['course_id'] = (int)$row['course_id'];
+
+            /*สำหรับบริการสังคม*/
+            $trainee['contact_name'] = $row['contact_name'];
+            $trainee['contact_phone'] = $row['contact_phone'];
 
             /*สำหรับบริการใบขับขี่*/
             $trainee['driving_license_course_type'] = $row['course_type_title'];
@@ -207,7 +220,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">รอชำระเงิน</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">ไม่ได้ชำระเงิน</a></li>
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">แจ้งชำระเงิน</a></li>
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
                                 <li class="divider"></li>
@@ -236,6 +249,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <ul class="nav nav-tabs">
                                 <li class="active"><a href="#tab_1" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
                                 <li><a href="#tab_2" data-toggle="tab">การแจ้งโอนเงิน</a></li>
+                                <!--<li><a href="#tab_3" data-toggle="tab">ยอดเงินจ่ายจริง</a></li>-->
                             </ul>
                             <div class="tab-content">
 
@@ -281,34 +295,48 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                            id="inputCourseName">
                                                 </div>
                                             </div>
-                                            <!--ราคาเต็ม-->
-                                            <div class="form-group">
-                                                <label for="inputCourseFee">ราคาปกติ (บาท):</label>
-                                                <div class="input-group">
+                                            <div class="row">
+                                                <!--ราคาเต็ม-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputCourseFee">ราคาปกติ (บาท):</label>
+                                                    <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <strong>฿</strong>
                                                     </span>
-                                                    <input type="text" class="form-control" disabled
-                                                           id="inputCourseFee">
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputCourseFee">
+                                                    </div>
+                                                </div>
+                                                <!--จ่ายจริง-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputPaidAmount">
+                                                    </div>
+                                                    <div style="color: red; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
                                             </div>
                                             <?php
                                         } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                                             ?>
-                                            <div class="row">
-                                                <!--ประเภทการอบรม-->
-                                                <div class="form-group col-md-8">
-                                                    <label for="inputCourseName">ประเภทการอบรม:</label>
-                                                    <div class="input-group">
+                                            <!--ประเภทการอบรม-->
+                                            <div class="form-group">
+                                                <label for="inputCourseName">ประเภทการอบรม:</label>
+                                                <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-font"></i>
                                                             </span>
-                                                        <input type="text" class="form-control" disabled
-                                                               id="inputCourseName">
-                                                    </div>
+                                                    <input type="text" class="form-control" disabled
+                                                           id="inputCourseName">
                                                 </div>
+                                            </div>
+                                            <div class="row">
                                                 <!--ราคา-->
-                                                <div class="form-group col-md-4">
+                                                <div class="form-group col-md-6">
                                                     <label for="inputCourseFee">ราคา (บาท):</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -317,6 +345,18 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                         <input type="text" class="form-control" disabled
                                                                id="inputCourseFee">
                                                     </div>
+                                                </div>
+                                                <!--จ่ายจริง-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputPaidAmount">
+                                                    </div>
+                                                    <div style="color: red; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
                                             </div>
                                             <?php
@@ -371,6 +411,25 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     </div>
                                 </div>
                                 <!-- /.tab-pane -->
+
+                                <!--แท็บ 3 - ยอดเงินจ่ายจริง-->
+                                <!--<div class="tab-pane" id="tab_3">
+                                    <div class="box-body">
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputPaidAmount">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>-->
+                                <!-- /.tab-pane -->
                             </div>
                             <!-- /.tab-content -->
                         </div>
@@ -400,6 +459,16 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 <th style="text-align: center">สถานะ</th>
                 <th style="text-align: center" nowrap>พิมพ์</th>
                 <?php
+            } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+                ?>
+                <th style="width: 10%; text-align: center">เลขที่</th>
+                <th style="width: 20%; text-align: center">ผู้สมัคร</th>
+                <th style="width: 20%; text-align: center">ผู้ติดต่อ</th>
+                <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
+                <th style="width: 10%; text-align: center">วันอบรม</th>
+                <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
+                <th style="text-align: center" nowrap>พิมพ์</th>
+                <?php
             } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                 ?>
                 <th style="width: 15%; text-align: center">เลขที่</th>
@@ -416,6 +485,14 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         </thead>
         <tbody>
         <?php
+        /*นับจำนวนแต่ละสถานะ เพื่อเอาไว้อัพเดท Widget ด้านบน (ในหน้า course_details.php)*/
+        $registerStatusList = array(
+            'start' => 0,
+            'wait-approve' => 0,
+            'complete' => 0,
+            'cancel' => 0
+        );
+
         if (sizeof($traineeList) == 0) {
             ?>
             <tr valign="middle">
@@ -453,6 +530,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
 
                 $registerStatus = $trainee['register_status'];
+                $registerStatusList[$registerStatus]++;
+
+                $paidAmount = $trainee['paid_amount'] == null ? '' : $trainee['paid_amount'];
 
                 $courseId = $trainee['course_id'];
                 $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
@@ -491,7 +571,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         ?>
                         <td style="vertical-align: top"><?php echo($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
                         <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
-
+                        <?php
+                    } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+                        ?>
+                        <td style="vertical-align: top"><?php echo "{$trainee['contact_name']}<br/><i class=\"fa fa-phone\" style=\"color: black\"></i> {$trainee['contact_phone']}"; ?></td>
+                        <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
                         <?php
                     } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                         ?>
@@ -511,50 +595,69 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <td style="vertical-align: top; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
                     <td style="vertical-align: top; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
-                    <td style="vertical-align: middle; text-align: center" nowrap>
-                        <?php
-                        $btnClass = '';
-                        $btnText = '';
-                        $sortOrder = 0;
-                        switch ($registerStatus) {
-                            case 'start':
-                                $btnClass = 'btn-warning';
-                                $btnText = 'รอชำระเงิน';
-                                $sortOrder = 3;
-                                break;
-                            case 'wait-approve':
-                                $btnClass = 'btn-info';
-                                $btnText = 'แจ้งชำระเงิน';
-                                $sortOrder = 1;
-                                break;
-                            case 'complete':
-                                $btnClass = 'btn-success';
-                                $btnText = 'สมบูรณ์';
-                                $sortOrder = 2;
-                                break;
-                            case 'cancel':
-                                $btnClass = 'btn-danger';
-                                $btnText = 'ยกเลิก';
-                                $sortOrder = 4;
-                                break;
-                        }
+                    <?php
+                    if ($serviceType !== SERVICE_TYPE_SOCIAL) {
                         ?>
-                        <span style="display: none"><?php echo $sortOrder; ?></span>
-                        <button id="buttonStatus<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo $btnClass; ?>" style="width: 90px;"
-                                onClick="onClickStatus(
-                                        '<?php echo $formNumber; ?>',
-                                <?php echo $traineeId; ?>,
-                                        '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
-                                        '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
-                                        '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? $courseDetails : $trainee['driving_license_course_type']); ?>',
-                                        '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>'
-                                        )">
-                            <?php echo $btnText ?>
-                        </button>
-                        <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
-                        <input id="inputRegisterStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $registerStatus; ?>"/>
-                    </td>
-                    <td style="vertical-align: middle; text-align: center" nowrap>
+                        <td style="vertical-align: top; text-align: center" nowrap>
+                            <?php
+                            $btnClass = '';
+                            $btnText = '';
+                            $sortOrder = 0;
+                            switch ($registerStatus) {
+                                case 'start':
+                                    $btnClass = 'btn-info';
+                                    $btnText = 'ยังไม่ชำระเงิน';
+                                    $sortOrder = 3;
+                                    break;
+                                case 'wait-approve':
+                                    $btnClass = 'btn-warning';
+                                    $btnText = 'แจ้งชำระเงิน';
+                                    $sortOrder = 1;
+                                    break;
+                                case 'complete':
+                                    $btnClass = 'btn-success';
+                                    $btnText = 'สมบูรณ์';
+                                    $sortOrder = 2;
+                                    break;
+                                case 'cancel':
+                                    $btnClass = 'btn-danger';
+                                    $btnText = 'ยกเลิก';
+                                    $sortOrder = 4;
+                                    break;
+                            }
+                            ?>
+                            <span style="display: none"><?php echo $sortOrder; ?></span>
+
+                            <button id="buttonStatus<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo $btnClass; ?>" style="width: 90px;"
+                                    onClick="onClickStatus(
+                                            '<?php echo $formNumber; ?>',
+                                    <?php echo $traineeId; ?>,
+                                            '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
+                                            '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
+                                            '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? $courseDetails : $trainee['driving_license_course_type']); ?>',
+                                            '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
+                                            '<?php echo $paidAmount; ?>'
+                                            )">
+                                <?php echo $btnText ?>
+                            </button>
+
+                            <?php
+                            if ($paidAmount !== '') {
+                                ?>
+                                <div style="text-align: center; margin-top: 5px">
+                                    <?php echo number_format($paidAmount); ?>&nbsp;บาท
+                                </div>
+                                <?php
+                            }
+                            ?>
+
+                            <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
+                            <input id="inputRegisterStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $registerStatus; ?>"/>
+                        </td>
+                        <?php
+                    }
+                    ?>
+                    <td style="vertical-align: top; text-align: center" nowrap>
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
@@ -595,8 +698,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
     </table>
 
     <script>
+        let shouldReload = false;
+
         $(document).ready(function () {
             $('#tableRegistration').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
                 order: [[0, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
@@ -617,6 +724,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     },
                 }
             });
+
+            $('#manageRegisterStatusModal').on('hidden.bs.modal', () => {
+                if (shouldReload) {
+                    location.reload(true);
+                }
+            });
         });
 
         function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee) {
@@ -635,7 +748,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#printReceiptModal').modal('show');
         }
 
-        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee) {
+        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount) {
             doGetPaymentNotification(traineeId);
 
             $('#manageRegisterStatusModal #spanFormNumber').text(formNumber);
@@ -649,6 +762,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
             $('#manageRegisterStatusModal #inputCourseName').val(courseName);
             $('#manageRegisterStatusModal #inputCourseFee').val(courseApplicationFee);
+            $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
             $('#manageRegisterStatusModal #alertSuccess').hide();
             $('#manageRegisterStatusModal #alertError').hide();
             $('#spanLoading').hide();
@@ -679,11 +793,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             let statusClass, statusText;
             switch (registerStatus) {
                 case 'start':
-                    statusClass = 'btn-warning';
-                    statusText = 'รอชำระเงิน';
+                    statusClass = 'btn-info';
+                    statusText = 'ยังไม่ได้ชำระเงิน';
                     break;
                 case 'wait-approve':
-                    statusClass = 'btn-info';
+                    statusClass = 'btn-warning';
                     statusText = 'แจ้งชำระเงิน';
                     break;
                 case 'complete':
@@ -711,6 +825,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
             const traineeId = $('#manageRegisterStatusModal #inputTraineeId').val();
             const oldStatus = $('#inputRegisterStatus' + traineeId).val();
+            //const paidAmount = $('#manageRegisterStatusModal #inputPaidAmount').val(); // ยอดเงินจ่ายจริง
+
             //const oldStatus = $('#formManageRegisterStatus #inputRegisterStatus').val();
             //alert('Trainee ID: ' + traineeId + ', Old Status: ' + oldStatus + ', New Status: ' + newStatus);
 
@@ -718,7 +834,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 let text = '';
                 switch (newStatus) {
                     case 'start':
-                        text = 'รอชำระเงิน';
+                        text = 'ยังไม่ได้ชำระเงิน';
                         break;
                     case 'wait-approve':
                         text = 'แจ้งชำระเงิน';
@@ -730,51 +846,98 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         text = 'ยกเลิก';
                         break;
                 }
-                if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + text + "' ?"
-                    + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่ลงฐานข้อมูลทันที')) {
 
-                    $('#spanLoading').show();
-
-                    $.post(
-                        '../api/api.php/update_register_status',
-                        {
-                            serviceType: '<?php echo $serviceType; ?>',
-                            traineeId: traineeId,
-                            registerStatus: newStatus,
+                if (newStatus === 'complete') {
+                    const paidAmount = prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง:', '');
+                    if (paidAmount === null) {
+                        // user กด Cancel
+                    } else if (paidAmount.trim() === '') {
+                        alert('ผิดพลาด: ไม่ได้กรอกยอดเงิน');
+                    } else if (isNaN(paidAmount)) {
+                        alert('ผิดพลาด: ต้องกรอกยอดเงินเป็นตัวเลข');
+                    } else {
+                        if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + text + "' ?"
+                            + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่และยอดเงินที่ลูกค้าจ่ายจริงลงฐานข้อมูลทันที')) {
+                            doUpdateRegisterStatus(traineeId, newStatus, paidAmount);
                         }
-                    ).done(function (data) {
-                        $('#spanLoading').hide();
-                        if (data.error_code === 0) {
-                            $('#manageRegisterStatusModal #alertSuccessText').text(data.error_message);
-                            $('#manageRegisterStatusModal #alertSuccess').show();
-
-                            //$('#formManageRegisterStatus #inputRegisterStatus').val(newStatus);
-                            $('#inputRegisterStatus' + traineeId).val(newStatus);
-                            setButtonStatusClass(newStatus);
-
-                            updateStatusButtonInTable(traineeId, newStatus);
-                        } else {
-                            $('#manageRegisterStatusModal #alertErrorText').text(data.error_message);
-                            $('#manageRegisterStatusModal #alertError').show();
-                        }
-                    }).fail(function () {
-                        $('#spanLoading').hide();
-                        $('#manageRegisterStatusModal #alertErrorText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
-                        $('#manageRegisterStatusModal #alertError').show();
-                    });
+                    }
+                } else {
+                    if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + text + "' ?"
+                        + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่ลงฐานข้อมูลทันที')) {
+                        doUpdateRegisterStatus(traineeId, newStatus, 'NULL');
+                    }
                 }
             }
         }
 
-        function updateStatusButtonInTable(traineeId, newStatus) {
+        function doUpdateRegisterStatus(traineeId, newStatus, paidAmount) {
+            $('#spanLoading').show();
+
+            $.post(
+                '../api/api.php/update_register_status',
+                {
+                    serviceType: '<?php echo $serviceType; ?>',
+                    traineeId: traineeId,
+                    registerStatus: newStatus,
+                    paidAmount: paidAmount,
+                }
+            ).done(function (data) {
+                $('#spanLoading').hide();
+                if (data.error_code === 0) {
+                    $('#manageRegisterStatusModal #alertSuccessText').text(data.error_message);
+                    $('#manageRegisterStatusModal #alertSuccess').show();
+
+                    //$('#formManageRegisterStatus #inputRegisterStatus').val(newStatus);
+                    $('#inputRegisterStatus' + traineeId).val(newStatus);
+                    setButtonStatusClass(newStatus);
+
+                    shouldReload = true;
+                    //updateStatusButtonInTable(traineeId, oldStatus, newStatus);
+                } else {
+                    $('#manageRegisterStatusModal #alertErrorText').text(data.error_message);
+                    $('#manageRegisterStatusModal #alertError').show();
+                }
+            }).fail(function () {
+                $('#spanLoading').hide();
+                $('#manageRegisterStatusModal #alertErrorText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                $('#manageRegisterStatusModal #alertError').show();
+            });
+        }
+
+        const registerStatus = {
+            'start': <?php echo $registerStatusList['start']; ?>,
+            'wait-approve': <?php echo $registerStatusList['wait-approve']; ?>,
+            'complete': <?php echo $registerStatusList['complete']; ?>,
+            'cancel': <?php echo $registerStatusList['cancel']; ?>,
+        };
+
+        function updateStatusButtonInTable(traineeId, oldStatus, newStatus) {
+            registerStatus[oldStatus]--;
+            registerStatus[newStatus]++;
+
+            /*อัพเดท Widget ด้านบน*/
+            const divWidthRow = $('#divWidgetRow');
+            if (divWidthRow.length !== 0) {
+                divWidthRow.find('#spanStart').text(registerStatus['start']);
+                divWidthRow.find('#spanWaitApprove').text(registerStatus['wait-approve']);
+                divWidthRow.find('#spanComplete').text(registerStatus['complete']);
+                divWidthRow.find('#spanCancel').text(registerStatus['cancel']);
+            }
+            /*alert(
+                'start: ' + registerStatus['start']
+                + ', wait-approve: ' + registerStatus['wait-approve']
+                + ', complete: ' + registerStatus['complete']
+                + ', cancel: ' + registerStatus['cancel']
+            );*/
+
             let statusClass, statusText;
             switch (newStatus) {
                 case 'start':
-                    statusClass = 'btn-warning';
-                    statusText = 'รอชำระเงิน';
+                    statusClass = 'btn-info';
+                    statusText = 'ยังไม่ชำระเงิน';
                     break;
                 case 'wait-approve':
-                    statusClass = 'btn-info';
+                    statusClass = 'btn-warning';
                     statusText = 'แจ้งชำระเงิน';
                     break;
                 case 'complete':

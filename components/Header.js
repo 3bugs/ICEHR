@@ -1781,7 +1781,9 @@ export default class Header extends React.Component {
                                         </div>
                                     </li>
                                     {/*สถานะการลงทะเบียน*/}
-                                    <li><a href="checkstatus.php" className="bgyellow_btn">สถานะการลงทะเบียน </a></li>
+                                    <Link href="/check-status">
+                                        <li><a href="javascript:void(0)" className="bgyellow_btn">สถานะการลงทะเบียน </a></li>
+                                    </Link>
                                     {/*ส่งหลักฐานการโอนเงิน*/}
                                     <Link href="/upload-slip">
                                         <li><a href="javascript:void(0)" className="bgyellow_btn">ส่งหลักฐานโอนเงิน</a></li>

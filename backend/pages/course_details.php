@@ -166,14 +166,6 @@ if ($result = $db->query($sql)) {
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <section class="content-header">
-                <h1>
-                    ข้อมูลการสมัคร
-                    <small><?php echo $serviceTypeText[$course['service_type']]; ?></small>
-                </h1>
-            </section>
-
-            <!-- Main content -->
-            <section class="content">
                 <?php
                 $registerStatusStart = 0;
                 $registerStatusWaitApprove = 0;
@@ -195,17 +187,29 @@ if ($result = $db->query($sql)) {
                             break;
                     }
                 }
+                $registerAll = $registerStatusStart + $registerStatusWaitApprove + $registerStatusComplete;
                 ?>
 
+                <h1 style="float: right; color: #666">
+                    <small>สมัคร</small> <strong><?php echo "$registerAll / {$course['trainee_limit']}" ?></strong>
+                </h1>
+                <h1>
+                    ข้อมูลการสมัคร
+                    <small><?php echo $serviceTypeText[$course['service_type']]; ?></small>
+                </h1>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
                 <!--Widgets-->
-                <div class="row">
+                <div id="divWidgetRow" class="row">
                     <div class="col-md-3 col-sm-6 col-xs-12">
                         <div class="info-box">
                             <span class="info-box-icon bg-aqua"><i class="fa fa-pencil-square-o"></i></span>
 
                             <div class="info-box-content">
-                                <span class="info-box-text">สมัคร / รับได้</span>
-                                <span class="info-box-number"><?php echo $registerStatusStart . ' / ' . $course['trainee_limit']; ?></span>
+                                <span class="info-box-text"><?php echo($course['service_type'] === SERVICE_TYPE_SOCIAL ? 'สมัคร' : 'ยังไม่ได้ชำระเงิน'); ?></span>
+                                <span id="spanStart" class="info-box-number"><?php echo $registerStatusStart; ?></span>
                             </div>
                             <!-- /.info-box-content -->
                         </div>
@@ -222,7 +226,7 @@ if ($result = $db->query($sql)) {
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">ชำระเงินและตรวจสอบแล้ว</span>
-                                    <span class="info-box-number"><?php echo $registerStatusComplete; ?></span>
+                                    <span id="spanComplete" class="info-box-number"><?php echo $registerStatusComplete; ?></span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -235,7 +239,7 @@ if ($result = $db->query($sql)) {
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">รอตรวจสอบการชำระเงิน</span>
-                                    <span class="info-box-number"><?php echo $registerStatusWaitApprove; ?></span>
+                                    <span id="spanWaitApprove" class="info-box-number"><?php echo $registerStatusWaitApprove; ?></span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -252,7 +256,7 @@ if ($result = $db->query($sql)) {
 
                             <div class="info-box-content">
                                 <span class="info-box-text">ยกเลิก</span>
-                                <span class="info-box-number"><?php echo $registerStatusCancel; ?></span>
+                                <span id="spanCancel" class="info-box-number"><?php echo $registerStatusCancel; ?></span>
                             </div>
                             <!-- /.info-box-content -->
                         </div>
