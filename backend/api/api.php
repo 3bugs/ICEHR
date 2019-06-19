@@ -61,6 +61,26 @@ switch ($action) {
     case 'update_course':
         doUpdateCourse();
         break;
+    case 'add_training_project_news':
+        doAddTrainingProjectNews();
+        break;
+    case 'update_training_project_news':
+        doUpdateTrainingProjectNews();
+        break;
+    case 'delete_media':
+        doDeleteMedia();
+        break;
+    case 'delete_document':
+        doDeleteDocument();
+        break;
+    case 'delete_article':
+        $articleId = $db->real_escape_string($_POST['articleId']);
+        doDeleteArticle($articleId);
+        break;
+
+
+
+
 
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
@@ -256,6 +276,456 @@ function doUpdateCourse()
     }
 }
 
+
+function doAddTrainingProjectNews()
+{
+    global $db, $response;
+
+    $date_now = date('Y-m-d H:i:s');
+
+    $title = $db->real_escape_string($_POST['title']);
+    $short_description = $db->real_escape_string($_POST['short_description']);
+    $description = $db->real_escape_string($_POST['description']);
+    $inputBeginDate = $db->real_escape_string($_POST['inputBeginDate']);
+    $inputEndDate = $db->real_escape_string($_POST['inputEndDate']);
+
+    if(!empty($inputBeginDate)){
+        $inputBeginDate = date('Y-m-d H:i:s',strtotime($inputBeginDate));
+    }
+
+    if(!empty($inputEndDate)){
+        $inputEndDate = date('Y-m-d H:i:s',strtotime($inputEndDate));
+    }
+
+    $meta_title = $db->real_escape_string($_POST['meta_title']);
+    $meta_description = $db->real_escape_string($_POST['meta_description']);
+    $meta_keywords = $db->real_escape_string($_POST['meta_keywords']);
+    $featured = $db->real_escape_string($_POST['featured']);
+    $status = $db->real_escape_string($_POST['status']);
+    $uid = $db->real_escape_string($_POST['uid']);
+
+    $slug  = createSlug('article','slug',$title);
+
+    
+    $sql = "INSERT INTO article (title,
+                                slug,
+                                short_description, 
+                                description, 
+                                featured, 
+                                status, 
+                                start_date, 
+                                end_date, 
+                                meta_title, 
+                                meta_keywords,
+                                meta_description,
+                                created_at,
+                                updated_at,
+                                created_by,
+                                page_layout
+                                )";
+
+    $sql .= " VALUES ('$title', 
+                    '$slug',
+                    '$short_description', 
+                    '$description', 
+                    '$featured', 
+                    '$status', 
+                    '$inputBeginDate', 
+                    '$inputEndDate',
+                    '$meta_title',
+                    '$meta_keywords',
+                    '$meta_description',
+                    '$date_now',
+                    '$date_now',
+                    '$uid',
+                    'training_project_news'
+                    )";
+
+
+    
+
+    if ($result = $db->query($sql)) {
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข่าวโครงการฝึกอบรมสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $id = $db->insert_id;
+
+        $model_type = 'training_project_news';
+        if(isset($_POST['cover_desktop_file_name'])){
+
+            $cover_desktop_file_name = $db->real_escape_string($_POST['cover_desktop_file_name']);
+            $cover_desktop_name = $db->real_escape_string($_POST['cover_desktop_name']);
+            $cover_desktop_size = $db->real_escape_string($_POST['cover_desktop_size']);
+            $cover_desktop_type = $db->real_escape_string($_POST['cover_desktop_type']);
+
+                 $sql_cover = "INSERT INTO media (model_id,
+                                            model_type,
+                                            collection_name, 
+                                            name, 
+                                            file_name, 
+                                            mime_type, 
+                                            size, 
+                                            order_column, 
+                                            created_at, 
+                                            updated_at
+                                            )";
+
+                $sql_cover .= " VALUES ('$id', 
+                                '$model_type',
+                                'cover_desktop', 
+                                '$cover_desktop_name', 
+                                '$cover_desktop_file_name', 
+                                '$cover_desktop_type', 
+                                '$cover_desktop_size', 
+                                '0',
+                                '$date_now',
+                                '$date_now'
+                                )";
+                $db->query($sql_cover);
+                
+        }
+    
+        if(isset($_POST['gallery_desktop_file_name'])){
+    
+            $gallery_desktop_file_name = $_POST['gallery_desktop_file_name'];
+            $gallery_desktop_name = $_POST['gallery_desktop_name'];
+            $gallery_desktop_size = $_POST['gallery_desktop_size'];
+            $gallery_desktop_type = $_POST['gallery_desktop_type'];
+
+            foreach ($gallery_desktop_name as $key => $value) {
+               
+
+                $sql_gallery = "INSERT INTO media (model_id,
+                                                model_type,
+                                                collection_name, 
+                                                name, 
+                                                file_name, 
+                                                mime_type, 
+                                                size, 
+                                                order_column, 
+                                                created_at, 
+                                                updated_at
+                                                )";
+
+                $sql_gallery .= " VALUES ('$id', 
+                                        '$model_type',
+                                        'gallery_desktop', 
+                                        '$value', 
+                                        '$gallery_desktop_file_name[$key]', 
+                                        '$gallery_desktop_type[$key]', 
+                                        '$gallery_desktop_size[$key]', 
+                                        '$key',
+                                        '$date_now',
+                                        '$date_now'
+                                        )";
+                $db->query($sql_gallery);
+                
+            }
+
+            //echo gettype($gallery_desktop_name);
+        }
+    
+    
+        if(isset($_POST['document_file_name'])){
+    
+            $document_file_name = $_POST['document_file_name'];
+            $document_name = $_POST['document_name'];
+            $document_file_size = $_POST['document_file_size'];
+            $document_file_type = $_POST['document_file_type'];
+
+            foreach ($document_file_name as $key => $value) {
+               
+                $path ='/static/media/'.$value;
+                $sql_document = "INSERT INTO documents_download (article_id,
+                                                status,
+                                                created_at, 
+                                                updated_at, 
+                                                created_by, 
+                                                file_name, 
+                                                file_type, 
+                                                file_path
+                                                )";
+
+                $sql_document .= " VALUES ('$id', 
+                                        'publish',
+                                        '$date_now', 
+                                        '$date_now', 
+                                        '$uid',
+                                        '$value', 
+                                        '$document_file_type[$key]', 
+                                        '$path'
+                                        )";
+                $db->query($sql_document);
+                
+            }           
+            
+        }
+
+
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข่าวโครงการฝึกอบรม';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+
+    $response['data'] = $_POST;
+    $response['files'] = $_FILES;
+    $response['sql'] = $sql;
+    $response['slug'] = $slug;
+
+}
+
+function doUpdateTrainingProjectNews()
+{
+    global $db, $response;
+
+    $date_now = date('Y-m-d H:i:s');
+    $title = $db->real_escape_string($_POST['title']);
+    $short_description = $db->real_escape_string($_POST['short_description']);
+    $description = $db->real_escape_string($_POST['description']);
+    $inputBeginDate = $db->real_escape_string($_POST['inputBeginDate']);
+    $inputEndDate = $db->real_escape_string($_POST['inputEndDate']);
+
+    if(!empty($inputBeginDate)){
+        $inputBeginDate = date('Y-m-d H:i:s',strtotime($inputBeginDate));
+    }
+
+    if(!empty($inputEndDate)){
+        $inputEndDate = date('Y-m-d H:i:s',strtotime($inputEndDate));
+    }
+
+    $meta_title = $db->real_escape_string($_POST['meta_title']);
+    $meta_description = $db->real_escape_string($_POST['meta_description']);
+    $meta_keywords = $db->real_escape_string($_POST['meta_keywords']);
+    $featured = $db->real_escape_string($_POST['featured']);
+    $status = $db->real_escape_string($_POST['status']);
+    $uid = $db->real_escape_string($_POST['uid']);
+    $itemId = $db->real_escape_string($_POST['itemId']);
+
+    $sql = "UPDATE article SET title ='$title',short_description='$short_description',description='$description',featured ='$featured',"
+        . " status = '$status', meta_title = '$meta_title', start_date = '$inputBeginDate', end_date = '$inputEndDate', "
+        . " meta_keywords = '$meta_keywords', meta_description = '$meta_description', updated_at = '$date_now', updated_by = '$uid' "
+        . " WHERE id = $itemId";
+
+    if ($result = $db->query($sql)) {
+
+        $id = $itemId;
+
+        $model_type = 'training_project_news';
+        if(isset($_POST['cover_desktop_file_name'])){
+
+            $cover_desktop_file_name = $db->real_escape_string($_POST['cover_desktop_file_name']);
+            $cover_desktop_name = $db->real_escape_string($_POST['cover_desktop_name']);
+            $cover_desktop_size = $db->real_escape_string($_POST['cover_desktop_size']);
+            $cover_desktop_type = $db->real_escape_string($_POST['cover_desktop_type']);
+
+                 $sql_cover = "INSERT INTO media (model_id,
+                                            model_type,
+                                            collection_name, 
+                                            name, 
+                                            file_name, 
+                                            mime_type, 
+                                            size, 
+                                            order_column, 
+                                            created_at, 
+                                            updated_at
+                                            )";
+
+                $sql_cover .= " VALUES ('$id', 
+                                '$model_type',
+                                'cover_desktop', 
+                                '$cover_desktop_name', 
+                                '$cover_desktop_file_name', 
+                                '$cover_desktop_type', 
+                                '$cover_desktop_size', 
+                                '0',
+                                '$date_now',
+                                '$date_now'
+                                )";
+                $db->query($sql_cover);
+                
+        }
+    
+        if(isset($_POST['gallery_desktop_file_name'])){
+    
+            $gallery_desktop_file_name = $_POST['gallery_desktop_file_name'];
+            $gallery_desktop_name = $_POST['gallery_desktop_name'];
+            $gallery_desktop_size = $_POST['gallery_desktop_size'];
+            $gallery_desktop_type = $_POST['gallery_desktop_type'];
+
+            foreach ($gallery_desktop_name as $key => $value) {
+               
+
+                $sql_gallery = "INSERT INTO media (model_id,
+                                                model_type,
+                                                collection_name, 
+                                                name, 
+                                                file_name, 
+                                                mime_type, 
+                                                size, 
+                                                order_column, 
+                                                created_at, 
+                                                updated_at
+                                                )";
+
+                $sql_gallery .= " VALUES ('$id', 
+                                        '$model_type',
+                                        'gallery_desktop', 
+                                        '$value', 
+                                        '$gallery_desktop_file_name[$key]', 
+                                        '$gallery_desktop_type[$key]', 
+                                        '$gallery_desktop_size[$key]', 
+                                        '$key',
+                                        '$date_now',
+                                        '$date_now'
+                                        )";
+                $db->query($sql_gallery);
+                
+            }
+
+            //echo gettype($gallery_desktop_name);
+        }
+    
+    
+        if(isset($_POST['document_file_name'])){
+    
+            $document_file_name = $_POST['document_file_name'];
+            $document_name = $_POST['document_name'];
+            $document_file_size = $_POST['document_file_size'];
+            $document_file_type = $_POST['document_file_type'];
+
+            foreach ($document_file_name as $key => $value) {
+               
+                $path ='/static/media/'.$value;
+                $sql_document = "INSERT INTO documents_download (article_id,
+                                                status,
+                                                created_at, 
+                                                updated_at, 
+                                                created_by, 
+                                                file_name, 
+                                                file_type, 
+                                                file_path
+                                                )";
+
+                $sql_document .= " VALUES ('$id', 
+                                        'publish',
+                                        '$date_now', 
+                                        '$date_now', 
+                                        '$uid',
+                                        '$value', 
+                                        '$document_file_type[$key]', 
+                                        '$path'
+                                        )";
+                $db->query($sql_document);
+                
+            }           
+            
+        }
+
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'แก้ไขข่าวโครงการฝึกอบรมสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข่าวโครงการฝึกอบรม';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+
+
+}
+
+
+function doDeleteMedia()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $file_name = $db->real_escape_string($_POST['file_name']);
+    $sql = "DELETE FROM media WHERE id=$id";
+
+    if ($result = $db->query($sql)) {
+
+        $target_path = $_SERVER['DOCUMENT_ROOT'] . "static/media/".$file_name;
+        unlink($target_path);
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบรูปสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบรูป';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+
+}
+
+
+function doDeleteDocument()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $file_name = $db->real_escape_string($_POST['file_name']);
+    $sql = "DELETE FROM documents_download WHERE id=$id";
+
+    if ($result = $db->query($sql)) {
+
+        $target_path = $_SERVER['DOCUMENT_ROOT'] . "static/media/".$file_name;
+        unlink($target_path);
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบไฟล์แนบสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบไฟล์แนบ';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+
+}
+
+
+
+function doDeleteArticle($articleId)
+{
+    global $db, $response;
+
+    $id = $articleId;
+
+    // $sql_media = "DELETE FROM media WHERE id=$id";
+    // $db->query($sql_media);
+
+    $sql_document = "DELETE FROM documents_download WHERE id=$id";
+    $db->query($sql_document);
+
+    $sql_article = "DELETE FROM article WHERE id=$id";
+
+    if ($result = $db->query($sql_article)) {
+
+        // $target_path = $_SERVER['DOCUMENT_ROOT'] . "static/media/".$file_name;
+        // unlink($target_path);
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+    //$response['id'] = $id;
+   
+}
+
+
+
 function moveUploadedFile($key, $dest)
 {
     global $response;
@@ -281,6 +751,21 @@ function createRandomString($length)
         $randomString .= $characters[rand(0, $charactersLength - 1)];
     }
     return $randomString;
+}
+
+
+function createSlug($table_name,$field_name,$title){
+
+    global $db;
+
+    $slug = preg_replace("/-$/","",preg_replace('/[^a-z0-9ก-๙เแ“”]+/i', "-", strtolower($title)));
+    $sql = "SELECT COUNT(*) AS NumHits FROM $table_name WHERE  $field_name  LIKE '$slug%'";
+    $result = $db->query($sql);
+    $row = $result->fetch_assoc();
+    $numHits = $row['NumHits'];
+
+    return ($numHits > 0) ? ($slug . '-' . $numHits) : $slug;
+
 }
 
 /*function createRandomString($length)

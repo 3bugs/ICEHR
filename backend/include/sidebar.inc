@@ -29,7 +29,7 @@
                 </a>
             </li>
             <li class="header" style="color: yellow; text-align: center">จัดการเนื้อหา</li>
-            <li class="treeview">
+            <li class="treeview">x
                 <a href="#">
                     <i class="fa fa-file-text-o"></i> <span>บริการ/กิจกรรม</span>
                     <span class="pull-right-container">
@@ -53,7 +53,7 @@
                         </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="#"><i class="fa fa-circle-o"></i> ข่าวโครงการฝึกอบรม</a></li>
+                    <li><a href="training_project_news.php"><i class="fa fa-circle-o"></i> ข่าวโครงการฝึกอบรม</a></li>
                     <li><a href="#"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
                 </ul>
             </li>
