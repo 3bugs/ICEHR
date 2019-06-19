@@ -716,9 +716,16 @@ export default class ServiceSocialRegister extends React.Component {
             .then(result => result.json())
             .then(result => {
                 let msg = result['error']['message'];
-                alert(msg);
+                //alert(msg);
                 if (result['error']['code'] === 0) {
-                    Router.back();
+                    this.showDialog(msg, "success", () => {
+                        this.dismissDialog();
+                        Router.back();
+                    });
+                } else {
+                    this.showDialog(msg, "error", () => {
+                        this.dismissDialog();
+                    });
                 }
             });
     };

@@ -37,6 +37,23 @@ define('ROLE_USER', 'user');
 define('ROLE_ADMIN', 'admin');
 define('ROLE_SUPER_ADMIN', 'super_admin');
 
+define('REGISTER_STATUS_START', 'start');
+define('REGISTER_STATUS_WAIT_APPROVE', 'wait-approve');
+define('REGISTER_STATUS_COMPLETE', 'complete');
+define('REGISTER_STATUS_CANCEL', 'cancel');
+
+define('REGISTER_STATUS_START_TEXT', 'ยังไม่ได้ชำระเงิน');
+define('REGISTER_STATUS_WAIT_APPROVE_TEXT', 'รอตรวจสอบการชำระเงิน');
+define('REGISTER_STATUS_COMPLETE_TEXT', 'การชำระเงินสมบูรณ์');
+define('REGISTER_STATUS_CANCEL_TEXT', 'ยกเลิกการสมัคร');
+
+$registerStatusText = array(
+    REGISTER_STATUS_START => REGISTER_STATUS_START_TEXT,
+    REGISTER_STATUS_WAIT_APPROVE => REGISTER_STATUS_WAIT_APPROVE_TEXT,
+    REGISTER_STATUS_COMPLETE => REGISTER_STATUS_COMPLETE_TEXT,
+    REGISTER_STATUS_CANCEL => REGISTER_STATUS_CANCEL_TEXT
+);
+
 define('SERVICE_TYPE_TRAINING', 'training');
 define('SERVICE_TYPE_SOCIAL', 'social');
 define('SERVICE_TYPE_DRIVING_LICENSE', 'driving-license');

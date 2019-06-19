@@ -81,7 +81,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         }
         $result->close();
     } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
         $db->close();
         exit();
     }
@@ -664,8 +664,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintRegForm()">
+                                <li><a target="_blank" href="print_registration_form.php?service_type=<?php echo $serviceType; ?>&form_number=<?php echo $formNumber; ?>">
                                         <i class="fa fa-print"></i>ใบสมัคร
                                     </a>
                                 </li>

@@ -197,7 +197,7 @@ export default class CheckStatus extends React.Component {
                                             สถานะการลงทะเบียน
                                         </div>
                                         <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            {statusText}
+                                            <u>{statusText}</u>
                                         </div>
                                     </div>
                                 </div>

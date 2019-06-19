@@ -70,6 +70,9 @@ switch ($action) {
     case 'get_payment_notification':
         doGetPaymentNotification();
         break;
+    case 'update_in_house_status':
+        doUpdateInHouseStatus();
+        break;
 
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
@@ -361,6 +364,29 @@ function doGetPaymentNotification()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateInHouseStatus()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    $sql = "UPDATE in_house 
+                SET status = '$newStatus'
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะ';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

@@ -127,6 +127,9 @@ app
                     case 'register_course_driving_license':
                         doRegisterCourseDrivingLicense(req, res, db);
                         break;
+                    case 'register_in_house':
+                        doRegisterInHouse(req, res, db);
+                        break;
                     case 'get_name_title':
                         doGetNameTitle(req, res, db);
                         break;
@@ -524,7 +527,7 @@ doRegisterCourse = (req, res, db) => {
                 db.query(
                         `UPDATE course_registration
                          SET form_number = ?
-                         WHERE id = ?`, cd
+                         WHERE id = ?`,
                         [formNumber, insertCourseRegId],
 
                     function (err, results, fields) {
@@ -722,6 +725,37 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
                         }
                     }
                 );
+                db.end();
+            }
+        }
+    );
+};
+
+doRegisterInHouse = (req, res, db) => {
+    const {loginToken, formData} = req.body;
+    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+
+    const {
+        fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail,
+        fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark,
+    } = formData;
+
+    db.query(
+        `INSERT INTO in_house (member_id, title, first_name, last_name, organization_name, phone, email, course, num_day, num_trainee, place, remark)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [memberId, fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail, fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+                db.end();
+            } else {
+                res.send({
+                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                });
                 db.end();
             }
         }

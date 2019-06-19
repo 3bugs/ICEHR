@@ -191,7 +191,8 @@ if ($result = $db->query($sql)) {
                 ?>
 
                 <h1 style="float: right; color: #666">
-                    <small>สมัคร</small> <strong><?php echo "$registerAll / {$course['trainee_limit']}" ?></strong>
+                    <small>สมัคร</small>
+                    <strong><?php echo "$registerAll / {$course['trainee_limit']}" ?></strong>
                 </h1>
                 <h1>
                     ข้อมูลการสมัคร
@@ -544,6 +545,18 @@ if ($result = $db->query($sql)) {
                             <div class="box-body">
 
                                 <div class="margin">
+                                    <?php
+                                    if ($course['service_type'] !== SERVICE_TYPE_SOCIAL) {
+                                        ?>
+                                        <!--ใบสมัครทั้งหมด-->
+                                        <div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="print_registration_form.php?service_type=<?php echo $course['service_type']; ?>&course_id=<?php echo $courseId; ?>"
+                                               class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
+
                                     <!--สรุปผลผู้สมัคร-->
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;สรุปผลผู้สมัคร</button>
@@ -558,6 +571,7 @@ if ($result = $db->query($sql)) {
                                             <!--<li class="divider"></li>-->
                                         </ul>
                                     </div>&nbsp;&nbsp;
+
                                     <!--ทำเนียบผู้เข้ารับการอบรม-->
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;ทำเนียบผู้เข้ารับการอบรม</button>
@@ -566,6 +580,7 @@ if ($result = $db->query($sql)) {
                                             <span class="sr-only">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
+                                            <li><a target="_blank" href="print_trainee_list.php?service_type=<?php echo $course['service_type']; ?>&course_id=<?php echo $courseId; ?>"><i class="fa fa-print"></i> Print</a></li>
                                             <li><a href="#"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
                                             <li><a href="#"><i class="fa fa-file-excel-o"></i> Excel</a></li>
                                             <li><a href="#"><i class="fa fa-file-word-o"></i> Word</a></li>
