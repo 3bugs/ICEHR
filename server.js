@@ -551,6 +551,8 @@ doRegisterCourse = (req, res, db) => {
                                 const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
                                 trainees[i].traineeFormNumber = traineeFormNumber;
 
+                                //console.log(traineeFirstName);
+
                                 data.push(insertCourseRegId);
                                 data.push(traineeFormNumber);
                                 data.push(traineeTitle.trim());
@@ -560,7 +562,7 @@ doRegisterCourse = (req, res, db) => {
                                 data.push(traineeJobPosition.trim());
                                 data.push(traineeOrganizationName.trim());
                                 data.push(traineeOrganizationType);
-                                data.push(traineeOrganizationTypeCustom === undefined ? traineeOrganizationTypeCustom : traineeOrganizationTypeCustom.trim());
+                                data.push(traineeOrganizationTypeCustom == null ? null : traineeOrganizationTypeCustom.trim());
                                 data.push(traineePhone.trim());
                                 data.push(traineeEmail.trim());
                             }
