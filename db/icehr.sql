@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 17, 2019 at 12:37 PM
+-- Generation Time: Jun 20, 2019 at 04:20 AM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -69,7 +69,8 @@ INSERT INTO `course` (`id`, `course_master_id`, `batch_number`, `details`, `trai
 (19, 1, 678, '', 678, 678, '678', '2019-06-06', '2019-06-08', 5, 'normal', '2019-06-17 09:11:26'),
 (20, 2, 404, '', 404, 404, '404', '2019-06-04', '2019-07-04', 1, 'normal', '2019-06-17 09:13:20'),
 (21, 3, 7, '', 7, 7, '7', '2019-06-07', '2019-06-07', 1, 'normal', '2019-06-17 09:21:17'),
-(22, 10, 3, '', 25, NULL, '123', '2019-08-01', '2019-08-01', 1, 'normal', '2019-06-17 10:14:33');
+(22, 10, 3, '', 25, NULL, '123', '2019-08-01', '2019-08-01', 1, 'normal', '2019-06-17 10:14:33'),
+(23, 13, 1, '<hr />\n<hr />\n<h2 style=\"font-style:italic;\">Test ฝึกอบรม</h2>\n\n<p>เริ่มงาน</p>\n', 2, 4800, 'กรุงเทพฯ', '2019-06-20', '2019-06-21', 1, 'normal', '2019-06-19 04:28:26');
 
 -- --------------------------------------------------------
 
@@ -95,7 +96,8 @@ INSERT INTO `course_master` (`id`, `title`, `service_type`, `created_at`) VALUES
 (9, 'การเขียนภาษาอังกฤษ Thailand 2(Test)', 'training', '2019-05-16 03:34:51'),
 (10, 'การยืดเหยียดเพื่อสุนทรียการเคลื่อนไหว', 'social', '2019-05-23 10:20:35'),
 (11, 'โครงการความรู้เบื้องต้นด้านกฎหมายแก่ประชาชน เรื่อง \"กฎหมายเกี่ยวกับการล่วงละเมิดทางเพศ\"', 'social', '2019-05-23 10:20:35'),
-(12, 'บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'driving-license', '2019-05-28 10:19:38');
+(12, 'บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'driving-license', '2019-05-28 10:19:38'),
+(13, 'Test', 'training', '2019-06-19 04:26:08');
 
 -- --------------------------------------------------------
 
@@ -201,7 +203,11 @@ INSERT INTO `course_registration` (`id`, `form_number`, `member_id`, `course_id`
 (70, 'AC-2019-0070', 99, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'i', 'i', 'i', 'i', '11111', 'i', 'i', 'started', '2019-06-10 08:12:38'),
 (71, 'AC-2019-0071', 99, 5, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 'a', '11111', 'a', 'a', 'started', '2019-06-12 02:42:04'),
 (72, 'AC-2019-0072', 99, 9, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 9999, 'aaa', '0850581776', 'promlert@gmail.com', '1', '1', '1', '1', '11111', '1', '1', 'started', '2019-06-13 02:32:16'),
-(73, 'AC-2019-0073', 99, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '88', '88', '88', '88', '88888', '88', '88', 'started', '2019-06-13 05:06:54');
+(73, 'AC-2019-0073', 99, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '88', '88', '88', '88', '88888', '88', '88', 'started', '2019-06-13 05:06:54'),
+(74, NULL, 99, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '1', '1', '1', '11111', '1', '1', 'started', '2019-06-19 04:47:00'),
+(75, 'AC-2019-0075', 99, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '1', '1', '1', '11111', '1', '1', 'started', '2019-06-19 04:48:36'),
+(76, 'AC-2019-0076', 110, 23, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '4 หมู่ 5', 'จตุจักร', 'จตุจักร', 'กรุงเทพ', '10400', '0987789988', '-', 'started', '2019-06-19 06:02:18'),
+(77, 'AC-2019-0077', 111, 23, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '3 ถนน วิภาวดี', 'จอมพล', 'จตุจ้กร', 'กรุงเทพ', '10400', '0943345567', '112298877661323', 'started', '2019-06-19 09:58:24');
 
 -- --------------------------------------------------------
 
@@ -227,6 +233,7 @@ CREATE TABLE `course_registration_driving_license` (
   `course_type` int(11) NOT NULL COMMENT 'ประเภทหลักสูตรอบรม เช่น 5 ชม., 2 ชม. หรือ 1 ชม. หรืออื่นๆ',
   `license_type` int(11) NOT NULL COMMENT 'ประเภทใบอนุญาตขับรถ (bit field: bit 0 = รถ, bit 1 = มอเตอร์ไซค์, bit 2 = สามล้อ)',
   `register_status` enum('start','wait-approve','complete','cancel') NOT NULL,
+  `paid_amount` decimal(13,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -234,15 +241,15 @@ CREATE TABLE `course_registration_driving_license` (
 -- Dumping data for table `course_registration_driving_license`
 --
 
-INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `course_type`, `license_type`, `register_status`, `created_at`) VALUES
-(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', 'ส', 'ส', 'ส', '111', '111', 2, 7, 'wait-approve', '2019-05-30 07:42:15'),
-(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '1', '1', 1, 1, 'start', '2019-05-30 08:58:58'),
-(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '2', '2', '2', '2', '2', 2, 2, 'complete', '2019-05-30 09:03:41'),
-(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '5', '5', '5', '5', '5', 3, 7, 'cancel', '2019-05-30 09:54:38'),
-(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', 1, 1, 'wait-approve', '2019-05-31 03:09:27'),
-(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '11111', '1', 1, 1, 'wait-approve', '2019-06-15 06:01:01'),
-(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '1', '1', '1', '11111', '0850581776', 1, 2, 'start', '2019-06-16 17:20:36'),
-(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '2', '2', '2', '22222', '0850581776', 1, 4, 'start', '2019-06-16 17:26:25');
+INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `course_type`, `license_type`, `register_status`, `paid_amount`, `created_at`) VALUES
+(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', 'ส', 'ส', 'ส', '111', '111', 2, 7, 'complete', '1000.00', '2019-05-30 07:42:15'),
+(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '1', '1', 1, 1, 'complete', NULL, '2019-05-30 08:58:58'),
+(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '2', '2', '2', '2', '2', 2, 2, 'complete', NULL, '2019-05-30 09:03:41'),
+(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '5', '5', '5', '5', '5', 3, 7, 'cancel', NULL, '2019-05-30 09:54:38'),
+(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', 1, 1, 'start', NULL, '2019-05-31 03:09:27'),
+(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '11111', '1', 1, 1, 'complete', '23456.00', '2019-06-15 06:01:01'),
+(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '1', '1', '1', '11111', '0850581776', 1, 2, 'wait-approve', NULL, '2019-06-16 17:20:36'),
+(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '2', '2', '2', '22222', '0850581776', 1, 4, 'complete', '8888.00', '2019-06-16 17:26:25');
 
 -- --------------------------------------------------------
 
@@ -281,11 +288,11 @@ CREATE TABLE `course_registration_social` (
 --
 
 INSERT INTO `course_registration_social` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `birth_date`, `occupation`, `work_place`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `email`, `contact_name`, `contact_phone`, `disease`, `news_source`, `register_status`, `created_at`) VALUES
-(1, '2019-0001', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'Programmer', '3bugs', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'promlert@gmail.com', 'ยุ้ย', '0869991827', '-', 0, '', '2019-05-28 08:10:36'),
-(2, '2019-0002', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 10, '', '2019-05-28 08:19:32'),
-(3, '2019-0003', 0, 11, 'นาง', 'b', 'b', '0000-00-00', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b@b.com', 'b', 'b', 'b', 17, '', '2019-05-28 08:24:24'),
-(4, '2019-0004', 0, 11, 'นาย', 'กกก', 'กกก', '0000-00-00', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'aaa@aaa.com', 'กกก', 'กกก', 'กกก', 10, '', '2019-05-30 04:11:02'),
-(5, 'SO-2019-0005', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 0, '', '2019-06-17 09:43:28'),
+(1, '2019-0001', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'Programmer', '3bugs', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'promlert@gmail.com', 'ยุ้ย', '0869991827', '-', 0, 'start', '2019-05-28 08:10:36'),
+(2, '2019-0002', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 10, 'start', '2019-05-28 08:19:32'),
+(3, '2019-0003', 0, 11, 'นาง', 'b', 'b', '0000-00-00', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b@b.com', 'b', 'b', 'b', 17, 'start', '2019-05-28 08:24:24'),
+(4, '2019-0004', 0, 11, 'นาย', 'กกก', 'กกก', '0000-00-00', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'aaa@aaa.com', 'กกก', 'กกก', 'กกก', 10, 'start', '2019-05-30 04:11:02'),
+(5, 'SO-2019-0005', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 0, 'start', '2019-06-17 09:43:28'),
 (6, 'SO-2019-0006', 99, 22, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 2, 'start', '2019-06-17 10:15:21');
 
 -- --------------------------------------------------------
@@ -376,7 +383,7 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (55, 48, 'AC-2019-0048-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-07 08:59:38'),
 (56, 49, 'AC-2019-0049-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-08 06:19:19'),
 (57, 50, 'AC-2019-0050-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-08 06:58:37'),
-(58, 51, 'AC-2019-0051-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-08 06:59:33'),
+(58, 51, 'AC-2019-0051-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-08 06:59:33'),
 (59, 52, 'AC-2019-0052-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-08 07:02:24'),
 (60, 53, 'AC-2019-0053-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 03:21:59'),
 (61, 54, 'AC-2019-0054-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 03:26:19'),
@@ -392,7 +399,7 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (71, 60, 'AC-2019-0060-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 06:30:38'),
 (72, 61, 'AC-2019-0061-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 06:33:30'),
 (73, 62, 'AC-2019-0062-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 06:39:48'),
-(74, 62, 'AC-2019-0062-0002', 'นาง', 'จิตริณีย์', 'หล่อวิจิตร', '1972-01-12', 'Auditor', 'KU', 1, NULL, '0869991827', 'chitrinee_l@gmail.com', 'start', NULL, NULL, '2019-06-10 06:39:48'),
+(74, 62, 'AC-2019-0062-0002', 'นาง', 'จิตริณีย์', 'หล่อวิจิตร', '1972-01-12', 'Auditor', 'KU', 1, NULL, '0869991827', 'chitrinee_l@gmail.com', 'complete', '555.00', NULL, '2019-06-10 06:39:48'),
 (75, 63, 'AC-2019-0063-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 06:48:05'),
 (76, 64, 'AC-2019-0064-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:01:43'),
 (77, 65, 'AC-2019-0065-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:04:38'),
@@ -403,10 +410,13 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (82, 69, 'AC-2019-0069-0002', 'นาง', 'b', 'b', '2019-06-02', 'b', 'b', 9999, 'bbb', 'b', 'b@b.com', 'start', NULL, NULL, '2019-06-10 07:50:19'),
 (83, 70, 'AC-2019-0070-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 08:12:38'),
 (84, 71, 'AC-2019-0071-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-12 02:42:04'),
-(85, 71, 'AC-2019-0071-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 9999, 'xxxx', '222', 'b@b.com', 'wait-approve', NULL, NULL, '2019-06-12 02:42:04'),
+(85, 71, 'AC-2019-0071-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 9999, 'xxxx', '222', 'b@b.com', 'complete', '987.00', NULL, '2019-06-12 02:42:04'),
 (86, 72, 'AC-2019-0072-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 9999, 'aaa', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-13 08:18:52'),
 (87, 72, 'AC-2019-0072-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 2, NULL, 'b', 'b@b.com', 'complete', NULL, NULL, '2019-06-13 10:40:40'),
-(88, 73, 'AC-2019-0073-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-13 16:31:43');
+(88, 73, 'AC-2019-0073-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-13 16:31:43'),
+(89, 75, 'AC-2019-0075-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-19 04:48:36'),
+(90, 76, 'AC-2019-0076-0001', 'นาย', 'เมษา', 'อัครสกุล', '2001-04-19', 'CEO', 'Predis', 9999, 'สถานบันเทิง', '0876656677', 'Mesa@gmail.com', 'complete', '500.00', NULL, '2019-06-19 06:02:18'),
+(91, 77, 'AC-2019-0077-0001', 'นางสาว', 'จันทร์เจ้า', 'อัครสกุล', '1996-05-26', 'CIO', 'Predis', 9999, 'สถานบันเทิง', '0865543377', 'Janjao@gmail.com', 'complete', '9000.00', NULL, '2019-06-19 09:58:24');
 
 -- --------------------------------------------------------
 
@@ -428,6 +438,38 @@ INSERT INTO `driving_license_course_type` (`id`, `title`, `application_fee`) VAL
 (1, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง', 500),
 (2, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 2 ชั่วโมง', 200),
 (3, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 1 ชั่วโมง', 100);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `in_house`
+--
+
+CREATE TABLE `in_house` (
+  `id` int(11) NOT NULL,
+  `member_id` int(11) NOT NULL COMMENT 'ID ของสมาชิกที่ login เข้าระบบและมากรอกข้อมูลสมัคร (0 = ไม่ได้ login)',
+  `title` varchar(50) NOT NULL,
+  `first_name` varchar(200) NOT NULL,
+  `last_name` varchar(200) NOT NULL,
+  `organization_name` varchar(200) NOT NULL,
+  `phone` varchar(50) NOT NULL,
+  `email` varchar(200) NOT NULL,
+  `course` varchar(500) NOT NULL,
+  `num_day` int(11) NOT NULL,
+  `num_trainee` int(11) NOT NULL,
+  `place` varchar(200) NOT NULL,
+  `remark` text,
+  `status` enum('wait','complete','','') NOT NULL DEFAULT 'wait',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `in_house`
+--
+
+INSERT INTO `in_house` (`id`, `member_id`, `title`, `first_name`, `last_name`, `organization_name`, `phone`, `email`, `course`, `num_day`, `num_trainee`, `place`, `remark`, `status`, `created_at`) VALUES
+(1, 99, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '2fellows', '0850581776', 'promlert@gmail.com', 'ทดสอบ', 3, 20, 'บริษัท 2fellows Network and Design', NULL, 'wait', '2019-06-19 05:56:59'),
+(2, 110, 'นางสาว', 'เจ้าขุน', 'สกุลศรี', 'S Entertainment', '0956654466', 'Jaokhun@gmail.com', 'Test', 1, 2, 'S Hotel', NULL, 'wait', '2019-06-19 07:33:56');
 
 -- --------------------------------------------------------
 
@@ -474,7 +516,9 @@ INSERT INTO `member` (`id`, `title`, `first_name`, `last_name`, `birth_date`, `j
 (106, 'นาง', 'กกก', 'ขขข', '1980-01-01', 'คคค', 'งงง', 9999, 'ร้านค้า', '1', '1', '1', '1', '1', '1', '1', '1', 'mail@mail.com', '111111', NULL, '2019-05-27 06:01:54'),
 (107, 'นาย', 'a', 'a', '2019-07-02', 'a', 'a', 9999, 'ส่วนตัว', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'a', 'a@a.com', 'aaaaaa', NULL, '2019-05-27 08:57:45'),
 (108, 'นาย', 'Promlert', 'Lovichit', '1974-11-21', 'System Analyst', '3bugs', 9999, 'Enterprise Company', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0850581776', 'promlert@3bugs.com', 'abc123', NULL, '2019-05-31 09:41:28'),
-(109, 'นาย', 'Banlop', 'Lovichit', '2010-01-07', 'Student', 'KUS', 5, NULL, '11/13 Varawan Park Condominium', 'Ladyao', 'Jatujak', 'Bangkok', '10900', '0812345678', '999', '0898765432', 'tonyod@gmail.com', '123456', NULL, '2019-05-31 09:54:31');
+(109, 'นาย', 'Banlop', 'Lovichit', '2010-01-07', 'Student', 'KUS', 5, NULL, '11/13 Varawan Park Condominium', 'Ladyao', 'Jatujak', 'Bangkok', '10900', '0812345678', '999', '0898765432', 'tonyod@gmail.com', '123456', NULL, '2019-05-31 09:54:31'),
+(110, 'นาย', 'เมษา', 'อัครสกุล', '2001-04-19', 'CEO', 'Predis', 9999, 'สถานบันเทิง', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0876656677', 'Mesa@gmail.com', '123456', NULL, '2019-06-19 05:49:21'),
+(111, 'นางสาว', 'จันทร์เจ้า', 'อัครสกุล', '1996-05-26', 'CIO', 'Predis', 9999, 'สถานบันเทิง', '3 ถนน วิภาวดี', 'จอมพล', 'จตุจ้กร', 'กรุงเทพ', '10400', '0943345567', '112298877661323', '0865543377', 'Janjao@gmail.com', '123456', NULL, '2019-06-19 05:57:29');
 
 -- --------------------------------------------------------
 
@@ -555,7 +599,8 @@ INSERT INTO `payment_notification` (`id`, `member_id`, `trainee_id`, `service_ty
 (8, 99, 88, 'training', 111, '2019-06-11', '1560674829748-one.png', '2019-06-16 08:47:09'),
 (9, 99, 6, 'driving-license', 6, '2019-06-06', '1560674876460-exit_poll.png', '2019-06-16 08:47:56'),
 (10, 99, 6, 'driving-license', 6, '2019-06-06', '1560675958810-vote_no.png', '2019-06-16 09:05:58'),
-(11, 99, 83, 'training', 456, '2019-05-27', '1560676090510-two.png', '2019-06-16 09:08:10');
+(11, 99, 83, 'training', 456, '2019-05-27', '1560676090510-two.png', '2019-06-16 09:08:10'),
+(12, 110, 90, 'training', 500, '2019-06-19', '1560924229916-bg-white-300x165.jpg', '2019-06-19 06:03:49');
 
 -- --------------------------------------------------------
 
@@ -635,6 +680,12 @@ ALTER TABLE `driving_license_course_type`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `in_house`
+--
+ALTER TABLE `in_house`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `member`
 --
 ALTER TABLE `member`
@@ -673,19 +724,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `course_master`
 --
 ALTER TABLE `course_master`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `course_registration`
 --
 ALTER TABLE `course_registration`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `course_registration_driving_license`
@@ -703,7 +754,7 @@ ALTER TABLE `course_registration_social`
 -- AUTO_INCREMENT for table `course_trainee`
 --
 ALTER TABLE `course_trainee`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `driving_license_course_type`
@@ -712,10 +763,16 @@ ALTER TABLE `driving_license_course_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `in_house`
+--
+ALTER TABLE `in_house`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
 -- AUTO_INCREMENT for table `name_title`
@@ -733,7 +790,7 @@ ALTER TABLE `organization_type`
 -- AUTO_INCREMENT for table `payment_notification`
 --
 ALTER TABLE `payment_notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `user`
