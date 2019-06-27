@@ -597,7 +597,7 @@ class LoginForm extends React.Component {
             <div className="icon_top">
                 <div>
                     <div style={{border: '0px solid red'}}>
-                        <a href="#" className="link" onClick={this.onClickDisplayName}>
+                        <a href="javascript:void(0)" className="link" onClick={this.onClickDisplayName}>
                             <i className="far fa-user"/>&nbsp;&nbsp;{displayName}
                         </a>
 
@@ -652,13 +652,13 @@ class LoginForm extends React.Component {
                                          style={{border: '0px solid blue', marginTop: '10px'}}>
                                         <div className="col-xs-6 col-sm-6"
                                              style={{border: '0px solid red'}}>
-                                            <a href="#" className="link inline-top" onClick={this.onClickRegister}>
+                                            <a href="javascript:void(0)" className="link inline-top" onClick={this.onClickRegister}>
                                                 สมัครสมาชิก
                                             </a>
                                         </div>
                                         <div className="col-xs-6 col-sm-6"
                                              style={{border: '0px solid red', textAlign: 'right'}}>
-                                            <a href="#" className="link" onClick={this.onClickForgotPassword}>
+                                            <a href="javascript:void(0)" className="link" onClick={this.onClickForgotPassword}>
                                                 ลืมรหัสผ่าน
                                             </a>
                                         </div>

@@ -111,7 +111,7 @@ export default class Index extends React.Component {
                                         </div>
                                         {/*งานวิจัยและวิชาการ*/}
                                         <div className="col-sm-4">
-                                            <a href="service-5.php">
+                                            <Link href="/academic-paper">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
                                                         <h4>งานวิจัยและวิชาการ</h4>
@@ -119,7 +119,7 @@ export default class Index extends React.Component {
                                                             Ipsum has been of the printing and typesetting industry. </p>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </Link>
                                         </div>
                                         {/*วารสาร HR Intelligence*/}
                                         <div className="col-sm-4 service-index">

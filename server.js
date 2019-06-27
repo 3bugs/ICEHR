@@ -155,6 +155,12 @@ app
                     case 'get_academic_paper':
                         doGetAcademicPaper(req, res, db);
                         break;
+                    case 'search_academic_paper':
+                        doSearchAcademicPaper(req, res, db);
+                        break;
+                    case 'add_academic_paper_download':
+                        doAddAcademicPaperDownload(req, res, db);
+                        break;
                     default:
                         //res.status(404).end();
                         res.send({
@@ -1120,20 +1126,73 @@ doGetAcademicPaper = (req, res, db) => {
                     error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
                 });
             } else {
-                const dataList = [];
-                let reg;
-                let previousRegistrationId = 0;
-                results.forEach(row => {
-                    /*const {
-                        id, title, fileName, firstName, lastName, yearPublished, abstract, fundSource, createdAt
-                    } = row;*/
-
-                    dataList.push(row);
-                });
-
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
+                    dataList: results
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doSearchAcademicPaper = (req, res, db) => {
+    const {searchTitle, searchYearPublished, searchName} = req.body.searchFields;
+
+    const whereTitle = searchTitle ? 'title LIKE ?' : 'TRUE';
+    const whereYearPublished = searchYearPublished ? 'year_published LIKE ?' : 'TRUE';
+    const whereName = searchName ? '(first_name LIKE ? || last_name LIKE ?)' : 'TRUE';
+
+    const searchValueArray = [];
+    if (searchTitle) {
+        searchValueArray.push(`%${searchTitle}%`);
+    }
+    if (searchYearPublished) {
+        searchValueArray.push(`%${searchYearPublished}%`);
+    }
+    if (searchName) {
+        searchValueArray.push(`%${searchName}%`);
+        searchValueArray.push(`%${searchName}%`);
+    }
+
+    db.query(
+        `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
+                year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
+             FROM academic_paper
+             WHERE ${whereTitle} AND ${whereYearPublished} AND ${whereName}
+             ORDER BY id DESC`,
+        searchValueArray,
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList: results
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doAddAcademicPaperDownload = (req, res, db) => {
+    const {id, fields} = req.body;
+
+    db.query(
+        `INSERT INTO academic_paper_download (academic_paper_id, first_name, last_name, organization_name, job_position, occupation, email, use_purpose) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, fields.firstName, fields.lastName, fields.organizationName, fields.jobPosition, fields.occupation, fields.email, fields.use],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
                 });
             }
         }

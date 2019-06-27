@@ -2,8 +2,26 @@ import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
 import Link from 'next/link';
 import fetch from 'isomorphic-unfetch';
-import {nl2br} from "../etc/utils";
+import Modal from 'react-bootstrap/Modal';
+import {isString, isValidEmail, nl2br} from '../etc/utils';
+import constants from '../etc/constants';
 import $ from 'jquery';
+import './academic-paper.css';
+import ErrorLabel from "../components/ErrorLabel";
+
+const INPUT_FIRST_NAME = 'firstName';
+const INPUT_LAST_NAME = 'lastName';
+const INPUT_ORGANIZATION_NAME = 'organizationName';
+const INPUT_JOB_POSITION = 'jobPosition';
+const INPUT_OCCUPATION = 'occupation';
+const INPUT_EMAIL = 'email';
+const INPUT_USE = 'use';
+
+const SEARCH_INPUT_TITLE = 'searchTitle';
+const SEARCH_INPUT_YEAR_PUBLISHED = 'searchYearPublished';
+const SEARCH_INPUT_NAME = 'searchName';
+
+const KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST = 'academicPaperStatusList';
 
 class AcademicPaperListItem extends React.Component {
 
@@ -21,7 +39,7 @@ class AcademicPaperListItem extends React.Component {
                 <div className="card">
                     <div className="card-header" id={`heading${id}`}>
                         <h5 className="mb-0">
-                            <button className="btn-link" data-toggle="collapse" data-target={`#collapse${id}`} aria-expanded="true" aria-controls={`collapse${id}`}>
+                            <button className={'btn-link ' + (show ? '' : 'collapsed')} data-toggle="collapse" data-target={`#collapse${id}`} aria-expanded={show} aria-controls={`collapse${id}`}>
                                 <i className="fa" aria-hidden="true"/>
                                 {title}<span className="yeartop">ปีที่เผยแพร่ {yearPublished}</span>
                             </button>
@@ -152,7 +170,8 @@ class AcademicPaperList extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <div className="container mt-5 mb-5">
+                {this.props.dataList.length > 0 &&
+                <div className="container">
                     <div className="row">
                         <div className="col">
                             <div className="container">
@@ -170,6 +189,11 @@ class AcademicPaperList extends React.Component {
                         </div>
                     </div>
                 </div>
+                }
+
+                {this.props.dataList.length === 0 &&
+                <div style={{textAlign: 'center'}}>ไม่พบข้อมูล</div>
+                }
 
                 <style jsx>{`
                     .bg-search-service1 .col {
@@ -269,14 +293,291 @@ class AcademicPaperDetails extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {};
+        this.state = {
+            showFormModal: false,
+            fields: {},
+            errors: {},
+        };
     }
+
+    static isFormSubmitForAcademicPaper = (id) => {
+        if (id == null) {
+            console.log('No ID specified');
+            return false;
+        }
+
+        let json = localStorage.getItem(KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST);
+
+        if (json != null) {
+            const academicPaperStatusList = JSON.parse(json);
+            return academicPaperStatusList.includes(id);
+        } else {
+            return false;
+        }
+    };
+
+    static addFormSubmitForAcademicPaper = (id) => {
+        if (id == null) {
+            console.log('No ID specified');
+            return false;
+        }
+
+        let json = localStorage.getItem(KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST);
+
+        if (json != null) {
+            const academicPaperStatusList = JSON.parse(json);
+            if (!academicPaperStatusList.includes(id)) {
+                academicPaperStatusList.push(id);
+                localStorage.setItem(
+                    KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST,
+                    JSON.stringify(academicPaperStatusList)
+                );
+            }
+        } else {
+            localStorage.setItem(
+                KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST,
+                JSON.stringify([id])
+            );
+        }
+    };
+
+    openPdf() {
+        const {fileName} = this.props.data;
+        window.open(`${constants.HOST_BACKEND}/uploads/academic_papers/${fileName}`, '_blank');
+    }
+
+    handleClickDownload = () => {
+        const {id} = this.props.data;
+        if (AcademicPaperDetails.isFormSubmitForAcademicPaper(id)) {
+            this.openPdf();
+        } else {
+            this.setState({
+                showFormModal: true,
+            });
+        }
+    };
+
+    handleCloseFormModal = e => {
+        this.setState({
+            showFormModal: false
+        });
+    };
+
+    handleInputChange = (field, e) => {
+        let {fields} = this.state;
+
+        if (field === INPUT_EMAIL) {
+            fields[field] = e.target.value.trim();
+        } else {
+            fields[field] = e.target.value;
+        }
+        this.setState({fields});
+    };
+
+    handleFormSubmit = e => {
+        e.preventDefault();
+        if (this.validateForm()) {
+            this.doSubmitForm();
+        } else {
+            //alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+        }
+    };
+
+    validateForm = () => {
+        const {fields} = this.state;
+        const errors = {};
+        let formIsValid = true;
+
+        if (!fields[INPUT_FIRST_NAME] || fields[INPUT_FIRST_NAME].trim().length === 0) {
+            errors[INPUT_FIRST_NAME] = 'กรุณากรอกชื่อ';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_LAST_NAME] || fields[INPUT_LAST_NAME].trim().length === 0) {
+            errors[INPUT_LAST_NAME] = 'กรุณากรอกนามสกุล';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_ORGANIZATION_NAME] || fields[INPUT_ORGANIZATION_NAME].trim().length === 0) {
+            errors[INPUT_ORGANIZATION_NAME] = 'กรุณากรอกชื่อหน่วยงาน';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_JOB_POSITION] || fields[INPUT_JOB_POSITION].trim().length === 0) {
+            errors[INPUT_JOB_POSITION] = 'กรุณากรอกตำแหน่ง';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_OCCUPATION] || fields[INPUT_OCCUPATION].trim().length === 0) {
+            errors[INPUT_OCCUPATION] = 'กรุณากรอกอาชีพ';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_EMAIL] || fields[INPUT_EMAIL].trim().length === 0) {
+            errors[INPUT_EMAIL] = 'กรุณากรอกอีเมล';
+            formIsValid = false;
+        } else if (!isValidEmail(fields[INPUT_EMAIL])) {
+            errors[INPUT_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
+            formIsValid = false;
+        }
+        if (!fields[INPUT_USE] || fields[INPUT_USE].trim().length === 0) {
+            errors[INPUT_USE] = 'กรุณากรอกการนำไปใช้ประโยชน์';
+            formIsValid = false;
+        }
+
+        this.setState({errors});
+        return formIsValid;
+    };
+
+    doSubmitForm = () => {
+        const {fields} = this.state;
+        const {id} = this.props.data;
+
+        fetch('/api/add_academic_paper_download', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id, fields}),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    //จำว่าเคยกรอกฟอร์มแล้วสำหรับ paper นี้
+                    AcademicPaperDetails.addFormSubmitForAcademicPaper(id);
+
+                    this.openPdf();
+                    this.setState({
+                        fields: {},
+                        errors: {},
+                        showFormModal: false,
+                    });
+                } else {
+                    alert(result['error']['message']);
+                }
+            });
+    };
 
     render() {
         const {id, title, firstName, lastName, yearPublished, fundSource, abstract} = this.props.data;
+        const {fields, errors} = this.state;
 
         return (
             <React.Fragment>
+                <Modal
+                    dialogClassName={'modal-register-form'}
+                    show={this.state.showFormModal}
+                    onHide={this.handleCloseFormModal}
+                    centered>
+                    <Modal.Body>
+                        <div className="redtxt" style={{margin: '10px auto'}}>
+                            <h3 style={{textAlign: 'center'}}>กรุณากรอกข้อมูล</h3>
+                        </div>
+
+                        <div id="data5" className="detail-inside-box">
+                            <div className="required">
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>ชื่อ</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_FIRST_NAME]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_FIRST_NAME)}
+                                               type="text"
+                                               placeholder="กรอกชื่อ"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_FIRST_NAME]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>นามสกุล</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_LAST_NAME]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_LAST_NAME)}
+                                               type="text" placeholder="กรอกนามสกุล"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_LAST_NAME]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>ชื่อหน่วยงาน</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_ORGANIZATION_NAME]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_ORGANIZATION_NAME)}
+                                               type="text" placeholder="กรอกชื่อหน่วยงาน"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_ORGANIZATION_NAME]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>ตำแหน่ง</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_JOB_POSITION]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_JOB_POSITION)}
+                                               type="text" placeholder="กรอกตำแหน่ง"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_JOB_POSITION]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>อาชีพ</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_OCCUPATION]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_OCCUPATION)}
+                                               type="text" placeholder="กรอกอาชีพ"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_OCCUPATION]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>อีเมล</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <input value={fields[INPUT_EMAIL]}
+                                               onChange={this.handleInputChange.bind(this, INPUT_EMAIL)}
+                                               onKeyDown={e => {
+                                                   if (e.key === ' ') {
+                                                       e.preventDefault();
+                                                   }
+                                               }}
+                                               type="email" placeholder="กรอกอีเมล"
+                                               className="form-control-2 input-md"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_EMAIL]}/>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3 nopad">
+                                        <label>การนำไปใช้ประโยชน์</label>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <textarea value={fields[INPUT_USE]}
+                                                  onChange={this.handleInputChange.bind(this, INPUT_USE)}
+                                                  rows={4} placeholder="กรอกการนำไปใช้ประโยชน์"
+                                                  className="form-control-2"/>
+                                        <ErrorLabel
+                                            value={errors[INPUT_USE]}/>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="javascript:void(0)"
+                               onClick={this.handleFormSubmit}
+                               className="btn-submit mt-4 mb-3">
+                                ตกลง
+                            </a>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
                 <div className="container">
                     <div className="row mt-5">
                         <div className="col">
@@ -305,64 +606,10 @@ class AcademicPaperDetails extends React.Component {
                     <div className="row mt-4">
                         <div className="col">
                             <div className="moredetail btn-red-submit">
-                                <a href="#data5" className="btn btn-danger inline" style={{marginBottom: '20px'}}>Download</a>
-
-                                <div style={{display: 'none'}}>
-                                    <div id="data5" className="detail-inside-box">
-                                        <div className="required">
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>ชื่อ</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกชื่อ" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>นามสกุล</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกนามสกุล" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>ชื่อหน่วยงาน</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกชื่อหน่วยงาน" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>ตำแหน่ง</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกตำแหน่ง" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>อาชีพ</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกอาชีพ" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>อีเมล</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <input id="textinput" name="textinput" type="text" placeholder="กรอกอีเมล" className="form-control-2 input-md"/></div>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-3">
-                                                    <label>การนำไปใช้ประโยชน์</label>
-                                                </div>
-                                                <div className="col-md-9">
-                                                    <textarea className="form-control-2" id="textarea" name="textarea" rows="4"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <br/><a href="#" className="btn-submit">ตกลง</a></div>
-                                </div>
+                                <a href="javascript:void(0)"
+                                   onClick={this.handleClickDownload}
+                                   className="btn btn-danger inline"
+                                   style={{marginBottom: '20px'}}>Download</a>
                             </div>
                         </div>
                     </div>
@@ -402,6 +649,11 @@ class AcademicPaperDetails extends React.Component {
                         margin-bottom: 900px
                     }
                     
+                    label {
+                        margin-top: 15px;
+                        margin-bottom: 0;
+                    }
+                    
                     .form-control-2 {
                         display: block;
                         width: 80%;
@@ -411,7 +663,8 @@ class AcademicPaperDetails extends React.Component {
                         background-color: #fff;
                         background-clip: padding-box;
                         border: 1px solid #ced4da;
-                        margin-bottom: 20px;
+                        margin-top: 15px;
+                        margin-bottom: 0;
                         border-radius: 0.25rem;
                         transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
                     }
@@ -430,7 +683,10 @@ export default class AcademicPaper extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {};
+        this.state = {
+            searchFields: {},
+            searchResultList: null,
+        };
     }
 
     //https://nextjs.org/learn/basics/fetching-data-for-pages/fetching-data-for-pages
@@ -461,7 +717,48 @@ export default class AcademicPaper extends React.Component {
     componentDidMount() {
     }
 
+    handleInputChange = (field, e) => {
+        let {searchFields} = this.state;
+        searchFields[field] = e.target.value;
+        this.setState({searchFields});
+    };
+
+    handleClickSearch = e => {
+        let {searchFields} = this.state;
+        if ((searchFields[SEARCH_INPUT_TITLE] && searchFields[SEARCH_INPUT_TITLE].trim().length !== 0)
+            || (searchFields[SEARCH_INPUT_YEAR_PUBLISHED] && searchFields[SEARCH_INPUT_YEAR_PUBLISHED].trim().length !== 0)
+            || (searchFields[SEARCH_INPUT_NAME] && searchFields[SEARCH_INPUT_NAME].trim().length !== 0)) {
+
+            fetch('/api/search_academic_paper', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(searchFields),
+            })
+                .then(result => result.json())
+                .then(result => {
+                    if (result['error']['code'] === 0) {
+                        //todo: ***********************************************************************************************
+                        console.log(result.dataList);
+                        this.setState({
+                            searchResultList: result.dataList,
+                        });
+                    } else {
+                        alert(result['error']['message']);
+                    }
+                })
+                .catch(error => {
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+                });
+        } else {
+            alert('กรุณากรอกชื่อเรื่อง, ปีที่เผยแพร่ หรือชื่อผู้วิจัยของงานวิจัย/วิชาการที่ต้องการค้นหา');
+        }
+    };
+
     render() {
+        const {searchFields} = this.state;
+
         return (
             <MainLayout>
                 <NextHead>
@@ -480,14 +777,32 @@ export default class AcademicPaper extends React.Component {
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
                             <div className="col">
-                                <input id="textinput" name="textinput" type="text" placeholder="ชื่อเรื่อง" className="form-control input-md"/></div>
+                                <input
+                                    value={searchFields[SEARCH_INPUT_TITLE]}
+                                    onChange={this.handleInputChange.bind(this, SEARCH_INPUT_TITLE)}
+                                    type="text" placeholder="ชื่อเรื่อง"
+                                    className="form-control input-md"/>
+                            </div>
                             <div className="col">
-                                <input id="textinput" name="textinput" type="text" placeholder="ปีที่เผยแพร่" className="form-control input-md"/></div>
+                                <input
+                                    value={searchFields[SEARCH_INPUT_YEAR_PUBLISHED]}
+                                    onChange={this.handleInputChange.bind(this, SEARCH_INPUT_YEAR_PUBLISHED)}
+                                    type="text" placeholder="ปีที่เผยแพร่"
+                                    maxLength={4}
+                                    className="form-control input-md"/>
+                            </div>
                             <div className="col">
-                                <input id="textinput" name="textinput" type="text" placeholder="ชื่อผู้วิจัย" className="form-control input-md"/></div>
+                                <input
+                                    value={searchFields[SEARCH_INPUT_NAME]}
+                                    onChange={this.handleInputChange.bind(this, SEARCH_INPUT_NAME)}
+                                    type="text" placeholder="ชื่อผู้วิจัย"
+                                    className="form-control input-md"/>
+                            </div>
 
                             <div className="col">
-                                <div className="submitbox"><a href="#" className="btn-submit">ค้นหา</a></div>
+                                <div className="submitbox">
+                                    <a href="javascript:void(0)" className="btn-submit" onClick={this.handleClickSearch}>ค้นหา</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -515,10 +830,22 @@ export default class AcademicPaper extends React.Component {
                 </div>
 
                 {/*List-งานวิจัยและวิชาการ*/
-                    !this.props.id &&
-                    <AcademicPaperList
-                        dataList={this.props.dataList}
-                    />
+                    !this.props.id && (this.state.searchResultList == null) &&
+                    <div className="mt-5 mb-5">
+                        <AcademicPaperList
+                            dataList={this.props.dataList}
+                        />
+                    </div>
+                }
+
+                {/*List-ผลการค้นหา*/
+                    (this.state.searchResultList != null) && (!this.props.id) &&
+                    <div className="mt-5 mb-5">
+                        <div className="redtxt"><h3 style={{textAlign: 'center'}}>ผลการค้นหา</h3></div>
+                        <AcademicPaperList
+                            dataList={this.state.searchResultList}
+                        />
+                    </div>
                 }
 
                 {/*Details-งานวิจัยและวิชาการ*/
