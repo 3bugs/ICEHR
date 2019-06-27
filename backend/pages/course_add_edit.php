@@ -39,6 +39,11 @@ if (isset($courseId)) {
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
             //$course['service_type'] = $row['service_type'];
+        } else {
+            echo 'ไม่พบข้อมูลหลักสูตร';
+            $result->close();
+            $db->close();
+            exit();
         }
         $result->close();
     } else {
@@ -309,18 +314,8 @@ if (isset($courseId)) {
                                                     <div class="input-group-addon">
                                                         <i class="fa fa-calendar"></i>
                                                     </div>
-                                                    <?php
-                                                    if (!empty($course)) {
-                                                        $beginDatePart = explode('-', $course['begin_date']);
-                                                        $year = $beginDatePart[0];
-                                                        $month = $beginDatePart[1];
-                                                        $day = $beginDatePart[2];
-                                                        $beginDate = "$day/$month/$year";
-                                                    }
-                                                    ?>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputBeginDate"
-                                                           value="<?php echo(!empty($course) ? $beginDate : ''); ?>"
                                                            placeholder="เลือกวันอบรมวันแรก" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันแรก')"
                                                            oninput="this.setCustomValidity('')">
@@ -334,18 +329,8 @@ if (isset($courseId)) {
                                                     <div class="input-group-addon">
                                                         <i class="fa fa-calendar"></i>
                                                     </div>
-                                                    <?php
-                                                    if (!empty($course)) {
-                                                        $endDatePart = explode('-', $course['end_date']);
-                                                        $year = $endDatePart[0];
-                                                        $month = $endDatePart[1];
-                                                        $day = $endDatePart[2];
-                                                        $endDate = "$day/$month/$year";
-                                                    }
-                                                    ?>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputEndDate"
-                                                           value="<?php echo(!empty($course) ? $endDate : ''); ?>"
                                                            placeholder="เลือกวันอบรมวันสุดท้าย" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันสุดท้าย')"
                                                            oninput="this.setCustomValidity('')">
@@ -538,22 +523,43 @@ if (isset($courseId)) {
 
     <script>
         $(() => {
+            <?php
+            if (!empty($course)) {
+                $beginDatePart = explode('-', $course['begin_date']);
+                $year = $beginDatePart[0];
+                $month = $beginDatePart[1];
+                $day = $beginDatePart[2];
+                $beginDate = "$day/$month/$year";
+
+                $endDatePart = explode('-', $course['end_date']);
+                $year = $endDatePart[0];
+                $month = $endDatePart[1];
+                $day = $endDatePart[2];
+                $endDate = "$day/$month/$year";
+            }
+            ?>
+
             //Date picker
-            $('#inputBeginDate').datepicker({
+            let inputBeginDate = $('#inputBeginDate');
+            inputBeginDate.datepicker({
+                language: 'th',
+                thaiyear: true,
                 format: 'dd/mm/yyyy',
                 orientation: 'bottom',
                 autoclose: true
             }).on('changeDate', e => {
                 e.target.setCustomValidity('');
-            });
+            }).datepicker('update', '<?php echo(!empty($course) ? $beginDate : ''); ?>');
 
             $('#inputEndDate').datepicker({
+                language: 'th',
+                thaiyear: true,
                 format: 'dd/mm/yyyy',
                 orientation: 'bottom',
                 autoclose: true
             }).on('changeDate', e => {
                 e.target.setCustomValidity('');
-            });
+            }).datepicker('update', '<?php echo(!empty($course) ? $endDate : ''); ?>');
 
             CKEDITOR.replace('editor');
         });
@@ -633,7 +639,7 @@ if (isset($courseId)) {
 
                 BootstrapDialog.show({
                     title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
-                    message: data.error_message,
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
                         action: function (self) {

@@ -133,6 +133,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="../pages/academic_papers.php">
+                        <i class="fa fa-flask"></i> <span>งานวิจัยและวิชาการ</span>
+                    </a>
+                </li>
+                <li>
                     <a href="../pages/user.php" id="linkUser">
                         <i class="fa fa-user-circle"></i> <span>ผู้ใช้งานระบบ</span>
                     </a>

@@ -84,6 +84,13 @@ app
             res.status(404).end();
         });
 
+        /* ********** งานวิจัยและวิชาการ ********** */
+        server.get('/academic-paper/:id', (req, res) => {
+            const actualPage = '/academic-paper';
+            const queryParams = {id: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
         /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -144,6 +151,9 @@ app
                         break;
                     case 'add_transfer_notification':
                         doAddTransferNotification(req, res, db);
+                        break;
+                    case 'get_academic_paper':
+                        doGetAcademicPaper(req, res, db);
                         break;
                     default:
                         //res.status(404).end();
@@ -453,7 +463,7 @@ doGetCourse = (req, res, db) => {
                     dataList.push({
                         id: row.id,
                         serviceType: row.service_type,
-                        name: row.title + ' รุ่นที่ ' + row.batch_number,
+                        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number: ''),
                         details: row.details,
                         applicationFee: row.application_fee,
                         place: row.place,
@@ -1091,6 +1101,44 @@ doAddTransferNotification = (req, res, db) => {
             }
         );
     })
+};
+
+doGetAcademicPaper = (req, res, db) => {
+    const {id} = req.body;
+    const where = id == null ? 'TRUE' : 'id = ?';
+
+    db.query(
+        `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
+                year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
+             FROM academic_paper
+             WHERE ${where}
+             ORDER BY id DESC`,
+        id == null ? [] : [id],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                const dataList = [];
+                let reg;
+                let previousRegistrationId = 0;
+                results.forEach(row => {
+                    /*const {
+                        id, title, fileName, firstName, lastName, yearPublished, abstract, fundSource, createdAt
+                    } = row;*/
+
+                    dataList.push(row);
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
+                });
+            }
+        }
+    );
+    db.end();
 };
 
 /*doGetRegistrationListByMember = (req, res, db) => {

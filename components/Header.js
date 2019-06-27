@@ -1679,7 +1679,7 @@ export default class Header extends React.Component {
                                                                 <a href="/service-driving-license" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</a>
                                                             </li>
                                                             <li>
-                                                                <a href="service-5.php" target="_parent">วิจัยและวิชาการ</a>
+                                                                <a href="/academic-paper" target="_parent">วิจัยและวิชาการ</a>
                                                             </li>
                                                             <li>
                                                                 <a href="#" target="_parent">วารสาร HR Intelligence</a>

@@ -1,4 +1,6 @@
 <?php
+define('ACADEMIC_PAPERS_UPLOAD_DIR', '../uploads/academic_papers/');
+
 session_start();
 require_once 'global.php';
 require_once 'jwt.php';
@@ -72,6 +74,12 @@ switch ($action) {
         break;
     case 'update_in_house_status':
         doUpdateInHouseStatus();
+        break;
+    case 'add_academic_paper':
+        doAddAcademicPaper();
+        break;
+    case 'update_academic_paper':
+        doUpdateAcademicPaper();
         break;
 
     default:
@@ -392,11 +400,83 @@ function doUpdateInHouseStatus()
     }
 }
 
-function moveUploadedFile($key, $dest)
+function doAddAcademicPaper()
+{
+    global $db, $response;
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['first_name']);
+    $lastName = $db->real_escape_string($_POST['last_name']);
+    $yearPublished = $db->real_escape_string($_POST['year_published']);
+    $abstract = $db->real_escape_string($_POST['abstract']);
+    $fundSource = $db->real_escape_string($_POST['fund_source']);
+
+    if (!moveUploadedFile('file', ACADEMIC_PAPERS_UPLOAD_DIR, $fileName)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $sql = "INSERT INTO academic_paper (title, file_name, first_name, last_name, year_published, abstract, fund_source) 
+                VALUES ('$title', '$fileName', '$firstName', '$lastName', '$yearPublished', '$abstract', '$fundSource')";
+        if ($result = $db->query($sql)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'เพิ่มงานวิจัย/วิชาการสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มงานวิจัย/วิชาการ: ' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        }
+    }
+}
+
+function doUpdateAcademicPaper()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['first_name']);
+    $lastName = $db->real_escape_string($_POST['last_name']);
+    $yearPublished = $db->real_escape_string($_POST['year_published']);
+    $abstract = $db->real_escape_string($_POST['abstract']);
+    $fundSource = $db->real_escape_string($_POST['fund_source']);
+
+    $fileName = NULL;
+
+    if ($_FILES['file']) {
+        if (!moveUploadedFile('file', ACADEMIC_PAPERS_UPLOAD_DIR, $fileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $setUploadFileName = $fileName ? "file_name = '$fileName', " : '';
+
+    $sql = "UPDATE academic_paper 
+            SET $setUploadFileName title = '$title', first_name = '$firstName', last_name = '$lastName', year_published = '$yearPublished', abstract = '$abstract', fund_source = '$fundSource' 
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'แก้ไขงานวิจัย/วิชาการสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขงานวิจัย/วิชาการ: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function moveUploadedFile($key, $dest, &$randomFileName)
 {
     global $response;
 
-    $response['name'] = $_FILES[$key]['name'];
+    $clientName = $_FILES[$key]['name'];
+    $response['name'] = $clientName;
     $response['type'] = $_FILES[$key]['type'];
     $response['size'] = $_FILES[$key]['size'];
     $response['tmp_name'] = $_FILES[$key]['tmp_name'];
@@ -405,7 +485,10 @@ function moveUploadedFile($key, $dest)
     $response['upload_src'] = $src;
     $response['upload_dest'] = $dest;
 
-    return move_uploaded_file($src, $dest);
+    //$date = date('Y-m-d H:i:s');
+    $timestamp = time();
+    $randomFileName = "{$timestamp}-{$clientName}";
+    return move_uploaded_file($src, "{$dest}{$randomFileName}");
 }
 
 function createRandomString($length)

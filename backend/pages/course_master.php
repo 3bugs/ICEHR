@@ -245,6 +245,8 @@ if ($result = $db->query($sql)) {
             $('#formEditCourseMaster #divLoading').hide();
 
             $('#tableCourseMaster').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
