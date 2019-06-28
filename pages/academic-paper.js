@@ -8,6 +8,7 @@ import constants from '../etc/constants';
 import $ from 'jquery';
 import './academic-paper.css';
 import ErrorLabel from "../components/ErrorLabel";
+import ReactPaginate from 'react-paginate';
 
 const INPUT_FIRST_NAME = 'firstName';
 const INPUT_LAST_NAME = 'lastName';
@@ -31,21 +32,28 @@ class AcademicPaperListItem extends React.Component {
     }
 
     render() {
-        const {show} = this.props;
+        const {show, isSearchResult, accordionId} = this.props;
         const {id, title, firstName, lastName, yearPublished} = this.props.data;
 
         return (
             <React.Fragment>
                 <div className="card">
-                    <div className="card-header" id={`heading${id}`}>
+                    <div className="card-header" id={`heading${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}>
                         <h5 className="mb-0">
-                            <button className={'btn-link ' + (show ? '' : 'collapsed')} data-toggle="collapse" data-target={`#collapse${id}`} aria-expanded={show} aria-controls={`collapse${id}`}>
+                            <button className={'btn-link ' + (show ? '' : 'collapsed')}
+                                    data-toggle="collapse"
+                                    data-target={`#collapse${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}
+                                    aria-expanded={show}
+                                    aria-controls={`collapse${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}>
                                 <i className="fa" aria-hidden="true"/>
                                 {title}<span className="yeartop">ปีที่เผยแพร่ {yearPublished}</span>
                             </button>
                         </h5>
                     </div>
-                    <div id={`collapse${id}`} className={'collapse ' + (show ? 'show' : '')} aria-labelledby={`heading${id}`} data-parent="#accordion">
+                    <div id={`collapse${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}
+                         className={'collapse ' + (show ? 'show' : '')}
+                         aria-labelledby={`heading${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}
+                         data-parent={'#' + this.props.accordionId}>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-6 col-sm-4"> ปีที่เผยแพร่
@@ -59,7 +67,7 @@ class AcademicPaperListItem extends React.Component {
                                         as={`/academic-paper/${id}`}
                                         href={`/academic-paper?id=${id}`}
                                     >
-                                        <a href="javascript:void(0)" className="btn btn-outline-success">View</a>
+                                        <a href="javascript:void(0)" className="btn btn-outline-success" onClick={this.props.handleCloseSearchResultModal}>View</a>
                                     </Link>
                                 </div>
                             </div>
@@ -168,6 +176,8 @@ class AcademicPaperList extends React.Component {
     }
 
     render() {
+        const randomId = Math.random().toString(36).substring(7);
+
         return (
             <React.Fragment>
                 {this.props.dataList.length > 0 &&
@@ -175,12 +185,15 @@ class AcademicPaperList extends React.Component {
                     <div className="row">
                         <div className="col">
                             <div className="container">
-                                <div id="accordion">
+                                <div id={`accordion${randomId}`}>
                                     {
                                         this.props.dataList.map((data, index) => (
                                             <AcademicPaperListItem
                                                 data={data}
-                                                show={index === 0}
+                                                show={!this.props.isSearchResult && index === 0}
+                                                isSearchResult={this.props.isSearchResult}
+                                                handleCloseSearchResultModal={this.props.handleCloseSearchResultModal}
+                                                accordionId={`accordion${randomId}`}
                                             />
                                         ))
                                     }
@@ -459,8 +472,9 @@ class AcademicPaperDetails extends React.Component {
 
         return (
             <React.Fragment>
+                {/*Modal ฟอร์มกรอกข้อมูล*/}
                 <Modal
-                    dialogClassName={'modal-register-form'}
+                    dialogClassName={'modal-form'}
                     show={this.state.showFormModal}
                     onHide={this.handleCloseFormModal}
                     centered>
@@ -578,6 +592,7 @@ class AcademicPaperDetails extends React.Component {
                     </Modal.Body>
                 </Modal>
 
+                {/*รายละเอียดงานวิจัย/วิชาการ*/}
                 <div className="container">
                     <div className="row mt-5">
                         <div className="col">
@@ -679,13 +694,18 @@ class AcademicPaperDetails extends React.Component {
     }
 }
 
+const LIMIT_PER_PAGE = 1;
+
 export default class AcademicPaper extends React.Component {
 
     constructor(props, context) {
         super(props, context);
         this.state = {
+            dataList: null,
             searchFields: {},
             searchResultList: null,
+            showSearchResultModal: false,
+            offset: 0,
         };
     }
 
@@ -694,6 +714,10 @@ export default class AcademicPaper extends React.Component {
     static getInitialProps = async function ({req, query}) {
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
         const {id} = query;
+
+        if (id == null) {
+            return {id, dataList: null};
+        }
 
         const res = await fetch(baseUrl + '/api/get_academic_paper', {
             method: 'post',
@@ -715,6 +739,7 @@ export default class AcademicPaper extends React.Component {
     };
 
     componentDidMount() {
+        this.doGetAcademicPaper();
     }
 
     handleInputChange = (field, e) => {
@@ -723,8 +748,37 @@ export default class AcademicPaper extends React.Component {
         this.setState({searchFields});
     };
 
+    doGetAcademicPaper = () => {
+        fetch('/api/get_academic_paper', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                limit: LIMIT_PER_PAGE,
+                offset: this.state.offset,
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    console.log(result.dataList);
+                    this.setState({
+                        dataList: result.dataList,
+                        pageCount: Math.ceil(result.totalCount / LIMIT_PER_PAGE)
+                    });
+                } else {
+                    alert(result['error']['message']);
+                }
+            })
+            .catch(error => {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+            });
+    };
+
     handleClickSearch = e => {
         let {searchFields} = this.state;
+
         if ((searchFields[SEARCH_INPUT_TITLE] && searchFields[SEARCH_INPUT_TITLE].trim().length !== 0)
             || (searchFields[SEARCH_INPUT_YEAR_PUBLISHED] && searchFields[SEARCH_INPUT_YEAR_PUBLISHED].trim().length !== 0)
             || (searchFields[SEARCH_INPUT_NAME] && searchFields[SEARCH_INPUT_NAME].trim().length !== 0)) {
@@ -734,15 +788,14 @@ export default class AcademicPaper extends React.Component {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(searchFields),
+                body: JSON.stringify({searchFields}),
             })
                 .then(result => result.json())
                 .then(result => {
                     if (result['error']['code'] === 0) {
-                        //todo: ***********************************************************************************************
-                        console.log(result.dataList);
                         this.setState({
                             searchResultList: result.dataList,
+                            showSearchResultModal: true,
                         });
                     } else {
                         alert(result['error']['message']);
@@ -756,13 +809,59 @@ export default class AcademicPaper extends React.Component {
         }
     };
 
+    handleCloseSearchResultModal = e => {
+        this.setState({
+            showSearchResultModal: false
+        });
+    };
+
+    handlePageClick = data => {
+        let selected = data.selected;
+        let offset = Math.ceil(selected * LIMIT_PER_PAGE);
+
+        this.setState({ offset: offset }, () => {
+            this.doGetAcademicPaper();
+        });
+    };
+
     render() {
-        const {searchFields} = this.state;
+        const {searchFields, searchResultList} = this.state;
 
         return (
             <MainLayout>
                 <NextHead>
                 </NextHead>
+
+                {/*Modal ผลการค้นหา*/}
+                <Modal
+                    dialogClassName={'modal-search-result'}
+                    show={this.state.showSearchResultModal}
+                    onHide={this.handleCloseSearchResultModal}
+                    centered>
+                    <Modal.Body>
+                        <div className="redtxt" style={{margin: '10px auto'}}>
+                            <h3 style={{textAlign: 'center'}}>ผลการค้นหา</h3>
+                        </div>
+
+                        <div id="data5" className="detail-inside-box">
+                            {searchResultList != null &&
+                            <AcademicPaperList
+                                dataList={searchResultList}
+                                isSearchResult={true}
+                                handleCloseSearchResultModal={this.handleCloseSearchResultModal}
+                            />
+                            }
+                            {searchResultList == null &&
+                            <div style={{textAlign: 'center'}}>ไม่พบข้อมูล</div>
+                            }
+                            <a href="javascript:void(0)"
+                               onClick={this.handleCloseSearchResultModal}
+                               className="btn-submit mt-4 mb-3">
+                                ปิด
+                            </a>
+                        </div>
+                    </Modal.Body>
+                </Modal>
 
                 {/*หัวข้อ "งานวิจัยและวิชาการ"*/}
                 <div className="container">
@@ -830,23 +929,50 @@ export default class AcademicPaper extends React.Component {
                 </div>
 
                 {/*List-งานวิจัยและวิชาการ*/
-                    !this.props.id && (this.state.searchResultList == null) &&
-                    <div className="mt-5 mb-5">
-                        <AcademicPaperList
-                            dataList={this.props.dataList}
-                        />
-                    </div>
+                    !this.props.id && (this.state.dataList != null) &&
+                    <React.Fragment>
+                        <div className="mt-5 mb-5">
+                            <AcademicPaperList
+                                dataList={this.state.dataList}
+                                isSearchResult={false}
+                            />
+                        </div>
+                        <div style={{textAlign: 'center'}}>
+                            <ReactPaginate
+                                previousLabel={'<'}
+                                nextLabel={'>'}
+                                breakLabel={'...'}
+                                breakClassName={'break-me'}
+                                pageCount={this.state.pageCount}
+                                marginPagesDisplayed={2}
+                                pageRangeDisplayed={5}
+                                onPageChange={this.handlePageClick}
+                                containerClassName={'pagination'}
+                                activeClassName={'pagination-active'}
+                                previousClassName={'pagination-older'}
+                                nextClassName={'pagination-newer'}
+                            />
+                        </div>
+                    </React.Fragment>
                 }
 
-                {/*List-ผลการค้นหา*/
-                    (this.state.searchResultList != null) && (!this.props.id) &&
-                    <div className="mt-5 mb-5">
-                        <div className="redtxt"><h3 style={{textAlign: 'center'}}>ผลการค้นหา</h3></div>
-                        <AcademicPaperList
-                            dataList={this.state.searchResultList}
-                        />
-                    </div>
-                }
+                {/*<ul className="pagination">
+                    <li className="pagination-older disabled">
+                        <a tabIndex="0" role="button" aria-disabled="true">&lt;</a>
+                    </li>
+                    <li className="pagination-active">
+                        <a role="button" tabIndex="0" aria-label="Page 1 is your current page" aria-current="page">1</a>
+                    </li>
+                    <li>
+                        <a role="button" tabIndex="0" aria-label="Page 2">2</a>
+                    </li>
+                    <li>
+                        <a role="button" tabIndex="0" aria-label="Page 3">3</a>
+                    </li>
+                    <li className="next">
+                        <a tabIndex="0" role="button" aria-disabled="false">&gt;</a>
+                    </li>
+                </ul>*/}
 
                 {/*Details-งานวิจัยและวิชาการ*/
                     this.props.id &&
@@ -856,6 +982,11 @@ export default class AcademicPaper extends React.Component {
                 }
 
                 <style jsx>{`
+                    .btn-submit {
+                        margin: 0 auto;
+                        display: table;
+                    }
+                    
                     .bg-search-service1 .col {
                         padding: 5px;
                     }

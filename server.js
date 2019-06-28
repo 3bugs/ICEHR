@@ -1110,30 +1110,55 @@ doAddTransferNotification = (req, res, db) => {
 };
 
 doGetAcademicPaper = (req, res, db) => {
-    const {id} = req.body;
-    const where = id == null ? 'TRUE' : 'id = ?';
+    const {id, offset, limit} = req.body;
+    const whereClause = id == null ? 'TRUE' : 'id = ?';
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
     db.query(
         `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
                 year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
              FROM academic_paper
-             WHERE ${where}
-             ORDER BY id DESC`,
+             WHERE ${whereClause}
+             ORDER BY id DESC
+             ${limitClause}`,
         id == null ? [] : [id],
         function (err, results, fields) {
             if (err) {
                 res.send({
                     error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
                 });
+                db.end();
             } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: results
-                });
+                if (id == null) {
+                    db.query(
+                        `SELECT COUNT(*) AS totalCount FROM academic_paper`,
+                        [],
+                        function (err, totalCountResults, fields) {
+                            if (err) {
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                                });
+                            } else {
+                                res.send({
+                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                    dataList: results,
+                                    totalCount: totalCountResults[0].totalCount,
+                                });
+                            }
+                        }
+                    );
+                    db.end();
+                } else {
+                    res.send({
+                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                        dataList: results
+                    });
+                    db.end();
+                }
             }
         }
     );
-    db.end();
+    //db.end();
 };
 
 doSearchAcademicPaper = (req, res, db) => {
