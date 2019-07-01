@@ -1,7 +1,13 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT * FROM academic_paper ORDER BY created_at DESC ";
+$sql = "SELECT ap.id, ap.title, ap.first_name, ap.last_name, ap.file_name, ap.year_published, ap.abstract, ap.fund_source, ap.created_at, 
+               COUNT(apd.id) AS download_count 
+            FROM academic_paper ap 
+                LEFT JOIN academic_paper_download apd 
+                    ON ap.id = apd.academic_paper_id 
+            GROUP BY ap.id 
+            ORDER BY created_at DESC ";
 if ($result = $db->query($sql)) {
     $academicPaperList = array();
     while ($row = $result->fetch_assoc()) {
@@ -15,6 +21,7 @@ if ($result = $db->query($sql)) {
         $academicPaper['abstract'] = $row['abstract'];
         $academicPaper['fund_source'] = $row['fund_source'];
         $academicPaper['created_at'] = $row['created_at'];
+        $academicPaper['download_count'] = (int)$row['download_count'];
 
         array_push($academicPaperList, $academicPaper);
     }
@@ -32,7 +39,9 @@ if ($result = $db->query($sql)) {
         <!-- DataTables -->
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
         <style>
-
+            #tableDownload td:nth-child(5) {
+                text-align: center;
+            }
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
@@ -53,6 +62,50 @@ if ($result = $db->query($sql)) {
                         <div id="divAbstract" class="box-body"></div>
                         <!-- /.box-body -->
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download list modal -->
+    <div class="modal fade" id="downloadListModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <div id="divTitle">&nbsp;</div>
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>
+                    <div id="alertWarning" class="alert alert-warning alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertWarningText">ไม่มีข้อมูลการดาวน์โหลดสำหรับเอกสารนี้</span>
+                    </div>
+                    <div id="alertError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                    </div>
+
+                    <table id="tableDownload" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th style="text-align: center; width: 20%;">ผู้ดาวน์โหลด</th>
+                            <th style="text-align: center; width: 20%;">ตำแหน่ง/หน่วยงาน</th>
+                            <th style="text-align: center; width: 15%;">อาชีพ</th>
+                            <th style="text-align: center; width: 35%;">การนำไปใช้ประโยชน์</th>
+                            <th style="text-align: center; width: 10%;">ดาวน์โหลดเมื่อ</th>
+                        </tr>
+                        </thead>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
@@ -94,9 +147,10 @@ if ($result = $db->query($sql)) {
                                     <tr>
                                         <th style="text-align: center; width: 30%;">เรื่อง</th>
                                         <th style="text-align: center; width: 10%;">เผยแพร่</th>
-                                        <th style="text-align: center; width: 25%;" nowrap>ผู้ทำวิจัย</th>
-                                        <th style="text-align: center; width: 10%;">PDF</th>
-                                        <th style="text-align: center; width: 10%;">บทคัดย่อ</th>
+                                        <th style="text-align: center; width: 20%;" nowrap>ผู้ทำวิจัย</th>
+                                        <th style="text-align: center; width: 8%;">PDF</th>
+                                        <th style="text-align: center; width: 9%;">บทคัดย่อ</th>
+                                        <th style="text-align: center; width: 8%;">ดาวน์โหลด</th>
                                         <th style="text-align: center; width: 15%;" nowrap>อัพโหลด</th>
                                         <th style="text-align: center;">จัดการ</th>
                                     </tr>
@@ -123,15 +177,22 @@ if ($result = $db->query($sql)) {
                                                 <td><?php echo $academicPaper['title']; ?></td>
                                                 <td style="text-align: center"><?php echo $academicPaper['year_published']; ?></td>
                                                 <td><?php echo "{$academicPaper['first_name']} {$academicPaper['last_name']}"; ?></td>
-                                                <td style="text-align: center;">
-                                                    <a target="_blank" href="../uploads/academic_papers/<?php echo $academicPaper['file_name']; ?>">
+                                                <td style="text-align: center; cursor: pointer"
+                                                    onClick="window.open('../uploads/academic_papers/<?php echo $academicPaper['file_name']; ?>', '_blank')">
+                                                    <a target="_blank" href="javascript:void(0)">
                                                         <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
                                                     </a>
                                                 </td>
-                                                <td style="text-align: center; cursor: pointer">
-                                                    <a href="javascript:void(0)"
-                                                       onClick="onClickAbstract(this, '<?php echo str_replace(array("\n", "\r"), '', nl2br(htmlspecialchars($academicPaper['abstract']))); ?>')">
+                                                <td style="text-align: center; cursor: pointer"
+                                                    onClick="onClickAbstract(this, '<?php echo str_replace(array("\n", "\r"), '', nl2br(htmlspecialchars($academicPaper['abstract']))); ?>')">
+                                                    <a href="javascript:void(0)">
                                                         <span style="font-size: 25px"><i class="fa fa-file-text-o"></i></span>
+                                                    </a>
+                                                </td>
+                                                <td style="text-align: center; cursor: pointer"
+                                                    onClick="onClickDownloadList(this, <?php echo $academicPaper['id']; ?>, '<?php echo $academicPaper['title']; ?>')">
+                                                    <a href="javascript:void(0)">
+                                                        <?php echo $academicPaper['download_count']; ?>
                                                     </a>
                                                 </td>
                                                 <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
@@ -169,11 +230,36 @@ if ($result = $db->query($sql)) {
     <!-- ./wrapper -->
 
     <script>
+        let downloadListDataTable = null;
+
         $(document).ready(function () {
             $('#tableAcademicPapaer').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
-                order: [[5, 'desc']],
+                order: [[6, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
+            downloadListDataTable = $('#downloadListModal #tableDownload').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                order: [[4, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -202,6 +288,54 @@ if ($result = $db->query($sql)) {
         function onClickAbstract(element, abstractText) {
             $('#formAbstract #divAbstract').html(abstractText);
             $('#abstractModal').modal('show');
+        }
+
+        function onClickDownloadList(element, academicPaperId, academicPaperTitle) {
+            doGetDownloadList(academicPaperId);
+            $('#downloadListModal #divTitle').text(academicPaperTitle);
+            $('#downloadListModal').modal('show');
+        }
+
+        function doGetDownloadList(id) {
+            const loadingIcon = $('#downloadListModal #spanLoading');
+            const noDownloadListAlert = $('#downloadListModal #alertWarning');
+            const errorAlert = $('#downloadListModal #alertError');
+            const dataTableElement = $('#downloadListModal #tableDownload');
+
+            downloadListDataTable.clear().draw();
+
+            dataTableElement.parents('div.dataTables_wrapper').first().hide();
+            loadingIcon.show();
+            noDownloadListAlert.hide();
+            errorAlert.hide();
+
+            $.post(
+                '../api/api.php/get_academic_paper_download',
+                {
+                    academicPaperId: id,
+                }
+            ).done(function (data) {
+                loadingIcon.hide();
+                if (data.error_code === 0) {
+                    data.data_list.forEach(row => {
+                        downloadListDataTable.row.add([
+                            `${row.first_name} ${row.last_name}<br><i class="fa fa-envelope-o" style="color: black"></i>&nbsp;&nbsp;<a href="mailto:${row.email}">${row.email}</a>`,
+                            `${row.job_position}<br>${row.organization_name}`,
+                            `${row.occupation}`,
+                            `${row.use_purpose}`,
+                            `${row.download_date_format}<br>${row.download_time_format}`,
+                        ]).draw(false);
+                    });
+                    dataTableElement.parents('div.dataTables_wrapper').first().show();
+                } else {
+                    errorAlert.text(data.error_message);
+                    errorAlert.show();
+                }
+            }).fail(function () {
+                loadingIcon.hide();
+                errorAlert.text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                errorAlert.show();
+            });
         }
     </script>
 

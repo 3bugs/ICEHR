@@ -81,6 +81,9 @@ switch ($action) {
     case 'update_academic_paper':
         doUpdateAcademicPaper();
         break;
+    case 'get_academic_paper_download':
+        doGetAcademicPaperDownload();
+        break;
 
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
@@ -466,6 +469,54 @@ function doUpdateAcademicPaper()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขงานวิจัย/วิชาการ: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doGetAcademicPaperDownload()
+{
+    global $db, $response;
+
+    $academicPaperId = $db->real_escape_string($_POST['academicPaperId']);
+
+    $sql = "SELECT *
+                FROM academic_paper_download  
+                WHERE academic_paper_id = $academicPaperId
+                ORDER BY id DESC";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $response[KEY_DATA_LIST] = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $academicPaperDownload = array();
+            $academicPaperDownload['id'] = (int)$row['id'];
+            $academicPaperDownload['first_name'] = $row['first_name'];
+            $academicPaperDownload['last_name'] = $row['last_name'];
+            $academicPaperDownload['organization_name'] = $row['organization_name'];
+            $academicPaperDownload['job_position'] = $row['job_position'];
+            $academicPaperDownload['occupation'] = $row['occupation'];
+            $academicPaperDownload['email'] = $row['email'];
+            $academicPaperDownload['use_purpose'] = $row['use_purpose'];
+            $academicPaperDownload['created_at'] = $row['created_at'];
+
+            $createdAt = $row['created_at'];
+            $dateTimePart = explode(' ', $createdAt);
+            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+            $timePart = explode(':', $dateTimePart[1]);
+            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+
+            $academicPaperDownload['download_date_format'] = $displayDate;
+            $academicPaperDownload['download_time_format'] = $displayTime;
+
+            array_push($response[KEY_DATA_LIST], $academicPaperDownload);
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

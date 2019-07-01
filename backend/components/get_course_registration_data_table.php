@@ -721,7 +721,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
-                }
+                },
             });
 
             $('#manageRegisterStatusModal').on('hidden.bs.modal', () => {

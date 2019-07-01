@@ -23,6 +23,7 @@ const SEARCH_INPUT_YEAR_PUBLISHED = 'searchYearPublished';
 const SEARCH_INPUT_NAME = 'searchName';
 
 const KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST = 'academicPaperStatusList';
+const LIMIT_PER_PAGE = 2;
 
 class AcademicPaperListItem extends React.Component {
 
@@ -694,8 +695,6 @@ class AcademicPaperDetails extends React.Component {
     }
 }
 
-const LIMIT_PER_PAGE = 1;
-
 export default class AcademicPaper extends React.Component {
 
     constructor(props, context) {
@@ -706,6 +705,7 @@ export default class AcademicPaper extends React.Component {
             searchResultList: null,
             showSearchResultModal: false,
             offset: 0,
+            initialPage: 1,
         };
     }
 
@@ -819,7 +819,7 @@ export default class AcademicPaper extends React.Component {
         let selected = data.selected;
         let offset = Math.ceil(selected * LIMIT_PER_PAGE);
 
-        this.setState({ offset: offset }, () => {
+        this.setState({ offset, initialPage: selected }, () => {
             this.doGetAcademicPaper();
         });
     };
@@ -939,6 +939,7 @@ export default class AcademicPaper extends React.Component {
                         </div>
                         <div style={{textAlign: 'center'}}>
                             <ReactPaginate
+                                initialPage={this.state.initialPage}
                                 previousLabel={'<'}
                                 nextLabel={'>'}
                                 breakLabel={'...'}
