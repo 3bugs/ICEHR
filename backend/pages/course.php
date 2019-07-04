@@ -190,6 +190,8 @@ if ($result = $db->query($sql)) {
     <script>
         $(document).ready(function () {
             $('#tableCourse').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
                 order: [[1, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",

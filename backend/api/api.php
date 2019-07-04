@@ -1,5 +1,6 @@
 <?php
-define('ACADEMIC_PAPERS_UPLOAD_DIR', '../uploads/academic_papers/');
+define('KEY_IMAGE_FILES', 'imageFiles');
+define('KEY_PDF_FILES', 'pdfFiles');
 
 session_start();
 require_once 'global.php';
@@ -65,6 +66,9 @@ switch ($action) {
         break;
     case 'update_course':
         doUpdateCourse();
+        break;
+    case 'delete_course_asset':
+        doDeleteCourseAsset();
         break;
     case 'update_register_status':
         doUpdateRegisterStatus();
@@ -238,24 +242,85 @@ function doAddCourse()
     $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
     $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
     $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
-    $beginDate = $db->real_escape_string($_POST['beginDate']);
-    $endDate = $db->real_escape_string($_POST['endDate']);
+    $beginDate = getMySqlDateFormat($db->real_escape_string($_POST['beginDate']));
+    $endDate = getMySqlDateFormat($db->real_escape_string($_POST['endDate']));
     $place = $db->real_escape_string($_POST['place']);
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
+    $db->query('START TRANSACTION');
+
     $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id) "
         . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId)";
-    if ($result = $db->query($sql)) {
+    if ($insertCourseResult = $db->query($sql)) {
+        $insertId = $db->insert_id;
+
+        for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_IMAGE_FILES, UPLOAD_DIR_COURSE_ASSETS, $fileName, $i)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_IMAGE_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+
+            $sql = "INSERT INTO course_asset (course_id, title, file_name, type) 
+                    VALUES ($insertId, null, '$fileName', 'image')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+        for ($i = 0; $i < sizeof($_FILES[KEY_PDF_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_PDF_FILES, UPLOAD_DIR_COURSE_ASSETS, $fileName, $i)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_PDF_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลด PDF [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+
+            $sql = "INSERT INTO course_asset (course_id, title, file_name, type) 
+                    VALUES ($insertId, null, '$fileName', 'pdf')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล PDF';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'เพิ่มหลักสูตรสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+        $db->query('COMMIT');
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มหลักสูตร: ' . $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
+}
+
+function getMySqlDateFormat($thaiDate) {
+    $thaiDatePart = explode('/', $thaiDate);
+    $yearAd = (int)$thaiDatePart[2] - 543;
+    return "{$yearAd}-{$thaiDatePart[1]}-{$thaiDatePart[0]}";
 }
 
 function doUpdateCourse()
@@ -267,22 +332,101 @@ function doUpdateCourse()
     $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
     $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
     $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
-    $beginDate = $db->real_escape_string($_POST['beginDate']);
-    $endDate = $db->real_escape_string($_POST['endDate']);
+    $beginDate = getMySqlDateFormat($db->real_escape_string($_POST['beginDate']));
+    $endDate = getMySqlDateFormat($db->real_escape_string($_POST['endDate']));
     $place = $db->real_escape_string($_POST['place']);
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
+    /*$output = sprintf(
+        "File Names: %d\nCourse ID: %s\nCourse Master ID: %s\nBatch Number: %s\nFee: %s\nLimit: %s\nBegin: %s\nEnd: %s\nPlace: %s\nResponsible User ID: %s\nDetails: %s\n",
+        sizeof($_FILES['imageFiles']['name']), $courseId, $courseMasterId, $batchNumber, $applicationFee, $traineeLimit, $beginDate, $endDate, $place, $responsibleUserId, $details
+    );
+    $response[KEY_ERROR_MESSAGE] = $output;
+    return;*/
+
+    $db->query('START TRANSACTION');
+
     $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
         . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
         . " WHERE id = $courseId";
-    if ($result = $db->query($sql)) {
+    if ($updateCourseResult = $db->query($sql)) {
+        for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_IMAGE_FILES, UPLOAD_DIR_COURSE_ASSETS, $fileName, $i)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_IMAGE_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+
+            $sql = "INSERT INTO course_asset (course_id, title, file_name, type) 
+                    VALUES ($courseId, null, '$fileName', 'image')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+        for ($i = 0; $i < sizeof($_FILES[KEY_PDF_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_PDF_FILES, UPLOAD_DIR_COURSE_ASSETS, $fileName, $i)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_PDF_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลด PDF [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+
+            $sql = "INSERT INTO course_asset (course_id, title, file_name, type) 
+                    VALUES ($courseId, null, '$fileName', 'pdf')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล PDF';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'แก้ไขหลักสูตรสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+        $db->query('COMMIT');
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขหลักสูตร';
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteCourseAsset()
+{
+    global $db, $response;
+
+    $assetId = $db->real_escape_string($_POST['assetId']);
+
+    $sql = "DELETE FROM course_asset WHERE id=$assetId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -414,7 +558,7 @@ function doAddAcademicPaper()
     $abstract = $db->real_escape_string($_POST['abstract']);
     $fundSource = $db->real_escape_string($_POST['fund_source']);
 
-    if (!moveUploadedFile('file', ACADEMIC_PAPERS_UPLOAD_DIR, $fileName)) {
+    if (!moveUploadedFile('file', UPLOAD_DIR_ACADEMIC_PAPERS, $fileName)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
@@ -449,7 +593,7 @@ function doUpdateAcademicPaper()
     $fileName = NULL;
 
     if ($_FILES['file']) {
-        if (!moveUploadedFile('file', ACADEMIC_PAPERS_UPLOAD_DIR, $fileName)) {
+        if (!moveUploadedFile('file', UPLOAD_DIR_ACADEMIC_PAPERS, $fileName)) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
             $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์';
             $response[KEY_ERROR_MESSAGE_MORE] = '';
@@ -522,22 +666,23 @@ function doGetAcademicPaperDownload()
     }
 }
 
-function moveUploadedFile($key, $dest, &$randomFileName)
+function moveUploadedFile($key, $dest, &$randomFileName, $index = -1)
 {
     global $response;
 
-    $clientName = $_FILES[$key]['name'];
+    $clientName = $index === -1 ? $_FILES[$key]['name'] : $_FILES[$key]['name'][$index];
     $response['name'] = $clientName;
-    $response['type'] = $_FILES[$key]['type'];
-    $response['size'] = $_FILES[$key]['size'];
-    $response['tmp_name'] = $_FILES[$key]['tmp_name'];
+    $response['type'] = $index === -1 ? $_FILES[$key]['type'] : $_FILES[$key]['type'][$index];
+    $response['size'] = $index === -1 ? $_FILES[$key]['size'] : $_FILES[$key]['size'][$index];
+    $response['tmp_name'] = $index === -1 ? $_FILES[$key]['tmp_name'] : $_FILES[$key]['tmp_name'][$index];
 
-    $src = $_FILES[$key]['tmp_name'];
+    $src = $index === -1 ? $_FILES[$key]['tmp_name'] : $_FILES[$key]['tmp_name'][$index];
     $response['upload_src'] = $src;
     $response['upload_dest'] = $dest;
 
     //$date = date('Y-m-d H:i:s');
-    $timestamp = time();
+    //$timestamp = time();
+    $timestamp = round(microtime(true) * 1000);
     $randomFileName = "{$timestamp}-{$clientName}";
     return move_uploaded_file($src, "{$dest}{$randomFileName}");
 }

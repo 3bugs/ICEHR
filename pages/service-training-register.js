@@ -918,7 +918,7 @@ export default class ServiceTrainingRegister extends React.Component {
                 currentFormIsValid = false;
             }
             if (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) {
-                errors[REGISTER_TRAINEE_ORGANIZATION_TYPE] = 'กรุณากรอกเลือกประเภทหน่วยงาน';
+                errors[REGISTER_TRAINEE_ORGANIZATION_TYPE] = 'กรุณาเลือกประเภทหน่วยงาน';
                 currentFormIsValid = false;
             } else if (parseInt(fields[REGISTER_TRAINEE_ORGANIZATION_TYPE]) === ORGANIZATION_TYPE_OTHER
                 && (!fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM] || fields[REGISTER_TRAINEE_ORGANIZATION_TYPE_CUSTOM].trim().length === 0)) {

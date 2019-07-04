@@ -3,6 +3,7 @@ require_once '../include/head_php.inc';
 
 $courseId = $_GET['course_id'];
 $serviceType = $_GET['service_type'];
+
 if (!isset($serviceType)) {
     echo '<div style="color: red">ERROR: ไม่ได้ระบุ service type</div>';
     $db->close();
@@ -90,7 +91,42 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
+$imageList = array();
+$pdfList = array();
 if (isset($courseId)) {
+    $sql = "SELECT * FROM course_asset WHERE course_id = $courseId";
+    if ($result = $db->query($sql)) {
+        while ($row = $result->fetch_assoc()) {
+            $asset = array();
+            $asset['id'] = (int)$row['id'];
+            $asset['title'] = $row['title'];
+            $asset['file_name'] = $row['file_name'];
+            $asset['type'] = $row['type'];
+            $asset['created_at'] = $row['created_at'];
+
+            $prefixPosition = strpos($row['file_name'], '-');
+            $extensionPosition = strpos($row['file_name'], '.');
+            $asset['title'] = substr(
+                $row['file_name'],
+                $prefixPosition + 1,
+                $extensionPosition - ($prefixPosition + 1)
+            );
+
+            if ($row['type'] === 'image') {
+                array_push($imageList, $asset);
+            } else if ($row['type'] === 'pdf') {
+                array_push($pdfList, $asset);
+            }
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
+}
+
+/*if (isset($courseId)) {
     $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, 
                    coordinator_email, coordinator_phone 
             FROM course_registration 
@@ -144,20 +180,27 @@ if (isset($courseId)) {
         $db->close();
         exit();
     }
-}
+}*/
 
 ?>
     <!DOCTYPE html>
     <html lang="th">
     <head>
         <?php require_once('../include/head.inc'); ?>
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <!--Lightbox-->
+        <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
+
         <!-- Material Design Bootstrap -->
         <!--<link href="../lib/mdb/mdb.min.css" rel="stylesheet">-->
         <!-- Material Design Bootstrap -->
         <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/css/mdb.min.css" rel="stylesheet">-->
+
         <style>
             input[type="file"] {
-                display: none;
+                margin-bottom: 15px;
+                /*display: none;*/
             }
 
             .custom-file-upload {
@@ -190,7 +233,13 @@ if (isset($courseId)) {
 
             <!-- Main content -->
             <section class="content">
-                <form id="formAddCourse">
+                <form id="formAddCourse"
+                      action="../api/api.php/<?php echo(isset($courseId) ? 'update_course' : 'add_course'); ?>"
+                      method="post">
+
+                    <input type="hidden" name="courseId"
+                           value="<?php echo $courseId; ?>"/>
+
                     <div class="row">
                         <div class="col-xs-12">
 
@@ -220,6 +269,7 @@ if (isset($courseId)) {
                                                     <i class="fa fa-font"></i>
                                                 </span>
                                                     <select id="selectCourseMaster" class="form-control" required
+                                                            name="courseMasterId"
                                                             oninvalid="this.setCustomValidity('เลือกชื่อหลักสูตร')"
                                                             oninput="this.setCustomValidity('')">
                                                         <option value="" disabled selected>-- เลือกชื่อหลักสูตร --</option>
@@ -255,6 +305,7 @@ if (isset($courseId)) {
                                                         </span>
                                                         <input type="number" class="form-control"
                                                                id="inputBatchNumber"
+                                                               name="batchNumber"
                                                                value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
                                                                placeholder="กรอกเลขรุ่น" required
                                                                oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
@@ -278,6 +329,7 @@ if (isset($courseId)) {
                                             </span>
                                                     <input type="number" class="form-control"
                                                            id="inputTraineeLimit"
+                                                           name="traineeLimit"
                                                            value="<?php echo(!empty($course) ? $course['trainee_limit'] : ''); ?>"
                                                            placeholder="กรอกจำนวนผู้เข้าอบรมที่รับได้" required
                                                            oninvalid="this.setCustomValidity('กรอกจำนวนผู้เข้าอบรมที่รับได้')"
@@ -297,6 +349,7 @@ if (isset($courseId)) {
                                                         </span>
                                                         <input type="number" class="form-control"
                                                                id="inputApplicationFee"
+                                                               name="applicationFee"
                                                                value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
                                                                placeholder="กรอกค่าสมัคร" required
                                                                oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
@@ -316,6 +369,7 @@ if (isset($courseId)) {
                                                     </div>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputBeginDate"
+                                                           name="beginDate"
                                                            placeholder="เลือกวันอบรมวันแรก" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันแรก')"
                                                            oninput="this.setCustomValidity('')">
@@ -331,6 +385,7 @@ if (isset($courseId)) {
                                                     </div>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputEndDate"
+                                                           name="endDate"
                                                            placeholder="เลือกวันอบรมวันสุดท้าย" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันสุดท้าย')"
                                                            oninput="this.setCustomValidity('')">
@@ -350,6 +405,7 @@ if (isset($courseId)) {
                                             </span>
                                                     <input type="text" class="form-control"
                                                            id="inputPlace"
+                                                           name="place"
                                                            value="<?php echo(!empty($course) ? $course['place'] : ''); ?>"
                                                            placeholder="กรอกสถานที่อบรม" required
                                                            oninvalid="this.setCustomValidity('กรอกสถานที่อบรม')"
@@ -369,6 +425,7 @@ if (isset($courseId)) {
                                                     <i class="fa fa-user-secret"></i>
                                                 </span>
                                                     <select id="selectResponsibleUser" class="form-control" required
+                                                            name="responsibleUserId"
                                                             oninvalid="this.setCustomValidity('เลือกผู้รับผิดชอบโครงการ')"
                                                             oninput="this.setCustomValidity('')">
                                                         <option value="" disabled selected>-- เลือกผู้รับผิดชอบโครงการ --</option>
@@ -403,7 +460,7 @@ if (isset($courseId)) {
                             <!-- /.box -->
 
                             <!--content editor-->
-                            <div class="box box-info">
+                            <div class="box box-warning">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">รายละเอียดเพิ่มเติม
                                         <small>หลักการและเหตุผล / วัตถุประสงค์ / เนื้อหาการอบรม</small>
@@ -419,7 +476,8 @@ if (isset($courseId)) {
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body pad">
-                                <textarea id="editor" rows="20" cols="80">
+                                <textarea id="editor" rows="20" cols="80"
+                                          name="details">
                                     <?php echo(!empty($course) ? $course['details'] : ''); ?>
                                 </textarea>
                                 </div>
@@ -427,7 +485,7 @@ if (isset($courseId)) {
                             <!-- /.box -->
 
                             <!--pictures gallery-->
-                            <div class="box box-success">
+                            <div class="box box-warning">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">Picture Gallery
                                         <!--<small>อัพโหลดรูปภาพ</small>-->
@@ -443,19 +501,89 @@ if (isset($courseId)) {
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body pad">
-                                    <label for="file-upload" class="custom-file-upload">
+                                    <!--<label for="file-upload" class="custom-file-upload">
                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลดรูปภาพ
-                                    </label>
-                                    <input id="file-upload" type="file"/>
-                                    <div style="margin-top: 10px">
-                                        <img src="../images/image-test.png" style="width: 200px; margin: 0 0 10px 10px"/>
+                                    </label>-->
+
+                                    <!-- Custom Tabs -->
+                                    <div class="nav-tabs-custom">
+                                        <ul class="nav nav-tabs">
+                                            <?php
+                                            if (isset($courseId)) {
+                                                ?>
+                                                <li class="active"><a href="#image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน <strong>(<?php echo sizeof($imageList); ?>)</strong></a></li>
+                                                <?php
+                                            }
+                                            ?>
+                                            <li <?php echo(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#image_tab_2" data-toggle="tab">เพิ่มรูปภาพ</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <?php
+                                            if (isset($courseId)) {
+                                                ?>
+                                                <!--ตารางรูปภาพ-->
+                                                <div class="tab-pane active" id="image_tab_1">
+                                                    <table id="tableImage" class="table table-bordered table-striped">
+                                                        <thead>
+                                                        <tr>
+                                                            <!--<th style="text-align: center; width: 40%;">ชื่อ</th>-->
+                                                            <th style="text-align: center; width: 80%;">รูปภาพ</th>
+                                                            <th style="text-align: center; width: 20%;">อัพโหลดเมื่อ</th>
+                                                            <th style="text-align: center;">จัดการ</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <?php
+                                                        foreach ($imageList as $image) {
+                                                            $createdAt = $image['created_at'];
+                                                            $dateTimePart = explode(' ', $createdAt);
+                                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                                                            $timePart = explode(':', $dateTimePart[1]);
+                                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                                                            $displayDateTime = "$displayDate<br>$displayTime";
+                                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
+                                                            ?>
+                                                            <tr>
+                                                                <!--<td><?php /*echo $image['title']; */ ?></td>-->
+                                                                <td style="text-align: center">
+                                                                    <a href="<?php echo(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>" data-lightbox="courseImage">
+                                                                        <img src="<?php echo(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>"
+                                                                             height="120px">
+                                                                    </a>
+                                                                </td>
+                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-danger"
+                                                                            style="margin-left: 6px; margin-right: 6px"
+                                                                            onClick="onClickDeleteAsset(this, <?php echo $image['id']; ?>, 'รูปภาพ')">
+                                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                                        ลบ
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                            <!--เพิ่มรูปภาพใหม่-->
+                                            <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="image_tab_2">
+                                                <input id="image-upload" type="file" accept="image/*" multiple
+                                                       name="imageFiles[]" style="margin-top: 10px"/>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
                             <!-- /.box -->
 
                             <!--pdf gallery-->
-                            <div class="box box-danger">
+                            <div class="box box-warning">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">เอกสาร PDF
                                         <!--<small></small>-->
@@ -472,28 +600,96 @@ if (isset($courseId)) {
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body pad">
-                                    <label for="file-upload" class="custom-file-upload">
+                                    <!--<label for="file-upload" class="custom-file-upload">
                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
-                                    </label>
-                                    <input id="file-upload" type="file"/>
-                                    <div style="margin-top: 10px">
-                                        <a class="btn btn-app">
-                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 1
-                                        </a>
-                                        <a class="btn btn-app">
-                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 2
-                                        </a>
-                                        <a class="btn btn-app">
-                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 3
-                                        </a>
-                                        <a class="btn btn-app">
-                                            <i class="fa fa-file-pdf-o"></i> ทดสอบ PDF 4
-                                        </a>
+                                    </label>-->
+
+                                    <!-- Custom Tabs -->
+                                    <div class="nav-tabs-custom">
+                                        <ul class="nav nav-tabs">
+                                            <?php
+                                            if (isset($courseId)) {
+                                                ?>
+                                                <li class="active"><a href="#pdf_tab_1" data-toggle="tab">PDF ปัจจุบัน <strong>(<?php echo sizeof($pdfList); ?>)</strong></a></li>
+                                                <?php
+                                            }
+                                            ?>
+                                            <li <?php echo(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#pdf_tab_2" data-toggle="tab">เพิ่ม PDF</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <?php
+                                            if (isset($courseId)) {
+                                                ?>
+                                                <!--ตาราง PDF-->
+                                                <div class="tab-pane active" id="pdf_tab_1">
+                                                    <table id="tablePdf" class="table table-bordered table-striped">
+                                                        <thead>
+                                                        <tr>
+                                                            <!--<th style="text-align: center; width: 40%;">ชื่อ</th>-->
+                                                            <th style="text-align: center; width: 50%;">ชื่อ</th>
+                                                            <th style="text-align: center; width: 30%;">PDF</th>
+                                                            <th style="text-align: center; width: 20%;">อัพโหลดเมื่อ</th>
+                                                            <th style="text-align: center;">จัดการ</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <?php
+                                                        foreach ($pdfList as $pdf) {
+                                                            /*$fileName = $pdf['file_name'];
+                                                            $prefixPosition = strpos($fileName, '-');
+                                                            $extensionPosition = strpos($fileName, '.');
+                                                            $title = substr($fileName, $prefixPosition + 1, $extensionPosition - ($prefixPosition + 1));*/
+
+                                                            $createdAt = $pdf['created_at'];
+                                                            $dateTimePart = explode(' ', $createdAt);
+                                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                                                            $timePart = explode(':', $dateTimePart[1]);
+                                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                                                            $displayDateTime = "$displayDate<br>$displayTime";
+                                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
+                                                            ?>
+                                                            <tr>
+                                                                <!--<td><?php /*echo $image['title']; */ ?></td>-->
+                                                                <td>
+                                                                    <?php echo $pdf['title']; ?>
+                                                                </td>
+                                                                <td style="text-align: center; cursor: pointer"
+                                                                    onClick="window.open('<?php echo(UPLOAD_DIR_COURSE_ASSETS . $pdf['file_name']); ?>', '_blank')">
+                                                                    <a href="javascript:void(0)">
+                                                                        <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
+                                                                    </a>
+                                                                </td>
+                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-danger"
+                                                                            style="margin-left: 6px; margin-right: 6px"
+                                                                            onClick="onClickDeleteAsset(this, <?php echo $pdf['id']; ?>, 'เอกสาร PDF ')">
+                                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                                        ลบ
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                            <!--เพิ่ม PDF ใหม่-->
+                                            <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="pdf_tab_2">
+                                                <input id="pdf-upload" type="file" accept="application/pdf" multiple
+                                                       name="pdfFiles[]" style="margin-top: 10px"/>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <!-- /.box -->
 
+                            <!--ปุ่ม "บันทึก"-->
                             <div class="row">
                                 <div class="col-12 text-center">
                                     <div id="divLoading" style="text-align: center; margin-bottom: 10px;">
@@ -512,6 +708,7 @@ if (isset($courseId)) {
                     </div>
                     <!-- /.row -->
                 </form>
+
             </section>
             <!-- /.content -->
         </div>
@@ -565,15 +762,193 @@ if (isset($courseId)) {
         });
 
         $(document).ready(function () {
+            lightbox.option({
+                fadeDuration: 500,
+                imageFadeDuration: 500,
+                resizeDuration: 500,
+            });
+
+            $('#tableImage').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                order: [[1, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
+            $('#tablePdf').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                order: [[2, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
+
             $('#formAddCourse #divLoading').hide();
 
             $('#formAddCourse').submit(event => {
                 event.preventDefault();
-                doAddCourse();
+                doAddEditCourse();
             });
         });
 
-        function doAddCourse() {
+        function doAddEditCourse() {
+            // อัพเดท content ของ ckeditor ไปยัง textarea
+            CKEDITOR.instances.editor.updateElement();
+
+            $('#formAddCourse #buttonSave').prop('disabled', true);
+            $('#formAddCourse #divLoading').show();
+
+            $('#formAddCourse').ajaxSubmit({
+                dataType: 'json',
+                success: (data, statusText) => {
+                    //alert(data.error_message);
+                    $('#formAddCourse #buttonSave').prop('disabled', false);
+                    $('#formAddCourse #divLoading').hide();
+
+                    if (data.error_code === 0) {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                    <?php
+                                    if (!isset($courseId)) {
+                                    ?>
+                                    window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                    <?php
+                                    } else {
+                                    ?>
+                                    window.location.reload(true);
+                                    <?php
+                                    }
+                                    ?>
+                                }
+                            }]
+                        });
+                    } else {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                }
+                            }]
+                        });
+                    }
+                },
+                error: () => {
+                    $('#formAddCourse #buttonSave').prop('disabled', false);
+                    $('#formAddCourse #divLoading').hide();
+
+                    BootstrapDialog.show({
+                        title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            });
+        }
+
+        function onClickDeleteAsset(element, assetId, assetType) {
+            BootstrapDialog.show({
+                title: 'ลบ' + assetType,
+                message: `ยืนยันลบ${assetType}นี้?`,
+                buttons: [{
+                    label: 'ลบ',
+                    action: function (self) {
+                        doDeleteAsset(assetId, assetType);
+                        self.close();
+                    },
+                    cssClass: 'btn-primary'
+                }, {
+                    label: 'ยกเลิก',
+                    action: function (self) {
+                        self.close();
+                    }
+                }]
+            });
+        }
+
+        function doDeleteAsset(assetId, assetType) {
+            $.post(
+                '../api/api.php/delete_course_asset',
+                {
+                    assetId: assetId,
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: `ลบ${assetType} - ผิดพลาด`,
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: `ลบ${assetType} - ผิดพลาด`,
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                        }
+                    }]
+                });
+            });
+        }
+
+        function doAddEditCourse_old() {
+            /*alert(CKEDITOR.instances.editor.getData() + '\n\n' + $('#editor').text());
+            return;*/
+
             let beginDate = $('#inputBeginDate').val();
             let beginDatePart = beginDate.split('/');
             beginDate = beginDatePart[2] + '-' + beginDatePart[1] + '-' + beginDatePart[0];
@@ -616,6 +991,10 @@ if (isset($courseId)) {
                                 ?>
                                 window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
                                 <?php
+                                } else {
+                                ?>
+                                window.location.reload(true);
+                                <?php
                                 }
                                 ?>
                             }
@@ -655,6 +1034,14 @@ if (isset($courseId)) {
     <?php require_once('../include/foot.inc'); ?>
     <!-- CK Editor -->
     <script src="../bower_components/ckeditor/ckeditor.js"></script>
+    <!-- DataTables -->
+    <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--jQuery Form Plugin-->
+    <script src="../dist/js/jquery.form.js"></script>
+    <!--Lightbox-->
+    <script src="../dist/lightbox/js/lightbox.js"></script>
+
     <!-- MDB core JavaScript -->
     <!--<script type="text/javascript" src="../lib/mdb/mdb.min.js"></script>-->
     </body>

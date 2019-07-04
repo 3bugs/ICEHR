@@ -245,9 +245,9 @@ if (isset($id)) {
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="pdf_tab_1">
                                                     <div style="padding: 5px">
-                                                        <a target="_blank" href="../uploads/academic_papers/<?php echo $academicPaper['file_name']; ?>">เปิดในหน้าจอใหม่</a>
+                                                        <a target="_blank" href="<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>">เปิดในหน้าจอใหม่</a>
                                                     </div>
-                                                    <embed src="../uploads/academic_papers/<?php echo $academicPaper['file_name']; ?>"
+                                                    <embed src="<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>"
                                                            width="600px" height="450px">
                                                 </div>
                                                 <!-- /.tab-pane -->
@@ -256,7 +256,7 @@ if (isset($id)) {
                                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF ใหม่
                                                     </label>-->
                                                     <input id="file-upload" name="file"
-                                                           type="file"
+                                                           type="file" accept="application/pdf"
                                                            style="margin-top: 10px"
                                                            onChange="getFileData(this);"/>&nbsp;<!--<span id="spanFileName">ยังไม่ได้เลือกไฟล์</span>-->
                                                     <div style="color: red; margin: 5px">
@@ -279,7 +279,7 @@ if (isset($id)) {
                                             <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
                                         </label>-->
                                         <input id="file-upload" name="file" required
-                                               type="file"
+                                               type="file" accept="application/pdf"
                                                style="margin-top: 10px"
                                                onChange="getFileData(this);"
                                                oninvalid="this.setCustomValidity('เลือกไฟล์ PDF')"

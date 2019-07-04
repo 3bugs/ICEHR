@@ -432,10 +432,17 @@ doGetCourse = (req, res, db) => {
     . " ORDER BY c.begin_date";
     * */
 
-    const selectClause = 'SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, cm.title, cm.service_type, u.first_name, u.last_name, u.phone_office, u.email FROM course c INNER JOIN course_master cm INNER JOIN user u ON c.course_master_id = cm.id AND c.responsible_user_id = u.id ';
+    const selectClause = `SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, 
+                                 cm.title, cm.service_type, 
+                                 u.first_name, u.last_name, u.phone_office, u.email 
+                          FROM course c 
+                              INNER JOIN course_master cm 
+                                  ON c.course_master_id = cm.id 
+                              INNER JOIN user u 
+                                  ON c.responsible_user_id = u.id`;
     let whereClause = ' WHERE cm.service_type = ? ';
 
-    if (inputCourseId !== undefined) {
+    if (inputCourseId != null) {
         whereClause += ' AND c.id = ? ';
     }
 
@@ -443,7 +450,7 @@ doGetCourse = (req, res, db) => {
     const yearString = String(inputYear);
     const monthYearString = `${yearString}-${monthString}-%`;
 
-    if (inputMonth !== undefined && inputYear !== undefined) {
+    if (inputMonth != null && inputYear != null) {
         whereClause += ' AND c.begin_date LIKE ? ';
     }
 
@@ -452,13 +459,14 @@ doGetCourse = (req, res, db) => {
 
     db.query(
         sql,
-        inputCourseId === undefined ? ((inputMonth === undefined || inputYear === undefined) ? [inputServiceType] : [inputServiceType, monthYearString]) : [inputServiceType, inputCourseId],
+        inputCourseId == null ? ((inputMonth == null || inputYear == null) ? [inputServiceType] : [inputServiceType, monthYearString]) : [inputServiceType, inputCourseId],
 
         function (err, results, fields) {
             if (err) {
                 res.send({
                     error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
                 });
+                db.end();
             } else {
                 /*
                 * ถ้าจะแปลง js date ไปเป็น mysql date format ใช้ .toISOString().slice(0, 19).replace('T', ' ')
@@ -485,16 +493,57 @@ doGetCourse = (req, res, db) => {
                     });
                 });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    sql,
-                    monthYearString,
-                    dataList
-                });
+                /*ถ้าเป็นหน้า course details จะ query assets ด้วย*/
+                if (inputCourseId != null) {
+                    db.query(
+                        `SELECT title, file_name, type, created_at FROM course_asset WHERE course_id = ?`,
+                        [inputCourseId],
+                        function (err, results, fields) {
+                            if (err) {
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                                });
+                            } else {
+                                const assetList = [];
+                                results.forEach(row => {
+                                    const fileName = row.file_name;
+                                    let prefixPosition = fileName.indexOf('-');
+                                    let extensionPosition = fileName.lastIndexOf('.');
+                                    let title = fileName.substring(prefixPosition + 1, extensionPosition);
+
+                                    assetList.push({
+                                        title: title, //row.title
+                                        fileName: fileName,
+                                        type: row.type,
+                                        createdAt: row.created_at,
+                                    });
+                                });
+
+                                dataList[0].assets = assetList;
+
+                                res.send({
+                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                    sql,
+                                    monthYearString,
+                                    dataList
+                                });
+                            }
+                        }
+                    );
+                    db.end();
+                } else {
+                    res.send({
+                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                        sql,
+                        monthYearString,
+                        dataList
+                    });
+                    db.end();
+                }
             }
         }
     );
-    db.end();
+    //db.end();
 };
 
 doRegisterCourse = (req, res, db) => {

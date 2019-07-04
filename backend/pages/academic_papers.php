@@ -178,7 +178,7 @@ if ($result = $db->query($sql)) {
                                                 <td style="text-align: center"><?php echo $academicPaper['year_published']; ?></td>
                                                 <td><?php echo "{$academicPaper['first_name']} {$academicPaper['last_name']}"; ?></td>
                                                 <td style="text-align: center; cursor: pointer"
-                                                    onClick="window.open('../uploads/academic_papers/<?php echo $academicPaper['file_name']; ?>', '_blank')">
+                                                    onClick="window.open('<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>', '_blank')">
                                                     <a target="_blank" href="javascript:void(0)">
                                                         <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
                                                     </a>
