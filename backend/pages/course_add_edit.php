@@ -126,6 +126,43 @@ if (isset($courseId)) {
     }
 }
 
+$feeList = array();
+if (isset($courseId)) {
+    $sql = "SELECT * FROM course_fee WHERE course_id = $courseId";
+    if ($result = $db->query($sql)) {
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $fee = array();
+                $fee['id'] = (int)$row['id'];
+                $fee['title'] = $row['title'];
+                $fee['amount'] = (int)$row['amount'];
+                $fee['created_at'] = $row['created_at'];
+
+                array_push($feeList, $fee);
+            }
+        } else {
+            $fee = array();
+            $fee['id'] = 0;
+            $fee['title'] = '';
+            $fee['amount'] = '';
+            $fee['created_at'] = '';
+            array_push($feeList, $fee);
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
+} else {
+    $fee = array();
+    $fee['id'] = 0;
+    $fee['title'] = '';
+    $fee['amount'] = '';
+    $fee['created_at'] = '';
+    array_push($feeList, $fee);
+}
+
 /*if (isset($courseId)) {
     $sql = "SELECT id, form_number, status, created_at, coordinator_first_name, coordinator_last_name, 
                    coordinator_email, coordinator_phone 
@@ -212,6 +249,24 @@ if (isset($courseId)) {
 
             .custom-file-upload:hover {
                 background: #f4f4f4;
+            }
+
+            .nav-tabs {
+                background-color:#f8f8f8;
+            }
+            .tab-content {
+                /*background-color:#ccc;
+                color:#00ff00;
+                padding:5px*/
+            }
+            .nav-tabs > li > a {
+                /*border: medium none;*/
+            }
+            .nav-tabs > li > a:hover {
+                /*background-color: #ccc !important;
+                border: medium none;
+                border-radius: 0;
+                color:#fff;*/
             }
         </style>
     </head>
@@ -484,11 +539,11 @@ if (isset($courseId)) {
                             </div>
                             <!-- /.box -->
 
-                            <!--pictures gallery-->
+                            <!--ตารางราคา-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">Picture Gallery
-                                        <!--<small>อัพโหลดรูปภาพ</small>-->
+                                    <h3 class="box-title">ตารางราคา
+                                        <small>ราคาเต็ม / Early Bird / ราคาสำหรับบุคลากร ฯลฯ</small>
                                     </h3>
                                     <!-- tools box -->
                                     <div class="pull-right box-tools">
@@ -501,6 +556,97 @@ if (isset($courseId)) {
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body pad">
+                                    <?php
+                                    if (isset($courseId) && sizeof($feeList) === 1 && $feeList[0]['title'] === '') {
+                                        ?>
+                                        <div class="callout callout-danger" style="margin-top: 10px">
+                                            <p>ยังไม่มีรายการราคา!</p>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
+
+                                    <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                        <li>รายการราคาที่เพิ่ม/ลบ/แก้ไข จะถูกบันทึกลงฐานข้อมูลจริง หลังจากกดปุ่ม "บันทึก"</li>
+                                    </ul>
+
+                                    <table id="tableFee" class="table table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th style="text-align: center; width: 80%;">ข้อความ</th>
+                                            <th style="text-align: center; width: 20%;">ราคา</th>
+                                            <th style="text-align: center;">จัดการ</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        <?php
+                                        foreach ($feeList as $fee) {
+                                            ?>
+                                            <tr id="trFeeRow">
+                                                <td style="">
+                                                    <input type="text" class="form-control"
+                                                           id="inputFeeTitle"
+                                                           name="feeTitle[]"
+                                                           value="<?php echo $fee['title']; ?>"
+                                                           placeholder="กรอกข้อความ" required
+                                                           oninvalid="this.setCustomValidity('กรอกข้อความสำหรับรายการราคานี้')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </td>
+                                                <td style="">
+                                                    <input type="number" class="form-control"
+                                                           style="text-align: right"
+                                                           id="inputFeeAmount"
+                                                           name="feeAmount[]"
+                                                           value="<?php echo $fee['amount']; ?>"
+                                                           placeholder="กรอกราคา">
+                                                </td>
+                                                <td style="">
+                                                    <button type="button" class="btn btn-danger removeFeeRow"
+                                                            style="margin-left: 6px; margin-right: 6px"
+                                                            onClick="onClickDeleteFee(this)">
+                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                        ลบ
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+
+                                        </tbody>
+                                    </table>
+
+                                    <div class="row" style="margin: 10px">
+                                        <div class="col-12" style="text-align: center">
+                                            <button type="button" class="btn btn-success"
+                                                    id="buttonAddFeeRow">
+                                                <span class="fa fa-plus"></span>&nbsp;
+                                                เพิ่มรายการราคา
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
+                            <!--รูปภาพ-->
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">รูปภาพ
+                                        <!--<small>อัพโหลดรูปภาพ</small>-->
+                                    </h3>
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad" style="background: #f8f8f8">
                                     <!--<label for="file-upload" class="custom-file-upload">
                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลดรูปภาพ
                                     </label>-->
@@ -523,6 +669,15 @@ if (isset($courseId)) {
                                                 ?>
                                                 <!--ตารางรูปภาพ-->
                                                 <div class="tab-pane active" id="image_tab_1">
+                                                    <?php
+                                                    if (sizeof($imageList) === 0) {
+                                                        ?>
+                                                        <div class="callout callout-danger" style="margin-top: 10px">
+                                                            <p>ยังไม่มีรูปภาพ!</p>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                     <table id="tableImage" class="table table-bordered table-striped">
                                                         <thead>
                                                         <tr>
@@ -572,8 +727,15 @@ if (isset($courseId)) {
                                             ?>
                                             <!--เพิ่มรูปภาพใหม่-->
                                             <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="image_tab_2">
+                                                <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                    <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                    <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
+                                                    <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                </ul>
                                                 <input id="image-upload" type="file" accept="image/*" multiple
-                                                       name="imageFiles[]" style="margin-top: 10px"/>
+                                                       name="imageFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <div id="image-upload-preview"
+                                                     style="background: #efffd1; padding: 10px;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -582,10 +744,10 @@ if (isset($courseId)) {
                             </div>
                             <!-- /.box -->
 
-                            <!--pdf gallery-->
+                            <!--เอกสารดาวน์โหลด-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">เอกสาร PDF
+                                    <h3 class="box-title">เอกสารดาวน์โหลด (PDF)
                                         <!--<small></small>-->
                                     </h3>
 
@@ -599,7 +761,7 @@ if (isset($courseId)) {
                                     <!-- /. tools -->
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body pad">
+                                <div class="box-body pad" style="background: #f8f8f8">
                                     <!--<label for="file-upload" class="custom-file-upload">
                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
                                     </label>-->
@@ -622,6 +784,15 @@ if (isset($courseId)) {
                                                 ?>
                                                 <!--ตาราง PDF-->
                                                 <div class="tab-pane active" id="pdf_tab_1">
+                                                    <?php
+                                                    if (sizeof($pdfList) === 0) {
+                                                        ?>
+                                                        <div class="callout callout-danger" style="margin-top: 10px">
+                                                            <p>ยังไม่มีเอกสารดาวน์โหลด!</p>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                     <table id="tablePdf" class="table table-bordered table-striped">
                                                         <thead>
                                                         <tr>
@@ -680,8 +851,15 @@ if (isset($courseId)) {
                                             ?>
                                             <!--เพิ่ม PDF ใหม่-->
                                             <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="pdf_tab_2">
+                                                <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                    <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                    <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
+                                                    <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                </ul>
                                                 <input id="pdf-upload" type="file" accept="application/pdf" multiple
-                                                       name="pdfFiles[]" style="margin-top: 10px"/>
+                                                       name="pdfFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <ul id="pdf-upload-preview"
+                                                    style="background: #efffd1; padding-top: 10px; padding-bottom: 10px"></ul>
                                             </div>
                                         </div>
                                     </div>
@@ -768,6 +946,37 @@ if (isset($courseId)) {
                 resizeDuration: 500,
             });
 
+            $('#buttonAddFeeRow').on('click', function () {
+                const feeRow = $('#trFeeRow');
+                const newRow = feeRow.clone();
+                newRow.find('input#inputFeeTitle').val('');
+                newRow.find('input#inputFeeAmount').val('');
+                feeRow.parent().append(newRow);
+            });
+
+            $('#tableFee_').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                //order: [[1, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
             $('#tableImage').DataTable({
                 stateSave: false,
                 //stateDuration: -1, // sessionStorage
@@ -821,7 +1030,92 @@ if (isset($courseId)) {
                 event.preventDefault();
                 doAddEditCourse();
             });
+
+            /*$("#image-upload").change(function() {
+                readURL(this);
+            });*/
         });
+
+        /*function readURL(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#image-upload-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }*/
+
+        $(function () {
+            $('#image-upload-preview').hide();
+            $('#pdf-upload-preview').hide();
+
+            const imagesPreview = function (input, placeToInsertImagePreview) {
+                $(placeToInsertImagePreview).empty();
+                $(placeToInsertImagePreview).hide();
+
+                if (input.files) {
+                    let fileCount = input.files.length;
+
+                    for (let i = 0; i < fileCount; i++) {
+                        $(placeToInsertImagePreview).show();
+                        let reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            $($.parseHTML('<img style="width: auto; height: 120px; margin: 3px">')).attr('src', event.target.result).appendTo(placeToInsertImagePreview);
+                        };
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+            };
+
+            $('#image-upload').on('change', function () {
+                imagesPreview(this, 'div#image-upload-preview');
+            });
+
+            const pdfPreview = function (input, placeToInsertPdfPreview) {
+                $(placeToInsertPdfPreview).empty();
+                $(placeToInsertPdfPreview).hide();
+
+                if (input.files) {
+                    let fileCount = input.files.length;
+
+                    for (let i = 0; i < fileCount; i++) {
+                        $(placeToInsertPdfPreview).show();
+                        $($.parseHTML('<li style="">' + input.files[i].name + '</li>')).appendTo(placeToInsertPdfPreview);
+                    }
+                }
+            };
+
+            $('#pdf-upload').on('change', function () {
+                pdfPreview(this, 'ul#pdf-upload-preview');
+            });
+        });
+
+        function onClickDeleteFee(element) {
+            if ($(element).closest('tbody').children('tr').length > 1) {
+                BootstrapDialog.show({
+                    title: 'ลบรายการราคา',
+                    message: `ยืนยันลบรายการราคานี้?\n\nหมายเหตุ: การลบจะยังไม่มีผลกับฐานข้อมูลจริง จนกว่าจะกดปุ่มบันทึก`,
+                    buttons: [{
+                        label: 'ลบ',
+                        action: function (self) {
+                            $(element).closest('tr').remove();
+                            self.close();
+                        },
+                        cssClass: 'btn-primary'
+                    }, {
+                        label: 'ยกเลิก',
+                        action: function (self) {
+                            self.close();
+                        }
+                    }]
+                });
+            } else {
+                alert('ลบไม่ได้, ต้องมีราคาอย่างน้อย 1 รายการ')
+            }
+
+        }
 
         function doAddEditCourse() {
             // อัพเดท content ของ ckeditor ไปยัง textarea
@@ -893,7 +1187,7 @@ if (isset($courseId)) {
         function onClickDeleteAsset(element, assetId, assetType) {
             BootstrapDialog.show({
                 title: 'ลบ' + assetType,
-                message: `ยืนยันลบ${assetType}นี้?`,
+                message: `การลบ${assetType}จะมีผลกับฐานข้อมูลทันที!\n\nยืนยันลบ${assetType}นี้?`,
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {

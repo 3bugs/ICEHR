@@ -255,6 +255,26 @@ function doAddCourse()
     if ($insertCourseResult = $db->query($sql)) {
         $insertId = $db->insert_id;
 
+        $feeValueList = null;
+        for ($i = 0; $i < sizeof($_POST['feeTitle']); $i++) {
+            $feeTitle = $db->real_escape_string($_POST['feeTitle'][$i]);
+            $feeAmount = $db->real_escape_string($_POST['feeAmount'][$i]);
+
+            $feeValueList .= "($insertId, '$feeTitle', $feeAmount)" . ($i === sizeof($_POST['feeTitle']) - 1 ? '' : ',');
+        }
+        if ($feeValueList) {
+            $sql = "INSERT INTO course_fee (course_id, title, amount) 
+                    VALUES $feeValueList";
+            if (!($db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลราคา: ' . $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+
         for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
             $fileName = null;
 
@@ -272,13 +292,14 @@ function doAddCourse()
                     VALUES ($insertId, null, '$fileName', 'image')";
             if (!($insertCourseAssetResult = $db->query($sql))) {
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ';
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ: ' . $db->error;
                 $response[KEY_ERROR_MESSAGE_MORE] = '';
 
                 $db->query('ROLLBACK');
                 return;
             }
         }
+
         for ($i = 0; $i < sizeof($_FILES[KEY_PDF_FILES]['name']); $i++) {
             $fileName = null;
 
@@ -296,7 +317,7 @@ function doAddCourse()
                     VALUES ($insertId, null, '$fileName', 'pdf')";
             if (!($insertCourseAssetResult = $db->query($sql))) {
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล PDF';
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล PDF: ' . $db->error;
                 $response[KEY_ERROR_MESSAGE_MORE] = '';
 
                 $db->query('ROLLBACK');
@@ -351,6 +372,36 @@ function doUpdateCourse()
         . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
         . " WHERE id = $courseId";
     if ($updateCourseResult = $db->query($sql)) {
+        $sql = "DELETE FROM course_fee WHERE course_id = $courseId";
+        if (!($db->query($sql))) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลราคา (1): ' . $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+            $db->query('ROLLBACK');
+            return;
+        }
+
+        $feeValueList = null;
+        for ($i = 0; $i < sizeof($_POST['feeTitle']); $i++) {
+            $feeTitle = $db->real_escape_string($_POST['feeTitle'][$i]);
+            $feeAmount = $db->real_escape_string($_POST['feeAmount'][$i]);
+
+            $feeValueList .= "($courseId, '$feeTitle', $feeAmount)" . ($i === sizeof($_POST['feeTitle']) - 1 ? '' : ',');
+        }
+        if ($feeValueList) {
+            $sql = "INSERT INTO course_fee (course_id, title, amount) 
+                    VALUES $feeValueList";
+            if (!($db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลราคา (2): ' . $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+
         for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
             $fileName = null;
 

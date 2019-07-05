@@ -255,17 +255,22 @@ if (isset($id)) {
                                                     <!--<label for="file-upload" class="custom-file-upload" style="margin: 20px 0;">
                                                         <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF ใหม่
                                                     </label>-->
+                                                    <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                        <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                        <li>ไฟล์ PDF ที่อัพโหลดใหม่ จะแทนที่ไฟล์ PDF ปัจจุบัน</li>
+                                                        <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                    </ul>
                                                     <input id="file-upload" name="file"
                                                            type="file" accept="application/pdf"
-                                                           style="margin-top: 10px"
+                                                           style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
                                                            onChange="getFileData(this);"/>&nbsp;<!--<span id="spanFileName">ยังไม่ได้เลือกไฟล์</span>-->
-                                                    <div style="color: red; margin: 5px">
+                                                    <!--<div style="color: red; margin: 5px">
                                                         <div style="margin-bottom: 5px"><u>หมายเหตุ</u>:</div>
                                                         <ul>
                                                             <li>PDF ที่อัพโหลดใหม่ จะแทนที่ PDF ปัจจุบัน</li>
                                                             <li>ต้องกดปุ่ม "บันทึก" ข้างล่าง จึงจะบันทึก PDF ที่อัพโหลดใหม่เข้าสู่ระบบ</li>
                                                         </ul>
-                                                    </div>
+                                                    </div>-->
                                                 </div>
                                                 <!-- /.tab-pane -->
                                             </div>

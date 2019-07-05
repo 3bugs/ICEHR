@@ -23,11 +23,11 @@ export default class Head extends React.Component {
                     <link rel="stylesheet" href="/static/css/input-radio-style.css"/>
                     {/*<link rel="stylesheet" href="/static/flexslider/flexslider.css" media="screen"/>*/}
 
-                    {/*<script src="/static/js/jquery-3.3.1.slim.min.js"/>
+                    <script src="/static/js/jquery-3.3.1.slim.min.js"/>
                     <script src="/static/js/jquery.min.js"/>
                     <script src="/static/js/jquery-ui.js"/>
                     <script src="/static/js/popper.min.js"/>
-                    <script src="/static/js/bootstrap.min.js"/>*/}
+                    <script src="/static/js/bootstrap.min.js"/>
 
                     {/*<script src="/static/flexslider/demo/js/modernizr.js"/>
                     <script defer src="/static/flexslider/jquery.flexslider.js"/>
