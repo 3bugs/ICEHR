@@ -33,7 +33,7 @@ if (isset($itemId)) {
     }
 
     /* Media Cover */
-    $sql_media_cover = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='cover_desktop' AND model_type='training_project_news'";    
+    $sql_media_cover = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='cover_desktop' AND model_type='news'";    
     if ($result = $db->query($sql_media_cover)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -51,7 +51,7 @@ if (isset($itemId)) {
     }
 
     /* Media Gallery */
-    $sql_media_gallery = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='gallery_desktop' AND model_type='training_project_news'";    
+    $sql_media_gallery = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='gallery_desktop' AND model_type='news'";    
     if ($result = $db->query($sql_media_gallery)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_all(MYSQLI_ASSOC);
@@ -165,21 +165,21 @@ function pathUrl($dir = __DIR__){
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>ข่าวโครงการฝึกอบรม
+                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>ข่าวประชาสัมพันธ์
                     <small>ข่าวประชาสัมพันธ์</small>
                 </h1>
             </section>
 
             <!-- Main content -->
             <section class="content">
-                <form id="formAddTrainingProjectNews" method="POST" enctype="multipart/form-data">
+                <form id="formAddNews" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-xs-12">
 
-                            <!--รายละเอียดข่าวโครงการฝึกอบรม-->
+                            <!--รายละเอียดข่าวประชาสัมพันธ์-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">รายละเอียดข่าวโครงการฝึกอบรม</h3>
+                                    <h3 class="box-title">รายละเอียดข่าวประชาสัมพันธ์</h3>
 
                                     <div class="box-tools pull-right">
                                         <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -192,11 +192,11 @@ function pathUrl($dir = __DIR__){
                                 <!-- /.box-header -->
                                 <div class="box-body">
 
-                                    <!--ชื่อข่าวโครงการฝึกอบรม-->
+                                    <!--ชื่อข่าวประชาสัมพันธ์-->
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="inputArticle">ชื่อข่าวโครงการฝึกอบรม:</label>
+                                                <label for="inputArticle">ชื่อข่าวประชาสัมพันธ์:</label>
                                                 <input type="text" name="title" value="<?php echo (!empty($item) ? $item['title']:''); ?>" maxlength="50" class="form-control">
                                             </div>
                                         </div>
@@ -708,7 +708,7 @@ function pathUrl($dir = __DIR__){
             });
             
 
-            $("#formAddTrainingProjectNews").validate({
+            $("#formAddNews").validate({
                 rules:{
                     title: {
                     required: true,
@@ -719,8 +719,8 @@ function pathUrl($dir = __DIR__){
                 },
                 messages: {
                     title: {
-                    required: "ต้องระบุชื่อข่าวโครงการฝึกอบรม",
-                    minlength: "ชื่อข่าวโครงการฝึกอบรม ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
+                    required: "ต้องระบุชื่อข่าวประชาสัมพันธ์",
+                    minlength: "ชื่อข่าวประชาสัมพันธ์ ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
                     },
                     inputBeginDate:{
                     required: "ต้องระบุวันที่เริ่มต้น",
@@ -731,7 +731,7 @@ function pathUrl($dir = __DIR__){
                 },
                 submitHandler: function(form) {
                     //console.log("Testdasdadsa");
-                    doAddTrainingProjectNews();
+                    doAddNews();
                 }
             });
 
@@ -795,7 +795,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม',
+                                title: 'ข่าวประชาสัมพันธ์',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -809,7 +809,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม - ผิดพลาด',
+                                title: 'ข่าวประชาสัมพันธ์ - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -851,7 +851,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม',
+                                title: 'ข่าวประชาสัมพันธ์',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -865,7 +865,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม - ผิดพลาด',
+                                title: 'ข่าวประชาสัมพันธ์ - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -891,90 +891,19 @@ function pathUrl($dir = __DIR__){
 
         });
 
-        function doAddTrainingProjectNews() {
-
-            // let beginDate = $('#inputBeginDate').val();
-            // let beginDatePart = beginDate.split('/');
-            // beginDate = beginDatePart[2] + '-' + beginDatePart[1] + '-' + beginDatePart[0];
-
-            // let endDate = $('#inputEndDate').val();
-            // let endDatePart = endDate.split('/');
-            // endDate = endDatePart[2] + '-' + endDatePart[1] + '-' + endDatePart[0];
+        function doAddNews() {
 
             $('textarea[name="description"]').text(CKEDITOR.instances.editor.getData());
-            var form = $('#formAddTrainingProjectNews')[0];
+            var form = $('#formAddNews')[0];
             var data = new FormData(form);
             //console.log(data.entries());
 
-            //console.log(CKEDITOR.instances.art_body.getData());
-
-            //CKEDITOR.instances.editor.updateElement('description');
-            //CKEDITOR.instances.editor.updateElement();
-            //console.log(CKEDITOR.instances.editor.getData());
-
-
-
-
-            //CKEDITOR.instances['description'].getData();
-            // $.post(
-            //     '../api/api.php/<?php echo(isset($itemId) ? 'update_training_project_news' : 'add_training_project_news'); ?>',
-            //     {
-            //         itemId: <?php echo(isset($itemId) ? "$itemId" : '0'); ?>,
-            //         //courseMasterId: $('#inputArticle').val(),
-            //         beginDate,
-            //         endDate,
-            //         details: CKEDITOR.instances.editor.getData(),
-            //         form:data
-            //     }
-            // ).done(function (data) {
-            //     console.log(data);
-
-            //     if (data.error_code === 0) {
-            //         BootstrapDialog.show({
-            //             title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?>',
-            //             message: data.error_message,
-            //             buttons: [{
-            //                 label: 'ปิด',
-            //                 action: function (self) {
-            //                     self.close();
-            //                 }
-            //             }]
-            //         });
-            //         //window.location.href = 'course.php';
-
-            //     } else {
-
-            //         BootstrapDialog.show({
-            //             title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
-            //             message: data.error_message,
-            //             buttons: [{
-            //                 label: 'ปิด',
-            //                 action: function (self) {
-            //                     self.close();
-            //                 }
-            //             }]
-            //         });
-
-            //     }
-                
-            // }).fail(function () {
-            //     BootstrapDialog.show({
-            //         title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
-            //         message: data.error_message,
-            //         buttons: [{
-            //             label: 'ปิด',
-            //             action: function (self) {
-            //                 self.close();
-            //             }
-            //         }]
-            //     });
-            // });
 
 
             $.ajax({
             type: "POST",
             enctype: 'multipart/form-data',
-            url: '../api/api.php/<?php echo(isset($itemId) ? 'update_training_project_news' : 'add_training_project_news'); ?>',
+            url: '../api/api.php/<?php echo(isset($itemId) ? 'update_news' : 'add_news'); ?>',
             data: data,
             processData: false,
             contentType: false,
@@ -986,7 +915,7 @@ function pathUrl($dir = __DIR__){
                 if (data.error_code === 0) {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?>',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวประชาสัมพันธ์' : 'เพิ่มข่าวประชาสัมพันธ์'); ?>',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -996,12 +925,12 @@ function pathUrl($dir = __DIR__){
                         }]
                     });
 
-                    window.location.href = 'training_project_news.php';
+                    window.location.href = 'news.php';
 
                 } else {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวประชาสัมพันธ์' : 'เพิ่มข่าวประชาสัมพันธ์'); ?> - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',

@@ -6,6 +6,11 @@ $item = array();
 $media_cover = array();
 $media_gallery = array();
 $document = array();
+$embed_example= "<iframe width='560' height='315' src='https://www.youtube.com/embed/9WZ-bO-wBxw' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>";
+
+// echo $embed_example;
+// exit();
+
 if (isset($itemId)) {
     $itemId = $db->real_escape_string($itemId);
     /* Item */
@@ -24,6 +29,8 @@ if (isset($itemId)) {
             $item['meta_title'] = $row['meta_title'];
             $item['meta_keywords'] = $row['meta_keywords'];
             $item['meta_description'] = $row['meta_description'];
+            $item['video_type'] = $row['video_type'];
+            $item['video_path'] = $row['video_path'];
         }
         $result->close();
     } else {
@@ -33,7 +40,7 @@ if (isset($itemId)) {
     }
 
     /* Media Cover */
-    $sql_media_cover = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='cover_desktop' AND model_type='training_project_news'";    
+    $sql_media_cover = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='cover_desktop' AND model_type='activity'";    
     if ($result = $db->query($sql_media_cover)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -51,7 +58,7 @@ if (isset($itemId)) {
     }
 
     /* Media Gallery */
-    $sql_media_gallery = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='gallery_desktop' AND model_type='training_project_news'";    
+    $sql_media_gallery = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='gallery_desktop' AND model_type='activity'";    
     if ($result = $db->query($sql_media_gallery)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_all(MYSQLI_ASSOC);
@@ -87,7 +94,6 @@ if (isset($itemId)) {
         $db->close();
         exit();
     }
-
 
 }
 
@@ -165,21 +171,21 @@ function pathUrl($dir = __DIR__){
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>ข่าวโครงการฝึกอบรม
-                    <small>ข่าวประชาสัมพันธ์</small>
+                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>ภาพกิจกรรม
+                    <small>ภาพกิจกรรม</small>
                 </h1>
             </section>
 
             <!-- Main content -->
             <section class="content">
-                <form id="formAddTrainingProjectNews" method="POST" enctype="multipart/form-data">
+                <form id="formAddActivity" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-xs-12">
 
-                            <!--รายละเอียดข่าวโครงการฝึกอบรม-->
+                            <!--รายละเอียดภาพกิจกรรม-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">รายละเอียดข่าวโครงการฝึกอบรม</h3>
+                                    <h3 class="box-title">รายละเอียดภาพกิจกรรม</h3>
 
                                     <div class="box-tools pull-right">
                                         <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -192,11 +198,11 @@ function pathUrl($dir = __DIR__){
                                 <!-- /.box-header -->
                                 <div class="box-body">
 
-                                    <!--ชื่อข่าวโครงการฝึกอบรม-->
+                                    <!--ชื่อภาพกิจกรรม-->
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="inputArticle">ชื่อข่าวโครงการฝึกอบรม:</label>
+                                                <label for="inputArticle">ชื่อกิจกรรม:</label>
                                                 <input type="text" name="title" value="<?php echo (!empty($item) ? $item['title']:''); ?>" maxlength="50" class="form-control">
                                             </div>
                                         </div>
@@ -394,7 +400,6 @@ function pathUrl($dir = __DIR__){
                                             <div class="form-group">
                                                 <div class="input-group" id="document">
                                                         <div id="DropzoneDocument" class="dropzone">
-    
                                                         </div>
                                                         <div>
                                                         <?php 
@@ -412,6 +417,69 @@ function pathUrl($dir = __DIR__){
                                                         ?>
                                                         </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
+                            <!-- วีดีโอ -->
+                            <div class="box box-info">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">วีดีโอ
+                                        <small></small>
+                                    </h3>
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body">
+
+                                    <!--วีดีโอ-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="inputArticle">ประเภทวีดีโอ:</label>
+                                                <select name="video_type" class="form-control">
+                                                    <option value=""> เลือกประเภทวีดีโอ </option>
+                                                    <option value="mp4" <?php echo (!empty($item) ? ($item['video_type'] == 'mp4' ? 'selected':''):''); ?> >MP4</option>
+                                                    <option value="youtube_embed" <?php echo (!empty($item) ? ($item['video_type'] == 'youtube_embed' ? 'selected':''):''); ?> >Youtube Embed</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group" id="video_case_embed"  <?php echo (!empty($item) ? ($item['video_type'] == 'youtube_embed' ? '':'style="display:none;"'):'style="display:none;"'); ?>  >
+                                                <label for="inputArticle">ฝังวิดีโอ:</label>
+                                                <textarea name="video_case_embed" class="form-control" placeholder="<?php echo $embed_example; ?>"><?php echo (!empty($item) ? ($item['video_type'] == 'youtube_embed' ? $item['video_path']:''):''); ?></textarea>
+                                                <div style="margin:15px;">
+                                                <?php echo (!empty($item) ? ($item['video_type'] == 'youtube_embed' ? $item['video_path']:''):''); ?>
+                                                </div>
+                                            </div>
+                                            <div class="input-group" id="video_case_mp4" <?php echo (!empty($item) ? ($item['video_type'] == 'mp4' ? '':'style="display:none;"'):'style="display:none;"'); ?>>
+                                                <div id="DropzoneMp4" class="dropzone">
+                                                </div>
+
+                                                <?php 
+                                                    if(!empty($item) && $item['video_type'] == 'mp4' && $item['video_path'] !=''):
+                                                                $path_mp4 = pathUrl().$item['video_path'];
+                                                                //echo $path_mp4;
+                                                                //exit();
+                                                        ?>      
+                                                                <br>
+                                                                <video width="320" height="240" controls>
+                                                                    <source src="<?php echo $path_mp4; ?>" type="video/mp4">
+                                                                </video>
+                                                                <a data-id="<?php echo $itemId;  ?>" data-filename="<?php echo $item['video_path']; ?>" class="btn btn-info btn-remove-mp4" style="margin-left:35px">ลบ</a>
+                                                                <br>
+                                                        <?php
+                                                    endif; 
+                                                ?>
                                             </div>
                                         </div>
                                     </div>
@@ -706,9 +774,46 @@ function pathUrl($dir = __DIR__){
                 }
 
             });
-            
 
-            $("#formAddTrainingProjectNews").validate({
+            $("#DropzoneMp4").dropzone({
+                
+                paramName: "file", // The name that will be used to transfer the file
+                maxFilesize: 50, // MB
+                maxFiles:1,
+                acceptedFiles: ".mp4",
+                url: "../pages/upload-target.php",
+                sending:function(file, xhr, formData){
+
+                    let date_now = new Date();
+                    let file_name = date_now.getDate()+'-'+date_now.getMonth()+'-'+date_now.getFullYear()+'-'+date_now.getHours()+'-'+date_now.getMinutes()+'-'+date_now.getMilliseconds()+'.'+file.name.split(".")[1];
+                    let name = file.name.split(".")[0];
+                    formData.append('file_name',file_name);
+                    formData.append('name',name);
+
+                    file.custom_file_name = file_name;
+                    file.custom_name = name;
+                  
+                    //console.log(file);
+
+                    html = '<input name="mp4_file_name[]" type="hidden" value="'+file.custom_file_name+'">';
+                    html += '<input name="mp4_name[]" type="hidden" value="'+file.custom_name+'" >';
+                    html += '<input name="mp4_size[]" type="hidden" value="'+file.size+'" >';
+                    html += '<input name="mp4_type[]" type="hidden" value="'+file.type+'" >';
+                    $('#video_case_mp4').append(html);
+
+                },
+                accept: function(file, done) {
+                    //#add_galleryconsole.log(file,file.myCustomName);
+                    ///console.log(file);
+                    done();
+                    //if (file.type != "image/jpeg" && file.type != "image/png") {}
+                }
+
+            });
+
+    
+
+            $("#formAddActivity").validate({
                 rules:{
                     title: {
                     required: true,
@@ -719,8 +824,8 @@ function pathUrl($dir = __DIR__){
                 },
                 messages: {
                     title: {
-                    required: "ต้องระบุชื่อข่าวโครงการฝึกอบรม",
-                    minlength: "ชื่อข่าวโครงการฝึกอบรม ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
+                    required: "ต้องระบุชื่อภาพกิจกรรม",
+                    minlength: "ชื่อภาพกิจกรรม ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
                     },
                     inputBeginDate:{
                     required: "ต้องระบุวันที่เริ่มต้น",
@@ -731,7 +836,7 @@ function pathUrl($dir = __DIR__){
                 },
                 submitHandler: function(form) {
                     //console.log("Testdasdadsa");
-                    doAddTrainingProjectNews();
+                    doAddActivity();
                 }
             });
 
@@ -795,7 +900,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม',
+                                title: 'ภาพกิจกรรม',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -809,7 +914,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม - ผิดพลาด',
+                                title: 'ภาพกิจกรรม - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -851,7 +956,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม',
+                                title: 'ภาพกิจกรรม',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -865,7 +970,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'ข่าวโครงการฝึกอบรม - ผิดพลาด',
+                                title: 'ภาพกิจกรรม - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -887,106 +992,112 @@ function pathUrl($dir = __DIR__){
             });
 
 
+            $('.btn-remove-mp4').click(function(){
+
+                id = $(this).attr('data-id');
+                file_name = $(this).attr('data-filename');
+                //delete_media
+                //console.log(id,file_name);
+
+                $.ajax({
+                    type: "POST",
+                    url: '../api/api.php/delete_mp4',
+                    dataType: 'json',
+                    data: {id:id,file_name:file_name},
+                    timeout: 600000,
+                    success: function (data) {
+
+                        //console.log(data);
+
+                        if (data.error_code === 0) {
+
+                            BootstrapDialog.show({
+                                title: 'วีดีโอ',
+                                message: data.error_message,
+                                buttons: [{
+                                    label: 'ปิด',
+                                    action: function (self) {
+                                        self.close();
+                                    }
+                                }]
+                            });
+                            location.reload();
+
+                        } else {
+
+                            BootstrapDialog.show({
+                                title: 'วีดีโอ - ผิดพลาด',
+                                message: data.error_message,
+                                buttons: [{
+                                    label: 'ปิด',
+                                    action: function (self) {
+                                        self.close();
+                                    }
+                                }]
+                            });
+
+                        }
+
+                    },
+                    error: function (e) {
+                        console.log("ERROR : ", e);
+                    }
+
+                });
+
+            });
+
+
+            $('select[name="video_type"]').change(function(){
+
+                val =$(this).val();
+                //console.log(val);
+                switch (val) {
+                    case 'mp4':
+                            $('#video_case_mp4').show();
+                            $('#video_case_embed').hide();
+                        break;
+                    case 'youtube_embed':
+                            $('#video_case_embed').show();
+                            $('#video_case_mp4').hide();                        
+                        break;                
+                    default:
+                            $('#video_case_embed').hide();
+                            $('#video_case_mp4').hide();
+                        break;
+                }
+
+            })
+
 
 
         });
 
-        function doAddTrainingProjectNews() {
-
-            // let beginDate = $('#inputBeginDate').val();
-            // let beginDatePart = beginDate.split('/');
-            // beginDate = beginDatePart[2] + '-' + beginDatePart[1] + '-' + beginDatePart[0];
-
-            // let endDate = $('#inputEndDate').val();
-            // let endDatePart = endDate.split('/');
-            // endDate = endDatePart[2] + '-' + endDatePart[1] + '-' + endDatePart[0];
+        function doAddActivity() {
 
             $('textarea[name="description"]').text(CKEDITOR.instances.editor.getData());
-            var form = $('#formAddTrainingProjectNews')[0];
+            var form = $('#formAddActivity')[0];
             var data = new FormData(form);
             //console.log(data.entries());
 
-            //console.log(CKEDITOR.instances.art_body.getData());
-
-            //CKEDITOR.instances.editor.updateElement('description');
-            //CKEDITOR.instances.editor.updateElement();
-            //console.log(CKEDITOR.instances.editor.getData());
-
-
-
-
-            //CKEDITOR.instances['description'].getData();
-            // $.post(
-            //     '../api/api.php/<?php echo(isset($itemId) ? 'update_training_project_news' : 'add_training_project_news'); ?>',
-            //     {
-            //         itemId: <?php echo(isset($itemId) ? "$itemId" : '0'); ?>,
-            //         //courseMasterId: $('#inputArticle').val(),
-            //         beginDate,
-            //         endDate,
-            //         details: CKEDITOR.instances.editor.getData(),
-            //         form:data
-            //     }
-            // ).done(function (data) {
-            //     console.log(data);
-
-            //     if (data.error_code === 0) {
-            //         BootstrapDialog.show({
-            //             title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?>',
-            //             message: data.error_message,
-            //             buttons: [{
-            //                 label: 'ปิด',
-            //                 action: function (self) {
-            //                     self.close();
-            //                 }
-            //             }]
-            //         });
-            //         //window.location.href = 'course.php';
-
-            //     } else {
-
-            //         BootstrapDialog.show({
-            //             title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
-            //             message: data.error_message,
-            //             buttons: [{
-            //                 label: 'ปิด',
-            //                 action: function (self) {
-            //                     self.close();
-            //                 }
-            //             }]
-            //         });
-
-            //     }
-                
-            // }).fail(function () {
-            //     BootstrapDialog.show({
-            //         title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
-            //         message: data.error_message,
-            //         buttons: [{
-            //             label: 'ปิด',
-            //             action: function (self) {
-            //                 self.close();
-            //             }
-            //         }]
-            //     });
-            // });
 
 
             $.ajax({
             type: "POST",
             enctype: 'multipart/form-data',
-            url: '../api/api.php/<?php echo(isset($itemId) ? 'update_training_project_news' : 'add_training_project_news'); ?>',
+            url: '../api/api.php/<?php echo(isset($itemId) ? 'update_activity' : 'add_activity'); ?>',
             data: data,
             processData: false,
             contentType: false,
             cache: false,
             timeout: 600000,
             success: function (data) {
-                //console.log(data);
+                console.log(data);
 
                 if (data.error_code === 0) {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?>',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขภาพกิจกรรม' : 'เพิ่มภาพกิจกรรม'); ?>',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -996,12 +1107,12 @@ function pathUrl($dir = __DIR__){
                         }]
                     });
 
-                    window.location.href = 'training_project_news.php';
+                    window.location.href = 'activity_pictures.php';
 
                 } else {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวโครงการฝึกอบรม' : 'เพิ่มข่าวโครงการฝึกอบรม'); ?> - ผิดพลาด',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขภาพกิจกรรม' : 'เพิ่มภาพกิจกรรม'); ?> - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
