@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Link from 'next/link';
 //import $ from 'jquery';
 import {formatCourseDateLong, numberWithCommas} from "../../etc/utils";
-import {SERVICE_SOCIAL, SERVICE_TRAINING} from "../../etc/constants";
+import {SERVICE_SOCIAL, SERVICE_TRAINING, HOST_BACKEND} from "../../etc/constants";
 /*import "react-responsive-carousel/lib/styles/carousel.min.css";*/
 import './CourseDetails.css'
 import {Carousel} from 'react-responsive-carousel';
@@ -153,7 +153,7 @@ export default class CourseDetails extends React.Component {
                                         return asset.type === 'image';
                                     }).map(asset => (
                                         <div>
-                                            <img src={`http://localhost/icehr_backend/uploads/course_assets/${asset.fileName}`}/>
+                                            <img src={`${HOST_BACKEND}/uploads/course_assets/${asset.fileName}`}/>
                                         </div>
                                     ))
                                 }
@@ -240,7 +240,7 @@ export default class CourseDetails extends React.Component {
                                         return asset.type === 'pdf';
                                     }).map(asset => (
                                         <div>
-                                            <a href={`http://localhost/icehr_backend/uploads/course_assets/${asset.fileName}`}
+                                            <a href={`${HOST_BACKEND}/uploads/course_assets/${asset.fileName}`}
                                                target="_blank">
                                                 <img src="/static/images/pdf-icon.svg"/>&nbsp;&nbsp;{asset.title}
                                             </a>
