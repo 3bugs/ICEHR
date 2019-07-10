@@ -7,8 +7,10 @@ import {isString, isValidEmail, nl2br} from '../etc/utils';
 import constants from '../etc/constants';
 import $ from 'jquery';
 import './academic-paper.css';
+import './pagination.css';
 import ErrorLabel from "../components/ErrorLabel";
 import ReactPaginate from 'react-paginate';
+import {Element, scroller} from 'react-scroll';
 
 const INPUT_FIRST_NAME = 'firstName';
 const INPUT_LAST_NAME = 'lastName';
@@ -705,7 +707,8 @@ export default class AcademicPaper extends React.Component {
             searchResultList: null,
             showSearchResultModal: false,
             offset: 0,
-            initialPage: 1,
+            initialPage: 0,
+            firstLoad: true,
         };
     }
 
@@ -739,7 +742,7 @@ export default class AcademicPaper extends React.Component {
     };
 
     componentDidMount() {
-        this.doGetAcademicPaper();
+        //this.doGetAcademicPaper();
     }
 
     handleInputChange = (field, e) => {
@@ -766,6 +769,18 @@ export default class AcademicPaper extends React.Component {
                     this.setState({
                         dataList: result.dataList,
                         pageCount: Math.ceil(result.totalCount / LIMIT_PER_PAGE)
+                    }, () => {
+                        if (!this.state.firstLoad) {
+                            scroller.scrollTo('topOfTable', {
+                                duration: 500,
+                                smooth: true,
+                                offset: -80,
+                            });
+                        } else {
+                            this.setState({
+                                firstLoad: false,
+                            });
+                        }
                     });
                 } else {
                     alert(result['error']['message']);
@@ -819,7 +834,7 @@ export default class AcademicPaper extends React.Component {
         let selected = data.selected;
         let offset = Math.ceil(selected * LIMIT_PER_PAGE);
 
-        this.setState({ offset, initialPage: selected }, () => {
+        this.setState({offset, initialPage: selected}, () => {
             this.doGetAcademicPaper();
         });
     };
@@ -877,14 +892,14 @@ export default class AcademicPaper extends React.Component {
                         <div className="row">
                             <div className="col">
                                 <input
-                                    value={searchFields[SEARCH_INPUT_TITLE]}
+                                    value={searchFields[SEARCH_INPUT_TITLE] || ''}
                                     onChange={this.handleInputChange.bind(this, SEARCH_INPUT_TITLE)}
                                     type="text" placeholder="ชื่อเรื่อง"
                                     className="form-control input-md"/>
                             </div>
                             <div className="col">
                                 <input
-                                    value={searchFields[SEARCH_INPUT_YEAR_PUBLISHED]}
+                                    value={searchFields[SEARCH_INPUT_YEAR_PUBLISHED] || ''}
                                     onChange={this.handleInputChange.bind(this, SEARCH_INPUT_YEAR_PUBLISHED)}
                                     type="text" placeholder="ปีที่เผยแพร่"
                                     maxLength={4}
@@ -892,7 +907,7 @@ export default class AcademicPaper extends React.Component {
                             </div>
                             <div className="col">
                                 <input
-                                    value={searchFields[SEARCH_INPUT_NAME]}
+                                    value={searchFields[SEARCH_INPUT_NAME] || ''}
                                     onChange={this.handleInputChange.bind(this, SEARCH_INPUT_NAME)}
                                     type="text" placeholder="ชื่อผู้วิจัย"
                                     className="form-control input-md"/>
@@ -928,34 +943,38 @@ export default class AcademicPaper extends React.Component {
                     </div>
                 </div>
 
-                {/*List-งานวิจัยและวิชาการ*/
-                    !this.props.id && (this.state.dataList != null) &&
-                    <React.Fragment>
-                        <div className="mt-5 mb-5">
-                            <AcademicPaperList
-                                dataList={this.state.dataList}
-                                isSearchResult={false}
-                            />
-                        </div>
-                        <div style={{textAlign: 'center'}}>
-                            <ReactPaginate
-                                initialPage={this.state.initialPage}
-                                previousLabel={'<'}
-                                nextLabel={'>'}
-                                breakLabel={'...'}
-                                breakClassName={'break-me'}
-                                pageCount={this.state.pageCount}
-                                marginPagesDisplayed={2}
-                                pageRangeDisplayed={5}
-                                onPageChange={this.handlePageClick}
-                                containerClassName={'pagination'}
-                                activeClassName={'pagination-active'}
-                                previousClassName={'pagination-older'}
-                                nextClassName={'pagination-newer'}
-                            />
-                        </div>
-                    </React.Fragment>
-                }
+                {/*List-งานวิจัยและวิชาการ*/}
+
+                <Element name={'topOfTable'}>
+                    {!this.props.id && (this.state.dataList != null) &&
+                    <div className="mt-5 mb-5">
+                        <AcademicPaperList
+                            dataList={this.state.dataList}
+                            isSearchResult={false}
+                        />
+                    </div>
+                    }
+                    {!this.props.id &&
+                    <div style={{textAlign: 'center'}}>
+                        <ReactPaginate
+                            initialPage={this.state.initialPage}
+                            previousLabel={'<'}
+                            nextLabel={'>'}
+                            breakLabel={'...'}
+                            breakClassName={'break-me'}
+                            pageCount={this.state.pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={'pagination'}
+                            activeClassName={'pagination-active'}
+                            previousClassName={'pagination-older'}
+                            nextClassName={'pagination-newer'}
+                        />
+                    </div>
+                    }
+                </Element>
+
 
                 {/*<ul className="pagination">
                     <li className="pagination-older disabled">

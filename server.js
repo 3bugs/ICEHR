@@ -4,6 +4,7 @@
 } from "./etc/constants";*/
 
 const constants = require('./etc/constants');
+const utils = require('./etc/utils');
 
 const express = require('express');
 const next = require('next');
@@ -125,6 +126,9 @@ app
                     case 'get_course':
                         doGetCourse(req, res, db);
                         break;
+                    case 'search_course':
+                        doSearchCourse(req, res, db);
+                        break;
                     case 'register_course':
                         doRegisterCourse(req, res, db);
                         break;
@@ -160,6 +164,9 @@ app
                         break;
                     case 'add_academic_paper_download':
                         doAddAcademicPaperDownload(req, res, db);
+                        break;
+                    case 'get_training_course_category':
+                        doGetTrainingCourseCategory(req, res, db);
                         break;
                     default:
                         //res.status(404).end();
@@ -425,6 +432,8 @@ doGetCourse = (req, res, db) => {
     const inputCourseId = req.body.courseId;
     const inputMonth = req.body.month;
     const inputYear = req.body.year;
+    const inputOffset = req.body.offset;
+    const inputLimit = req.body.limit;
 
     /*
     * SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
@@ -432,17 +441,31 @@ doGetCourse = (req, res, db) => {
     . " ORDER BY c.begin_date";
     * */
 
-    const selectClause = `SELECT c.id, c.batch_number, c.details, c.application_fee, c.begin_date, c.end_date, c.place, 
-                                 cm.title, cm.service_type, 
-                                 u.first_name, u.last_name, u.phone_office, u.email 
-                          FROM course c 
-                              INNER JOIN course_master cm 
-                                  ON c.course_master_id = cm.id 
-                              INNER JOIN user u 
-                                  ON c.responsible_user_id = u.id`;
+    const selectClause = `SELECT c.id,
+                                 c.batch_number,
+                                 c.details,
+                                 c.application_fee,
+                                 c.begin_date,
+                                 c.end_date,
+                                 c.place,
+                                 cm.title,
+                                 cm.service_type,
+                                 u.first_name,
+                                 u.last_name,
+                                 u.phone_office,
+                                 u.email
+                          FROM course c
+                                   INNER JOIN course_master cm
+                                              ON c.course_master_id = cm.id
+                                   INNER JOIN user u
+                                              ON c.responsible_user_id = u.id`;
     let whereClause = ' WHERE cm.service_type = ? ';
 
-    if (inputCourseId != null) {
+    if (inputCourseId == null) {
+        if ((inputMonth == null || inputYear == null)) {
+            whereClause += ' AND c.begin_date >= ? ';
+        }
+    } else {
         whereClause += ' AND c.id = ? ';
     }
 
@@ -454,17 +477,22 @@ doGetCourse = (req, res, db) => {
         whereClause += ' AND c.begin_date LIKE ? ';
     }
 
-    const orderClause = ' ORDER BY c.begin_date';
-    const sql = selectClause + whereClause + orderClause;
+    const orderClause = ' ORDER BY c.begin_date ';
+    const limitClause = (inputOffset == null || inputLimit == null) ? '' : ` LIMIT ${inputOffset}, ${inputLimit} `;
+    const sql = selectClause + whereClause + orderClause + limitClause;
+
+    const today = utils.getDateFormatFromDateObject(new Date());
 
     db.query(
         sql,
-        inputCourseId == null ? ((inputMonth == null || inputYear == null) ? [inputServiceType] : [inputServiceType, monthYearString]) : [inputServiceType, inputCourseId],
+        inputCourseId == null
+            ? ((inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType, monthYearString])
+            : [inputServiceType, inputCourseId],
 
         function (err, results, fields) {
             if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
                 });
                 db.end();
             } else {
@@ -477,7 +505,7 @@ doGetCourse = (req, res, db) => {
                     dataList.push({
                         id: row.id,
                         serviceType: row.service_type,
-                        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number: ''),
+                        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number : ''),
                         details: row.details,
                         applicationFee: row.application_fee,
                         place: row.place,
@@ -493,16 +521,19 @@ doGetCourse = (req, res, db) => {
                     });
                 });
 
-                /*ถ้าเป็นหน้า course details จะ query assets ด้วย*/
-                if (inputCourseId != null) {
+                /*ถ้าเป็นหน้า course details จะ query ตารางราคา, assets ด้วย*/
+                if (dataList.length > 0 && inputCourseId != null) {
                     db.query(
-                        `SELECT title, file_name, type, created_at FROM course_asset WHERE course_id = ?`,
+                            `SELECT title, file_name, type, created_at
+                             FROM course_asset
+                             WHERE course_id = ?`,
                         [inputCourseId],
                         function (err, results, fields) {
                             if (err) {
                                 res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
                                 });
+                                db.end();
                             } else {
                                 const assetList = [];
                                 results.forEach(row => {
@@ -521,29 +552,156 @@ doGetCourse = (req, res, db) => {
 
                                 dataList[0].assets = assetList;
 
+                                db.query(
+                                        `SELECT title, amount, created_at
+                                         FROM course_fee
+                                         WHERE course_id = ?`,
+                                    [inputCourseId],
+                                    function (err, results, fields) {
+                                        if (err) {
+                                            res.send({
+                                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                                            });
+                                        } else {
+                                            const feeList = [];
+                                            results.forEach(row => {
+                                                feeList.push({
+                                                    title: row.title,
+                                                    amount: row.amount,
+                                                    createdAt: row.created_at,
+                                                });
+                                            });
+
+                                            dataList[0].fees = feeList;
+
+                                            res.send({
+                                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                                sql,
+                                                monthYearString,
+                                                dataList
+                                            });
+                                        }
+                                    }
+                                );
+                                db.end();
+                            }
+                        }
+                    );
+                    //db.end();
+                } else if (inputCourseId == null) {
+                    db.query(
+                            `SELECT COUNT(*) AS totalCount
+                             FROM course c
+                                      INNER JOIN course_master cm
+                                                 ON c.course_master_id = cm.id
+                             WHERE cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
+                        (inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType],
+                        function (err, totalCountResults, fields) {
+                            if (err) {
+                                res.send({
+                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (4)', 'error run query: ' + err.stack),
+                                });
+                            } else {
                                 res.send({
                                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                    sql,
-                                    monthYearString,
-                                    dataList
+                                    dataList,
+                                    totalCount: totalCountResults[0].totalCount,
                                 });
                             }
                         }
                     );
                     db.end();
-                } else {
-                    res.send({
-                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                        sql,
-                        monthYearString,
-                        dataList
-                    });
-                    db.end();
                 }
             }
         }
     );
-    //db.end();
+};
+
+doSearchCourse = (req, res, db) => {
+    const {serviceType} = req.body;
+    let {searchTitle, searchCategory, searchPlaceType, searchMonth, searchYear} = req.body.searchFields;
+    if (searchTitle != null) {
+        if (searchTitle.trim() === '') {
+            searchTitle = null;
+        }
+    }
+
+    const whereServiceType = 'cm.service_type = ?'
+    let whereTitle = 'TRUE';
+    let whereCategory = 'TRUE';
+    let wherePlaceType = 'TRUE';
+    let whereMonth = 'TRUE';
+    let whereYear = 'TRUE';
+
+    const searchValueArray = [];
+    searchValueArray.push(serviceType);
+
+    if (searchTitle) {
+        whereTitle = 'cm.title LIKE ?';
+        searchValueArray.push(`%${searchTitle}%`);
+    }
+    if (searchCategory && searchCategory !== '9999') {
+        whereCategory = 'cm.category = ?';
+        searchValueArray.push(`${searchCategory}`);
+    }
+    if (searchPlaceType && searchPlaceType !== '9999') {
+        wherePlaceType = 'c.place_type = ?';
+        searchValueArray.push(`${searchPlaceType}`);
+    }
+    if (searchMonth && searchMonth !== '9999') {
+        whereMonth = 'MONTH(c.begin_date) = ?';
+        searchValueArray.push(`${searchMonth}`);
+    }
+    if (searchYear && searchYear !== '9999') {
+        whereYear = 'YEAR(c.begin_date) = ?';
+        searchValueArray.push(`${searchYear}`);
+    }
+
+    db.query(
+        `SELECT c.id,
+                    c.batch_number,
+                    c.details,
+                    c.application_fee,
+                    c.begin_date,
+                    c.end_date,
+                    c.place,
+                    c.place_type,
+                    cm.title,
+                    cm.category,
+                    cm.service_type
+             FROM course c
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+            WHERE ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
+        searchValueArray,
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                const dataList = [];
+                results.forEach(row => {
+                    dataList.push({
+                        id: row.id,
+                        name: `${row.title} รุ่นที่ ${row.batch_number}`,
+                        details: row.details,
+                        applicationFee: row.application_fee,
+                        place: row.place,
+                        beginDate: row.begin_date,
+                        endDate: row.end_date,
+                        createdAt: row.created_at,
+                    });
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList,
+                });
+            }
+        }
+    );
+    db.end();
 };
 
 doRegisterCourse = (req, res, db) => {
@@ -593,7 +751,7 @@ doRegisterCourse = (req, res, db) => {
                         `UPDATE course_registration
                          SET form_number = ?
                          WHERE id = ?`,
-                        [formNumber, insertCourseRegId],
+                    [formNumber, insertCourseRegId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -808,7 +966,7 @@ doRegisterInHouse = (req, res, db) => {
     } = formData;
 
     db.query(
-        `INSERT INTO in_house (member_id, title, first_name, last_name, organization_name, phone, email, course, num_day, num_trainee, place, remark)
+            `INSERT INTO in_house (member_id, title, first_name, last_name, organization_name, phone, email, course, num_day, num_trainee, place, remark)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [memberId, fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail, fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark],
 
@@ -1180,7 +1338,8 @@ doGetAcademicPaper = (req, res, db) => {
             } else {
                 if (id == null) {
                     db.query(
-                        `SELECT COUNT(*) AS totalCount FROM academic_paper`,
+                            `SELECT COUNT(*) AS totalCount
+                             FROM academic_paper`,
                         [],
                         function (err, totalCountResults, fields) {
                             if (err) {
@@ -1239,7 +1398,7 @@ doSearchAcademicPaper = (req, res, db) => {
         function (err, results, fields) {
             if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
                 });
             } else {
                 res.send({
@@ -1256,8 +1415,8 @@ doAddAcademicPaperDownload = (req, res, db) => {
     const {id, fields} = req.body;
 
     db.query(
-        `INSERT INTO academic_paper_download (academic_paper_id, first_name, last_name, organization_name, job_position, occupation, email, use_purpose) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO academic_paper_download (academic_paper_id, first_name, last_name, organization_name, job_position, occupation, email, use_purpose)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [id, fields.firstName, fields.lastName, fields.organizationName, fields.jobPosition, fields.occupation, fields.email, fields.use],
         function (err, results, fields) {
             if (err) {
@@ -1267,6 +1426,32 @@ doAddAcademicPaperDownload = (req, res, db) => {
             } else {
                 res.send({
                     error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetTrainingCourseCategory = (req, res, db) => {
+    db.query(
+        'SELECT * FROM training_course_category',
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลหมวดหมู่หลักสูตร', 'error run query: ' + err.stack),
+                });
+            } else {
+                let dataList = [];
+                results.forEach(row => {
+                    const {id, title} = row;
+                    dataList.push({id, title});
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList
                 });
             }
         }

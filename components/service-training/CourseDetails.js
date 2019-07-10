@@ -8,6 +8,12 @@ import './CourseDetails.css'
 import {Carousel} from 'react-responsive-carousel';
 import "video-react/dist/video-react.css";
 import {Player} from 'video-react';
+import {
+    FacebookShareButton,
+    TwitterShareButton,
+    LineShareButton,
+    EmailShareButton,
+} from 'react-share';
 
 export default class CourseDetails extends React.Component {
     constructor(props, context) {
@@ -105,8 +111,35 @@ export default class CourseDetails extends React.Component {
                     <div className="row">
                         <div className="col-12 col-md-6">
                             <div className="content mCustomScrollbar"
+                                 style={{background: '#f8f8f8', margin: '0px', paddingTop: '10px', paddingBottom: '10px', paddingLeft: '15px', paddingRight: '5px'}}
                                  dangerouslySetInnerHTML={{__html: course.details}}>
                             </div>
+
+                            <div className="title-download-inside mt-3">
+                                <h3>ค่าลงทะเบียน</h3>
+                            </div>
+                            {
+                                course.fees.length === 0 &&
+                                <div style={{color: 'red'}}>ไม่มีข้อมูล</div>
+                            }
+                            <table className="table table-price table-bordered" style={{width: '85%'}}>
+                                <tbody>
+                                {
+                                    course.fees.map(fee => {
+                                        let feeAmountText = fee.amount == null ? null : `${numberWithCommas(fee.amount)} บาท`;
+                                        return (
+                                            <tr>
+                                                <td colSpan={feeAmountText == null ? 2 : 1} style={{}}>{fee.title}</td>
+                                                {
+                                                    feeAmountText != null &&
+                                                    <td style={{whiteSpace: 'nowrap'}}>{feeAmountText}</td>
+                                                }
+                                            </tr>
+                                        )
+                                    })
+                                }
+                                </tbody>
+                            </table>
                         </div>
                         <div className="col-12 col-md-6">
                             <Carousel showArrows={true}
@@ -182,13 +215,21 @@ export default class CourseDetails extends React.Component {
                             <div className="border-project">
                                 <h3><img src="/static/images/icon-ppl.svg"/> ผู้รับผิดชอบโครงการ</h3>
                                 <div className="row">
-                                    <div className="col-md-4  text-black"> ชื่อ-นามสกุล
-                                        <br/> เบอร์โทร
-                                        <br/> อีเมล
+                                    <div className="col-md-4  text-black">ชื่อ-นามสกุล</div>
+                                    <div className="col-md-8">
+                                        {course.responsibleUser.firstName + ' ' + course.responsibleUser.lastName}
                                     </div>
-                                    <div className="col-md-8">{course.responsibleUser.firstName + ' ' + course.responsibleUser.lastName}
-                                        <br/>{course.responsibleUser.phoneOffice}
-                                        <br/><a href={`mailto:${course.responsibleUser.email}`}>{course.responsibleUser.email}</a>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-4  text-black">เบอร์โทร</div>
+                                    <div className="col-md-8">
+                                        {course.responsibleUser.phoneOffice}
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-4  text-black">อีเมล</div>
+                                    <div className="col-md-8">
+                                        <a href={`mailto:${course.responsibleUser.email}`}>{course.responsibleUser.email}</a>
                                     </div>
                                 </div>
                             </div>
@@ -198,10 +239,12 @@ export default class CourseDetails extends React.Component {
                                     course.assets.filter(asset => {
                                         return asset.type === 'pdf';
                                     }).map(asset => (
-                                        <a href={`http://localhost/icehr_backend/uploads/course_assets/${asset.fileName}`}
-                                           target="_blank">
-                                            <img src="/static/images/pdf-icon.svg"/>&nbsp;&nbsp;{asset.title}
-                                        </a>
+                                        <div>
+                                            <a href={`http://localhost/icehr_backend/uploads/course_assets/${asset.fileName}`}
+                                               target="_blank">
+                                                <img src="/static/images/pdf-icon.svg"/>&nbsp;&nbsp;{asset.title}
+                                            </a>
+                                        </div>
                                     ))
                                 }
                                 {

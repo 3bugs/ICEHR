@@ -12,22 +12,46 @@ if (!isset($serviceType)) {
     exit();
 }
 
-$sql = "SELECT * FROM course_master WHERE service_type = '$serviceType'";
+$sql = "SELECT cm.id, cm.title, cc.id AS category_id, cc.title AS category_title 
+        FROM course_master cm 
+            LEFT JOIN training_course_category cc 
+                ON cm.category = cc.id 
+        WHERE service_type = '$serviceType'";
 if ($result = $db->query($sql)) {
     $courseMasterList = array();
     while ($row = $result->fetch_assoc()) {
         $courseMaster = array();
         $courseMaster['id'] = (int)$row['id'];
         $courseMaster['title'] = $row['title'];
+        $courseMaster['category_id'] = (int)$row['category_id'];
+        $courseMaster['category_title'] = $row['category_title'];
 
         array_push($courseMasterList, $courseMaster);
     }
     $result->close();
 } else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
 }
+
+$trainingCourseCategoryList = array();
+$sql = "SELECT * FROM training_course_category";
+if ($result = $db->query($sql)) {
+    while ($row = $result->fetch_assoc()) {
+        $trainingCourseCategory = array();
+        $trainingCourseCategory['id'] = (int)$row['id'];
+        $trainingCourseCategory['title'] = $row['title'];
+
+        array_push($trainingCourseCategoryList, $trainingCourseCategory);
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+    $db->close();
+    exit();
+}
+
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -58,6 +82,7 @@ if ($result = $db->query($sql)) {
                                id="inputServiceType"
                                value="<?php echo $serviceType; ?>"/>
                         <div class="box-body">
+
                             <!--ชื่อคอร์ส-->
                             <div class="form-group">
                                 <label for="inputCourseMasterTitle">ชื่อหลักสูตร:</label>
@@ -72,6 +97,38 @@ if ($result = $db->query($sql)) {
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
+
+                            <?php
+                            if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                ?>
+                                <!--หมวดหมู่-->
+                                <div class="form-group">
+                                    <label for="selectCourseCategory">หมวดหมู่:</label>
+                                    <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-reorder"></i>
+                                    </span>
+                                        <select id="selectCourseCategory" class="form-control"
+                                                required
+                                                oninvalid="this.setCustomValidity('เลือกหมวดหมู่หลักสูตร')"
+                                                oninput="this.setCustomValidity('')">
+                                            <option value="" disabled selected>-- เลือกหมวดหมู่หลักสูตร --</option>
+                                            <?php
+                                            foreach ($trainingCourseCategoryList as $trainingCourseCategory) {
+                                                ?>
+                                                <option value="<?php echo $trainingCourseCategory['id']; ?>">
+                                                    <?php echo $trainingCourseCategory['title']; ?>
+                                                </option>
+                                                <?php
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                            ?>
+
                             <div id="divLoading" style="text-align: center">
                                 <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                             </div>
@@ -112,6 +169,7 @@ if ($result = $db->query($sql)) {
                           style="margin-top: 0; margin-bottom: 0">
                         <div class="box-body">
                             <input type="hidden" id="inputCourseMasterId">
+
                             <!--ชื่อคอร์ส-->
                             <div class="form-group">
                                 <label for="inputCourseTitle">ชื่อหลักสูตร:</label>
@@ -126,6 +184,38 @@ if ($result = $db->query($sql)) {
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
+
+                            <?php
+                            if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                ?>
+                                <!--หมวดหมู่-->
+                                <div class="form-group">
+                                    <label for="selectCourseCategory">หมวดหมู่:</label>
+                                    <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-reorder"></i>
+                                    </span>
+                                        <select id="selectCourseCategory" class="form-control"
+                                                required
+                                                oninvalid="this.setCustomValidity('เลือกหมวดหมู่หลักสูตร')"
+                                                oninput="this.setCustomValidity('')">
+                                            <option value="" disabled selected>-- เลือกหมวดหมู่หลักสูตร --</option>
+                                            <?php
+                                            foreach ($trainingCourseCategoryList as $trainingCourseCategory) {
+                                                ?>
+                                                <option value="<?php echo $trainingCourseCategory['id']; ?>">
+                                                    <?php echo $trainingCourseCategory['title']; ?>
+                                                </option>
+                                                <?php
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                            ?>
+
                             <div id="divLoading" style="text-align: center">
                                 <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                             </div>
@@ -182,7 +272,18 @@ if ($result = $db->query($sql)) {
                                 <table id="tableCourseMaster" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="text-align: center; width: 100%;">ชื่อหลักสูตร</th>
+                                        <?php
+                                        if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                            ?>
+                                            <th style="text-align: center; width: 70%;">ชื่อหลักสูตร</th>
+                                            <th style="text-align: center; width: 30%;">หมวดหมู่</th>
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <th style="text-align: center; width: 100%;">ชื่อหลักสูตร</th>
+                                            <?php
+                                        }
+                                        ?>
                                         <th style="text-align: center;" nowrap>จัดการ</th>
                                     </tr>
                                     </thead>
@@ -191,20 +292,29 @@ if ($result = $db->query($sql)) {
                                     if (sizeof($courseMasterList) == 0) {
                                         ?>
                                         <tr valign="middle">
-                                            <td colspan="2" align="center">ไม่มีข้อมูล</td>
+                                            <td colspan="5" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
                                         foreach ($courseMasterList as $courseMaster) {
                                             $courseMasterId = $courseMaster['id'];
                                             $courseMasterTitle = $courseMaster['title'];
+                                            $courseMasterCategoryId = $courseMaster['category_id'];
+                                            $courseMasterCategoryTitle = $courseMaster['category_title'];
                                             ?>
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $courseMasterTitle; ?></td>
+                                                <td style=""><?php echo $courseMasterTitle; ?></td>
+                                                <?php
+                                                if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                                    ?>
+                                                    <td style=""><?php echo $courseMasterCategoryTitle; ?></td>
+                                                    <?php
+                                                }
+                                                ?>
                                                 <td style="text-align: center" nowrap>
                                                     <button type="button" class="btn btn-warning"
                                                             style="margin-left: 6px; margin-right: 3px"
-                                                            onclick="onClickEdit(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>')">
+                                                            onclick="onClickEdit(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>', <?php echo $courseMasterCategoryId; ?>)">
                                                         <span class="fa fa-edit"></span>&nbsp;
                                                         แก้ไข
                                                     </button>
@@ -283,6 +393,7 @@ if ($result = $db->query($sql)) {
                 '../api/api.php/add_course_master',
                 {
                     courseMasterTitle: $('#formAddCourseMaster #inputCourseMasterTitle').val(),
+                    courseCategory: $('#formAddCourseMaster #selectCourseCategory').val(),
                     serviceType: $('#formAddCourseMaster #inputServiceType').val(),
                 }
             ).done(function (data) {
@@ -300,9 +411,10 @@ if ($result = $db->query($sql)) {
             });
         }
 
-        function onClickEdit(element, courseMasterId, courseMasterTitle) {
+        function onClickEdit(element, courseMasterId, courseMasterTitle, courseMasterCategoryId) {
             $('#formEditCourseMaster #inputCourseMasterId').val(courseMasterId);
             $('#formEditCourseMaster #inputCourseMasterTitle').val(courseMasterTitle);
+            $(`#formEditCourseMaster #selectCourseCategory option[value=${courseMasterCategoryId}]`).prop('selected', true);
             $('#editCourseMasterModal').modal('show');
         }
 
@@ -314,6 +426,7 @@ if ($result = $db->query($sql)) {
                 {
                     courseMasterId: $('#formEditCourseMaster #inputCourseMasterId').val(),
                     courseMasterTitle: $('#formEditCourseMaster #inputCourseMasterTitle').val(),
+                    courseCategory: $('#formEditCourseMaster #selectCourseCategory').val(),
                 }
             ).done(function (data) {
                 $('#formEditCourseMaster #buttonSave').prop('disabled', false);

@@ -88,7 +88,7 @@ export default class ServiceDrivingLicense extends React.Component {
                 </div>
 
                 {/*แถบค้นหาบริการสังคม*/}
-                <div className="bg-search-service3">
+                {/*<div className="bg-search-service3">
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
                             <div className="col-md-5 col-lg-6">
@@ -151,7 +151,7 @@ export default class ServiceDrivingLicense extends React.Component {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>*/}
 
                 {/*ปฏิทินหลักสูตร*/
                     this.props.result.showList && (courseList !== null) &&

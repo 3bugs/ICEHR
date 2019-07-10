@@ -32,6 +32,7 @@ if (isset($courseId)) {
             $row = $result->fetch_assoc();
             $course['course_master_id'] = (int)$row['course_master_id'];
             $course['batch_number'] = (int)$row['batch_number'];
+            $course['category'] = (int)$row['category'];
             $course['details'] = $row['details'];
             $course['trainee_limit'] = (int)$row['trainee_limit'];
             $course['application_fee'] = (int)$row['application_fee'];
@@ -135,7 +136,7 @@ if (isset($courseId)) {
                 $fee = array();
                 $fee['id'] = (int)$row['id'];
                 $fee['title'] = $row['title'];
-                $fee['amount'] = (int)$row['amount'];
+                $fee['amount'] = $row['amount'];
                 $fee['created_at'] = $row['created_at'];
 
                 array_push($feeList, $fee);
@@ -252,16 +253,19 @@ if (isset($courseId)) {
             }
 
             .nav-tabs {
-                background-color:#f8f8f8;
+                background-color: #f8f8f8;
             }
+
             .tab-content {
                 /*background-color:#ccc;
                 color:#00ff00;
                 padding:5px*/
             }
+
             .nav-tabs > li > a {
                 /*border: medium none;*/
             }
+
             .nav-tabs > li > a:hover {
                 /*background-color: #ccc !important;
                 border: medium none;
@@ -337,8 +341,8 @@ if (isset($courseId)) {
                                                                 $selected = 'selected';
                                                             }
                                                             ?>
-                                                            <option value="<?php echo $courseMasterId; ?>" <?php echo $selected ?>>
-                                                                <?php echo $courseMasterTitle ?>
+                                                            <option value="<?php echo $courseMasterId; ?>" <?php echo $selected; ?>>
+                                                                <?php echo $courseMasterTitle; ?>
                                                             </option>
                                                             <?php
                                                         }
@@ -373,8 +377,47 @@ if (isset($courseId)) {
                                         </div>
                                     </div>
 
+                                    <!--ประเภทหลักสูตร-->
+                                    <?php
+                                    /*if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                        */?><!--
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="selectCourseCategory">หมวดหมู่หลักสูตร:</label>
+                                                    <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-font"></i>
+                                                </span>
+                                                        <select id="selectCourseCategory" class="form-control" required
+                                                                name="courseCategory"
+                                                                oninvalid="this.setCustomValidity('เลือกหมวดหมู่หลักสูตร')"
+                                                                oninput="this.setCustomValidity('')">
+                                                            <option value="" disabled selected>-- เลือกหมวดหมู่หลักสูตร --</option>
+                                                            <?php
+/*                                                            foreach ($trainingCourseCategoryList as $trainingCourseCategory) {
+                                                                $selected = '';
+                                                                if (!empty($course) && ($course['category'] === $trainingCourseCategory['id'])) {
+                                                                    $selected = 'selected';
+                                                                }
+                                                                */?>
+                                                                <option value="<?php /*echo $trainingCourseCategory['id']; */?> <?php /*echo $selected; */?>">
+                                                                    <?php /*echo $trainingCourseCategory['title']; */?>
+                                                                </option>
+                                                                <?php
+/*                                                            }
+                                                            */?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        --><?php
+/*                                    }*/
+                                    ?>
+
                                     <!--ค่าสมัครและวันอบรม-->
-                                    <div class="row">
+                                    <div class="row" style="margin-top: 20px">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="inputTraineeLimit">จำนวนผู้เข้าอบรมที่รับ (คน):</label>
@@ -451,7 +494,7 @@ if (isset($courseId)) {
 
                                     <!--สถานที่อบรม-->
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-9">
                                             <div class="form-group">
                                                 <label for="inputPlace">สถานที่อบรม:</label>
                                                 <div class="input-group">
@@ -468,6 +511,55 @@ if (isset($courseId)) {
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php
+                                        if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                                            ?>
+                                            <div class="col-md-3">
+                                                <?php
+                                                if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                                    ?>
+                                                    <div class="form-group">
+                                                        <label for="selectPlaceType">ประเภท:</label>
+                                                        <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-map-marker"></i>
+                                                        </span>
+                                                            <select id="selectPlaceType" class="form-control" required
+                                                                    name="placeType"
+                                                                    oninvalid="this.setCustomValidity('เลือกประเภทสถานที่')"
+                                                                    oninput="this.setCustomValidity('')">
+                                                                <option value="0" disabled selected>-- เลือกประเภทสถานที่ --</option>
+                                                                <option value="1">กรุงเทพมหานคร</option>
+                                                                <option value="2">ภูมิภาค</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+                                                    ?>
+                                                    <div class="form-group">
+                                                        <label for="selectPlaceType">วิทยาเขต:</label>
+                                                        <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-map-marker"></i>
+                                                        </span>
+                                                            <select id="selectPlaceType" class="form-control" required
+                                                                    name="placeType"
+                                                                    oninvalid="this.setCustomValidity('เลือกวิทยาเขต')"
+                                                                    oninput="this.setCustomValidity('')">
+                                                                <option value="0" disabled selected>-- เลือกวิทยาเขต --</option>
+                                                                <option value="1">ท่าพระจันทร์</option>
+                                                                <option value="2">ศูนย์รังสิต</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </div>
+                                            <?php
+                                        }
+                                        ?>
                                     </div>
 
                                     <!--ผู้รับผิดชอบโครงการ-->

@@ -49,13 +49,15 @@ switch ($action) {
         break;
     case 'add_course_master':
         $courseMasterTitle = $db->real_escape_string($_POST['courseMasterTitle']);
+        $courseCategory = isset($_POST['courseCategory']) ? $db->real_escape_string($_POST['courseCategory']) : 'NULL';
         $serviceType = $db->real_escape_string($_POST['serviceType']);
-        doAddCourseMaster($courseMasterTitle, $serviceType);
+        doAddCourseMaster($courseMasterTitle, $courseCategory, $serviceType);
         break;
     case 'update_course_master':
         $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
         $courseMasterTitle = $db->real_escape_string($_POST['courseMasterTitle']);
-        doUpdateCourseMaster($courseMasterId, $courseMasterTitle);
+        $courseCategory = isset($_POST['courseCategory']) ? $db->real_escape_string($_POST['courseCategory']) : 'NULL';
+        doUpdateCourseMaster($courseMasterId, $courseMasterTitle, $courseCategory);
         break;
     case 'delete_course_master':
         $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
@@ -172,7 +174,7 @@ function doLogoutUser()
     }
 }
 
-function doAddCourseMaster($courseMasterTitle, $serviceType)
+function doAddCourseMaster($courseMasterTitle, $courseCategory, $serviceType)
 {
     global $db, $response, $serviceTypeText;
 
@@ -185,7 +187,8 @@ function doAddCourseMaster($courseMasterTitle, $serviceType)
 
     $courseMasterTitle = trim($courseMasterTitle);
 
-    $sql = "INSERT INTO course_master (title, service_type) VALUES ('$courseMasterTitle', '$serviceType')";
+    $sql = "INSERT INTO course_master (title, category, service_type) 
+            VALUES ('$courseMasterTitle', $courseCategory, '$serviceType')";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'เพิ่มชื่อหลักสูตรสำเร็จ';
@@ -198,13 +201,15 @@ function doAddCourseMaster($courseMasterTitle, $serviceType)
     }
 }
 
-function doUpdateCourseMaster($courseMasterId, $courseMasterTitle)
+function doUpdateCourseMaster($courseMasterId, $courseMasterTitle, $courseCategory)
 {
     global $db, $response;
 
     $courseMasterTitle = trim($courseMasterTitle);
 
-    $sql = "UPDATE course_master SET title='$courseMasterTitle' WHERE id=$courseMasterId";
+    $sql = "UPDATE course_master 
+            SET title = '$courseMasterTitle', category = $courseCategory 
+            WHERE id = $courseMasterId";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'แก้ไขชื่อหลักสูตรสำเร็จ';
@@ -259,6 +264,10 @@ function doAddCourse()
         for ($i = 0; $i < sizeof($_POST['feeTitle']); $i++) {
             $feeTitle = $db->real_escape_string($_POST['feeTitle'][$i]);
             $feeAmount = $db->real_escape_string($_POST['feeAmount'][$i]);
+
+            if (trim($feeAmount) === '') {
+                $feeAmount = 'NULL';
+            }
 
             $feeValueList .= "($insertId, '$feeTitle', $feeAmount)" . ($i === sizeof($_POST['feeTitle']) - 1 ? '' : ',');
         }
@@ -386,6 +395,10 @@ function doUpdateCourse()
         for ($i = 0; $i < sizeof($_POST['feeTitle']); $i++) {
             $feeTitle = $db->real_escape_string($_POST['feeTitle'][$i]);
             $feeAmount = $db->real_escape_string($_POST['feeAmount'][$i]);
+
+            if (trim($feeAmount) === '') {
+                $feeAmount = 'NULL';
+            }
 
             $feeValueList .= "($courseId, '$feeTitle', $feeAmount)" . ($i === sizeof($_POST['feeTitle']) - 1 ? '' : ',');
         }
