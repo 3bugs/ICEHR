@@ -47,6 +47,9 @@ switch ($action) {
     case 'logout_user':
         doLogoutUser();
         break;
+    case 'get_name_title':
+        doGetNameTitle();
+        break;
     case 'add_course_master':
         $courseMasterTitle = $db->real_escape_string($_POST['courseMasterTitle']);
         $courseCategory = isset($_POST['courseCategory']) ? $db->real_escape_string($_POST['courseCategory']) : 'NULL';
@@ -554,6 +557,30 @@ function doUpdateDrivingLicenseDocStatus()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะข้อมูล/เอกสารผู้สมัคร';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doGetNameTitle() {
+    global $db, $response;
+
+    $sql = "SELECT id, title FROM name_title ORDER BY id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $response[KEY_DATA_LIST] = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $nameTitle = array();
+            $nameTitle['id'] = (int)$row['id'];
+            $nameTitle['title'] = $row['title'];
+            array_push($response[KEY_DATA_LIST], $nameTitle);
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

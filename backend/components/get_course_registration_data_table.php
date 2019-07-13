@@ -35,7 +35,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $sql = "SELECT cr.id, cr.form_number, 
                            cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province, 
                            cr.phone, cr.pid_file_name, cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount,
-                           cr.license_type,
+                           cr.license_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
                            ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
                         INNER JOIN driving_license_course_type ct 
@@ -92,10 +92,44 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['driving_license_course_type'] = $row['course_type_title'];
             $trainee['driving_license_course_fee'] = (int)$row['fee'];
             $trainee['license_type'] = (int)$row['license_type'];
+            $trainee['subject_1_result'] = $row['subject_1_result'];
+            $trainee['subject_2_result'] = $row['subject_2_result'];
+            $trainee['subject_3_result'] = $row['subject_3_result'];
+            $trainee['subject_4_result'] = $row['subject_4_result'];
+
+            switch ($trainee['driving_license_course_type_id']) {
+                case 1:
+                    $trainee['result_status'] = $trainee['subject_1_result'] != NULL
+                        && $trainee['subject_2_result'] != NULL
+                        && $trainee['subject_3_result'] != NULL
+                        && $trainee['subject_4_result'] != NULL;
+                    break;
+                case 2:
+                    $trainee['result_status'] = $trainee['subject_1_result'] != NULL;
+                    break;
+                case 3:
+                    $trainee['result_status'] = $trainee['subject_1_result'] != NULL;
+                    break;
+            }
 
             array_push($traineeList, $trainee);
         }
         $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
+        $db->close();
+        exit();
+    }
+
+    $sql = "SELECT id, title FROM name_title ORDER BY id";
+    if ($result = $db->query($sql)) {
+        $nameTitleList = array();
+        while ($row = $result->fetch_assoc()) {
+            $nameTitle = array();
+            $nameTitle['id'] = (int)$row['id'];
+            $nameTitle['title'] = $row['title'];
+            array_push($nameTitleList, $nameTitle);
+        }
     } else {
         echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
         $db->close();
@@ -518,9 +552,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 <label for="selectTraineeTitle">คำนำหน้าชื่อ:</label>
                                                 <select class="form-control" id="selectTraineeTitle">
                                                     <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
-                                                    <option value="นาย">นาย</option>
-                                                    <option value="นาง">นาง</option>
-                                                    <option value="นางสาว">นางสาว</option>
+                                                    <?php
+                                                    foreach ($nameTitleList as $nameTitle) {
+                                                        ?>
+                                                        <option value="<?php echo $nameTitle['title']; ?>" <?php echo ($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); ?>><?php echo $nameTitle['title']; ?></option>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </select>
                                             </div>
                                             <!--ชื่อ-->
@@ -553,7 +591,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 <label for="inputTraineePid">เลขประจำตัวประชาชน:</label>
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
-                                                        <i class="fa fa-user"></i>
+                                                        <i class="fa fa-credit-card"></i>
                                                     </span>
                                                     <input type="text" class="form-control"
                                                            id="inputTraineePid">
@@ -796,6 +834,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
                     <th style="text-align: center">ชำระเงิน</th>
                     <th style="text-align: center">เอกสาร</th>
+                    <th style="text-align: center">บันทึกผล</th>
                     <th style="text-align: center" nowrap>พิมพ์</th>
                     <?php
                 }
@@ -853,6 +892,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $registerStatusList[$registerStatus]++;
 
                 $docStatus = $trainee['doc_status'];
+
+                $subjectResults = array();
+                $subjectResults[0] = $trainee['subject_1_result'];
+                $subjectResults[1] = $trainee['subject_2_result'];
+                $subjectResults[2] = $trainee['subject_3_result'];
+                $subjectResults[3] = $trainee['subject_4_result'];
+                $resultStatus = $trainee['result_status'];
 
                 $paidAmount = $trainee['paid_amount'] == null ? '' : number_format($trainee['paid_amount']);
 
@@ -1021,8 +1067,15 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     <?php echo($docStatus === 1 ? 'สมบูรณ์' : 'รอตรวจสอบ'); ?>
                                 </button>
 
-                                <input id="inputDocStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $trainee['doc_status']; ?>"/>
+                                <input id="inputDocStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $docStatus; ?>"/>
 
+                            </td>
+
+                            <td style="vertical-align: top; text-align: center" nowrap>
+                                <button id="buttonResult<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo($resultStatus ? 'btn-success' : 'btn-warning'); ?>"
+                                        style="width: 90px;">
+                                    <?php echo($resultStatus ? 'สมบูรณ์' : 'ไม่สมบูรณ์'); ?>
+                                </button>
                             </td>
                             <?php
                         }
@@ -1035,15 +1088,19 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
-                                <li><a target="_blank" href="print_registration_form.php?service_type=<?php echo $serviceType; ?>&form_number=<?php echo $formNumber; ?>">
+                                <li><a target="_blank" href="print_dl_registration_form.php?trainee_id=<?= $traineeId; ?>">
                                         <i class="fa fa-print"></i>ใบสมัคร
                                     </a>
                                 </li>
-                                <li><a href="javascript:void(0)"
+                                <!--<li><a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $serviceType; */?>&form_number=<?php /*echo $formNumber; */?>">
+                                        <i class="fa fa-print"></i>ใบสมัคร
+                                    </a>
+                                </li>-->
+                                <!--<li><a href="javascript:void(0)"
                                        onClick="onClickPrintRegForm()">
                                         <i class="fa fa-print"></i>รูปสลิปการโอนเงิน
                                     </a>
-                                </li>
+                                </li>-->
                                 <li><a href="javascript:void(0)"
                                        onClick="onClickPrintReceipt('<?php echo $formNumber; ?>', <?php echo $traineeId; ?>, '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?php echo $courseDetails; ?>', <?php echo $courseApplicationFee; ?>)">
                                         <i class="fa fa-print"></i>ใบเสร็จรับเงิน
