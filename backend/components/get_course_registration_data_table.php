@@ -32,8 +32,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             break;
 
         case SERVICE_TYPE_DRIVING_LICENSE:
-            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.register_status, cr.created_at, cr.course_id, cr.paid_amount,
-                    ct.title AS course_type_title, ct.application_fee AS fee
+            $sql = "SELECT cr.id, cr.form_number, 
+                           cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province, 
+                           cr.phone, cr.pid_file_name, cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount,
+                           cr.license_type,
+                           ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
                         INNER JOIN driving_license_course_type ct 
                             ON cr.course_type = ct.id 
@@ -55,6 +58,14 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['title'] = $row['title'];
             $trainee['first_name'] = $row['first_name'];
             $trainee['last_name'] = $row['last_name'];
+            $trainee['address'] = $row['address'];
+            $trainee['moo'] = $row['moo'];
+            $trainee['soi'] = $row['soi'];
+            $trainee['road'] = $row['road'];
+            $trainee['sub_district'] = $row['sub_district'];
+            $trainee['district'] = $row['district'];
+            $trainee['province'] = $row['province'];
+
             $trainee['phone'] = $row['phone'];
             $trainee['email'] = $row['email'];
             $trainee['created_at'] = $row['created_at'];
@@ -74,8 +85,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['contact_phone'] = $row['contact_phone'];
 
             /*สำหรับบริการใบขับขี่*/
+            $trainee['pid'] = $row['pid'];
+            $trainee['pid_file_name'] = $row['pid_file_name'];
+            $trainee['doc_status'] = (int)$row['doc_status'];
+            $trainee['driving_license_course_type_id'] = (int)$row['course_type_id'];
             $trainee['driving_license_course_type'] = $row['course_type_title'];
             $trainee['driving_license_course_fee'] = (int)$row['fee'];
+            $trainee['license_type'] = (int)$row['license_type'];
 
             array_push($traineeList, $trainee);
         }
@@ -86,6 +102,23 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         exit();
     }
 
+    if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+        $sql = "SELECT * FROM driving_license_course_type ORDER BY id";
+        if ($result = $db->query($sql)) {
+            $drivingLicenseCourseTypeList = array();
+            while ($row = $result->fetch_assoc()) {
+                $drivingLicenseCourseType = array();
+                $drivingLicenseCourseType['id'] = (int)$row['id'];
+                $drivingLicenseCourseType['title'] = $row['title'];
+                $drivingLicenseCourseType['application_fee'] = (int)$row['application_fee'];
+                array_push($drivingLicenseCourseTypeList, $drivingLicenseCourseType);
+            }
+        } else {
+            echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
+            $db->close();
+            exit();
+        }
+    }
     ?>
 
     <!-- Print receipt modal -->
@@ -221,7 +254,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">ไม่ได้ชำระเงิน</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">แจ้งชำระเงิน</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">รอตรวจสอบ</a></li>
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
                                 <li class="divider"></li>
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิก</a></li>
@@ -247,14 +280,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         <!-- Custom Tabs -->
                         <div class="nav-tabs-custom" style="margin-bottom: 0">
                             <ul class="nav nav-tabs">
-                                <li class="active"><a href="#tab_1" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
-                                <li><a href="#tab_2" data-toggle="tab">การแจ้งโอนเงิน</a></li>
-                                <!--<li><a href="#tab_3" data-toggle="tab">ยอดเงินจ่ายจริง</a></li>-->
+                                <li class="active"><a href="#tab_info" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
+                                <li><a href="#tab_noti" data-toggle="tab">การแจ้งโอนเงิน</a></li>
                             </ul>
                             <div class="tab-content">
 
-                                <!--แท็บ 1 - ข้อมูลใบสมัคร-->
-                                <div class="tab-pane active" id="tab_1">
+                                <!--แท็บ: ข้อมูลใบสมัคร-->
+                                <div class="tab-pane active" id="tab_info">
                                     <div class="box-body">
                                         <input type="hidden" id="inputTraineeId">
                                         <!--<input type="hidden" id="inputRegisterStatus">-->
@@ -367,8 +399,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 </div>
                                 <!-- /.tab-pane -->
 
-                                <!--แท็บ 2 - หลักฐานการโอนเงิน-->
-                                <div class="tab-pane" id="tab_2">
+                                <!--แท็บ: หลักฐานการโอนเงิน-->
+                                <div class="tab-pane" id="tab_noti">
                                     <div class="box-body">
                                         <div id="paymentNotificationDetails">
                                             <div class="row">
@@ -411,25 +443,280 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     </div>
                                 </div>
                                 <!-- /.tab-pane -->
+                            </div>
+                            <!-- /.tab-content -->
+                        </div>
+                        <!-- nav-tabs-custom -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                                <!--แท็บ 3 - ยอดเงินจ่ายจริง-->
-                                <!--<div class="tab-pane" id="tab_3">
+    <!-- Manage doc status modal -->
+    <div class="modal fade" id="manageDocStatusModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;
+                    </button>-->
+                    <h4 class="modal-title">
+                        ข้อมูลและเอกสารผู้สมัคร: ใบสมัครเลขที่ <span id="spanFormNumber"></span>
+
+                        <!--สถานะเอกสาร-->
+                        <div class="btn-group pull-right">
+                            <button id="buttonDocStatus" type="button" class="btn btn-default">
+                                <span id="spanCurrentDocStatus" style="color: white">&nbsp;</span>
+                            </button>
+                            <button id="buttonDocStatusDropDown" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret" style="color: white"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="javascript:void(0)" onClick="updateDocStatus(0)">รอตรวจสอบ</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateDocStatus(1)">สมบูรณ์</a></li>
+                            </ul>
+                        </div>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>
+                    <div id="alertDocSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertDocSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertDocSuccessText"></span>
+                    </div>
+                    <div id="alertDocError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertDocError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertDocErrorText"></span>
+                    </div>
+
+                    <form id="formManageDocStatus" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <!-- Custom Tabs -->
+                        <div class="nav-tabs-custom" style="margin-bottom: 0">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#tab_doc_info" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
+                                <li><a href="#tab_doc_pid" data-toggle="tab">สำเนาบัตร/เอกสาร</a></li>
+                            </ul>
+                            <div class="tab-content">
+
+                                <!--แท็บ: ข้อมูลใบสมัคร-->
+                                <div class="tab-pane active" id="tab_doc_info">
                                     <div class="box-body">
+                                        <input type="hidden" id="inputTraineeId">
+
+                                        <!--คำนำหน้า-ชื่อ-นามสกุล-->
                                         <div class="row">
-                                            <div class="form-group col-md-6">
-                                                <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
+                                            <!--คำนำหน้าชื่อ-->
+                                            <div class="form-group col-md-2">
+                                                <label for="selectTraineeTitle">คำนำหน้าชื่อ:</label>
+                                                <select class="form-control" id="selectTraineeTitle">
+                                                    <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
+                                                    <option value="นาย">นาย</option>
+                                                    <option value="นาง">นาง</option>
+                                                    <option value="นางสาว">นางสาว</option>
+                                                </select>
+                                            </div>
+                                            <!--ชื่อ-->
+                                            <div class="form-group col-md-5">
+                                                <label for="inputTraineeFirstName">ชื่อ:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputTraineeFirstName">
+                                                </div>
+                                            </div>
+                                            <!--นามสกุล-->
+                                            <div class="form-group col-md-5">
+                                                <label for="inputTraineeLastName">นามสกุล:</label>
                                                 <div class="input-group">
                                                             <span class="input-group-addon">
-                                                                <strong>฿</strong>
+                                                                <i class="fa fa-user"></i>
                                                             </span>
                                                     <input type="text" class="form-control"
-                                                           id="inputPaidAmount">
+                                                           id="inputTraineeLastName">
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!--เลขประจำตัวประชาชน-->
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label for="inputTraineePid">เลขประจำตัวประชาชน:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputTraineePid">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--เบอร์โทร-->
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label for="inputPhone">เบอร์โทร:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-phone"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputPhone">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <label for="inputMoo" style="display: block; text-align: center;">ที่อยู่ตามบัตรประชาชน</label>
+                                        <div style="padding: 15px 15px 5px 15px; border: 0px solid grey; background: #f4f4f4">
+                                            <!--บ้านเลขที่-หมู่-->
+                                            <div class="row">
+                                                <!--บ้านเลขที่-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputAddress">บ้านเลขที่:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputAddress">
+                                                    </div>
+                                                </div>
+                                                <!--หมู่-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputMoo">หมู่:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope-o"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputMoo">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--ซอย-ถนน-->
+                                            <div class="row">
+                                                <!--ซอย-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputSoi">ซอย:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputSoi">
+                                                    </div>
+                                                </div>
+                                                <!--ถนน-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputRoad">ถนน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope-o"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputRoad">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--แขวง-เขต-->
+                                            <div class="row">
+                                                <!--แขวง-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputSubDistrict">แขวง/ตำบล:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputSubDistrict">
+                                                    </div>
+                                                </div>
+                                                <!--เขต-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputDistrict">เขต/อำเภอ:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope-o"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputDistrict">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--จังหวัด-->
+                                            <div class="row">
+                                                <!--จังหวัด-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputProvince">จังหวัด:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputProvince">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--/ที่อยู่ตามบัตรประชาชน-->
+
+                                        <!--ประเภทหลักสูตร-->
+                                        <div style="padding: 5px 15px 5px 15px; margin-top: 15px; border: 1px solid #eee;">
+                                            <?php
+                                            foreach ($drivingLicenseCourseTypeList as $courseType) {
+                                                ?>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="courseType" value="<?php echo $courseType['id']; ?>">
+                                                        <?php echo $courseType['title']; ?>
+                                                    </label>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+
+                                        <!--ประเภทใบอนุญาต-->
+                                        <div style="padding: 10px 15px 10px 15px; margin-top: 15px; border: 1px solid #eee;">
+                                            <label class="checkbox-inline"><input type="checkbox" id="checkBoxLicenseTypeCar" name="licenseTypeCar">รถยนต์ส่วนบุคคลชั่วคราว</label>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <label class="checkbox-inline"><input type="checkbox" id="checkBoxLicenseTypeBicycle" name="licenseTypeBicycle">รถจักรยานยนต์ส่วนบุคคลชั่วคราว</label>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <label class="checkbox-inline"><input type="checkbox" id="checkBoxLicenseTypeTricycle" name="licenseTypeTricycle">รถสามล้อส่วนบุคคลชั่วคราว</label>
+                                        </div>
+
                                     </div>
-                                </div>-->
+                                    <!-- /.box-body -->
+                                </div>
                                 <!-- /.tab-pane -->
+
+                                <!--แท็บ: สำเนาบัตร/เอกสาร-->
+                                <div class="tab-pane" id="tab_doc_pid">
+                                    <div class="box-body">
+                                        <div id="docDetails" class="row">
+                                            <div class="col" style="text-align: center">
+                                                <img id="imgPid" style="height: 600px; width: 600px; object-fit: contain"/>
+                                            </div>
+                                        </div>
+                                        <div id="alertNoDoc" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
+                                            <i class="icon fa fa-warning"></i>ไม่พบภาพสำเนาบัตรประชาชน/พาสปอร์ต/เอกสาร สำหรับใบสมัครนี้
+                                        </div>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.tab-pane -->
+
                             </div>
                             <!-- /.tab-content -->
                         </div>
@@ -449,36 +736,69 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         <tr>
             <?php
             if ($serviceType === SERVICE_TYPE_TRAINING) {
-                ?>
-                <th style="width: 10%; text-align: center">เลขที่</th>
-                <th style="width: 20%; text-align: center">ผู้สมัคร</th>
-                <th style="width: 20%; text-align: center">ผู้ประสานงาน</th>
-                <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
-                <th style="width: 10%; text-align: center">วันอบรม</th>
-                <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
-                <th style="text-align: center">สถานะ</th>
-                <th style="text-align: center" nowrap>พิมพ์</th>
-                <?php
+                if ($paramCourseId == NULL) {
+                    ?>
+                    <th style="width: 10%; text-align: center">เลขที่</th>
+                    <th style="width: 20%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 20%; text-align: center">ผู้ประสานงาน</th>
+                    <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
+                    <th style="width: 10%; text-align: center">วันอบรม</th>
+                    <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center">การชำระเงิน</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                } else {
+                    ?>
+                    <th style="width: 20%; text-align: center">เลขที่</th>
+                    <th style="width: 30%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 30%; text-align: center">ผู้ประสานงาน</th>
+                    <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center">การชำระเงิน</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                }
             } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
-                ?>
-                <th style="width: 10%; text-align: center">เลขที่</th>
-                <th style="width: 20%; text-align: center">ผู้สมัคร</th>
-                <th style="width: 20%; text-align: center">ผู้ติดต่อ</th>
-                <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
-                <th style="width: 10%; text-align: center">วันอบรม</th>
-                <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
-                <th style="text-align: center" nowrap>พิมพ์</th>
-                <?php
+                if ($paramCourseId == NULL) {
+                    ?>
+                    <th style="width: 10%; text-align: center">เลขที่</th>
+                    <th style="width: 20%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 20%; text-align: center">ผู้ติดต่อ</th>
+                    <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
+                    <th style="width: 10%; text-align: center">วันอบรม</th>
+                    <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                } else {
+                    ?>
+                    <th style="width: 20%; text-align: center">เลขที่</th>
+                    <th style="width: 30%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 30%; text-align: center">ผู้ติดต่อ</th>
+                    <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                }
             } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
-                ?>
-                <th style="width: 15%; text-align: center">เลขที่</th>
-                <th style="width: 25%; text-align: center">ผู้สมัคร</th>
-                <th style="width: 35%; text-align: center">ประเภท/ราคา</th>
-                <th style="width: 10%; text-align: center">วันอบรม</th>
-                <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
-                <th style="text-align: center">สถานะ</th>
-                <th style="text-align: center" nowrap>พิมพ์</th>
-                <?php
+                if ($paramCourseId == NULL) {
+                    ?>
+                    <th style="width: 15%; text-align: center">เลขที่</th>
+                    <th style="width: 25%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 30%; text-align: center">ประเภท/ราคา</th>
+                    <th style="width: 10%; text-align: center">วันอบรม</th>
+                    <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center">ชำระเงิน</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                } else {
+                    ?>
+                    <th style="width: 15%; text-align: center">เลขที่</th>
+                    <th style="width: 25%; text-align: center">ผู้สมัคร</th>
+                    <th style="width: 35%; text-align: center">ประเภท/ราคา</th>
+                    <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center">ชำระเงิน</th>
+                    <th style="text-align: center">เอกสาร</th>
+                    <th style="text-align: center" nowrap>พิมพ์</th>
+                    <?php
+                }
             }
             ?>
         </tr>
@@ -532,7 +852,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $registerStatus = $trainee['register_status'];
                 $registerStatusList[$registerStatus]++;
 
-                $paidAmount = $trainee['paid_amount'] == null ? '' : $trainee['paid_amount'];
+                $docStatus = $trainee['doc_status'];
+
+                $paidAmount = $trainee['paid_amount'] == null ? '' : number_format($trainee['paid_amount']);
 
                 $courseId = $trainee['course_id'];
                 $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
@@ -570,13 +892,21 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     if ($serviceType === SERVICE_TYPE_TRAINING) {
                         ?>
                         <td style="vertical-align: top"><?php echo($trainee['coordinator']['first_name'] == null ? '&nbsp;' : $coordinatorDetails); ?></td>
-                        <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
                         <?php
+                        if ($paramCourseId == NULL) {
+                            ?>
+                            <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
+                            <?php
+                        }
                     } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
                         ?>
                         <td style="vertical-align: top"><?php echo "{$trainee['contact_name']}<br/><i class=\"fa fa-phone\" style=\"color: black\"></i> {$trainee['contact_phone']}"; ?></td>
-                        <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
                         <?php
+                        if ($paramCourseId == NULL) {
+                            ?>
+                            <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
+                            <?php
+                        }
                     } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                         ?>
                         <td style="vertical-align: top">
@@ -592,7 +922,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     }
                     ?>
 
-                    <td style="vertical-align: top; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
+                    <?php
+                    if ($paramCourseId == NULL) {
+                        ?>
+                        <td style="vertical-align: top; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
+                        <?php
+                    }
+                    ?>
                     <td style="vertical-align: top; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
                     <?php
@@ -611,7 +947,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     break;
                                 case 'wait-approve':
                                     $btnClass = 'btn-warning';
-                                    $btnText = 'แจ้งชำระเงิน';
+                                    $btnText = 'รอตรวจสอบ';
                                     $sortOrder = 1;
                                     break;
                                 case 'complete':
@@ -636,7 +972,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
                                             '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? $courseDetails : $trainee['driving_license_course_type']); ?>',
                                             '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
-                                            '<?php echo $paidAmount; ?>'
+                                            '<?php echo $paidAmount; ?>',
+                                            '<?php echo $trainee['pid_file_name']; ?>'
                                             )">
                                 <?php echo $btnText ?>
                             </button>
@@ -645,7 +982,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             if ($paidAmount !== '') {
                                 ?>
                                 <div style="text-align: center; margin-top: 5px">
-                                    <?php echo number_format($paidAmount); ?>&nbsp;บาท
+                                    <?php echo $paidAmount; ?>&nbsp;บาท
                                 </div>
                                 <?php
                             }
@@ -654,7 +991,41 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <input type="hidden" name="traineeId" value="<?php echo $traineeId; ?>"/>
                             <input id="inputRegisterStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $registerStatus; ?>"/>
                         </td>
+
                         <?php
+                        if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != NULL) {
+                            ?>
+                            <td style="vertical-align: top; text-align: center" nowrap>
+                                <button id="buttonDoc<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo($docStatus === 1 ? 'btn-success' : 'btn-warning'); ?>"
+                                        style="width: 90px;"
+                                        onClick="onClickDoc(
+                                                '<?php echo $formNumber; ?>',
+                                        <?php echo $traineeId; ?>,
+                                                '<?php echo $trainee['title']; ?>',
+                                                '<?php echo $trainee['first_name']; ?>',
+                                                '<?php echo $trainee['last_name']; ?>',
+                                                '<?php echo $trainee['pid']; ?>',
+                                                '<?php echo $trainee['address']; ?>',
+                                                '<?php echo $trainee['moo']; ?>',
+                                                '<?php echo $trainee['soi']; ?>',
+                                                '<?php echo $trainee['road']; ?>',
+                                                '<?php echo $trainee['sub_district']; ?>',
+                                                '<?php echo $trainee['district']; ?>',
+                                                '<?php echo $trainee['province']; ?>',
+                                                '<?php echo $trainee['phone']; ?>',
+                                                <?php echo $trainee['driving_license_course_type_id']; ?>,
+                                                <?php echo $trainee['license_type']; ?>,
+                                                <?php echo $trainee['doc_status']; ?>,
+                                                '<?php echo $trainee['pid_file_name']; ?>'
+                                                )">
+                                    <?php echo($docStatus === 1 ? 'สมบูรณ์' : 'รอตรวจสอบ'); ?>
+                                </button>
+
+                                <input id="inputDocStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $trainee['doc_status']; ?>"/>
+
+                            </td>
+                            <?php
+                        }
                     }
                     ?>
                     <td style="vertical-align: top; text-align: center" nowrap>
@@ -729,6 +1100,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     location.reload(true);
                 }
             });
+            $('#manageDocStatusModal').on('hidden.bs.modal', () => {
+                if (shouldReload) {
+                    location.reload(true);
+                }
+            });
         });
 
         function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee) {
@@ -747,7 +1123,58 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#printReceiptModal').modal('show');
         }
 
-        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount) {
+        function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,
+                            traineeAddress, traineeMoo, traineeSoi, traineeRoad, traineeSubDistrict, traineeDistrict, traineeProvince, traineePhone,
+                            courseType, licenseTpe, docStatus, pidFileName) {
+            $('#manageDocStatusModal #alertDocSuccess').hide();
+            $('#manageDocStatusModal #alertDocError').hide();
+            $('#manageDocStatusModal #spanLoading').hide();
+
+            $('#manageDocStatusModal #spanFormNumber').text(formNumber);
+            $('#manageDocStatusModal #inputTraineeId').val(traineeId);
+
+            $('#manageDocStatusModal #inputTraineePid').val(traineePid);
+            $('#manageDocStatusModal #inputPhone').val(traineePhone);
+
+            $('#manageDocStatusModal #selectTraineeTitle').val(traineeTitle);
+            $('#manageDocStatusModal #inputTraineeFirstName').val(traineeFirstName);
+            $('#manageDocStatusModal #inputTraineeLastName').val(traineeLastName);
+            $('#manageDocStatusModal #inputAddress').val(traineeAddress);
+            $('#manageDocStatusModal #inputMoo').val(traineeMoo);
+            $('#manageDocStatusModal #inputSoi').val(traineeSoi);
+            $('#manageDocStatusModal #inputRoad').val(traineeRoad);
+            $('#manageDocStatusModal #inputSubDistrict').val(traineeSubDistrict);
+            $('#manageDocStatusModal #inputDistrict').val(traineeDistrict);
+            $('#manageDocStatusModal #inputProvince').val(traineeProvince);
+
+            $('#manageDocStatusModal input[name=courseType][value=' + courseType + ']').prop('checked', true);
+            const licenseTypeBinaryString = ('00' + licenseTpe.toString(2)).slice(-3);
+            //alert(licenseTypeBinaryString);
+
+            $('#manageDocStatusModal #checkBoxLicenseTypeTricycle').prop('checked', licenseTypeBinaryString.substring(0, 1) === '1');
+            $('#manageDocStatusModal #checkBoxLicenseTypeBicycle').prop('checked', licenseTypeBinaryString.substring(1, 2) === '1');
+            $('#manageDocStatusModal #checkBoxLicenseTypeCar').prop('checked', licenseTypeBinaryString.substring(2) === '1');
+
+            const docDetails = $('#manageDocStatusModal #docDetails');
+            const imgPid = $('#manageDocStatusModal #imgPid');
+            const noDocAlert = $('#manageDocStatusModal #alertNoDoc');
+
+            if (imgPid != null) {
+                if (pidFileName === '') {
+                    docDetails.hide();
+                    noDocAlert.show();
+                } else {
+                    docDetails.show();
+                    noDocAlert.hide();
+                    imgPid.attr('src', '../uploads/slip_images/' + pidFileName);
+                }
+            }
+
+            setButtonDocStatusClass(docStatus);
+            $('#manageDocStatusModal').modal('show');
+        }
+
+        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount, pidFileName) {
             doGetPaymentNotification(traineeId);
 
             $('#manageRegisterStatusModal #spanFormNumber').text(formNumber);
@@ -762,9 +1189,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#manageRegisterStatusModal #inputCourseName').val(courseName);
             $('#manageRegisterStatusModal #inputCourseFee').val(courseApplicationFee);
             $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
+
             $('#manageRegisterStatusModal #alertSuccess').hide();
             $('#manageRegisterStatusModal #alertError').hide();
-            $('#spanLoading').hide();
+            $('#manageRegisterStatusModal #spanLoading').hide();
 
             const registerStatus = $('#inputRegisterStatus' + traineeId).val();
             setButtonStatusClass(registerStatus);
@@ -797,7 +1225,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     break;
                 case 'wait-approve':
                     statusClass = 'btn-warning';
-                    statusText = 'แจ้งชำระเงิน';
+                    statusText = 'รอตรวจสอบ';
                     break;
                 case 'complete':
                     statusClass = 'btn-success';
@@ -818,6 +1246,103 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             buttonStatusDropDown.addClass(statusClass);
         }
 
+        function removeButtonDocStatusClass() {
+            const buttonDocStatus = $('#manageDocStatusModal #buttonDocStatus');
+            const buttonDocStatusDropDown = $('#manageDocStatusModal #buttonDocStatusDropDown');
+
+            buttonDocStatus.removeClass('btn-default');
+            buttonDocStatusDropDown.removeClass('btn-default');
+            buttonDocStatus.removeClass('btn-info');
+            buttonDocStatusDropDown.removeClass('btn-info');
+            buttonDocStatus.removeClass('btn-danger');
+            buttonDocStatusDropDown.removeClass('btn-danger');
+            buttonDocStatus.removeClass('btn-success');
+            buttonDocStatusDropDown.removeClass('btn-success');
+            buttonDocStatus.removeClass('btn-warning');
+            buttonDocStatusDropDown.removeClass('btn-warning');
+        }
+
+        function setButtonDocStatusClass(docStatus) {
+            let statusClass, statusText;
+            switch (docStatus) {
+                case 0:
+                    statusClass = 'btn-warning';
+                    statusText = 'รอตรวจสอบ';
+                    break;
+                case 1:
+                    statusClass = 'btn-success';
+                    statusText = 'สมบูรณ์';
+                    break;
+            }
+
+            $('#manageDocStatusModal #spanCurrentDocStatus').text(statusText);
+
+            removeButtonDocStatusClass();
+            const buttonDocStatus = $('#manageDocStatusModal #buttonDocStatus');
+            const buttonDocStatusDropDown = $('#manageDocStatusModal #buttonDocStatusDropDown');
+            buttonDocStatus.addClass(statusClass);
+            buttonDocStatusDropDown.addClass(statusClass);
+        }
+
+        function updateDocStatus(newStatus) {
+            $('#manageDocStatusModal #alertDocSuccess').hide();
+            $('#manageDocStatusModal #alertDocError').hide();
+
+            const traineeId = $('#manageDocStatusModal #inputTraineeId').val();
+            const oldStatus = parseInt($('#inputDocStatus' + traineeId).val());
+
+            //alert('Old Status: ' + oldStatus + ', New Status: ' + newStatus);
+
+            if (oldStatus !== newStatus) {
+                let text = '';
+                switch (newStatus) {
+                    case 0:
+                        text = 'รอตรวจสอบ';
+                        break;
+                    case 1:
+                        text = 'สมบูรณ์';
+                        break;
+                }
+
+                if (confirm("ยืนยันเปลี่ยนสถานะข้อมูล/เอกสารผู้สมัครเป็น '" + text + "' ?"
+                    + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่ลงฐานข้อมูลทันที')) {
+                    doUpdateDocStatus(traineeId, newStatus);
+                }
+            }
+        }
+
+        function doUpdateDocStatus(traineeId, newStatus) {
+            $('#manageDocStatusModal #spanLoading').show();
+
+            $.post(
+                '../api/api.php/update_driving_license_doc_status',
+                {
+                    traineeId: traineeId,
+                    docStatus: newStatus,
+                }
+            ).done(function (data) {
+                $('#manageDocStatusModal #spanLoading').hide();
+                if (data.error_code === 0) {
+                    $('#manageDocStatusModal #alertDocSuccessText').text(data.error_message);
+                    $('#manageDocStatusModal #alertDocSuccess').show();
+
+                    //$('#formManageRegisterStatus #inputRegisterStatus').val(newStatus);
+                    $('#inputDocStatus' + traineeId).val(newStatus);
+                    setButtonDocStatusClass(newStatus);
+
+                    shouldReload = true;
+                    //updateStatusButtonInTable(traineeId, oldStatus, newStatus);
+                } else {
+                    $('#manageDocStatusModal #alertDocErrorText').text(data.error_message);
+                    $('#manageDocStatusModal #alertDocError').show();
+                }
+            }).fail(function () {
+                $('#manageDocStatusModal #spanLoading').hide();
+                $('#manageDocStatusModal #alertDocErrorText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                $('#manageDocStatusModal #alertDocError').show();
+            });
+        }
+
         function updateRegisterStatus(newStatus) {
             $('#manageRegisterStatusModal #alertSuccess').hide();
             $('#manageRegisterStatusModal #alertError').hide();
@@ -836,7 +1361,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         text = 'ยังไม่ได้ชำระเงิน';
                         break;
                     case 'wait-approve':
-                        text = 'แจ้งชำระเงิน';
+                        text = 'รอตรวจสอบ';
                         break;
                     case 'complete':
                         text = 'สมบูรณ์';
@@ -847,7 +1372,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 }
 
                 if (newStatus === 'complete') {
-                    const paidAmount = prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง:', '');
+                    const courseFee = $('#manageRegisterStatusModal #inputCourseFee').val();
+                    const paidAmount = prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง (ไม่ต้องใส่เครื่องหมาย , ):', courseFee.replace(/\,/g, ''));
                     if (paidAmount === null) {
                         // user กด Cancel
                     } else if (paidAmount.trim() === '') {
@@ -856,7 +1382,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         alert('ผิดพลาด: ต้องกรอกยอดเงินเป็นตัวเลข');
                     } else {
                         if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + text + "' ?"
-                            + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่และยอดเงินที่ลูกค้าจ่ายจริงลงฐานข้อมูลทันที')) {
+                            + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่และยอดเงินที่ลูกค้าจ่ายจริงลงฐานข้อมูลทันที\n----------\n\nยอดเงินที่ลูกค้าจ่ายจริง: '
+                            + formatNumber(paidAmount) + ' บาท')) {
                             doUpdateRegisterStatus(traineeId, newStatus, paidAmount);
                         }
                     }
@@ -870,7 +1397,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         }
 
         function doUpdateRegisterStatus(traineeId, newStatus, paidAmount) {
-            $('#spanLoading').show();
+            $('#manageRegisterStatusModal #spanLoading').show();
 
             $.post(
                 '../api/api.php/update_register_status',
@@ -881,7 +1408,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     paidAmount: paidAmount,
                 }
             ).done(function (data) {
-                $('#spanLoading').hide();
+                $('#manageRegisterStatusModal #spanLoading').hide();
                 if (data.error_code === 0) {
                     $('#manageRegisterStatusModal #alertSuccessText').text(data.error_message);
                     $('#manageRegisterStatusModal #alertSuccess').show();
@@ -897,7 +1424,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     $('#manageRegisterStatusModal #alertError').show();
                 }
             }).fail(function () {
-                $('#spanLoading').hide();
+                $('#manageRegisterStatusModal #spanLoading').hide();
                 $('#manageRegisterStatusModal #alertErrorText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
                 $('#manageRegisterStatusModal #alertError').show();
             });
@@ -937,7 +1464,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     break;
                 case 'wait-approve':
                     statusClass = 'btn-warning';
-                    statusText = 'แจ้งชำระเงิน';
+                    statusText = 'รอตรวจสอบ';
                     break;
                 case 'complete':
                     statusClass = 'btn-success';

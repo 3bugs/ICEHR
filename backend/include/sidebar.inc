@@ -42,6 +42,7 @@
                     </a>
                     <ul class="treeview-menu">
                         <li style="margin-left: 20px"><a href="../pages/course_master.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-font"></i>ชื่อหลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/driving_license_course_type.php"><i class="fa fa-bars"></i>ประเภทหลักสูตร</a></li>
                         <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
                         <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
                     </ul>

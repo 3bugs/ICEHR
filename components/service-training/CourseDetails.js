@@ -7,6 +7,7 @@ import {SERVICE_SOCIAL, SERVICE_TRAINING, HOST_BACKEND} from "../../etc/constant
 import './CourseDetails.css'
 import {Carousel} from 'react-responsive-carousel';
 import "video-react/dist/video-react.css";
+import { Scrollbars } from 'react-custom-scrollbars';
 import {Player} from 'video-react';
 import {
     FacebookShareButton,
@@ -110,12 +111,14 @@ export default class CourseDetails extends React.Component {
                     <hr/>
                     <div className="row">
                         <div className="col-12 col-md-6">
-                            <div className="content mCustomScrollbar"
-                                 style={{background: '#f8f8f8', margin: '0px', paddingTop: '10px', paddingBottom: '10px', paddingLeft: '15px', paddingRight: '5px'}}
-                                 dangerouslySetInnerHTML={{__html: course.details}}>
-                            </div>
+                            <Scrollbars style={{ height: 450 }}>
+                                <div className="content mCustomScrollbar_"
+                                     style={{background: '#f8f8f8', margin: '0px', paddingTop: '15px', paddingBottom: '10px', paddingLeft: '15px', paddingRight: '5px'}}
+                                     dangerouslySetInnerHTML={{__html: course.details}}>
+                                </div>
+                            </Scrollbars>
 
-                            <div className="title-download-inside mt-3">
+                            <div className="title-download-inside mt-4">
                                 <h3>ค่าลงทะเบียน</h3>
                             </div>
                             {

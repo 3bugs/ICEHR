@@ -90,7 +90,12 @@ switch ($action) {
     case 'get_academic_paper_download':
         doGetAcademicPaperDownload();
         break;
-
+    case 'update_driving_license_course_type':
+        doUpdateDrivingLicenseCourseType();
+        break;
+    case 'update_driving_license_doc_status':
+        doUpdateDrivingLicenseDocStatus();
+        break;
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
         $response[KEY_ERROR_MESSAGE] = 'No action specified or invalid action.';
@@ -347,7 +352,8 @@ function doAddCourse()
     }
 }
 
-function getMySqlDateFormat($thaiDate) {
+function getMySqlDateFormat($thaiDate)
+{
     $thaiDatePart = explode('/', $thaiDate);
     $yearAd = (int)$thaiDatePart[2] - 543;
     return "{$yearAd}-{$thaiDatePart[1]}-{$thaiDatePart[0]}";
@@ -525,6 +531,29 @@ function doUpdateRegisterStatus()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะการลงทะเบียน';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateDrivingLicenseDocStatus()
+{
+    global $db, $response;
+
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+    $newDocStatus = $db->real_escape_string($_POST['docStatus']);
+
+    $sql = "UPDATE course_registration_driving_license 
+            SET doc_status = $newDocStatus
+            WHERE id = $traineeId ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะข้อมูล/เอกสารผู้สมัครสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะข้อมูล/เอกสารผู้สมัคร';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -725,6 +754,30 @@ function doGetAcademicPaperDownload()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateDrivingLicenseCourseType()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $fee = $db->real_escape_string($_POST['fee']);
+
+    $sql = "UPDATE driving_license_course_type 
+                SET title = '$title', application_fee = $fee
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลประเภทหลักสูตรสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูลประเภทหลักสูตร';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

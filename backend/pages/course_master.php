@@ -262,11 +262,17 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        data-toggle="modal" data-target="#addCourseMasterModal">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มชื่อหลักสูตร
-                                </button>
+                                <?php
+                                if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            data-toggle="modal" data-target="#addCourseMasterModal">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มชื่อหลักสูตร
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableCourseMaster" class="table table-bordered table-striped">

@@ -9,6 +9,7 @@ import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
 import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
+import InputMask from 'react-input-mask';
 
 const TOP_OF_FORM = 'topOfForm';
 
@@ -17,11 +18,17 @@ const REGISTER_TRAINEE_FIRST_NAME = 'traineeFirstName';
 const REGISTER_TRAINEE_LAST_NAME = 'traineeLastName';
 const REGISTER_TRAINEE_PID = 'traineePid';
 const REGISTER_TRAINEE_ADDRESS = 'traineeAddress';
+const REGISTER_TRAINEE_MOO = 'traineeMoo';
+const REGISTER_TRAINEE_SOI = 'traineeSoi';
+const REGISTER_TRAINEE_ROAD = 'traineeRoad';
 const REGISTER_TRAINEE_SUB_DISTRICT = 'traineeSubDistrict';
 const REGISTER_TRAINEE_DISTRICT = 'traineeDistrict';
 const REGISTER_TRAINEE_PROVINCE = 'traineeProvince';
 const REGISTER_TRAINEE_POSTAL_CODE = 'traineePostalCode';
 const REGISTER_TRAINEE_PHONE = 'traineePhone';
+const REGISTER_TRAINEE_IMAGE_FILE_PID = 'traineeImageFilePid';
+const REGISTER_TRAINEE_IMAGE_FILE_PASSPORT = 'traineeImageFilePassport';
+const REGISTER_TRAINEE_IMAGE_FILE_WORK_PERMIT = 'traineeImageFileWorkPermit';
 const REGISTER_TRAINEE_SELECTED_COURSE_TYPE = 'traineeSelectedCourseType';
 const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR = 'traineeSelectedLicenseTypeCar';
 const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE = 'traineeSelectedLicenseTypeBicycle';
@@ -102,6 +109,12 @@ class TraineeRegisterForm extends React.Component {
                                                 <label className="mt-2">เลขประจำตัวประชาชน</label>
                                             </div>
                                             <div className="col-md-9">
+                                                {/*<InputMask mask="9-9999-99999-99-9"
+                                                           value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
+                                                           maxLength={13}
+                                                           placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก"
+                                                           className="form-control-2 input-md mt-2"/>*/}
                                                 <input value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
                                                        type="text"
@@ -114,20 +127,50 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">ที่อยู่ตามบัตรประชาชน</label>
+                                                <label className="mt-2">ที่อยู่ตามบัตรประชาชน<br/>(ข้อมูลใดไม่มี ให้กรอก -)</label>
                                             </div>
                                             <div className="col-md-9">
                                                 <div className="row">
-                                                    <div className="col-12">
+                                                    <div className="col-12 col-md-6">
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_ADDRESS] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ADDRESS)}
                                                                type="text"
-                                                               placeholder="บ้านเลขที่ / หมู่ / ซอย / ถนน"
+                                                               placeholder="บ้านเลขที่"
                                                                className="form-control input-md mt-2"/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
                                                     </div>
+                                                    <div className="col nopadleft">
+                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_MOO] || ''}
+                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_MOO)}
+                                                               type="text"
+                                                               placeholder="หมู่"
+                                                               className="form-control input-md mt-2"/>
+                                                        <ErrorLabel
+                                                            value={traineeForm.errors[REGISTER_TRAINEE_MOO]}/>
+                                                    </div>
                                                     <div className="w-100"></div>
+
+                                                    <div className="col-12 col-md-6">
+                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_SOI] || ''}
+                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SOI)}
+                                                               type="text"
+                                                               placeholder="ซอย"
+                                                               className="form-control input-md mt-2"/>
+                                                        <ErrorLabel
+                                                            value={traineeForm.errors[REGISTER_TRAINEE_SOI]}/>
+                                                    </div>
+                                                    <div className="col nopadleft">
+                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_ROAD] || ''}
+                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ROAD)}
+                                                               type="text"
+                                                               placeholder="ถนน"
+                                                               className="form-control input-md mt-2"/>
+                                                        <ErrorLabel
+                                                            value={traineeForm.errors[REGISTER_TRAINEE_ROAD]}/>
+                                                    </div>
+                                                    <div className="w-100"></div>
+
                                                     <div className="col-12 col-md-6">
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SUB_DISTRICT)}
@@ -147,6 +190,7 @@ class TraineeRegisterForm extends React.Component {
                                                             value={traineeForm.errors[REGISTER_TRAINEE_DISTRICT]}/>
                                                     </div>
                                                     <div className="w-100"></div>
+
                                                     <div className="col-12 col-md-6">
                                                         <input value={traineeForm.fields[REGISTER_TRAINEE_PROVINCE] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PROVINCE)}
@@ -187,6 +231,27 @@ class TraineeRegisterForm extends React.Component {
                                                     value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
                                             </div>
                                         </div>
+                                        <div className="row">
+                                            <div className="col-md-3">
+                                                <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
+                                            </div>
+                                            <div className="col-md-9">
+                                                {/*<form method="post" action="#" id="#">*/}
+                                                <div className="form-group files" style={{margin: 0}}>
+                                                    <input type="file" name="file"
+                                                           accept="image/*"
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_IMAGE_FILE_PID)}
+                                                           className="form-control mt-2" multiple=""/>
+                                                    {traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID] &&
+                                                    <img src={traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID] ? URL.createObjectURL(traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) : null}
+                                                         style={{position: 'absolute', width: '100px', top: '20px', left: '20px'}}/>
+                                                    }
+                                                </div>
+                                                <ErrorLabel
+                                                    value={traineeForm.errors[REGISTER_TRAINEE_IMAGE_FILE_PID]}/>
+                                                {/*</form>*/}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -204,21 +269,21 @@ class TraineeRegisterForm extends React.Component {
                                             <input id="course-type-5-hours" name="course-type" type="radio"
                                                    value={1}
                                                    defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 1}/>
-                                            <label htmlFor="course-type-5-hours"> หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง</label>
+                                            <label htmlFor="course-type-5-hours"> {this.props.courseTypeList[0].title}</label>
                                         </div>
                                         <br/>
                                         <div className="md-radio md-radio-inline radiocheck">
                                             <input id="course-type-2-hours" name="course-type" type="radio"
                                                    value={2}
                                                    defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 2}/>
-                                            <label htmlFor="course-type-2-hours"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 2 ชั่วโมง </label>
+                                            <label htmlFor="course-type-2-hours"> {this.props.courseTypeList[1].title}</label>
                                         </div>
                                         <br/>
                                         <div className="md-radio md-radio-inline radiocheck">
                                             <input id="course-type-1-hour" name="course-type" type="radio"
                                                    value={3}
                                                    defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 3}/>
-                                            <label htmlFor="course-type-1-hour"> หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ จำนวน 1 ชั่วโมง</label>
+                                            <label htmlFor="course-type-1-hour"> {this.props.courseTypeList[2].title}</label>
                                         </div>
                                     </div>
                                 </div>
@@ -256,13 +321,74 @@ class TraineeRegisterForm extends React.Component {
 
                         <div className="border-red"></div>
 
-                        <div className="btn-red-submit" style={{marginTop: '20px'}}>
+                        <div className="btn-red-submit mb-4 mt-4" style={{_marginTop: '20px'}}>
                             <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
                         </div>
                     </div>
                 </div>
 
                 <style jsx>{`
+                    .files input {
+                        outline: 2px dashed #92b0b3;
+                        outline-offset: -10px;
+                        -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        padding: 120px 0 85px 40%;
+                        text-align: center !important;
+                        margin: 0;
+                        width: 100% !important;
+                    }
+                    .files input:focus {     
+                        outline: 2px dashed #92b0b3;  
+                        outline-offset: -10px;
+                        -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        transition: outline-offset .15s ease-in-out, background-color .15s linear; border:1px solid #92b0b3;
+                     }
+                    .files { position: relative }
+                    .files:after {  
+                        pointer-events: none;
+                        position: absolute;
+                        top: 40px;
+                        left: 0;
+                        width: 50px;
+                        right: 0;
+                        height: 56px;
+                        content: "";
+                        background-image: url(https://image.flaticon.com/icons/png/128/109/109612.png);
+                        display: block;
+                        margin: 0 auto;
+                        background-size: 100%;
+                        background-repeat: no-repeat;
+                    }
+                    .color input{ background-color:#f1f1f1;}
+                    .files:before {
+                        position: absolute;
+                        bottom: 10px;
+                        left: 0;  
+                        pointer-events: none;
+                        width: 100%;
+                        right: 0;
+                        height: 57px;
+                        content: " หรือลากไฟล์มาปล่อยที่นี่ ";
+                        display: block;
+                        margin: 0 auto;
+                        color: #2ea591;
+                        text-transform: capitalize;
+                        text-align: center;
+                    }
+                
+                    input[type="file"] {
+                    }
+                    .custom-file-upload {
+                        border: 1px solid #ccc;
+                        display: inline-block;
+                        padding: 6px 12px;
+                        cursor: pointer;
+                    }
+                    .custom-file-upload:hover {
+                        background: #f4f4f4;
+                    }
+
                     .form-control {
                         display: inline-block;
                         width: 100%;
@@ -381,6 +507,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                 errors: {}
             },
             nameTitleList: [],
+            courseTypeList: null,
+            errorMessage: null,
             dialog: {
                 isOpen: false,
                 message: '',
@@ -450,6 +578,35 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         let {traineeForm} = this.state;
         traineeForm.fields = initialTraineeFields;
         this.setState({traineeForm});
+
+        this.getCourseTypeList();
+    }
+
+    getCourseTypeList() {
+        fetch('/api/get_driving_license_course_type', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            /*body: JSON.stringify({
+                serviceType: SERVICE_DRIVING_LICENSE,
+                month, year
+            }),*/
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        courseTypeList: result['dataList'],
+                        errorMessage: null,
+                    });
+                } else {
+                    this.setState({
+                        courseTypeList: null,
+                        errorMessage: result['error']['message'],
+                    });
+                }
+            });
     }
 
     handleChange = (field, e) => {
@@ -460,7 +617,22 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         if (field === REGISTER_TRAINEE_PID || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
         } else {
-            fields[field] = target.type === 'checkbox' ? target.checked : target.value;
+            if (target.type === 'checkbox') {
+                if (target.checked
+                    && (fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '2' || fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === '3')
+                    && (fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]
+                        || fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]
+                        || fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE])) {
+                    alert('การอบรมสำหรับผู้ขอ \'ต่อ\' ใบอนุญาต สามารถเลือกประเภทใบอนุญาตได้ 1 ประเภทเท่านั้น\n\nหมายเหตุ: ถ้าหากต้องการใบอนุญาตมากกว่า 1 ประเภท จะต้องกรอกข้อมูลลงทะเบียนอบรมใหม่อีกครั้ง');
+                    fields[field] = false;
+                } else {
+                    fields[field] = target.checked;
+                }
+            } else if (target.type === 'file') {
+                fields[field] = target.files[0];
+            } else {
+                fields[field] = target.value;
+            }
         }
         this.setState({traineeForm}, () => {
             //this.validateForm();
@@ -522,7 +694,19 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_ADDRESS] || fields[REGISTER_TRAINEE_ADDRESS].trim().length === 0) {
-            errors[REGISTER_TRAINEE_ADDRESS] = 'กรุณากรอกบ้านเลขที่ / หมู่ / ซอย / ถนน';
+            errors[REGISTER_TRAINEE_ADDRESS] = 'กรุณากรอกบ้านเลขที่';
+            formIsValid = false;
+        }
+        if (!fields[REGISTER_TRAINEE_MOO] || fields[REGISTER_TRAINEE_MOO].trim().length === 0) {
+            errors[REGISTER_TRAINEE_MOO] = 'กรุณากรอกหมู่';
+            formIsValid = false;
+        }
+        if (!fields[REGISTER_TRAINEE_SOI] || fields[REGISTER_TRAINEE_SOI].trim().length === 0) {
+            errors[REGISTER_TRAINEE_SOI] = 'กรุณากรอกซอย';
+            formIsValid = false;
+        }
+        if (!fields[REGISTER_TRAINEE_ROAD] || fields[REGISTER_TRAINEE_ROAD].trim().length === 0) {
+            errors[REGISTER_TRAINEE_ROAD] = 'กรุณากรอกถนน';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_SUB_DISTRICT] || fields[REGISTER_TRAINEE_SUB_DISTRICT].trim().length === 0) {
@@ -547,15 +731,31 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
         }
+        if (!fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) {
+            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = 'กรุณาใส่รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)';
+            formIsValid = false;
+        }
         if (!fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]) {
             errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] = 'กรุณาเลือกประเภทหลักสูตร';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]
-            && !fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]
-            && !fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]) {
-            errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = 'กรุณาเลือกประเภทใบอนุญาตขับรถอย่างน้อย 1 ประเภท';
+
+        const fieldLicenseTypeCar = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR];
+        const fieldLicenseTypeBicycle = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE];
+        const fieldLicenseTypeTricycle = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE];
+
+        if (!fieldLicenseTypeCar && !fieldLicenseTypeBicycle && !fieldLicenseTypeTricycle) {
+            errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = 'กรุณาเลือกประเภทใบอนุญาตขับรถ';
             formIsValid = false;
+        }
+        if (fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] && fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] !== '1'
+            && (fieldLicenseTypeCar || fieldLicenseTypeBicycle || fieldLicenseTypeTricycle)) {
+            if ((fieldLicenseTypeCar && fieldLicenseTypeBicycle)
+                || (fieldLicenseTypeCar && fieldLicenseTypeTricycle)
+                || (fieldLicenseTypeTricycle && fieldLicenseTypeBicycle)) {
+                errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = 'การอบรมสำหรับผู้ขอ \'ต่อ\' ใบอนุญาต สามารถเลือกประเภทใบอนุญาตได้ 1 ประเภทเท่านั้น ถ้าหากต้องการใบอนุญาตมากกว่า 1 ประเภท จะต้องกรอกข้อมูลลงทะเบียนอบรมใหม่อีกครั้ง';
+                formIsValid = false;
+            }
         }
 
         traineeForm.errors = errors;
@@ -581,19 +781,43 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
     doRegister = () => {
         const user = getLoginUser();
         const loginToken = user === null ? null : getLoginUser().loginToken;
+
         const {traineeForm} = this.state;
-        const traineeData = traineeForm.fields;
+        //const traineeData = traineeForm.fields;
+
+        const formData = new FormData();
+        formData.append('loginToken', loginToken);
+        formData.append('courseId', this.props.course.id);
+        formData.append(REGISTER_TRAINEE_TITLE, traineeForm.fields[REGISTER_TRAINEE_TITLE]);
+        formData.append(REGISTER_TRAINEE_FIRST_NAME, traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME]);
+        formData.append(REGISTER_TRAINEE_LAST_NAME, traineeForm.fields[REGISTER_TRAINEE_LAST_NAME]);
+        formData.append(REGISTER_TRAINEE_PID, traineeForm.fields[REGISTER_TRAINEE_PID]);
+        formData.append(REGISTER_TRAINEE_ADDRESS, traineeForm.fields[REGISTER_TRAINEE_ADDRESS]);
+        formData.append(REGISTER_TRAINEE_SUB_DISTRICT, traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT]);
+        formData.append(REGISTER_TRAINEE_DISTRICT, traineeForm.fields[REGISTER_TRAINEE_DISTRICT]);
+        formData.append(REGISTER_TRAINEE_PROVINCE, traineeForm.fields[REGISTER_TRAINEE_PROVINCE]);
+        formData.append(REGISTER_TRAINEE_POSTAL_CODE, traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE]);
+        formData.append(REGISTER_TRAINEE_PHONE, traineeForm.fields[REGISTER_TRAINEE_PHONE]);
+        formData.append(REGISTER_TRAINEE_SELECTED_COURSE_TYPE, traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]);
+        formData.append(REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR,
+            traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] ? '1' : '0');
+        formData.append(REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE,
+            traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE] ? '1' : '0');
+        formData.append(REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE,
+            traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE] ? '1' : '0');
+        formData.append(REGISTER_TRAINEE_IMAGE_FILE_PID, traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID]);
 
         fetch('/api/register_course_driving_license', {
             method: 'post',
-            headers: {
+            body: formData,
+            /*headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 loginToken,
                 courseId: this.props.course.id,
                 traineeData,
-            }),
+            }),*/
         })
             .then(result => result.json())
             .then(result => {
@@ -636,7 +860,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                 </NextHead>
 
                 {
-                    this.props.course &&
+                    this.props.course && this.state.courseTypeList &&
                     <div className="container">
                         <div className="row">
                             <div className="col text-title-top">
@@ -686,6 +910,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                                     <TraineeRegisterForm
                                         traineeForm={traineeForm}
                                         nameTitleList={this.props.nameTitleList}
+                                        courseTypeList={this.state.courseTypeList}
                                         handleChangeCallback={this.handleChange}
                                     />
                                 </Element>
@@ -699,6 +924,10 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                 {
                     !this.props.course &&
                     <div style={{textAlign: 'center', color: 'red'}}>{this.props.errorMessage}</div>
+                }
+                {
+                    !this.state.courseTypeList &&
+                    <div style={{textAlign: 'center', color: 'red'}}>{this.state.errorMessage}</div>
                 }
 
                 <Dialog message={dialog.message}

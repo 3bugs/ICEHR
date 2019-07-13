@@ -716,6 +716,8 @@ export default class AcademicPaper extends React.Component {
 
     static getInitialProps = async function ({req, query}) {
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        console.log(`baseUrl: ${baseUrl}`);
+
         const {id} = query;
 
         if (id == null) {

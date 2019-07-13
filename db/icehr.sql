@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 10, 2019 at 08:53 AM
+-- Generation Time: Jul 13, 2019 at 12:53 PM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -126,7 +126,7 @@ INSERT INTO `course` (`id`, `course_master_id`, `batch_number`, `details`, `trai
 (20, 2, 404, '', 404, 404, '404', 2, '2019-10-04', '2019-11-04', 1, 'normal', '2019-06-17 09:13:20'),
 (21, 3, 7, '', 7, 7, '7', 2, '2019-10-07', '2019-10-07', 1, 'normal', '2019-06-17 09:21:17'),
 (22, 10, 3, '', 25, NULL, '123', 2, '2019-12-01', '2019-12-01', 1, 'normal', '2019-06-17 10:14:33'),
-(23, 13, 1, '<hr />\n<hr />\n<h2 style=\"font-style:italic;\">Test ฝึกอบรม</h2>\n\n<p>เริ่มงาน</p>\n', 2, 4800, 'กรุงเทพฯ', 1, '2019-10-20', '2019-10-21', 1, 'normal', '2019-06-19 04:28:26'),
+(23, 1, 1, '<hr />\n<hr />\n<h2 style=\"font-style:italic;\">Test ฝึกอบรม</h2>\n\n<p>เริ่มงาน</p>\n', 2, 4800, 'กรุงเทพฯ', 1, '2019-10-20', '2019-10-21', 1, 'normal', '2019-06-19 04:28:26'),
 (24, 13, 1, '<p>1</p>\n', 1, 1, '1', 1, '2019-11-01', '2019-12-01', 1, 'normal', '2019-07-05 07:16:56');
 
 -- --------------------------------------------------------
@@ -369,14 +369,23 @@ CREATE TABLE `course_registration_driving_license` (
   `last_name` varchar(200) NOT NULL,
   `pid` varchar(20) NOT NULL COMMENT 'เลขประจำตัวประชาชน 13 หลัก',
   `address` varchar(200) NOT NULL,
+  `moo` varchar(10) NOT NULL,
+  `soi` varchar(50) NOT NULL,
+  `road` varchar(50) NOT NULL,
   `sub_district` varchar(50) NOT NULL,
   `district` varchar(50) NOT NULL,
   `province` varchar(50) NOT NULL,
   `postal_code` varchar(10) NOT NULL,
   `phone` varchar(50) NOT NULL,
+  `pid_file_name` varchar(100) NOT NULL,
   `course_type` int(11) NOT NULL COMMENT 'ประเภทหลักสูตรอบรม เช่น 5 ชม., 2 ชม. หรือ 1 ชม. หรืออื่นๆ',
   `license_type` int(11) NOT NULL COMMENT 'ประเภทใบอนุญาตขับรถ (bit field: bit 0 = รถ, bit 1 = มอเตอร์ไซค์, bit 2 = สามล้อ)',
   `register_status` enum('start','wait-approve','complete','cancel') NOT NULL,
+  `doc_status` int(11) NOT NULL DEFAULT '0' COMMENT 'สถานะเอกสารการสมัคร (1 = ครบ, 0 = ไม่ครบ)',
+  `subject_1_result` int(11) NOT NULL DEFAULT '0' COMMENT 'ผลการอบรม วิชาที่ 1 (1 = ผ่าน, 0 = ไม่ผ่าน)',
+  `subject_2_result` int(11) NOT NULL DEFAULT '0' COMMENT 'ผลการอบรม วิชาที่ 2',
+  `subject_3_result` int(11) NOT NULL DEFAULT '0' COMMENT 'ผลการอบรม วิชาที่ 3',
+  `subject_4_result` int(11) NOT NULL DEFAULT '0' COMMENT 'ผลการอบรม วิชาที่ 4',
   `paid_amount` decimal(13,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -385,15 +394,18 @@ CREATE TABLE `course_registration_driving_license` (
 -- Dumping data for table `course_registration_driving_license`
 --
 
-INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `course_type`, `license_type`, `register_status`, `paid_amount`, `created_at`) VALUES
-(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', 'ส', 'ส', 'ส', '111', '111', 2, 7, 'complete', '1000.00', '2019-05-30 07:42:15'),
-(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '1', '1', 1, 1, 'complete', NULL, '2019-05-30 08:58:58'),
-(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '2', '2', '2', '2', '2', 2, 2, 'complete', NULL, '2019-05-30 09:03:41'),
-(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '5', '5', '5', '5', '5', 3, 7, 'cancel', NULL, '2019-05-30 09:54:38'),
-(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', 1, 1, 'start', NULL, '2019-05-31 03:09:27'),
-(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '1', '1', '1', '11111', '1', 1, 1, 'complete', '23456.00', '2019-06-15 06:01:01'),
-(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '1', '1', '1', '11111', '0850581776', 1, 2, 'wait-approve', NULL, '2019-06-16 17:20:36'),
-(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '2', '2', '2', '22222', '0850581776', 1, 4, 'complete', '8888.00', '2019-06-16 17:26:25');
+INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `moo`, `soi`, `road`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `pid_file_name`, `course_type`, `license_type`, `register_status`, `doc_status`, `subject_1_result`, `subject_2_result`, `subject_3_result`, `subject_4_result`, `paid_amount`, `created_at`) VALUES
+(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', '', '', '', 'ส', 'ส', 'ส', '111', '111', '', 2, 7, 'complete', 0, 0, 0, 0, 0, '1000.00', '2019-05-30 07:42:15'),
+(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '1', '1', '', 1, 1, 'complete', 0, 0, 0, 0, 0, NULL, '2019-05-30 08:58:58'),
+(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '', '', '', '2', '2', '2', '2', '2', '', 2, 2, 'complete', 0, 0, 0, 0, 0, NULL, '2019-05-30 09:03:41'),
+(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '', '', '', '5', '5', '5', '5', '5', '', 3, 7, 'cancel', 0, 0, 0, 0, 0, NULL, '2019-05-30 09:54:38'),
+(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', '', '', '', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', '', 1, 1, 'start', 0, 0, 0, 0, 0, NULL, '2019-05-31 03:09:27'),
+(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '1', '', 1, 1, 'complete', 0, 0, 0, 0, 0, '23456.00', '2019-06-15 06:01:01'),
+(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '0850581776', '', 1, 2, 'wait-approve', 0, 0, 0, 0, 0, NULL, '2019-06-16 17:20:36'),
+(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '', '', '', '2', '2', '2', '22222', '0850581776', '', 1, 4, 'complete', 0, 0, 0, 0, 0, '8888.00', '2019-06-16 17:26:25'),
+(9, 'DL-2019-0009', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '99999', '', '', '', '99999', '99999', '99999', '99999', '0850581776', '', 1, 7, 'start', 0, 0, 0, 0, 0, NULL, '2019-07-11 08:15:52'),
+(10, 'DL-2019-0010', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '88888', '', '', '', '88888', '88888', '88888', '88888', '0850581776', '1562834704481-ทดสอบทดสอบทดสอบ.jpg', 2, 1, 'start', 1, 0, 0, 0, 0, NULL, '2019-07-11 08:45:04'),
+(11, 'DL-2019-0011', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '77777', '', '', '', '77777', '77777', '77777', '77777', '0850581776', '1562835268812-ทดสอบทดสอบทดสอบ.jpg', 1, 6, 'wait-approve', 1, 0, 0, 0, 0, NULL, '2019-07-11 08:54:28');
 
 -- --------------------------------------------------------
 
@@ -552,7 +564,7 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (80, 68, 'AC-2019-0068-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:48:34'),
 (81, 69, 'AC-2019-0069-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:50:19'),
 (82, 69, 'AC-2019-0069-0002', 'นาง', 'b', 'b', '2019-06-02', 'b', 'b', 9999, 'bbb', 'b', 'b@b.com', 'start', NULL, NULL, '2019-06-10 07:50:19'),
-(83, 70, 'AC-2019-0070-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 08:12:38'),
+(83, 70, 'AC-2019-0070-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', '8888.00', NULL, '2019-06-10 08:12:38'),
 (84, 71, 'AC-2019-0071-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-12 02:42:04'),
 (85, 71, 'AC-2019-0071-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 9999, 'xxxx', '222', 'b@b.com', 'complete', '987.00', NULL, '2019-06-12 02:42:04'),
 (86, 72, 'AC-2019-0072-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 9999, 'aaa', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-13 08:18:52'),
@@ -585,9 +597,9 @@ CREATE TABLE `driving_license_course_type` (
 --
 
 INSERT INTO `driving_license_course_type` (`id`, `title`, `application_fee`) VALUES
-(1, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 5 ชั่วโมง', 500),
-(2, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 2 ชั่วโมง', 200),
-(3, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ จำนวน 1 ชั่วโมง', 100);
+(1, 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถครั้งแรก หรือใบอนุญาตหมดอายุเกิน 3 ปี (อบรม 5 ชั่วโมง)', 500),
+(2, 'หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ ซึ่งใบอนุญาตหมดอายุเกิน 1 ปี แต่ไม่เกิน 3 ปี (อบรม 2 ชั่วโมง)', 250),
+(3, 'หลักสูตรการอบรมสำหรับผู้ขอต่อใบอนุญาตขับรถ ซึ่งใบอนุญาตหมดอายุไม่เกิน 1 ปี (อบรม 1 ชั่วโมง)', 100);
 
 -- --------------------------------------------------------
 
@@ -967,7 +979,7 @@ ALTER TABLE `course_registration`
 -- AUTO_INCREMENT for table `course_registration_driving_license`
 --
 ALTER TABLE `course_registration_driving_license`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `course_registration_social`
