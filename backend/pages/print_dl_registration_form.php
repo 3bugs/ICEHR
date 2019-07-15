@@ -78,7 +78,7 @@ $mpdf = new \Mpdf\Mpdf([
             <td>
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td align="center" colspan="2"><img src="../images/logo_icehr.svg"/></td>
+                        <td align="center" colspan="2"><img src="../images/logo_icehr.svg" width="380px"/></td>
                     </tr>
                     <tr>
                         <td align="center" colspan="2" height="80px">
@@ -87,12 +87,12 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td align="right" width="550px">เลขที่/No</td>
-                        <td align="center" width="150px" class="txtDash"><strong><?= '2562/0001'; ?></strong></td>
+                        <td align="center" width="150px" class="txtDash"><strong><?= $trainee['form_number']; ?></strong></td>
                     </tr>
                     <tr>
                         <td align="right" width="550px">วันที่/Date</td>
                         <td align="center" width="150px" class="txtDash">
-                            <strong><?= '13 ก.ค. 2562'; ?></strong>
+                            <strong><?= getThaiShortDate(date_create($trainee['course_date'])); ?></strong>
                         </td>
                     </tr>
                 </table>
@@ -106,7 +106,7 @@ $mpdf = new \Mpdf\Mpdf([
                         <td width="60px">&nbsp;</td>
                         <td width="90px">ข้าพเจ้า/Name</td>
                         <td width="550px" class="txtDash">
-                            <strong><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></strong>
+                            <strong><?= "{$trainee['title']}&nbsp;{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?></strong>
                         </td>
                     </tr>
                 </table>
@@ -118,7 +118,14 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                     <tr>
                         <td width="155px">เลขประจำประชาชน/ID No</td>
-                        <td width="545px" class="txtDash"><strong><?= '3 1006 00317 06 8'; ?></strong></td>
+                        <?php
+                        $separator = '&nbsp;&nbsp;';
+                        $formatPid = substr_replace($trainee['pid'], $separator, 1, 0);
+                        $formatPid = substr_replace($formatPid, $separator, 5 + strlen($separator), 0);
+                        $formatPid = substr_replace($formatPid, $separator, 10 + 2 * strlen($separator), 0);
+                        $formatPid = substr_replace($formatPid, $separator, 12 + 3 * strlen($separator), 0);
+                        ?>
+                        <td width="545px" class="txtDash"><strong><?= $formatPid; ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -129,11 +136,11 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                     <tr>
                         <td width="240px">ที่อยู่บ้านเลขที่ตามบัตรประชาชน/Address</td>
-                        <td width="130px" class="txtDash"><strong><?= '11/13'; ?></strong></td>
+                        <td width="130px" class="txtDash"><strong><?= $trainee['address']; ?></strong></td>
                         <td width="55px">หมู่/Moo</td>
-                        <td width="50px" class="txtDash"><strong><?= '-'; ?></strong></td>
+                        <td width="50px" class="txtDash"><strong><?= $trainee['moo']; ?></strong></td>
                         <td width="55px">ซอย/Soi</td>
-                        <td width="170px" class="txtDash"><strong><?= 'งามวงศ์วาน 59'; ?></strong></td>
+                        <td width="170px" class="txtDash"><strong><?= $trainee['soi']; ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -144,9 +151,9 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                     <tr>
                         <td width="70px">ถนน/Road</td>
-                        <td width="240px" class="txtDash"><strong><?= 'งามวงศ์วาน'; ?></strong></td>
+                        <td width="240px" class="txtDash"><strong><?= $trainee['road']; ?></strong></td>
                         <td width="150px">แขวง/ตำบล/Sub-District</td>
-                        <td width="240px" class="txtDash"><strong><?= 'ลาดยาว'; ?></strong></td>
+                        <td width="240px" class="txtDash"><strong><?= $trainee['sub_district']; ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -157,9 +164,9 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                     <tr>
                         <td width="115px">เขต/อำเภอ/District</td>
-                        <td width="240px" class="txtDash"><strong><?= 'จตุจักร'; ?></strong></td>
+                        <td width="240px" class="txtDash"><strong><?= $trainee['district']; ?></strong></td>
                         <td width="105px">จังหวัด/Province</td>
-                        <td width="240px" class="txtDash"><strong><?= 'กรุงเทพมหานคร'; ?></strong></td>
+                        <td width="240px" class="txtDash"><strong><?= $trainee['province']; ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -170,7 +177,7 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                     <tr>
                         <td width="105px">โทรมือถือ/Phone</td>
-                        <td width="595px" class="txtDash"><strong><?= '0850581776'; ?></strong></td>
+                        <td width="595px" class="txtDash"><strong><?= $trainee['phone']; ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -185,7 +192,8 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td width="60px">&nbsp;</td>
-                        <td width="530px">๑.&nbsp;&nbsp;<?= (TRUE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                        <td width="530px">
+                            ๑.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 1) ? 'checked.png' : 'unchecked.png'; ?>">
                             &nbsp;หลักสูตรการอบรมสำหรับผู้ขอใบอนุญาตขับรถ
                         </td>
                         <td width="50px">จำนวน</td>
@@ -194,7 +202,8 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td width="60px">&nbsp;</td>
-                        <td width="530px">๒.&nbsp;&nbsp;<?= (FALSE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                        <td width="530px">
+                            ๒.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 2) ? 'checked.png' : 'unchecked.png'; ?>">
                             &nbsp;หลักสูตรการอบรมสำหรับผู้ขอต่ออายุใบอนุญาตขับรถ
                         </td>
                         <td width="50px">จำนวน</td>
@@ -203,7 +212,8 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td width="60px">&nbsp;</td>
-                        <td width="530px">๓.&nbsp;&nbsp;<?= (FALSE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                        <td width="530px">
+                            ๓.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 3) ? 'checked.png' : 'unchecked.png'; ?>">
                             &nbsp;หลักสูตรการอบรมสำหรับผู้ขอต่ออายุใบอนุญาตขับรถ
                         </td>
                         <td width="50px">จำนวน</td>
@@ -220,15 +230,15 @@ $mpdf = new \Mpdf\Mpdf([
                     <tr>
                         <td width="145px">ประเภทใบอนุญาตขับรถ</td>
                         <td width="165px">
-                            <?= (FALSE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                            <?= (((int)$trainee['license_type'] & 1) === 1) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
                             <font size="-1">&nbsp;รถยนต์ส่วนบุคคลชั่วคราว</font>
                         </td>
                         <td width="210px">
-                            <?= (TRUE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                            <?= (((int)$trainee['license_type'] & 2) === 2) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
                             <font size="-1">&nbsp;รถจักรยานยนต์ส่วนบุคคลชั่วคราว</font>
                         </td>
                         <td width="180px">
-                            <?= (TRUE) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
+                            <?= (((int)$trainee['license_type'] & 4) === 4) ? '<img src="../images/driveTrain/checked.png">' : '<img src="../images/driveTrain/unchecked.png">'; ?>
                             <font size="-1">&nbsp;รถสามล้อส่วนบุคคลชั่วคราว</font>
                         </td>
                     </tr>
@@ -241,7 +251,7 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 15px;">
                     <tr>
                         <td width="120px">วัน/เดือน/ปี ที่อบรม</td>
-                        <td width="580px" class="txtDash"><strong><?= '10 ก.ค. 2562'; ?></strong></td>
+                        <td width="580px" class="txtDash"><strong><?= getThaiShortDate(date_create($trainee['course_date'])); ?></strong></td>
                     </tr>
                 </table>
             </td>
@@ -279,7 +289,7 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
-                        <td align="center">( <?= 'นายพร้อมเลิศ หล่อวิจิตร'; ?> )</td>
+                        <td align="center">( <?= "{$trainee['title']}&nbsp;{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?> )</td>
                     </tr>
                 </table>
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 15px;">

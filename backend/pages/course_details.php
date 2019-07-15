@@ -670,6 +670,8 @@ if ($result = $db->query($sql)) {
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--jQuery Form Plugin-->
+    <script src="../dist/js/jquery.form.js"></script>
     </body>
     </html>
 

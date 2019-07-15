@@ -99,6 +99,12 @@ switch ($action) {
     case 'update_driving_license_doc_status':
         doUpdateDrivingLicenseDocStatus();
         break;
+    case 'save_driving_license_course_result':
+        doSaveDrivingLicenseCourseResult();
+        break;
+    case 'update_driving_license_registration':
+        doUpdateDrivingLicenseRegistration();
+        break;
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
         $response[KEY_ERROR_MESSAGE] = 'No action specified or invalid action.';
@@ -805,6 +811,91 @@ function doUpdateDrivingLicenseCourseType()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูลประเภทหลักสูตร';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doSaveDrivingLicenseCourseResult()
+{
+    global $db, $response;
+
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+    $subject1Result = $db->real_escape_string($_POST['subject1Result']);
+    $subject2Result = $db->real_escape_string($_POST['subject2Result']);
+    $subject3Result = $db->real_escape_string($_POST['subject3Result']);
+    $subject4Result = $db->real_escape_string($_POST['subject4Result']);
+
+    if ($subject1Result == null && $subject2Result == null && $subject3Result == null && $subject4Result == null) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = "กรุณาเลือก 'ผ่าน' หรือ 'ไม่ผ่าน'";
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
+
+    $subject1Set = "subject_1_result = " . ($subject1Result == null ? 'NULL' : $subject1Result);
+    $subject2Set = "subject_2_result = " . ($subject2Result == null ? 'NULL' : $subject2Result);
+    $subject3Set = "subject_3_result = " . ($subject3Result == null ? 'NULL' : $subject3Result);
+    $subject4Set = "subject_4_result = " . ($subject4Result == null ? 'NULL' : $subject4Result);
+
+    $sql = "UPDATE course_registration_driving_license
+            SET $subject1Set, $subject2Set, $subject3Set, $subject4Set
+            WHERE id = $traineeId ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกผลการอบรม';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateDrivingLicenseRegistration()
+{
+    global $db, $response;
+
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+    $traineeTitle = $db->real_escape_string($_POST['traineeTitle']);
+    $traineeFirstName = $db->real_escape_string($_POST['traineeFirstName']);
+    $traineeLastName = $db->real_escape_string($_POST['traineeLastName']);
+    $traineePid = $db->real_escape_string($_POST['traineePid']);
+    $traineePhone = $db->real_escape_string($_POST['traineePhone']);
+
+    $address = $db->real_escape_string($_POST['address']);
+    $moo = $db->real_escape_string($_POST['moo']);
+    $soi = $db->real_escape_string($_POST['soi']);
+    $road = $db->real_escape_string($_POST['road']);
+    $subDistrict = $db->real_escape_string($_POST['subDistrict']);
+    $district = $db->real_escape_string($_POST['district']);
+    $province = $db->real_escape_string($_POST['province']);
+    $courseType = $db->real_escape_string($_POST['courseType']);
+    $licenseTypeCar = $db->real_escape_string($_POST['licenseTypeCar']) == null ? 0 : 1;
+    $licenseTypeBicycle = $db->real_escape_string($_POST['licenseTypeBicycle']) == null ? 0 : 1;
+    $licenseTypeTricycle = $db->real_escape_string($_POST['licenseTypeTricycle']) == null ? 0 : 1;
+
+    $licenseType = $licenseTypeCar + ($licenseTypeBicycle * 2) + ($licenseTypeTricycle * 4);
+
+    /*$response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = "Car: $licenseTypeCar, Bicycle: $licenseTypeBicycle, Tricycle: $licenseTypeTricycle";
+    return;*/
+
+    $sql = "UPDATE course_registration_driving_license
+            SET title = '$traineeTitle', first_name = '$traineeFirstName', last_name = '$traineeLastName', pid = '$traineePid', phone = '$traineePhone',
+                address = '$address', moo = '$moo', soi = '$soi', road = '$road', sub_district = '$subDistrict', district = '$district', province = '$province',
+                course_type = $courseType, license_type = $licenseType
+            WHERE id = $traineeId ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลใบสมัครสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลใบสมัคร';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
