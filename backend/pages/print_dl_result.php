@@ -10,8 +10,8 @@ if (!isset($traineeId)) {
     exit();
 }
 $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
-               cr.sub_district, cr.district, cr.province, cr.phone,
-               cr.course_type, cr.license_type, c.begin_date AS course_date
+               cr.sub_district, cr.district, cr.province, cr.phone, cr.course_type, cr.license_type, 
+               cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result, c.begin_date AS course_date
         FROM course_registration_driving_license cr 
             INNER JOIN course c 
                 ON c.id = cr.course_id 
@@ -106,9 +106,9 @@ $mpdf = new \Mpdf\Mpdf([
                     ?>
                     <tr>
                         <td width="120px">ชื่อผู้เข้ารับการอบรม</td>
-                        <td width="202px" class="txtDash"><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></td>
-                        <td width="168px" align="right" style="padding-right: 10px">เลขที่บัตรประจำตัวประชาชน</td>
-                        <td class="txtDash" width="160px"><?= thaiNumDigit($formatPid); ?></td>
+                        <td width="210px" class="txtDash"><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></td>
+                        <td width="168px" align="right" style="padding-right: 5px">เลขที่บัตรประจำตัวประชาชน</td>
+                        <td class="txtDash" width="152px"><?= thaiNumDigit($formatPid); ?></td>
                     </tr>
                 </table>
             </td>
@@ -119,7 +119,9 @@ $mpdf = new \Mpdf\Mpdf([
                 <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top:5px;">
                     <tr>
                         <td width="60px">หลักสูตร</td>
-                        <td width="590px" class="txtDash">"การอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ"</td>
+                        <td width="590px" class="txtDash">
+                            <?= (int)$trainee['course_type'] === 1 ? '"การอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ"' : '"การอบรมสำหรับผู้ขอต่ออายุใบอนุญาตขับรถ"' ?>
+                        </td>
                     </tr>
                 </table>
             </td>
@@ -176,43 +178,93 @@ $mpdf = new \Mpdf\Mpdf([
         </tr>
         <?
         $subjectList = array();
-        array_push($subjectList,
-            array(
-                'name' => 'ความรู้เกี่ยวกับกฎหมายที่เกี่ยวข้อง ได้แก่ กฎหมายว่าด้วยรถยนต์ กฎหมายว่าด้วยการจราจรทางบก และกฎหมายว่าด้วยทางหลวง',
-                'begin_time' => '08:30',
-                'end_time' => '10:00',
-                'duration' => '1.30'
-            ),
-            array(
-                'name' => 'การขับรถเชิงป้องกันอุบัติเหตุ',
-                'begin_time' => '10:00',
-                'end_time' => '12:00',
-                'duration' => '2'
-            ),
-            array(
-                'name' => 'จิตสำนึกและมารยาทในการขับรถ',
-                'begin_time' => '12:00',
-                'end_time' => '13:00',
-                'duration' => '1'
-            ),
-            array(
-                'name' => 'ข้อปฏิบัติเมื่อเกิดเหตุฉุกเฉิน การให้ความช่วยเหลือและปฐมพยาบาล',
-                'begin_time' => '13:00',
-                'end_time' => '13:30',
-                'duration' => '0.30'
-            )
-        );
+        switch ($trainee['course_type']) {
+            case 1:
+                array_push($subjectList,
+                    array(
+                        'name' => 'ความรู้เกี่ยวกับกฎหมายที่เกี่ยวข้อง ได้แก่ กฎหมายว่าด้วยรถยนต์ กฎหมายว่าด้วยการจราจรทางบก และกฎหมายว่าด้วยทางหลวง',
+                        'begin_time' => '08:30',
+                        'end_time' => '10:00',
+                        'duration' => '1.30'
+                    ),
+                    array(
+                        'name' => 'การขับรถเชิงป้องกันอุบัติเหตุ',
+                        'begin_time' => '10:00',
+                        'end_time' => '12:00',
+                        'duration' => '2'
+                    ),
+                    array(
+                        'name' => 'จิตสำนึกและมารยาทในการขับรถ',
+                        'begin_time' => '12:00',
+                        'end_time' => '13:00',
+                        'duration' => '1'
+                    ),
+                    array(
+                        'name' => 'ข้อปฏิบัติเมื่อเกิดเหตุฉุกเฉิน การให้ความช่วยเหลือและปฐมพยาบาล',
+                        'begin_time' => '13:00',
+                        'end_time' => '13:30',
+                        'duration' => '0.30'
+                    )
+                );
+                break;
+            case 2:
+                array_push($subjectList,
+                    array(
+                        'name' => "- การขับรถอย่างปลอดภัย\n- มารยาทในการขับรถ",
+                        'begin_time' => '9:00',
+                        'end_time' => '11:00',
+                        'duration' => '2'
+                    )
+                );
+                break;
+            case 3:
+                array_push($subjectList,
+                    array(
+                        'name' => "- การขับรถอย่างปลอดภัย\n- มารยาทในการขับรถ",
+                        'begin_time' => '10:00',
+                        'end_time' => '11:00',
+                        'duration' => '1'
+                    )
+                );
+                break;
+        }
 
+        $i = 0;
         foreach ($subjectList as $subject) {
+            $i++;
             ?>
             <tr>
                 <td align="center" style="height:40px;"><?= thaiNumDigit(getThaiShortDate(date_create($trainee['begin_date']))); ?></td>
                 <td align="center"><?= thaiNumDigit($subject['begin_time']); ?> น.</td>
                 <td align="center"><?= thaiNumDigit($subject['end_time']); ?> น.</td>
-                <td><?= $subject['name']; ?></td>
+                <td><?= nl2br($subject['name']); ?></td>
                 <td align="center"><?= thaiNumDigit($subject['duration']) ?></td>
-                <td align="center"><img height="15px" src="../images/driveTrain/correct.png"/></td>
-                <td align="center">---</td>
+                <td align="center">
+                    <?php
+                    if ((int)$trainee["subject_{$i}_result"] === 1) {
+                        ?>
+                        <img height="15px" src="../images/driveTrain/correct.png"/>
+                        <?php
+                    } else {
+                        ?>
+                        ---
+                        <?php
+                    }
+                    ?>
+                </td>
+                <td align="center">
+                    <?php
+                    if ($trainee["subject_{$i}_result"] != null && (int)$trainee["subject_{$i}_result"] === 0) {
+                        ?>
+                        <img height="15px" src="../images/driveTrain/correct.png"/>
+                        <?php
+                    } else {
+                        ?>
+                        ---
+                        <?php
+                    }
+                    ?>
+                </td>
                 <td align="center"></td>
                 <td>
                     <?= 'นายอิสรานุวัฒน์ ศรีคุณ'; ?><br/>
@@ -224,12 +276,11 @@ $mpdf = new \Mpdf\Mpdf([
         ?>
     </table>
 
-    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 60px;">
+    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 40px;">
         <tr>
             <td width="350px"></td>
-            <td width="300px" align="center">
-                <p>&nbsp;</p>
-                <p>&nbsp;</p>
+            <td width="300px" align="center" style="padding-top: 20px; padding-bottom: 10px">
+                <img height="50px" src="../uploads/signatures/signature_sample.png"/>
             </td>
         </tr>
         <tr>
@@ -244,7 +295,7 @@ $mpdf = new \Mpdf\Mpdf([
         </tr>
     </table>
 
-    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 70px;">
+    <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 50px;">
         <tr>
             <td><u>หมายเหตุ</u></td>
             <td>*ผลการประเมิน</td>

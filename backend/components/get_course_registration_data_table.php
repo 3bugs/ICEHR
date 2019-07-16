@@ -1323,6 +1323,16 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     <?php echo($resultStatus ? 'สมบูรณ์' : 'ไม่สมบูรณ์'); ?>
                                 </button>
 
+                                <?php
+                                if ($certificateStatus) {
+                                    ?>
+                                    <div style="text-align: center; margin-top: 5px">
+                                        <i class="fa fa-check-square-o"></i>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+
                                 <input id="inputResultStatus<?= $traineeId; ?>" type="hidden" value="<?= ($resultStatus ? '1' : '0'); ?>"/>
                                 <input id="inputCertificateStatus<?= $traineeId; ?>" type="hidden" value="<?= ($certificateStatus ? '1' : '0'); ?>"/>
                             </td>
@@ -1342,32 +1352,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <i class="fa fa-print"></i>ใบเสร็จรับเงิน
                                     </a>
                                 </li>
-                                <li class="divider"></li>
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintRegistrationForm('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                        <i class="fa fa-print"></i>ใบสมัคร
-                                    </a>
-                                </li>
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintResult('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                        <i class="fa fa-print"></i>ใบบันทึกผลการอบรม
-                                    </a>
-                                </li>
-                                <!--<li><a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $serviceType; */ ?>&form_number=<?php /*echo $formNumber; */ ?>">
-                                        <i class="fa fa-print"></i>ใบสมัคร
-                                    </a>
-                                </li>-->
-                                <!--<li><a href="javascript:void(0)"
-                                       onClick="onClickPrintRegForm()">
-                                        <i class="fa fa-print"></i>รูปสลิปการโอนเงิน
-                                    </a>
-                                </li>-->
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                        <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
-                                    </a>
-                                </li>
-                                <!--<li class="divider"></li>-->
+                                <?php
+                                if ($paramCourseId != null) {
+                                    ?>
+                                    <li class="divider"></li>
+                                    <li><a href="javascript:void(0)"
+                                           onClick="onClickPrintRegistrationForm('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                            <i class="fa fa-print"></i>ใบสมัคร
+                                        </a>
+                                    </li>
+                                    <li><a href="javascript:void(0)"
+                                           onClick="onClickPrintResult('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                            <i class="fa fa-print"></i>ใบบันทึกผลการอบรม
+                                        </a>
+                                    </li>
+                                    <li><a href="javascript:void(0)"
+                                           onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                            <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
+                                        </a>
+                                    </li>
+                                    <?php
+                                }
+                                ?>
                             </ul>
                         </div>
                     </td>
@@ -1597,7 +1603,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
         function onClickPrintCertificate(formNumber, traineeId) {
             if (parseInt($('#inputCertificateStatus' + traineeId).val()) === 0) {
-                if (!confirm(`ผลการอบรมสำหรับใบสมัครเลขที่ ${formNumber} ยังไม่ผ่าน หรือยังไม่ได้กรอกผล!\n\nยืนยันพิมพ์ใบรับรองผ่านการอบรม?`)) {
+                if (!confirm(`ผลการอบรมสำหรับใบสมัครเลขที่ ${formNumber} ยังไม่ผ่าน หรือยังกรอกผลไม่ครบ!\n\nยืนยันพิมพ์ใบรับรองการผ่านการอบรม?`)) {
                     return;
                 }
             }
