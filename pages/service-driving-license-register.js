@@ -201,14 +201,14 @@ class TraineeRegisterForm extends React.Component {
                                                             value={traineeForm.errors[REGISTER_TRAINEE_PROVINCE]}/>
                                                     </div>
                                                     <div className="col nopadleft">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
+                                                        {/*<input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_POSTAL_CODE)}
                                                                type="text"
                                                                maxLength={5}
                                                                placeholder="รหัสไปรษณีย์"
                                                                className="form-control input-md mt-2"/>
                                                         <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_POSTAL_CODE]}/>
+                                                            value={traineeForm.errors[REGISTER_TRAINEE_POSTAL_CODE]}/>*/}
                                                     </div>
                                                     {/*<div className="w-100"></div>
                                                     <div className="col-12 col-md-6">

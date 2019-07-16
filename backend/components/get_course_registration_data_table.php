@@ -103,12 +103,18 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         && $trainee['subject_2_result'] != NULL
                         && $trainee['subject_3_result'] != NULL
                         && $trainee['subject_4_result'] != NULL;
+                    $trainee['certificate_status'] = $trainee['subject_1_result'] == 1
+                        && $trainee['subject_2_result'] == 1
+                        && $trainee['subject_3_result'] == 1
+                        && $trainee['subject_4_result'] == 1;
                     break;
                 case 2:
                     $trainee['result_status'] = $trainee['subject_1_result'] != NULL;
+                    $trainee['certificate_status'] = $trainee['subject_1_result'] == 1;
                     break;
                 case 3:
                     $trainee['result_status'] = $trainee['subject_1_result'] != NULL;
+                    $trainee['certificate_status'] = $trainee['subject_1_result'] == 1;
                     break;
             }
 
@@ -734,19 +740,19 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeCar" name="licenseTypeCar" value="1">
-                                                        <i class="fa fa-car"></i> รถยนต์ส่วนบุคคลชั่วคราว
+                                                        <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคลชั่วคราว
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeBicycle" name="licenseTypeBicycle" value="1">
-                                                        <i class="fa fa-motorcycle"></i> รถจักรยานยนต์ส่วนบุคคลชั่วคราว
+                                                        <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคลชั่วคราว
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeTricycle" name="licenseTypeTricycle" value="1">
-                                                        <img width="20px" src="../images/ic_tuktuk.png"> รถสามล้อส่วนบุคคลชั่วคราว
+                                                        <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคลชั่วคราว
                                                     </label>
                                                 </div>
                                             </div>
@@ -886,19 +892,19 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeCar" name="licenseTypeCar" disabled>
-                                                <i class="fa fa-car"></i> รถยนต์ส่วนบุคคลชั่วคราว
+                                                <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคลชั่วคราว
                                             </label>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeBicycle" name="licenseTypeBicycle" disabled>
-                                                <i class="fa fa-motorcycle"></i> รถจักรยานยนต์ส่วนบุคคลชั่วคราว
+                                                <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคลชั่วคราว
                                             </label>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeTricycle" name="licenseTypeTricycle" disabled>
-                                                <img width="20px" src="../images/ic_tuktuk.png"> รถสามล้อส่วนบุคคลชั่วคราว
+                                                <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคลชั่วคราว
                                             </label>
                                         </div>
                                     </div>
@@ -906,48 +912,48 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                                 <!--ผลการอบรม-->
                                 <div style="margin-top: 25px;"><label>ผลการอบรม:</label></div>
-                                <div style="padding: 0 15px 0 15px; border: 1px solid #eee;">
+                                <div style="padding: 0 15px 0 15px; border: 2px solid #375980;">
                                     <div id="rowSubject1" class="row" style="margin-bottom: 0px">
-                                        <div class="col-sm-6">
-                                            <div class="radio">วิชา 1</div>
+                                        <div class="col-sm-7">
+                                            <div class="radio"><span id="spanSubject1Name"></span></div>
                                         </div>
                                         <div class="col-sm-2">
                                             <div class="radio"><label><input type="radio" name="subject1Result" value="1"> ผ่าน</label></div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="radio"><label><input type="radio" name="subject1Result" value="0"> ไม่ผ่าน</label></div>
                                         </div>
                                     </div>
                                     <div id="rowSubject2" class="row" style="background: #f0f0f0; margin-bottom: 0px">
-                                        <div class="col-sm-6">
-                                            <div class="radio">วิชา 2</div>
+                                        <div class="col-sm-7">
+                                            <div class="radio">การขับรถเชิงป้องกันอุบัติเหตุ</div>
                                         </div>
                                         <div class="col-sm-2">
                                             <div class="radio"><label><input type="radio" name="subject2Result" value="1"> ผ่าน</label></div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="radio"><label><input type="radio" name="subject2Result" value="0"> ไม่ผ่าน</label></div>
                                         </div>
                                     </div>
                                     <div id="rowSubject3" class="row" style="margin-bottom: 0px">
-                                        <div class="col-sm-6">
-                                            <div class="radio">วิชา 3</div>
+                                        <div class="col-sm-7">
+                                            <div class="radio">จิตสำนึกและมารยาทในการขับรถ</div>
                                         </div>
                                         <div class="col-sm-2">
                                             <div class="radio"><label><input type="radio" name="subject3Result" value="1"> ผ่าน</label></div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="radio"><label><input type="radio" name="subject3Result" value="0"> ไม่ผ่าน</label></div>
                                         </div>
                                     </div>
                                     <div id="rowSubject4" class="row" style="background: #f0f0f0">
-                                        <div class="col-sm-6">
-                                            <div class="radio">วิชา 4</div>
+                                        <div class="col-sm-7">
+                                            <div class="radio">ข้อปฏิบัติเมื่อเกิดเหตุฉุกเฉิน การให้ความช่วยเหลือและปฐมพยาบาล</div>
                                         </div>
                                         <div class="col-sm-2">
                                             <div class="radio"><label><input type="radio" name="subject4Result" value="1"> ผ่าน</label></div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="radio"><label><input type="radio" name="subject4Result" value="0"> ไม่ผ่าน</label></div>
                                         </div>
                                     </div>
@@ -1115,6 +1121,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $subjectResults[2] = $trainee['subject_3_result'];
                 $subjectResults[3] = $trainee['subject_4_result'];
                 $resultStatus = $trainee['result_status'];
+                $certificateStatus = $trainee['certificate_status'];
 
                 $paidAmount = $trainee['paid_amount'] == null ? '' : number_format($trainee['paid_amount']);
 
@@ -1265,37 +1272,36 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != NULL) {
                             ?>
                             <td style="vertical-align: top; text-align: center" nowrap>
-                                <button id="buttonDoc<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo($docStatus === 1 ? 'btn-success' : 'btn-warning'); ?>"
+                                <button id="buttonDoc<?= $traineeId; ?>" type="button" class="btn-xs <?= ($docStatus === 1 ? 'btn-success' : 'btn-warning'); ?>"
                                         style="width: 90px;"
                                         onClick="onClickDoc(
-                                                '<?php echo $formNumber; ?>',
-                                        <?php echo $traineeId; ?>,
-                                                '<?php echo $trainee['title']; ?>',
-                                                '<?php echo $trainee['first_name']; ?>',
-                                                '<?php echo $trainee['last_name']; ?>',
-                                                '<?php echo $trainee['pid']; ?>',
-                                                '<?php echo $trainee['address']; ?>',
-                                                '<?php echo $trainee['moo']; ?>',
-                                                '<?php echo $trainee['soi']; ?>',
-                                                '<?php echo $trainee['road']; ?>',
-                                                '<?php echo $trainee['sub_district']; ?>',
-                                                '<?php echo $trainee['district']; ?>',
-                                                '<?php echo $trainee['province']; ?>',
-                                                '<?php echo $trainee['phone']; ?>',
-                                        <?php echo $trainee['driving_license_course_type_id']; ?>,
-                                        <?php echo $trainee['license_type']; ?>,
-                                        <?php echo $trainee['doc_status']; ?>,
-                                                '<?php echo $trainee['pid_file_name']; ?>'
+                                                '<?= $formNumber; ?>',
+                                        <?= $traineeId; ?>,
+                                                '<?= $trainee['title']; ?>',
+                                                '<?= $trainee['first_name']; ?>',
+                                                '<?= $trainee['last_name']; ?>',
+                                                '<?= $trainee['pid']; ?>',
+                                                '<?= $trainee['address']; ?>',
+                                                '<?= $trainee['moo']; ?>',
+                                                '<?= $trainee['soi']; ?>',
+                                                '<?= $trainee['road']; ?>',
+                                                '<?= $trainee['sub_district']; ?>',
+                                                '<?= $trainee['district']; ?>',
+                                                '<?= $trainee['province']; ?>',
+                                                '<?= $trainee['phone']; ?>',
+                                        <?= $trainee['driving_license_course_type_id']; ?>,
+                                        <?= $trainee['license_type']; ?>,
+                                        <?= $trainee['doc_status']; ?>,
+                                                '<?= $trainee['pid_file_name']; ?>'
                                                 )">
-                                    <?php echo($docStatus === 1 ? 'สมบูรณ์' : 'รอตรวจสอบ'); ?>
+                                    <?= ($docStatus === 1 ? 'สมบูรณ์' : 'รอตรวจสอบ'); ?>
                                 </button>
 
-                                <input id="inputDocStatus<?php echo $traineeId; ?>" type="hidden" value="<?php echo $docStatus; ?>"/>
-
+                                <input id="inputDocStatus<?= $traineeId; ?>" type="hidden" value="<?= $docStatus; ?>"/>
                             </td>
 
                             <td style="vertical-align: top; text-align: center" nowrap>
-                                <button id="buttonResult<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo($resultStatus ? 'btn-success' : 'btn-warning'); ?>"
+                                <button id="buttonResult<?= $traineeId; ?>" type="button" class="btn-xs <?= ($resultStatus ? 'btn-success' : 'btn-warning'); ?>"
                                         style="width: 90px;"
                                         onclick="onClickResult(
                                                 '<?= $formNumber; ?>',
@@ -1316,6 +1322,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 )">
                                     <?php echo($resultStatus ? 'สมบูรณ์' : 'ไม่สมบูรณ์'); ?>
                                 </button>
+
+                                <input id="inputResultStatus<?= $traineeId; ?>" type="hidden" value="<?= ($resultStatus ? '1' : '0'); ?>"/>
+                                <input id="inputCertificateStatus<?= $traineeId; ?>" type="hidden" value="<?= ($certificateStatus ? '1' : '0'); ?>"/>
                             </td>
                             <?php
                         }
@@ -1328,8 +1337,20 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
-                                <li><a target="_blank" href="print_dl_registration_form.php?trainee_id=<?= $traineeId; ?>">
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintReceipt('<?= $formNumber; ?>', <?= $traineeId; ?>, '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?= $courseDetails; ?>', <?= $courseApplicationFee; ?>)">
+                                        <i class="fa fa-print"></i>ใบเสร็จรับเงิน
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintRegistrationForm('<?= $formNumber; ?>', <?= $traineeId; ?>)">
                                         <i class="fa fa-print"></i>ใบสมัคร
+                                    </a>
+                                </li>
+                                <li><a href="javascript:void(0)"
+                                       onClick="onClickPrintResult('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                        <i class="fa fa-print"></i>ใบบันทึกผลการอบรม
                                     </a>
                                 </li>
                                 <!--<li><a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $serviceType; */ ?>&form_number=<?php /*echo $formNumber; */ ?>">
@@ -1342,12 +1363,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     </a>
                                 </li>-->
                                 <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintReceipt('<?php echo $formNumber; ?>', <?php echo $traineeId; ?>, '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?php echo $courseDetails; ?>', <?php echo $courseApplicationFee; ?>)">
-                                        <i class="fa fa-print"></i>ใบเสร็จรับเงิน
-                                    </a>
-                                </li>
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintCertificate()">
+                                       onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
                                         <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
                                     </a>
                                 </li>
@@ -1409,11 +1425,15 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             });
             $('#formManageDocStatus').on('submit', (event) => {
                 event.preventDefault();
-                doUpdateDrivingLicenseRegistration();
+                if (confirm("ยืนยันแก้ไขข้อมูลใบสมัคร?")) {
+                    doUpdateDrivingLicenseRegistration();
+                }
             })
             $('#formRecordResult').on('submit', (event) => {
                 event.preventDefault();
-                doSaveResult();
+                if (confirm("ยืนยันบันทึกผลการอบรม?")) {
+                    doSaveResult();
+                }
             })
         });
 
@@ -1511,6 +1531,20 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 rowSubject4.hide();
             }
 
+            let subject1Name = '';
+            switch (courseType) {
+                case 1:
+                    subject1Name = 'ความรู้เกี่ยวกับกฎหมายที่เกี่ยวข้อง';
+                    break;
+                case 2:
+                    subject1Name = 'การขับรถอย่างปลอดภัย, มารยาทในการขับรถ';
+                    break;
+                case 3:
+                    subject1Name = 'การขับรถอย่างปลอดภัย, มารยาทในการขับรถ';
+                    break;
+            }
+            $('#recordResultModal #spanSubject1Name').text(subject1Name);
+
             $('#recordResultModal #alertRecordResultSuccess').hide();
             $('#recordResultModal #alertRecordResultError').hide();
             $('#recordResultModal #spanLoading').hide();
@@ -1543,9 +1577,37 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#recordResultModal').modal('show');
         }
 
+        function onClickPrintRegistrationForm(formNumber, traineeId) {
+            if (parseInt($('#inputDocStatus' + traineeId).val()) === 0) {
+                if (!confirm(`ใบสมัครเลขที่ ${formNumber} ยังไม่ได้รับการตรวจสอบข้อมูลและการยื่นเอกสาร!\n\nยืนยันพิมพ์ใบสมัครนี้?`)) {
+                    return;
+                }
+            }
+            window.open(`print_dl_registration_form.php?trainee_id=${traineeId}`, '_blank');
+        }
+
+        function onClickPrintResult(formNumber, traineeId) {
+            if (parseInt($('#inputResultStatus' + traineeId).val()) === 0) {
+                if (!confirm(`การบันทึกผลสำหรับใบสมัครเลขที่ ${formNumber} ยังไม่สมบูรณ์!\n\nยืนยันพิมพ์ใบบันทึกผลนี้?`)) {
+                    return;
+                }
+            }
+            window.open(`print_dl_result.php?trainee_id=${traineeId}`, '_blank');
+        }
+
+        function onClickPrintCertificate(formNumber, traineeId) {
+            if (parseInt($('#inputCertificateStatus' + traineeId).val()) === 0) {
+                if (!confirm(`ผลการอบรมสำหรับใบสมัครเลขที่ ${formNumber} ยังไม่ผ่าน หรือยังไม่ได้กรอกผล!\n\nยืนยันพิมพ์ใบรับรองผ่านการอบรม?`)) {
+                    return;
+                }
+            }
+            window.open(`print_dl_certificate.php?trainee_id=${traineeId}`, '_blank');
+        }
+
         function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,
                             traineeAddress, traineeMoo, traineeSoi, traineeRoad, traineeSubDistrict, traineeDistrict, traineeProvince, traineePhone,
                             courseType, licenseType, docStatus, pidFileName) {
+
             $('#manageDocStatusModal #alertDocSuccess').hide();
             $('#manageDocStatusModal #alertDocError').hide();
             $('#manageDocStatusModal #spanLoading').hide();

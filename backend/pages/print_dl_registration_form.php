@@ -20,8 +20,10 @@ $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr
 if ($result = $db->query($sql)) {
     if ($result->num_rows > 0) {
         $trainee = $result->fetch_assoc();
+        $result->close();
     } else {
         echo 'Error: ไม่พบข้อมูล';
+        $result->close();
         $db->close();
         exit();
     }
@@ -106,7 +108,7 @@ $mpdf = new \Mpdf\Mpdf([
                         <td width="60px">&nbsp;</td>
                         <td width="90px">ข้าพเจ้า/Name</td>
                         <td width="550px" class="txtDash">
-                            <strong><?= "{$trainee['title']}&nbsp;{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?></strong>
+                            <strong><?= "{$trainee['title']}{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?></strong>
                         </td>
                     </tr>
                 </table>
@@ -274,7 +276,7 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ก่อนเข้ารับการทดสอบข้อเขียนภาคทฤษฎีด้วยระบบอิเล็กทรอนิกส์</td>
+                        <td style="padding-left: 18px">ก่อนเข้ารับการทดสอบข้อเขียนภาคทฤษฎีด้วยระบบอิเล็กทรอนิกส์</td>
                     </tr>
                 </table>
             </td>
@@ -289,7 +291,7 @@ $mpdf = new \Mpdf\Mpdf([
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
-                        <td align="center">( <?= "{$trainee['title']}&nbsp;{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?> )</td>
+                        <td align="center">( <?= "{$trainee['title']}{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?> )</td>
                     </tr>
                 </table>
                 <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 15px;">
@@ -306,13 +308,10 @@ $mpdf = new \Mpdf\Mpdf([
     </html>
 
 <?php
-// Write some HTML code:
 $html = ob_get_contents();
 ob_end_clean();
 
 $mpdf->WriteHTML($html);
-
-// Output a PDF file directly to the browser
 $mpdf->Output();
 
 require_once '../include/foot_php.inc';

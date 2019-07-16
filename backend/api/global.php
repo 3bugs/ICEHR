@@ -97,6 +97,18 @@ function getThaiDate($date) {
     return "วัน{$dayOfWeek}ที่ $dayOfMonth $month $year";
 }
 
+// ใช้ในหนังสือรับรองการผ่านการอบรม
+function getThaiDate2($date) {
+    global $monthNames, $dayNames;
+
+    $dayOfWeek = $dayNames[date_format($date, 'w')];
+    $dayOfMonth = (int)date_format($date, 'd');
+    $month = $monthNames[(int)date_format($date, 'm') - 1];
+    $year = (int)date_format($date, 'Y') + 543;
+
+    return "$dayOfMonth เดือน{$month} พ.ศ. $year";
+}
+
 function getThaiShortDate($date) {
     global $monthShortNames;
 
@@ -139,4 +151,11 @@ function getThaiIntervalShortDate($beginDate, $endDate) {
     return $output;
 }
 
-?>
+function thaiNumDigit($num)
+{
+    return str_replace(
+        array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'),
+        array('๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'),
+        $num
+    );
+}
