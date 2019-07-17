@@ -1387,7 +1387,20 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     </a>
                                 </li>
                                 <?php
-                                if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != null) {
+                                if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                    ?>
+                                    <li class="divider"></li>
+                                    <li><a target="_blank" href="print_ac_registration_form?trainee_id=<?= $traineeId; ?>&payment=1">
+                                            <i class="fa fa-print"></i>ใบสมัคร
+                                        </a>
+                                    </li>
+                                    <li><a href="javascript:void(0)"
+                                           onClick="alert('feature นี้ยังไม่เสร็จครับ ;-)')">
+                                            <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
+                                        </a>
+                                    </li>
+                                    <?php
+                                } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != null) {
                                     ?>
                                     <li class="divider"></li>
                                     <li><a href="javascript:void(0)"
@@ -1402,7 +1415,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     </li>
                                     <li><a href="javascript:void(0)"
                                            onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                            <i class="fa fa-print"></i>ใบรับรองการผ่านอบรม
+                                            <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
                                         </a>
                                     </li>
                                     <?php

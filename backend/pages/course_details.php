@@ -88,7 +88,7 @@ if ($result = $db->query($sql)) {
 
 switch ($course['service_type']) {
     case SERVICE_TYPE_TRAINING:
-        $sql = "SELECT ct.register_status
+        $sql = "SELECT ct.register_status, ct.id AS trainee_id
         FROM course_registration cr
             INNER JOIN course c
                 ON cr.course_id = c.id
@@ -98,7 +98,7 @@ switch ($course['service_type']) {
         break;
 
     case SERVICE_TYPE_SOCIAL:
-        $sql = "SELECT cr.register_status 
+        $sql = "SELECT cr.register_status, cr.id AS trainee_id
         FROM course_registration_social cr 
             INNER JOIN course c 
                 ON cr.course_id = c.id 
@@ -106,7 +106,7 @@ switch ($course['service_type']) {
         break;
 
     case SERVICE_TYPE_DRIVING_LICENSE:
-        $sql = "SELECT cr.register_status 
+        $sql = "SELECT cr.register_status, cr.id AS trainee_id
         FROM course_registration_driving_license cr 
             INNER JOIN course c 
                 ON cr.course_id = c.id 
@@ -119,6 +119,8 @@ if ($result = $db->query($sql)) {
     while ($row = $result->fetch_assoc()) {
         $trainee = array();
         $trainee['register_status'] = $row['register_status'];
+        $trainee['id'] = $row['trainee_id'];
+
         /*$trainee['id'] = (int)$row['id'];
         $trainee['form_number'] = $row['form_number'];
         $trainee['title'] = $row['title'];
@@ -549,16 +551,37 @@ if ($result = $db->query($sql)) {
                                     if ($course['service_type'] !== SERVICE_TYPE_SOCIAL) {
                                         ?>
                                         <!--ใบสมัครทั้งหมด-->
-                                        <div class="btn-group" style="margin-right: 6px">
-                                            <a target="_blank" href="print_registration_form.php?service_type=<?php echo $course['service_type']; ?>&course_id=<?php echo $courseId; ?>"
+                                        <!--<div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $course['service_type']; */?>&course_id=<?php /*echo $courseId; */?>"
                                                class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
-                                        </div>
+                                        </div>-->
                                         <?php
+                                        $traineeIdListText = '';
+                                        $i = 0;
+                                        foreach ($traineeList as $trainee) {
+                                            $traineeIdListText .= ($i++ == 0 ? '' : ',') . $trainee['id'];
+                                        }
+
+                                        if ($course['service_type'] === SERVICE_TYPE_TRAINING) {
+                                            ?>
+                                            <div class="btn-group" style="margin-right: 6px">
+                                                <a target="_blank" href="print_ac_registration_form.php?trainee_id=<?php echo $traineeIdListText; ?>"
+                                                   class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
+                                            </div>
+                                            <?php
+                                        } else if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
+                                            ?>
+                                            <div class="btn-group" style="margin-right: 6px">
+                                                <a target="_blank" href="print_dl_registration_form.php?trainee_id=<?php echo $traineeIdListText; ?>"
+                                                   class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
+                                            </div>
+                                            <?php
+                                        }
                                     }
                                     ?>
 
                                     <!--สรุปผลผู้สมัคร-->
-                                    <div class="btn-group">
+                                    <!--<div class="btn-group">
                                         <button type="button" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;สรุปผลผู้สมัคร</button>
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                             <span class="caret"></span>
@@ -568,9 +591,8 @@ if ($result = $db->query($sql)) {
                                             <li><a href="#"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
                                             <li><a href="#"><i class="fa fa-file-excel-o"></i> Excel</a></li>
                                             <li><a href="#"><i class="fa fa-file-word-o"></i> Word</a></li>
-                                            <!--<li class="divider"></li>-->
                                         </ul>
-                                    </div>&nbsp;&nbsp;
+                                    </div>&nbsp;&nbsp;-->
 
                                     <!--ทำเนียบผู้เข้ารับการอบรม-->
                                     <div class="btn-group">

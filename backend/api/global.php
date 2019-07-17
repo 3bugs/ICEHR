@@ -151,6 +151,18 @@ function getThaiIntervalShortDate($beginDate, $endDate) {
     return $output;
 }
 
+function getThaiIntervalShortDate2($beginDate, $endDate) {
+    if ($beginDate === $endDate) {
+        $output = getThaiShortDate($beginDate);
+    } else {
+        $d1 = getThaiShortDate($beginDate);
+        $d2 = getThaiShortDate($endDate);
+        $output = "$d1 - $d2";
+    }
+
+    return $output;
+}
+
 function thaiNumDigit($num)
 {
     return str_replace(
