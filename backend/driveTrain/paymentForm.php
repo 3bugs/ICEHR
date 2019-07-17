@@ -13,13 +13,6 @@ require('../dist/fpdf/fpdf2.php');
 
 //$datePay = DT::DateTimeShortFormat2($today, 0, 1, "Th");
 
-function thainumDigit($num)
-{
-    return str_replace(array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'),
-        array("o", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"),
-        $num);
-}
-
 function convert($number)
 {
     $txtnum1 = array('ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า', 'สิบ');
@@ -30,26 +23,25 @@ function convert($number)
     $number = explode(".", $number);
 
     if (sizeof($number) > 2) {
-        return 'ทศนิยมหลายตัวนะจ๊ะ';
-        exit;
+        return 'Error: มีจุดทศนิยมมากกว่า 1 ตัว';
     }
 
-    $strlen = strlen($number[0]);
+    $length = strlen($number[0]);
     $convert = '';
 
-    for ($i = 0; $i < $strlen; $i++) {
+    for ($i = 0; $i < $length; $i++) {
         $n = substr($number[0], $i, 1);
         if ($n != 0) {
-            if ($i == ($strlen - 1) AND $n == 1) {
+            if ($i == ($length - 1) AND $n == 1) {
                 $convert .= 'เอ็ด';
-            } elseif ($i == ($strlen - 2) AND $n == 2) {
+            } elseif ($i == ($length - 2) AND $n == 2) {
                 $convert .= 'ยี่';
-            } elseif ($i == ($strlen - 2) AND $n == 1) {
+            } elseif ($i == ($length - 2) AND $n == 1) {
                 $convert .= '';
             } else {
                 $convert .= $txtnum1[$n];
             }
-            $convert .= $txtnum2[$strlen - $i - 1];
+            $convert .= $txtnum2[$length - $i - 1];
         }
     }
 
@@ -57,24 +49,25 @@ function convert($number)
     if ($number[1] == '0' OR $number[1] == '00' OR $number[1] == '') {
         $convert .= 'ถ้วน';
     } else {
-        $strlen = strlen($number[1]);
-        for ($i = 0; $i < $strlen; $i++) {
+        $length = strlen($number[1]);
+        for ($i = 0; $i < $length; $i++) {
             $n = substr($number[1], $i, 1);
             if ($n != 0) {
-                if ($i == ($strlen - 1) AND $n == 1) {
+                if ($i == ($length - 1) AND $n == 1) {
                     $convert .= 'เอ็ด';
-                } elseif ($i == ($strlen - 2) AND $n == 2) {
+                } elseif ($i == ($length - 2) AND $n == 2) {
                     $convert .= 'ยี่';
-                } elseif ($i == ($strlen - 2) AND $n == 1) {
+                } elseif ($i == ($length - 2) AND $n == 1) {
                     $convert .= '';
                 } else {
                     $convert .= $txtnum1[$n];
                 }
-                $convert .= $txtnum2[$strlen - $i - 1];
+                $convert .= $txtnum2[$length - $i - 1];
             }
         }
         $convert .= 'สตางค์';
     }
+
     return $convert;
 }
 

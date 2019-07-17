@@ -37,6 +37,7 @@ const REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM = 'registerCoordinatorOrgani
 const REGISTER_COORDINATOR_PHONE = 'registerCoordinatorPhone';
 const REGISTER_COORDINATOR_EMAIL = 'registerCoordinatorEmail';
 
+const REGISTER_RECEIPT_NAME = 'registerReceiptName';
 const REGISTER_RECEIPT_ADDRESS = 'registerReceiptAddress';
 const REGISTER_RECEIPT_SUB_DISTRICT = 'registerReceiptSubDistrict';
 const REGISTER_RECEIPT_DISTRICT = 'registerReceiptDistrict';
@@ -1045,6 +1046,10 @@ export default class ServiceTrainingRegister extends React.Component {
         let receiptFields = receiptForm.fields;
         let receiptErrors = {};
 
+        if (!receiptFields[REGISTER_RECEIPT_NAME] || receiptFields[REGISTER_RECEIPT_NAME].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_NAME] = 'กรุณากรอกชื่อหน่วยงานสำหรับการออกใบเสร็จ';
+            valid = false;
+        }
         if (!receiptFields[REGISTER_RECEIPT_ADDRESS] || receiptFields[REGISTER_RECEIPT_ADDRESS].trim().length === 0) {
             receiptErrors[REGISTER_RECEIPT_ADDRESS] = 'กรุณากรอกเลขที่ / อาคาร / หมู่ / ซอย / ถนน';
             valid = false;
@@ -1161,6 +1166,7 @@ export default class ServiceTrainingRegister extends React.Component {
                     coordinatorEmail: null,
                 },
                 receipt: {
+                    receiptName: receiptForm.fields[REGISTER_RECEIPT_NAME],
                     receiptAddress: receiptForm.fields[REGISTER_RECEIPT_ADDRESS],
                     receiptSubDistrict: receiptForm.fields[REGISTER_RECEIPT_SUB_DISTRICT],
                     receiptDistrict: receiptForm.fields[REGISTER_RECEIPT_DISTRICT],
@@ -1630,6 +1636,22 @@ export default class ServiceTrainingRegister extends React.Component {
                                                 <div className="row">
                                                     <div className="col-md-12">
                                                         <div className="row">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">ชื่อหน่วยงาน</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <input value={receiptForm.fields[REGISTER_RECEIPT_NAME] || ''}
+                                                                       onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_NAME)}
+                                                                       type="text"
+                                                                       placeholder="ชื่อหน่วยงาน"
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 4}/>
+                                                                <ErrorLabel
+                                                                    value={receiptForm.errors[REGISTER_RECEIPT_NAME]}/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="row mt-2">
                                                             <div className="col-12 col-md-2" style={{paddingRight: 0}}>
                                                                 <label className="label required-label">ที่อยู่หน่วยงาน</label>
                                                             </div>

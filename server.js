@@ -717,7 +717,7 @@ doRegisterCourse = (req, res, db) => {
         coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
     } = coordinator;
     const {
-        receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
+        receiptName, receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
         receiptPostalCode, receiptOrganizationPhone, receiptTaxId
     } = receipt;
 
@@ -733,11 +733,11 @@ doRegisterCourse = (req, res, db) => {
     db.query(
             `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_birth_date, coordinator_job_position,
                                               coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
-                                              receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                                              receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
             coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom,
-            coordinatorPhone, coordinatorEmail, receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(),
+            coordinatorPhone, coordinatorEmail, receiptName.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(),
             receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
 
         function (err, results, fields) {

@@ -685,6 +685,7 @@ function Cell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='')
 	}
 	if($txt!=='')
 	{
+		$txt = iconv('utf-8', 'tis-620', $txt);
 		if($align=='R')
 			$dx=$w-$this->cMargin-$this->GetStringWidth($txt);
 		elseif($align=='C')

@@ -105,6 +105,9 @@ switch ($action) {
     case 'update_driving_license_registration':
         doUpdateDrivingLicenseRegistration();
         break;
+    case 'update_receipt_number':
+        doUpdateReceiptNumber();
+        break;
     default:
         $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
         $response[KEY_ERROR_MESSAGE] = 'No action specified or invalid action.';
@@ -888,6 +891,48 @@ function doUpdateDrivingLicenseRegistration()
                 address = '$address', moo = '$moo', soi = '$soi', road = '$road', sub_district = '$subDistrict', district = '$district', province = '$province',
                 course_type = $courseType, license_type = $licenseType
             WHERE id = $traineeId ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลใบสมัครสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลใบสมัคร';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateReceiptNumber()
+{
+    global $db, $response;
+
+    $serviceType = $db->real_escape_string($_POST['serviceType']);
+    $traineeId = $db->real_escape_string($_POST['traineeId']);
+    $receiptNumber = $db->real_escape_string($_POST['receiptNumber']);
+
+    if (trim($receiptNumber) === '') {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'Error: กรอกหมายเลขใบเสร็จผิดพลาด';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
+
+    if ($serviceType === SERVICE_TYPE_TRAINING) {
+        $sql = "UPDATE course_trainee 
+                SET receipt_number = '$receiptNumber'
+                WHERE id = $traineeId";
+    } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+        $sql = "UPDATE course_registration_driving_license
+                SET receipt_number = '$receiptNumber'
+                WHERE id = $traineeId";
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'Error: Invalid service type - ประเภทบริการไม่ถูกต้อง';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
 
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;

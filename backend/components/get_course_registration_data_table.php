@@ -14,8 +14,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
     }
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
-            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.register_status, ct.created_at, ct.course_registration_id, ct.paid_amount,
-                           cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email
+            $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, 
+                           ct.register_status, ct.created_at, ct.course_registration_id, ct.paid_amount, ct.receipt_number,
+                           cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, 
+                           cr.coordinator_phone, cr.coordinator_email
                     FROM course_trainee ct 
                         INNER JOIN course_registration cr 
                             ON ct.course_registration_id = cr.id
@@ -33,8 +35,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
         case SERVICE_TYPE_DRIVING_LICENSE:
             $sql = "SELECT cr.id, cr.form_number, 
-                           cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province, 
-                           cr.phone, cr.pid_file_name, cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount,
+                           cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
+                           cr.sub_district, cr.district, cr.province, cr.phone, cr.pid_file_name, cr.register_status, 
+                           cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number,
                            cr.license_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
                            ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
@@ -71,6 +74,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['created_at'] = $row['created_at'];
             $trainee['register_status'] = $row['register_status'];
             $trainee['paid_amount'] = $row['paid_amount'];
+            $trainee['receipt_number'] = $row['receipt_number'];
             $trainee['coordinator'] = array(
                 'title' => $row['coordinator_title'],
                 'first_name' => $row['coordinator_first_name'],
@@ -172,6 +176,18 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <h4 class="modal-title">พิมพ์ใบเสร็จรับเงิน: ใบสมัครเลขที่ <span id="spanFormNumber"></span></h4>
                 </div>
                 <div class="modal-body">
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>
+                    <div id="alertReceiptSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertReceiptSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertReceiptSuccessText"></span>
+                    </div>
+                    <div id="alertReceiptError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertReceiptError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertReceiptErrorText"></span>
+                    </div>
+
                     <form id="formPrintReceipt" role="form"
                           style="margin-top: 0; margin-bottom: 0">
                         <div class="box-body">
@@ -213,13 +229,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <label for="inputCourseFee">ราคาเต็ม (บาท):</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
+                                        <strong>฿</strong>
                                     </span>
-                                    <input type="text" class="form-control"
+                                    <input type="text" class="form-control" disabled
                                            id="inputCourseFee"
-                                           placeholder="กรอกราคาเต็มของหลักสูตรนี้" required
-                                           oninvalid="this.setCustomValidity('กรอกราคาเต็มของหลักสูตรนี้')"
-                                           oninput="this.setCustomValidity('')">
+                                           placeholder="ราคาเต็มของหลักสูตรนี้">
                                 </div>
                             </div>
                             <!--ส่วนลด-->
@@ -227,26 +241,35 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <label for="inputDiscount">ส่วนลด (บาท):</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
+                                        <strong>฿</strong>
                                     </span>
-                                    <input type="text" class="form-control"
+                                    <input type="text" class="form-control" disabled
                                            id="inputDiscount"
-                                           placeholder="กรอกส่วนลด"
-                                           oninvalid="this.setCustomValidity('กรอกส่วนลด')"
-                                           oninput="this.setCustomValidity('')">
+                                           placeholder="ส่วนลด">
                                 </div>
                             </div>
                             <!--ราคาที่ลูกค้าจ่ายจริง-->
                             <div class="form-group">
-                                <label for="inputPaid">ราคาที่ลูกค้าจ่ายจริง (บาท):</label>
+                                <label for="inputPaidAmount">ราคาที่ลูกค้าจ่ายจริง (บาท):</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="fa fa-dollar"></i>
+                                        <strong>฿</strong>
+                                    </span>
+                                    <input type="text" class="form-control" disabled
+                                           id="inputPaidAmount" name="paid"
+                                           placeholder="ไม่มีข้อมูล">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputReceiptNumber">เลขที่ใบเสร็จ:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-sticky-note-o"></i>
                                     </span>
                                     <input type="text" class="form-control"
-                                           id="inputPaid" name="paid"
-                                           placeholder="กรอกราคาที่ลูกค้าจ่ายจริง" required
-                                           oninvalid="this.setCustomValidity('กรอกราคาที่ลูกค้าจ่ายจริง')"
+                                           id="inputReceiptNumber" name="receiptNumber"
+                                           placeholder="กรอกเลขที่ใบเสร็จ" required
+                                           oninvalid="this.setCustomValidity('กรอกเลขที่ใบเสร็จ')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
@@ -256,7 +279,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         </div>
                         <!-- /.box-body -->
                         <div class="box-footer">
-                            <button id="buttonPrint" type="submit"
+                            <button id="buttonPrintReceipt" type="submit"
                                     class="btn btn-info pull-right">
                                 <span class="fa fa-save"></span>&nbsp;
                                 พิมพ์
@@ -1164,7 +1187,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         <?php
                         if ($paramCourseId == NULL) {
                             ?>
-                            <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
+                            <td style="vertical-align: top">
+                                <?php echo $courseDetails; ?><br/>
+                                <div><strong>฿</strong> <?= number_format($courseApplicationFee); ?> บาท
+                            </td>
                             <?php
                         }
                     } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
@@ -1348,12 +1374,20 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintReceipt('<?= $formNumber; ?>', <?= $traineeId; ?>, '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>', '<?= $courseDetails; ?>', <?= $courseApplicationFee; ?>)">
+                                       onClick="onClickPrintReceipt(
+                                               '<?= $formNumber; ?>',
+                                       <?= $traineeId; ?>,
+                                               '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>',
+                                               '<?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_type'] : $courseDetails; ?>',
+                                       <?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_fee'] : $courseApplicationFee; ?>,
+                                               '<?= $paidAmount; ?>',
+                                               '<?= $trainee['receipt_number']; ?>'
+                                               )">
                                         <i class="fa fa-print"></i>ใบเสร็จรับเงิน
                                     </a>
                                 </li>
                                 <?php
-                                if ($paramCourseId != null) {
+                                if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != null) {
                                     ?>
                                     <li class="divider"></li>
                                     <li><a href="javascript:void(0)"
@@ -1376,6 +1410,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 ?>
                             </ul>
                         </div>
+                        <div style="text-align: center"><?= $trainee['receipt_number']; ?></div>
                     </td>
                 </tr>
 
@@ -1414,6 +1449,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 },
             });
 
+            $('#printReceiptModal').on('hidden.bs.modal', () => {
+                if (shouldReload) {
+                    location.reload(true);
+                }
+            });
             $('#manageRegisterStatusModal').on('hidden.bs.modal', () => {
                 if (shouldReload) {
                     location.reload(true);
@@ -1434,14 +1474,56 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 if (confirm("ยืนยันแก้ไขข้อมูลใบสมัคร?")) {
                     doUpdateDrivingLicenseRegistration();
                 }
-            })
+            });
             $('#formRecordResult').on('submit', (event) => {
                 event.preventDefault();
                 if (confirm("ยืนยันบันทึกผลการอบรม?")) {
                     doSaveResult();
                 }
-            })
+            });
+            $('#formPrintReceipt').on('submit', (event) => {
+                event.preventDefault();
+                printReceipt();
+            });
         });
+
+        function printReceipt() {
+            const loadingIcon = $('#printReceiptModal #spanLoading');
+            loadingIcon.show();
+            $('#printReceiptModal #alertReceiptSuccess').hide();
+
+            $('#printReceiptModal #alertReceiptError').hide();
+
+            const serviceType = '<?= $serviceType; ?>';
+            const traineeId = $('#printReceiptModal #inputTraineeId').val();
+            const receiptNumber = $('#formPrintReceipt #inputReceiptNumber').val();
+
+            $.post(
+                '../api/api.php/update_receipt_number',
+                {
+                    serviceType: serviceType,
+                    traineeId: traineeId,
+                    receiptNumber: receiptNumber,
+                }
+            ).done(function (data) {
+                loadingIcon.hide();
+
+                if (data.error_code === 0) {
+                    $('#printReceiptModal #alertReceiptSuccessText').text(data.error_message);
+                    $('#printReceiptModal #alertReceiptSuccess').show();
+
+                    shouldReload = true;
+                    window.open(`print_receipt.php?service_type=${serviceType}&trainee_id=${traineeId}`, '_blank');
+                } else {
+                    $('#printReceiptModal #alertReceiptErrorText').text(data.error_message);
+                    $('#printReceiptModal #alertReceiptError').show();
+                }
+            }).fail(function () {
+                loadingIcon.hide();
+                $('#printReceiptModal #alertReceiptErrorText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                $('#printReceiptModal #alertReceiptError').show();
+            });
+        }
 
         function doUpdateDrivingLicenseRegistration() {
             const loadingIcon = $('#manageDocStatusModal #spanLoading');
@@ -1503,7 +1585,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             });
         }
 
-        function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee) {
+        function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee, paidAmount, receiptNumber) {
             const registerStatus = $('#inputRegisterStatus' + traineeId).val();
             const canPrint = registerStatus === 'complete';
 
@@ -1511,10 +1593,17 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#formPrintReceipt #inputTraineeId').val(traineeId);
             $('#formPrintReceipt #inputTraineeName').val(traineeName);
             $('#formPrintReceipt #inputCourseName').val(courseName);
-            $('#formPrintReceipt #inputCourseFee').val(courseApplicationFee);
-            $('#formPrintReceipt #buttonPrint').prop('disabled', !canPrint);
+            $('#formPrintReceipt #inputCourseFee').val(formatNumber(courseApplicationFee));
+            $('#formPrintReceipt #inputPaidAmount').val(paidAmount);
+            $('#formPrintReceipt #inputReceiptNumber').val(receiptNumber);
+            $('#formPrintReceipt #buttonPrintReceipt').prop('disabled', !canPrint);
             const divCallout = $('#formPrintReceipt #alertCanNotPrint');
             canPrint ? divCallout.hide() : divCallout.show();
+
+            const loadingIcon = $('#printReceiptModal #spanLoading');
+            loadingIcon.hide();
+            $('#printReceiptModal #alertReceiptSuccess').hide();
+            $('#printReceiptModal #alertReceiptError').hide();
 
             $('#printReceiptModal').modal('show');
         }
@@ -1859,7 +1948,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                 if (newStatus === 'complete') {
                     const courseFee = $('#manageRegisterStatusModal #inputCourseFee').val();
-                    const paidAmount = prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง (ไม่ต้องใส่เครื่องหมาย , ):', courseFee.replace(/\,/g, ''));
+                    const paidAmount =
+                    <?php if ($serviceType === SERVICE_TYPE_TRAINING) { ?>
+                        prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง (ไม่ต้องใส่เครื่องหมาย , ):', courseFee.replace(/\,/g, ''));
+                    <?php } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) { ?>
+                    courseFee.replace(/\,/g, '');
+                    <?php } ?>
+
                     if (paidAmount === null) {
                         // user กด Cancel
                     } else if (paidAmount.trim() === '') {
