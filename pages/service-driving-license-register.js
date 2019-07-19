@@ -721,12 +721,12 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             errors[REGISTER_TRAINEE_PROVINCE] = 'กรุณากรอกจังหวัด';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
+        /*if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
             || fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length !== 5
             || !isPositiveInteger(fields[REGISTER_TRAINEE_POSTAL_CODE])) {
             errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             formIsValid = false;
-        }
+        }*/
         if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
@@ -793,10 +793,13 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         formData.append(REGISTER_TRAINEE_LAST_NAME, traineeForm.fields[REGISTER_TRAINEE_LAST_NAME]);
         formData.append(REGISTER_TRAINEE_PID, traineeForm.fields[REGISTER_TRAINEE_PID]);
         formData.append(REGISTER_TRAINEE_ADDRESS, traineeForm.fields[REGISTER_TRAINEE_ADDRESS]);
+        formData.append(REGISTER_TRAINEE_MOO, traineeForm.fields[REGISTER_TRAINEE_MOO]);
+        formData.append(REGISTER_TRAINEE_SOI, traineeForm.fields[REGISTER_TRAINEE_SOI]);
+        formData.append(REGISTER_TRAINEE_ROAD, traineeForm.fields[REGISTER_TRAINEE_ROAD]);
         formData.append(REGISTER_TRAINEE_SUB_DISTRICT, traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT]);
         formData.append(REGISTER_TRAINEE_DISTRICT, traineeForm.fields[REGISTER_TRAINEE_DISTRICT]);
         formData.append(REGISTER_TRAINEE_PROVINCE, traineeForm.fields[REGISTER_TRAINEE_PROVINCE]);
-        formData.append(REGISTER_TRAINEE_POSTAL_CODE, traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE]);
+        //formData.append(REGISTER_TRAINEE_POSTAL_CODE, traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE]);
         formData.append(REGISTER_TRAINEE_PHONE, traineeForm.fields[REGISTER_TRAINEE_PHONE]);
         formData.append(REGISTER_TRAINEE_SELECTED_COURSE_TYPE, traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]);
         formData.append(REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR,

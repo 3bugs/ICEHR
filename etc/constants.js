@@ -21,6 +21,7 @@ export const longDayNames = [
 
 module.exports = Object.freeze({
     HOST_BACKEND: 'http://localhost/icehr_backend',
+    //HOST_BACKEND: 'http://202.6.26.3/icehr/backend',
 
     SERVICE_TRAINING: 'training',
     SERVICE_SOCIAL: 'social',

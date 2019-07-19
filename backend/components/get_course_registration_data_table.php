@@ -1390,7 +1390,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 if ($serviceType === SERVICE_TYPE_TRAINING) {
                                     ?>
                                     <li class="divider"></li>
-                                    <li><a target="_blank" href="print_ac_registration_form?trainee_id=<?= $traineeId; ?>&payment=1">
+                                    <li><a target="_blank" href="print_ac_registration_form.php?trainee_id=<?= $traineeId; ?>&payment=1">
                                             <i class="fa fa-print"></i>ใบสมัคร
                                         </a>
                                     </li>

@@ -176,7 +176,7 @@ $mpdf = new \Mpdf\Mpdf([
             <td align="center" width="30px">ผ่าน</td>
             <td align="center" width="30px">ไม่ผ่าน</td>
         </tr>
-        <?
+        <?php
         $subjectList = array();
         switch ($trainee['course_type']) {
             case 1:

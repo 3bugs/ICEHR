@@ -165,20 +165,20 @@ $pdf->Cell(110, 7, "ค่าลงทะเบียนอบรม", 0, 0, 'L'
 $pdf->Cell(25, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
-    $pdf->SetXY(47, 76);
-    $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
-
     if ((int)$trainee['course_fee'] > (int)$trainee['paid_amount']) {
-        $pdf->SetXY(47, 85);
+        $pdf->SetXY(47, 78);
         $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);
-        $pdf->Cell(25, 7, number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2), 0, 0, 'R', 0);
+        $pdf->Cell(25, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
     }
+
+    $pdf->SetXY(47, 86);
+    $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
 }
 
-$pdf->SetXY(63, 148);
+$pdf->SetXY(47, 148);
 //$pdf->SetXY(53,135);
-$pdf->Cell(100, 8, '(' . convert($trainee['paid_amount']) . ')', 0, 0, 'L', 0);
-$pdf->Cell(25, 8, number_format($trainee['paid_amount'], 2), 0, 0, 'R', 0);
+$pdf->Cell(110, 7, '(' . convert($trainee['paid_amount']) . ')', 0, 0, 'L', 0);
+$pdf->Cell(25, 7, number_format($trainee['paid_amount'], 2), 0, 0, 'R', 0);
 
 //Send file
 $pdf->Output();
