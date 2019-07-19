@@ -17,7 +17,10 @@
 <script src="../bower_components/moment/min/moment.min.js"></script>
 <script src="../bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <!-- datepicker -->
-<script src="../bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+<!--<script src="../bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>-->
+<!-- datepicker thai -->
+<script src="../dist/js/bootstrap-datepicker-thai.js"></script>
+<script src="../dist/locales/bootstrap-datepicker.th.min.js"></script>
 <!-- bootstrap time picker -->
 <script src="../plugins/timepicker/bootstrap-timepicker.min.js"></script>
 

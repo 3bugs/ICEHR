@@ -1,7 +1,14 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT id, title, first_name, last_name, email FROM member";
+$sql = "SELECT m.id, m.title, m.first_name, m.last_name, m.birth_date, TIMESTAMPDIFF(YEAR, m.birth_date, CURDATE()) AS age, m.phone, m.email, 
+       m.job_position, m.organization_name, m.organization_type, o.name AS organization_type_text, m.organization_type_custom, m.organization_phone, 
+       m.address, m.sub_district, m.district, m.province, m.postal_code, m.tax_id
+            FROM member m 
+                LEFT JOIN organization_type o 
+                    ON m.organization_type = o.id 
+            ORDER BY id DESC";
+
 if ($result = $db->query($sql)) {
     $memberList = array();
     while ($row = $result->fetch_assoc()) {
@@ -10,13 +17,22 @@ if ($result = $db->query($sql)) {
         $member['title'] = $row['title'];
         $member['first_name'] = $row['first_name'];
         $member['last_name'] = $row['last_name'];
+        $member['birth_date'] = $row['birth_date'];
         $member['age'] = (int)$row['age'];
-        $member['job_position'] = $row['job_position'];
-        $member['organization_name'] = $row['organization_name'];
-        $member['organization_type'] = $row['organization_type'];
         $member['phone'] = $row['phone'];
         $member['email'] = $row['email'];
-        $member['password'] = $row['password'];
+        $member['job_position'] = $row['job_position'];
+        $member['organization_name'] = $row['organization_name'];
+        $member['organization_type'] = (int)$row['organization_type'];
+        $member['organization_type_text'] = $row['organization_type_text'];
+        $member['organization_type_custom'] = $row['organization_type_custom'];
+        $member['address'] = $row['address'];
+        $member['sub_district'] = $row['sub_district'];
+        $member['district'] = $row['district'];
+        $member['province'] = $row['province'];
+        $member['postal_code'] = $row['postal_code'];
+        $member['organization_phone'] = $row['organization_phone'];
+        $member['tax_id'] = $row['tax_id'];
 
         array_push($memberList, $member);
     }
@@ -63,11 +79,13 @@ if ($result = $db->query($sql)) {
                                 <table id="tableMember" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="width: 15%; text-align: center">คำนำหน้า</th>
-                                        <th style="width: 30%; text-align: center">ชื่อ-นามสกุล</th>
-                                        <th style="width: 27%; text-align: center">อีเมล</th>
-                                        <th style="width: 28%; text-align: center">เบอร์โทร</th>
-                                        <th style="text-align: center">รายละเอียด</th>
+                                        <th style="width: 15%; text-align: center">ชื่อ-นามสกุล</th>
+                                        <th style="width: 10%; text-align: center">เกิด, อายุ</th>
+                                        <th style="width: 15%; text-align: center">โทร, อีเมล</th>
+                                        <th style="width: 20%; text-align: center">ตำแหน่ง, หน่วยงาน</th>
+                                        <th style="width: 25%; text-align: center">ที่อยู่หน่วยงาน</th>
+                                        <th style="width: 15%; text-align: center">เลขภาษี</th>
+                                        <th style="text-align: center">จัดการ</th>
                                         <?php
                                         if ($_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin') {
                                             ?>
@@ -83,7 +101,7 @@ if ($result = $db->query($sql)) {
                                     if (sizeof($memberList) == 0) {
                                         ?>
                                         <tr valign="middle">
-                                            <td colspan="4" align="center">ไม่มีข้อมูล</td>
+                                            <td colspan="20" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
@@ -96,16 +114,43 @@ if ($result = $db->query($sql)) {
                                             $memberTitle = $member['title'];
                                             $memberFirstName = $member['first_name'];
                                             $memberLastName = $member['last_name'];
-                                            $memberEmail = $member['email'];
+
+                                            $memberBirthDate = $member['birth_date'];
+                                            $displayBirthDate = getThaiShortDate(date_create($memberBirthDate));
+                                            $dateHidden = "<span style=\"display: none\">$memberBirthDate</span></span>";
+                                            $memberAge = $member['age'];
+
                                             $memberPhone = $member['phone'];
+                                            $memberEmail = $member['email'];
+                                            $memberJobPosition = $member['job_position'];
+                                            $memberOrganizationName = $member['organization_name'];
+                                            $memberOrganizationType = $member['organization_type'];
+                                            $memberOrganizationTypeText = $member['organization_type_text'];
+                                            $memberOrganizationTypeCustom = $member['organization_type_custom'];
+                                            $memberTaxId = $member['tax_id'];
+
+                                            $organizationAddress = $member['address'] == null ? 'N/A' : sprintf(
+                                                "%s %s %s %s %s<br>โทร: %s",
+                                                $member['address'], $member['sub_district'], $member['district'],
+                                                $member['province'], $member['postal_code'], $member['organization_phone']
+                                            );
+
                                             ?>
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $memberTitle; ?></td>
-                                                <td style="vertical-align: middle"><?php echo "$memberFirstName $memberLastName"; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $memberEmail; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $memberPhone; ?></td>
-
-                                                <td style="text-align: center" nowrap>
+                                                <td style="vertical-align: top">
+                                                    <span style="display: none;"><?php echo "$memberFirstName $memberLastName"; ?></span>
+                                                    <?php echo "$memberTitle<br/>$memberFirstName $memberLastName"; ?>
+                                                </td>
+                                                <td style="vertical-align: top"><?php echo "$dateHidden $displayBirthDate<br/>($memberAge ปี)"; ?></td>
+                                                <td style="vertical-align: top"><?php echo "$memberPhone<br/><a href=\"mailto:$memberEmail\">$memberEmail</a>"; ?></td>
+                                                <td style="vertical-align: top">
+                                                    <?php echo $memberJobPosition . '<br/><strong>' . $memberOrganizationName . '</strong><br/>'
+                                                        . ($memberOrganizationType === 9999 ? "($memberOrganizationTypeCustom)" : "($memberOrganizationTypeText)");
+                                                    ?>
+                                                </td>
+                                                <td style="vertical-align: top"><?php echo $organizationAddress; ?></td>
+                                                <td style="vertical-align: top"><?php echo ($member['address'] == null ? 'N/A' : $memberTaxId); ?></td>
+                                                <td nowrap>
                                                     <button type="button" class="btn btn-info">
                                                         <span class="fa fa-info"></span>&nbsp;
                                                         รายละเอียด
@@ -119,7 +164,7 @@ if ($result = $db->query($sql)) {
                                                         <form method="post" action="">
                                                             <input type="hidden" name="edit_mode" value="true">
                                                             <input type="hidden" name="election_id"
-                                                                   value="<?php /*echo $member['id']; */?>">
+                                                                   value="<?php /*echo $member['id']; */ ?>">
                                                             <button type="submit" class="btn btn-warning">
                                                                 <span class="fa fa-edit"></span>&nbsp;
                                                                 แก้ไข
@@ -317,5 +362,5 @@ if ($result = $db->query($sql)) {
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

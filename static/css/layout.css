@@ -274,7 +274,7 @@ a:hover {
 .submitbox {
 	margin: 0 auto;
 	display: table;
-	margin-top: 20px;
+	margin-top: 15px;
 }
 
 .table-forservice {
@@ -301,6 +301,7 @@ a:hover {
 	color: black;
 }
 
+/*
 .pagination_bot {
 	margin: 0 auto;
 	display: table;
@@ -378,6 +379,7 @@ a:hover {
 	color: white;
 	font-size: 1rem;
 }
+*/
 
 .text-default {
 	margin-top: 40px;
@@ -413,12 +415,12 @@ a:hover {
 
 .social-inside a {
 	border: 1px solid #252525;
-	border-radius: 50px;
+	border-radius: 17px;
 	width: 35px;
 	height: 35px;
 	display: inline-block;
 	text-align: center;
-	margin-right: 5px;
+	margin-left: 5px;
 	line-height: 33px;
 }
 
@@ -474,9 +476,13 @@ a:hover {
 }
 
 .title-download-inside a {
-	display: block;
+	/*display: block;*/
 	color: black;
 	line-height: 45px;
+}
+
+.title-download-inside a:hover {
+	color: grey;
 }
 
 .title-download-inside a > img {
@@ -605,7 +611,7 @@ a:hover {
 .bg-search-service3 {
 	background-image: url(../images/bg-for-search3.png);
 	width: 100%;
-	height: 120px;
+	height: 170px;
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -717,9 +723,10 @@ a:hover {
 }
 
 .number-check {
+	text-align: right;
 	background-color: #ffd440;
 	color: black;
-	padding: 20px 50px;
+	padding: 20px 30px;
 	display: inline-block;
 	position: absolute;
 	right: 0;
@@ -1598,4 +1605,29 @@ a:hover {
 	.pagination a {
 		padding: 4px 10px 0px;
 	}
+}
+
+.my-react-date-picker {
+	display: block !important;
+	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	max-width: 1000px !important;
+}
+
+.my-react-date-picker-2 {
+	display: block !important;
+	width: 200px;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	max-width: 1000px !important;
+}
+
+.react-date-picker-calendar div {
+
+}
+
+.modal-search-result {
+	width: 100%;
+	max-width: 1200px;
 }
