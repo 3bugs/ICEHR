@@ -9,153 +9,165 @@ header('Cache-Control: post-check=0, pre-check=0', FALSE);
 header('Pragma: no-cache');
 
 session_start();
+
 if (isset($_SESSION[KEY_SESSION_USER_ID])) {
     header('Location: index.php');
     exit();
 }
 
+require_once '../include/db_config.inc';
+$db = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
+
+if ($db->connect_errno) {
+    echo 'การเชื่อมต่อฐานข้อมูลล้มเหลว!';
+    exit();
+}
+$db->set_charset("utf8");
 ?>
 
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <?php require_once('../include/head.inc'); ?>
-</head>
-<body class="hold-transition skin-blue sidebar-mini">
-<div class="wrapper">
-    <?php
-    if (isset($_SESSION[KEY_SESSION_USER_ID])) {
-        require_once('../include/header.inc');
-        require_once('../include/sidebar.inc');
-    }
-    ?>
+    <!DOCTYPE html>
+    <html lang="th">
+    <head>
+        <?php require_once('../include/head.inc'); ?>
+    </head>
+    <body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <?php
+        if (isset($_SESSION[KEY_SESSION_USER_ID])) {
+            require_once('../include/header.inc');
+            require_once('../include/sidebar.inc');
+        }
+        ?>
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                เข้าสู่ระบบ
-            </h1>
-        </section>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    เข้าสู่ระบบ
+                </h1>
+            </section>
 
-        <!-- Main content -->
-        <section class="content">
-            <div class="row">
-                <div class="col-md-3"></div>
-                <!-- login form -->
-                <div class="col-md-6">
-                    <!-- Horizontal Form -->
-                    <div class="box box-info">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Login</h3>
-                        </div>
-                        <!-- /.box-header -->
-                        <!-- form start -->
-                        <form id="loginForm" role="form" style="margin-top: 20px">
-                            <div class="box-body">
-                                <!--ชื่อผู้ใช้-->
-                                <div class="form-group">
-                                    <label for="usernameInput">ชื่อผู้ใช้:</label>
-                                    <div class="input-group">
+            <!-- Main content -->
+            <section class="content">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <!-- login form -->
+                    <div class="col-md-6">
+                        <!-- Horizontal Form -->
+                        <div class="box box-info">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Login</h3>
+                            </div>
+                            <!-- /.box-header -->
+                            <!-- form start -->
+                            <form id="loginForm" role="form" style="margin-top: 20px">
+                                <div class="box-body">
+                                    <!--ชื่อผู้ใช้-->
+                                    <div class="form-group">
+                                        <label for="usernameInput">ชื่อผู้ใช้:</label>
+                                        <div class="input-group">
                                         <span class="input-group-addon">
                                             <i class="fa fa-user"></i>
                                         </span>
-                                        <input type="text" class="form-control" id="usernameInput"
-                                               placeholder="กรอกชื่อผู้ใช้งาน" required
-                                               oninvalid="this.setCustomValidity('กรอกชื่อผู้ใช้')"
-                                               oninput="this.setCustomValidity('')">
+                                            <input type="text" class="form-control" id="usernameInput"
+                                                   placeholder="กรอกชื่อผู้ใช้งาน" required
+                                                   oninvalid="this.setCustomValidity('กรอกชื่อผู้ใช้')"
+                                                   oninput="this.setCustomValidity('')">
+                                        </div>
                                     </div>
-                                </div>
-                                <!--รหัสผ่าน-->
-                                <div class="form-group">
-                                    <label for="passwordInput">รหัสผ่าน:</label>
-                                    <div class="input-group">
+                                    <!--รหัสผ่าน-->
+                                    <div class="form-group">
+                                        <label for="passwordInput">รหัสผ่าน:</label>
+                                        <div class="input-group">
                                         <span class="input-group-addon">
                                             <i class="fa fa-lock"></i>
                                         </span>
-                                        <input type="password" class="form-control" id="passwordInput"
-                                               placeholder="กรอกรหัสผ่าน" required
-                                               oninvalid="this.setCustomValidity('กรอกรหัสผ่าน')"
-                                               oninput="this.setCustomValidity('')">
-                                    </div>
-                                </div>
-                                <!--<div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox"> Remember me
-                                            </label>
+                                            <input type="password" class="form-control" id="passwordInput"
+                                                   placeholder="กรอกรหัสผ่าน" required
+                                                   oninvalid="this.setCustomValidity('กรอกรหัสผ่าน')"
+                                                   oninput="this.setCustomValidity('')">
                                         </div>
                                     </div>
-                                </div>-->
-                            </div>
-                            <!-- /.box-body -->
-                            <div class="box-footer">
-                                <button id="loginButton" type="submit" class="btn btn-info pull-right">
-                                    <span class="fa fa-sign-in"></span>&nbsp;
-                                    เข้าสู่ระบบ
-                                </button>
-                            </div>
-                            <!-- /.box-footer -->
-                        </form>
+                                    <!--<div class="form-group">
+                                        <div class="col-sm-offset-2 col-sm-10">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox"> Remember me
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>-->
+                                </div>
+                                <!-- /.box-body -->
+                                <div class="box-footer">
+                                    <button id="loginButton" type="submit" class="btn btn-info pull-right">
+                                        <span class="fa fa-sign-in"></span>&nbsp;
+                                        เข้าสู่ระบบ
+                                    </button>
+                                </div>
+                                <!-- /.box-footer -->
+                            </form>
+                        </div>
+                        <!-- /.box -->
                     </div>
-                    <!-- /.box -->
+                    <!--/.login form -->
+                    <div class="col-md-3"></div>
                 </div>
-                <!--/.login form -->
-                <div class="col-md-3"></div>
-            </div>
-            <!-- /.row -->
-        </section>
-        <!-- /.content -->
+                <!-- /.row -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <?php require_once('../include/footer.inc'); ?>
     </div>
-    <!-- /.content-wrapper -->
+    <!-- ./wrapper -->
 
-    <?php require_once('../include/footer.inc'); ?>
-</div>
-<!-- ./wrapper -->
-
-<script>
-    $(document).ready(function () {
-        $('#loginForm').submit(function (e) {
-            e.preventDefault();
-            $.post(
-                '../api/api.php/login_user',
-                {
-                    username: $('#usernameInput').val(),
-                    password: $('#passwordInput').val()
-                }
-            ).done(function (data) {
-                if (data.error_code === 0) {
-                    window.location.href = "index.php";
-                } else {
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').submit(function (e) {
+                e.preventDefault();
+                $.post(
+                    '../api/api.php/login_user',
+                    {
+                        username: $('#usernameInput').val(),
+                        password: $('#passwordInput').val()
+                    }
+                ).done(function (data) {
+                    if (data.error_code === 0) {
+                        window.location.href = "index.php";
+                    } else {
+                        BootstrapDialog.show({
+                            title: 'Login',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                }
+                            }]
+                        });
+                    }
+                }).fail(function () {
                     BootstrapDialog.show({
                         title: 'Login',
-                        message: data.error_message,
+                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                         buttons: [{
                             label: 'ปิด',
-                            action: function(self){
+                            action: function (self) {
                                 self.close();
                             }
                         }]
                     });
-                }
-            }).fail(function () {
-                BootstrapDialog.show({
-                    title: 'Login',
-                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
-                    buttons: [{
-                        label: 'ปิด',
-                        action: function(self){
-                            self.close();
-                        }
-                    }]
                 });
             });
         });
-    });
-</script>
+    </script>
 
-<?php require_once('../include/foot.inc'); ?>
-</body>
-</html>
+    <?php require_once('../include/foot.inc'); ?>
+    </body>
+    </html>
+<?php
+require_once '../include/foot_php.inc';
+?>

@@ -21,7 +21,7 @@ export default class Head extends React.Component {
                           crossOrigin="anonymous"/>
                     <link rel="stylesheet" href="/static/scrollbar-plugin/jquery.mCustomScrollbar.css"/>
                     <link rel="stylesheet" href="/static/css/input-radio-style.css"/>
-                    <link rel="stylesheet" href="/static/flexslider/flexslider.css" media="screen"/>
+                    {/*<link rel="stylesheet" href="/static/flexslider/flexslider.css" media="screen"/>*/}
 
                     <script src="/static/js/jquery-3.3.1.slim.min.js"/>
                     <script src="/static/js/jquery.min.js"/>
@@ -29,10 +29,10 @@ export default class Head extends React.Component {
                     <script src="/static/js/popper.min.js"/>
                     <script src="/static/js/bootstrap.min.js"/>
 
-                    <script src="/static/flexslider/demo/js/modernizr.js"/>
+                    {/*<script src="/static/flexslider/demo/js/modernizr.js"/>
                     <script defer src="/static/flexslider/jquery.flexslider.js"/>
                     <script src="/static/flexslider/demo/js/shCore.js"/>
-                    <script src="/static/flexslider/demo/js/shBrushJScript.js"/>
+                    <script src="/static/flexslider/demo/js/shBrushJScript.js"/>*/}
 
                     <script src="/static/dotdotdot-master/src/js/jquery.dotdotdot.js"/>
 
@@ -55,6 +55,9 @@ export default class Head extends React.Component {
                     <script src="/static/fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"/>
                     <script src="/static/scrollbar-plugin/js/minified/jquery-1.11.0.min.js"/>
                     <script src="/static/scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"/>
+
+                    {/*<link rel="stylesheet" href="/static/flexslider2/flexslider.css" type="text/css" media="screen"/>
+                    <script defer src="/static/flexslider2/jquery.flexslider.js"/>*/}
                 </NextHead>
 
                 <style jsx global>{`

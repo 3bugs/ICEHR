@@ -26,6 +26,9 @@ define('KEY_ERROR_MESSAGE_MORE', 'error_message_more');
 define('KEY_DATA_LIST', 'data_list');
 //define('KEY_LOGIN_SUCCESS', 'login_success');
 
+define('UPLOAD_DIR_ACADEMIC_PAPERS', '../uploads/academic_papers/');
+define('UPLOAD_DIR_COURSE_ASSETS', '../uploads/course_assets/');
+
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');
 define('KEY_SESSION_USER_FIRST_NAME', 'session_user_first_name');
@@ -36,6 +39,37 @@ define('KEY_SESSION_USER_ROLE', 'session_user_role');
 define('ROLE_USER', 'user');
 define('ROLE_ADMIN', 'admin');
 define('ROLE_SUPER_ADMIN', 'super_admin');
+
+define('REGISTER_STATUS_START', 'start');
+define('REGISTER_STATUS_WAIT_APPROVE', 'wait-approve');
+define('REGISTER_STATUS_COMPLETE', 'complete');
+define('REGISTER_STATUS_CANCEL', 'cancel');
+
+define('REGISTER_STATUS_START_TEXT', 'ยังไม่ได้ชำระเงิน');
+define('REGISTER_STATUS_WAIT_APPROVE_TEXT', 'รอตรวจสอบการชำระเงิน');
+define('REGISTER_STATUS_COMPLETE_TEXT', 'การชำระเงินสมบูรณ์');
+define('REGISTER_STATUS_CANCEL_TEXT', 'ยกเลิกการสมัคร');
+
+$registerStatusText = array(
+    REGISTER_STATUS_START => REGISTER_STATUS_START_TEXT,
+    REGISTER_STATUS_WAIT_APPROVE => REGISTER_STATUS_WAIT_APPROVE_TEXT,
+    REGISTER_STATUS_COMPLETE => REGISTER_STATUS_COMPLETE_TEXT,
+    REGISTER_STATUS_CANCEL => REGISTER_STATUS_CANCEL_TEXT
+);
+
+define('SERVICE_TYPE_TRAINING', 'training');
+define('SERVICE_TYPE_SOCIAL', 'social');
+define('SERVICE_TYPE_DRIVING_LICENSE', 'driving-license');
+
+define('SERVICE_TYPE_TRAINING_TEXT', 'บริการวิชาการ');
+define('SERVICE_TYPE_SOCIAL_TEXT', 'บริการสังคม');
+define('SERVICE_TYPE_DRIVING_LICENSE_TEXT', 'บริการใบขับขี่');
+
+$serviceTypeText = array(
+    SERVICE_TYPE_TRAINING => SERVICE_TYPE_TRAINING_TEXT,
+    SERVICE_TYPE_SOCIAL => SERVICE_TYPE_SOCIAL_TEXT,
+    SERVICE_TYPE_DRIVING_LICENSE => SERVICE_TYPE_DRIVING_LICENSE_TEXT
+);
 
 $monthNames = array(
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -49,7 +83,7 @@ $dayNames = array(
     'อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'
 );
 $dayShortNames = array(
-    'อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'
+    'อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'
 );
 
 function getThaiDate($date) {
@@ -61,6 +95,18 @@ function getThaiDate($date) {
     $year = (int)date_format($date, 'Y') + 543;
 
     return "วัน{$dayOfWeek}ที่ $dayOfMonth $month $year";
+}
+
+// ใช้ในหนังสือรับรองการผ่านการอบรม
+function getThaiDate2($date) {
+    global $monthNames, $dayNames;
+
+    $dayOfWeek = $dayNames[date_format($date, 'w')];
+    $dayOfMonth = (int)date_format($date, 'd');
+    $month = $monthNames[(int)date_format($date, 'm') - 1];
+    $year = (int)date_format($date, 'Y') + 543;
+
+    return "$dayOfMonth เดือน{$month} พ.ศ. $year";
 }
 
 function getThaiShortDate($date) {
@@ -105,4 +151,23 @@ function getThaiIntervalShortDate($beginDate, $endDate) {
     return $output;
 }
 
-?>
+function getThaiIntervalShortDate2($beginDate, $endDate) {
+    if ($beginDate === $endDate) {
+        $output = getThaiShortDate($beginDate);
+    } else {
+        $d1 = getThaiShortDate($beginDate);
+        $d2 = getThaiShortDate($endDate);
+        $output = "$d1 - $d2";
+    }
+
+    return $output;
+}
+
+function thaiNumDigit($num)
+{
+    return str_replace(
+        array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'),
+        array('๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'),
+        $num
+    );
+}
