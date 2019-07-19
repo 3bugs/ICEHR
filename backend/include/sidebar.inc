@@ -197,6 +197,25 @@
 
                 <!--*************************************************************************************************************-->
                 <li class="header" style="color: yellow; text-align: center">เนื้อหาเว็บไซต์</li>
+
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-newspaper-o"></i> <span>ข่าวประชาสัมพันธ์</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="training_project_news.php"><i class="fa fa-circle-o"></i> ข่าวโครงการฝึกอบรม</a></li>
+                        <li><a href="news.php"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="activity_pictures.php">
+                        <i class="fa fa-image"></i> <span>ภาพกิจกรรม</span>
+                    </a>
+                </li>
+
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-folder-open"></i> <span>เอกสารดาวน์โหลด</span>
