@@ -3,7 +3,7 @@ require_once '../include/head_php.inc';
 
 $sql = "SELECT a.id,a.title,a.status,a.created_at,a.created_by,u.username "
     . " FROM documents_download a INNER JOIN user u ON a.created_by = u.id "
-    . " WHERE a.document_type ='training_documents' "
+    . " WHERE a.document_type ='booklet' "
     . " ORDER BY a.created_at DESC";
 // echo $sql;
 // exit();
@@ -46,8 +46,8 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    เอกสารการอบรม
-                    <small>เอกสารการอบรม</small>
+                    จุลสาร/อินโฟกราฟิค
+                    <small>จุลสาร/อินโฟกราฟิค</small>
                 </h1>
             </section>
 
@@ -61,7 +61,7 @@ if ($result = $db->query($sql)) {
                                 <button type="button" class="btn btn-success pull-right"
                                         onclick="onClickAdd(this)">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มเอกสารการอบรม
+                                    เพิ่มจุลสาร/อินโฟกราฟิค
                                 </button>
                             </div>
                             <div class="box-body">
@@ -102,7 +102,7 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $created_by; ?></td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="post" action="training_documents_add_edit.php">
+                                                    <form method="post" action="pamphlet_infographic_add_edit.php">
                                                         <input type="hidden" name="itemId" value="<?php echo $itemId; ?>"/>
                                                         <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
@@ -165,13 +165,13 @@ if ($result = $db->query($sql)) {
         });
 
         function onClickAdd() {
-            window.location.href = 'training_documents_add_edit.php';
+            window.location.href = 'pamphlet_infographic_add_edit.php';
         }
 
         function onClickDelete(element, documentsId, itemName) {
             BootstrapDialog.show({
-                title: 'ลบเอกสารการอบรม',
-                message: 'ยืนยันลบเอกสารการอบรม \'' + itemName + '\' ?',
+                title: 'ลบจุลสาร/อินโฟกราฟิค',
+                message: 'ยืนยันลบจุลสาร/อินโฟกราฟิค \'' + itemName + '\' ?',
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
@@ -200,7 +200,7 @@ if ($result = $db->query($sql)) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบเอกสารการอบรม - ผิดพลาด',
+                        title: 'ลบจุลสาร/อินโฟกราฟิค - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -212,7 +212,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบเอกสารการอบรม - ผิดพลาด',
+                    title: 'ลบจุลสาร/อินโฟกราฟิค - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',

@@ -218,7 +218,7 @@ export default class InHouse extends React.Component {
                 if (result['error']['code'] === 0) {
                     this.showDialog(msg, "success", () => {
                         this.dismissDialog();
-                        Router.back();
+                        //Router.back();
                     });
                 } else {
                     this.showDialog(msg, "error", () => {
@@ -289,6 +289,7 @@ export default class InHouse extends React.Component {
                             <h4 className="text-black" style={{marginBottom: 0}}>
                                 <img src="/static/images/identity-icon.svg" className="identi-con"/> ช่องทางการติดต่อ (ผู้ประสานงาน)
                             </h4>
+                            <div style={{marginTop: '10px', marginLeft: '0px'}}>ผู้ที่สนใจให้ทางสถาบันฯ จัดฝึกอบรม In-House Training กรุณากรอกข้อมูล</div>
                         </div>
                     </div>
                     <Element name={TOP_OF_FORM}>

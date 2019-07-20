@@ -90,6 +90,9 @@ switch ($action) {
     case 'update_academic_paper':
         doUpdateAcademicPaper();
         break;
+    case 'delete_academic_paper':
+        doDeleteAcademicPaper();
+        break;
     case 'get_academic_paper_download':
         doGetAcademicPaperDownload();
         break;
@@ -107,6 +110,16 @@ switch ($action) {
         break;
     case 'update_receipt_number':
         doUpdateReceiptNumber();
+        break;
+
+    case 'add_document_download':
+        doAddDocumentDownload();
+        break;
+    case 'update_document_download':
+        doUpdateDocumentDownload();
+        break;
+    case 'delete_document_download':
+        doDeleteDocumentDownload();
         break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -803,6 +816,41 @@ function doAddAcademicPaper()
     }
 }
 
+function doAddDocumentDownload()
+{
+    global $db, $response;
+
+    $documentType = $db->real_escape_string($_POST['document_type']);
+    $title = $db->real_escape_string($_POST['title']);
+    $shortDescription = $db->real_escape_string($_POST['short_description']);
+
+    if (!moveUploadedFile('file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $fileName)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (PDF)';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
+    if (!moveUploadedFile('image_file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $imageFileName)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
+
+    $sql = "INSERT INTO document_download (title, short_description, file_name, image_file_name, document_type) 
+                VALUES ('$title', '$shortDescription', '$fileName', '$imageFileName', '$documentType')";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มเอกสารดาวน์โหลดสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มเอกสารดาวน์โหลด: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
 function doUpdateAcademicPaper()
 {
     global $db, $response;
@@ -838,6 +886,130 @@ function doUpdateAcademicPaper()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขงานวิจัย/วิชาการ: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateDocumentDownload()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $shortDescription = $db->real_escape_string($_POST['short_description']);
+
+    $fileName = NULL;
+    $imageFileName = NULL;
+
+    if ($_FILES['file']) {
+        if (!moveUploadedFile('file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $fileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (PDF)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+    if ($_FILES['image_file']) {
+        if (!moveUploadedFile('image_file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $setUploadFileName = $fileName ? "file_name = '$fileName', " : '';
+    $setUploadFileName .= $imageFileName ? "image_file_name = '$imageFileName', " : '';
+
+    $sql = "UPDATE document_download 
+            SET $setUploadFileName title = '$title', short_description = '$shortDescription' 
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'แก้ไขเอกสารดาวน์โหลดสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขเอกสารดาวน์โหลด: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteAcademicPaper()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $sql = "SELECT file_name FROM academic_paper WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        if ($result > 0) {
+            $row = $result->fetch_assoc();
+            $fileName = $row['file_name'];
+
+            $deleteSql = "DELETE FROM academic_paper WHERE id = $id";
+            if ($deleteResult = $db->query($deleteSql)) {
+                unlink(UPLOAD_DIR_ACADEMIC_PAPERS . $fileName);
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+                $response[KEY_ERROR_MESSAGE] = 'ลบงานวิจัย/วิชาการสำเร็จ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบงานวิจัย/วิชาการ: ' . $db->error;
+                $errMessage = $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            }
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'ไม่พบข้อมูล!';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteDocumentDownload()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $sql = "SELECT file_name FROM document_download WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        if ($result > 0) {
+            $row = $result->fetch_assoc();
+            $fileName = $row['file_name'];
+
+            $deleteSql = "DELETE FROM document_download WHERE id = $id";
+            if ($deleteResult = $db->query($deleteSql)) {
+                unlink(UPLOAD_DIR_DOCUMENT_DOWNLOADS . $fileName);
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+                $response[KEY_ERROR_MESSAGE] = 'ลบเอกสารดาวน์โหลดสำเร็จ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบเอกสารดาวน์โหลด: ' . $db->error;
+                $errMessage = $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            }
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'ไม่พบข้อมูล!';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -2980,6 +3152,9 @@ function doUpdateActivity()
 function doAddDocument()
 {
     global $db, $response;
+
+    $response['test'] = print_r($_FILES);
+    return;
 
     $date_now = date('Y-m-d H:i:s');
     $title = $db->real_escape_string($_POST['title']);

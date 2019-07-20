@@ -151,7 +151,7 @@ if ($result = $db->query($sql)) {
                                         <th style="text-align: center; width: 8%;">PDF</th>
                                         <th style="text-align: center; width: 9%;">บทคัดย่อ</th>
                                         <th style="text-align: center; width: 8%;">ดาวน์โหลด</th>
-                                        <th style="text-align: center; width: 15%;" nowrap>อัพโหลด</th>
+                                        <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
                                         <th style="text-align: center;">จัดการ</th>
                                     </tr>
                                     </thead>
@@ -190,18 +190,25 @@ if ($result = $db->query($sql)) {
                                                     </a>
                                                 </td>
                                                 <td style="text-align: center; cursor: pointer"
-                                                    onClick="onClickDownloadList(this, <?php echo $academicPaper['id']; ?>, '<?php echo $academicPaper['title']; ?>')">
+                                                    onClick="onClickDownloadList(this, <?= $academicPaper['id']; ?>, '<?= $academicPaper['title']; ?>')">
                                                     <a href="javascript:void(0)">
-                                                        <?php echo $academicPaper['download_count']; ?>
+                                                        <?= $academicPaper['download_count']; ?>
                                                     </a>
                                                 </td>
-                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
-                                                <td>
+                                                <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
+                                                <td nowrap>
                                                     <form method="get" action="academic_papers_add_edit.php" style="display: inline; margin: 0">
-                                                        <input type="hidden" name="id" value="<?php echo $academicPaper['id']; ?>"/>
-                                                        <button type="submit" class="btn btn-warning">
+                                                        <input type="hidden" name="id" value="<?= $academicPaper['id']; ?>"/>
+                                                        <button type="submit" class="btn btn-warning"
+                                                                style="margin-left: 3px">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger"
+                                                                style="margin-left: 3px; margin-right: 3px"
+                                                                onclick="onClickDelete(this, <?= $academicPaper['id']; ?>, '<?= $academicPaper['title']; ?>')">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
                                                         </button>
                                                     </form>
                                                 </td>
@@ -335,6 +342,61 @@ if ($result = $db->query($sql)) {
                 loadingIcon.hide();
                 errorAlert.text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
                 errorAlert.show();
+            });
+        }
+
+        function onClickDelete(element, id, title) {
+            BootstrapDialog.show({
+                title: 'ลบงานวิจัยและวิชาการ',
+                message: 'ยืนยันลบ \'' + title + '\' ?',
+                buttons: [{
+                    label: 'ลบ',
+                    action: function (self) {
+                        doDeleteAcademicPaper(id);
+                        self.close();
+                    },
+                    cssClass: 'btn-primary'
+                }, {
+                    label: 'ยกเลิก',
+                    action: function (self) {
+                        self.close();
+                    }
+                }]
+            });
+        }
+
+        function doDeleteAcademicPaper(id) {
+            $.post(
+                '../api/api.php/delete_academic_paper',
+                {
+                    id: id,
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: 'ลบงานวิจัยและวิชาการ - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: 'ลบชื่อหลักสูตร - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                        }
+                    }]
+                });
             });
         }
     </script>

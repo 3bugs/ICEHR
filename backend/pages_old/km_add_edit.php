@@ -295,7 +295,7 @@ function pathUrl($dir = __DIR__){
         </div>
         <!-- /.row -->
         <input name="uid" type="hidden" value="<?php echo $_SESSION[KEY_SESSION_USER_ID]; ?>">
-        <input name="doc_type" type="hidden" value="training_documents">
+        <input name="doc_type" type="hidden" value="km">
         <?php 
             if(isset($itemId)):
         ?>
@@ -558,7 +558,7 @@ function pathUrl($dir = __DIR__){
                         }]
                     });
 
-                    window.location.href = 'training_documents.php';
+                    window.location.href = 'km.php';
 
                 } else {
 

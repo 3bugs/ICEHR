@@ -92,6 +92,23 @@ app
             app.render(req, res, actualPage, queryParams)
         });
 
+        /* ********** เอกสารดาวน์โหลด ********** */
+        server.get('/document-download/:type', (req, res) => {
+            const actualPage = '/document-download';
+
+            /*const documentTypeList = {
+                training: 'training_documents',
+                report: 'performance_report',
+                km: 'km',
+                qa: 'qa_quality_assurance',
+                booklet: 'pamphlet/infographic',
+            };
+            const queryParams = {documentType: documentTypeList[req.params.type]};*/
+
+            const queryParams = {documentType: req.params.type};
+            app.render(req, res, actualPage, queryParams)
+        });
+
         /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -170,6 +187,12 @@ app
                         break;
                     case 'get_driving_license_course_type':
                         doGetDrivingLicenseCourseType(req, res, db);
+                        break;
+                    case 'get_document_download':
+                        doGetDocumentDownload(req, res, db);
+                        break;
+                    case 'update_document_download_count':
+                        doUpdateDocumentDownloadCount(req, res, db);
                         break;
                     default:
                         //res.status(404).end();
@@ -1013,7 +1036,7 @@ doRegisterInHouse = (req, res, db) => {
                 db.end();
             } else {
                 res.send({
-                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ สถาบันจะติดต่อท่านตามข้อมูลที่ได้รับ', ''),
                 });
                 db.end();
             }
@@ -1513,6 +1536,74 @@ doGetDrivingLicenseCourseType = (req, res, db) => {
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
                     dataList
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetDocumentDownload = (req, res, db) => {
+    const {documentType, offset, limit} = req.body;
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+
+    db.query(
+            `SELECT id, title, short_description, file_path, file_name, image_file_name, download, hit
+             FROM document_download
+             WHERE document_type = ?
+            ORDER BY created_at DESC
+        ${limitClause}`,
+        [documentType],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+                db.query(
+                        `SELECT COUNT(*) AS totalCount
+                         FROM document_download
+                         WHERE document_type = ?
+                           AND status = ?`,
+                    [documentType, 'publish'],
+                    function (err, totalCountResults, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                dataList: results,
+                                totalCount: totalCountResults[0].totalCount,
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
+    //db.end();
+};
+
+doUpdateDocumentDownloadCount = (req, res, db) => {
+    const {id} = req.body;
+
+    db.query(
+            `UPDATE document_download
+             SET download = download + 1 
+             WHERE id = ?`,
+        [id],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
                 });
             }
         }

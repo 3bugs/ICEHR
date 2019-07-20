@@ -30,6 +30,8 @@ module.exports = Object.freeze({
     SERVICE_PREFIX_SOCIAL: 'SO',
     SERVICE_PREFIX_DRIVING_LICENSE: 'DL',
 
+    LIMIT_PER_PAGE: 5,
+
     longMonthNames: [
         'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
         'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'

@@ -149,7 +149,7 @@ if ($result = $db->query($sql)) {
                                                     <form method="get" action="course_add_edit.php" style="display: inline">
                                                         <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
                                                         <input type="hidden" name="service_type" value="<?php echo $serviceType; ?>"/>
-                                                        <button type="submit" class="btn btn-warning">
+                                                        <button type="submit" class="btn btn-warning" style="margin-right: 3px">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
                                                         </button>

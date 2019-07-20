@@ -3,7 +3,7 @@ require_once '../include/head_php.inc';
 
 $sql = "SELECT a.id,a.title,a.status,a.created_at,a.created_by,u.username "
     . " FROM documents_download a INNER JOIN user u ON a.created_by = u.id "
-    . " WHERE a.document_type ='qa_quality_assurance' "
+    . " WHERE a.document_type ='report' "
     . " ORDER BY a.created_at DESC";
 // echo $sql;
 // exit();
@@ -46,8 +46,8 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    ประกันคุณภาพ (QA)
-                    <small>ประกันคุณภาพ (QA)</small>
+                    รายงานผลการดำเนินงาน
+                    <small>รายงานผลการดำเนินงาน</small>
                 </h1>
             </section>
 
@@ -61,7 +61,7 @@ if ($result = $db->query($sql)) {
                                 <button type="button" class="btn btn-success pull-right"
                                         onclick="onClickAdd(this)">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มประกันคุณภาพ (QA)
+                                    เพิ่มรายงานผลการดำเนินงาน
                                 </button>
                             </div>
                             <div class="box-body">
@@ -102,7 +102,7 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $created_by; ?></td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="post" action="qa_quality_assurance_add_edit.php">
+                                                    <form method="post" action="performance_report_add_edit.php">
                                                         <input type="hidden" name="itemId" value="<?php echo $itemId; ?>"/>
                                                         <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
@@ -165,13 +165,13 @@ if ($result = $db->query($sql)) {
         });
 
         function onClickAdd() {
-            window.location.href = 'qa_quality_assurance_add_edit.php';
+            window.location.href = 'performance_report_add_edit.php';
         }
 
         function onClickDelete(element, documentsId, itemName) {
             BootstrapDialog.show({
-                title: 'ลบประกันคุณภาพ (QA)',
-                message: 'ยืนยันลบประกันคุณภาพ (QA) \'' + itemName + '\' ?',
+                title: 'ลบรายงานผลการดำเนินงาน',
+                message: 'ยืนยันลบรายงานผลการดำเนินงาน \'' + itemName + '\' ?',
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
@@ -200,7 +200,7 @@ if ($result = $db->query($sql)) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบประกันคุณภาพ (QA) - ผิดพลาด',
+                        title: 'ลบรายงานผลการดำเนินงาน - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -212,7 +212,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบประกันคุณภาพ (QA) - ผิดพลาด',
+                    title: 'ลบรายงานผลการดำเนินงาน - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',

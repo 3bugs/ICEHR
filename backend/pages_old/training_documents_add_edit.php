@@ -98,8 +98,8 @@ function pathUrl($dir = __DIR__){
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>รายงานผลการดำเนินงาน
-                    <small>รายงานผลการดำเนินงาน</small>
+                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>เอกสารการอบรม
+                    <small>เอกสารการอบรม</small>
                 </h1>
             </section>
 
@@ -109,10 +109,10 @@ function pathUrl($dir = __DIR__){
                     <div class="row">
                         <div class="col-xs-12">
 
-                            <!--รายละเอียดรายงานผลการดำเนินงาน-->
+                            <!--รายละเอียดเอกสารการอบรม-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">รายละเอียดรายงานผลการดำเนินงาน</h3>
+                                    <h3 class="box-title">รายละเอียดเอกสารการอบรม</h3>
 
                                     <div class="box-tools pull-right">
                                         <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -125,11 +125,11 @@ function pathUrl($dir = __DIR__){
                                 <!-- /.box-header -->
                                 <div class="box-body">
 
-                                    <!--ชื่อรายงานผลการดำเนินงาน-->
+                                    <!--ชื่อเอกสารการอบรม-->
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="inputArticle">ชื่อรายงานผลการดำเนินงาน:</label>
+                                                <label for="inputArticle">ชื่อเอกสารการอบรม:</label>
                                                 <input type="text" name="title" value="<?php echo (!empty($item) ? $item['title']:''); ?>" maxlength="50" class="form-control">
                                             </div>
                                         </div>
@@ -295,7 +295,7 @@ function pathUrl($dir = __DIR__){
         </div>
         <!-- /.row -->
         <input name="uid" type="hidden" value="<?php echo $_SESSION[KEY_SESSION_USER_ID]; ?>">
-        <input name="doc_type" type="hidden" value="performance_report">
+        <input name="doc_type" type="hidden" value="training">
         <?php 
             if(isset($itemId)):
         ?>
@@ -401,8 +401,8 @@ function pathUrl($dir = __DIR__){
                 },
                 messages: {
                     title: {
-                    required: "ต้องระบุชื่อรายงานผลการดำเนินงาน",
-                    minlength: "ชื่อรายงานผลการดำเนินงาน ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
+                    required: "ต้องระบุชื่อเอกสารการอบรม",
+                    minlength: "ชื่อเอกสารการอบรม ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
                     }
                 },
                 submitHandler: function(form) {
@@ -431,7 +431,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'รายงานผลการดำเนินงาน',
+                                title: 'เอกสารการอบรม',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -445,7 +445,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'รายงานผลการดำเนินงาน - ผิดพลาด',
+                                title: 'เอกสารการอบรม - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -487,7 +487,7 @@ function pathUrl($dir = __DIR__){
                         if (data.error_code === 0) {
 
                             BootstrapDialog.show({
-                                title: 'รายงานผลการดำเนินงาน',
+                                title: 'เอกสารการอบรม',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -501,7 +501,7 @@ function pathUrl($dir = __DIR__){
                         } else {
 
                             BootstrapDialog.show({
-                                title: 'รายงานผลการดำเนินงาน - ผิดพลาด',
+                                title: 'เอกสารการอบรม - ผิดพลาด',
                                 message: data.error_message,
                                 buttons: [{
                                     label: 'ปิด',
@@ -548,7 +548,7 @@ function pathUrl($dir = __DIR__){
                 if (data.error_code === 0) {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขรายงานผลการดำเนินงาน' : 'เพิ่มรายงานผลการดำเนินงาน'); ?>',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขเอกสารการอบรม' : 'เพิ่มเอกสารการอบรม'); ?>',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -558,12 +558,12 @@ function pathUrl($dir = __DIR__){
                         }]
                     });
 
-                    window.location.href = 'performance_report.php';
+                    window.location.href = 'training_documents.php';
 
                 } else {
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขรายงานผลการดำเนินงาน' : 'เพิ่มรายงานผลการดำเนินงาน'); ?> - ผิดพลาด',
+                        title: '<?php echo(isset($itemId) ? 'แก้ไขเอกสารการอบรม' : 'เพิ่มเอกสารการอบรม'); ?> - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',

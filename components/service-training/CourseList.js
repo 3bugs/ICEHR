@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import {formatCourseDateShort, numberWithCommas} from "../../etc/utils";
-import {SERVICE_SOCIAL, SERVICE_TRAINING} from "../../etc/constants";
+import {SERVICE_SOCIAL, SERVICE_TRAINING, LIMIT_PER_PAGE} from "../../etc/constants";
 import ReactPaginate from "react-paginate";
 import '../../pages/pagination.css';
 import {Element, scroller} from 'react-scroll';
-
-const LIMIT_PER_PAGE = 5;
 
 export default class CourseList extends React.Component {
 
@@ -68,7 +66,11 @@ export default class CourseList extends React.Component {
                 }
             })
             .catch(error => {
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+                //alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+                this.setState({
+                    courseList: null,
+                    errorMessage: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error,
+                });
             });
     };
 

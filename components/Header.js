@@ -591,7 +591,7 @@ class LoginForm extends React.Component {
 
     render() {
         const {loginUser, dialog} = this.state;
-        let displayName = loginUser == null ? 'เข้าสู่ระบบ' : loginUser.firstName + ' ' + loginUser.lastName;
+        let displayName = loginUser == null ? 'เข้าสู่ระบบ/สมัครสมาชิก' : loginUser.firstName + ' ' + loginUser.lastName;
 
         return (
             <div className="icon_top">
@@ -1066,134 +1066,6 @@ class LoginForm extends React.Component {
                                                                 <div className="col">
                                                                     <div className="regisfo2">
 
-                                                                        {/*คำนำหน้า*/}
-                                                                        <div className="row">
-                                                                            <div className="col-md-6">
-                                                                                {/*คำนำหน้า*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">คำนำหน้าชื่อ</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <select
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_TITLE] || '0'}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_TITLE, false)}
-                                                                                            className="form-control">
-                                                                                            <option value="0" disabled
-                                                                                                    selected>เลือกคำนำหน้า
-                                                                                            </option>
-                                                                                            {
-                                                                                                this.state.nameTitleList.map((nameTitle, index) =>
-                                                                                                    <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
-                                                                                                )
-                                                                                            }
-                                                                                        </select>
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_TITLE]}/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="col-md-6">
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/*ชื่อ, นามสกุล*/}
-                                                                        <div className="row">
-                                                                            <div className="col-md-6">
-                                                                                {/*ชื่อ*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">ชื่อ</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_FIRST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_FIRST_NAME, true)}
-                                                                                            type="text" placeholder="กรอกชื่อ"
-                                                                                            className="form-control input-md"/>
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_FIRST_NAME]}/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="col-md-6">
-                                                                                {/*นามสกุล*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">นามสกุล</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_LAST_NAME] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_LAST_NAME, true)}
-                                                                                            type="text" placeholder="กรอกนามสกุล"
-                                                                                            className="form-control input-md"/>
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_LAST_NAME]}/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/*อายุ, ตำแหน่งงาน*/}
-                                                                        <div className="row">
-                                                                            <div className="col-md-6">
-                                                                                {/*อายุ*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">วันเกิด</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <DatePicker
-                                                                                            selected={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, true)}
-                                                                                            onKeyDown={e => {
-                                                                                                //if (e.key === ' ') {
-                                                                                                e.preventDefault();
-                                                                                                //}
-                                                                                            }}
-                                                                                            showMonthDropdown
-                                                                                            showYearDropdown
-                                                                                            dropdownMode="select"
-                                                                                            placeholderText="ระบุวันเกิด"
-                                                                                            dateFormat="dd/MM/yyyy"
-                                                                                            minDate={this.setDatePickerMinDate()}
-                                                                                            maxDate={new Date()}
-                                                                                            className="form-control input-md my-react-date-picker"/>
-                                                                                        {/*<input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, false)}
-                                                                                            type="number" placeholder="กรอกอายุ"
-                                                                                            className="form-control input-md"/>*/}
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_BIRTH_DATE]}/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="col-md-6">
-                                                                                {/*ตำแหน่งงาน*/}
-                                                                                <div className="row">
-                                                                                    <div className="col-md-4">
-                                                                                        <label
-                                                                                            className="label required-label">ตำแหน่งงาน</label>
-                                                                                    </div>
-                                                                                    <div className="col-md-8">
-                                                                                        <input
-                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_JOB_POSITION] || ''}
-                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_JOB_POSITION, true)}
-                                                                                            type="text" placeholder="กรอกตำแหน่งงาน"
-                                                                                            className="form-control input-md"/>
-                                                                                        <ErrorLabel
-                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_JOB_POSITION]}/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
                                                                         {/*ชื่อหน่วยงาน, ประเภทหน่วยงาน*/}
                                                                         <div className="row">
                                                                             <div className="col-md-6">
@@ -1226,9 +1098,6 @@ class LoginForm extends React.Component {
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TYPE] || '0'}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TYPE, false)}
                                                                                             className="form-control">
-                                                                                            <option value="0" disabled
-                                                                                                    selected>เลือกประเภทหน่วยงาน
-                                                                                            </option>
                                                                                             <option value="0" disabled selected>เลือกประเภทหน่วยงาน</option>
                                                                                             {
                                                                                                 this.state.organizationTypeList.map((organizationType, index) =>
@@ -1381,6 +1250,134 @@ class LoginForm extends React.Component {
                                                                                     className="form-control input-md"/>
                                                                                 <ErrorLabel
                                                                                     value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]}/>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/*คำนำหน้า*/}
+                                                                        <div className="row">
+                                                                            <div className="col-md-6">
+                                                                                {/*คำนำหน้า*/}
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                        <label
+                                                                                            className="label required-label">คำนำหน้าชื่อ</label>
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <select
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_TITLE] || '0'}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_TITLE, false)}
+                                                                                            className="form-control">
+                                                                                            <option value="0" disabled
+                                                                                                    selected>เลือกคำนำหน้า
+                                                                                            </option>
+                                                                                            {
+                                                                                                this.state.nameTitleList.map((nameTitle, index) =>
+                                                                                                    <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
+                                                                                                )
+                                                                                            }
+                                                                                        </select>
+                                                                                        <ErrorLabel
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_TITLE]}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="col-md-6">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/*ชื่อ, นามสกุล*/}
+                                                                        <div className="row">
+                                                                            <div className="col-md-6">
+                                                                                {/*ชื่อ*/}
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                        <label
+                                                                                            className="label required-label">ชื่อ</label>
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <input
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_FIRST_NAME] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_FIRST_NAME, true)}
+                                                                                            type="text" placeholder="กรอกชื่อ"
+                                                                                            className="form-control input-md"/>
+                                                                                        <ErrorLabel
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_FIRST_NAME]}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="col-md-6">
+                                                                                {/*นามสกุล*/}
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                        <label
+                                                                                            className="label required-label">นามสกุล</label>
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <input
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_LAST_NAME] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_LAST_NAME, true)}
+                                                                                            type="text" placeholder="กรอกนามสกุล"
+                                                                                            className="form-control input-md"/>
+                                                                                        <ErrorLabel
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_LAST_NAME]}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/*อายุ, ตำแหน่งงาน*/}
+                                                                        <div className="row">
+                                                                            <div className="col-md-6">
+                                                                                {/*อายุ*/}
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                        <label
+                                                                                            className="label required-label">วันเกิด</label>
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <DatePicker
+                                                                                            selected={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, true)}
+                                                                                            onKeyDown={e => {
+                                                                                                //if (e.key === ' ') {
+                                                                                                e.preventDefault();
+                                                                                                //}
+                                                                                            }}
+                                                                                            showMonthDropdown
+                                                                                            showYearDropdown
+                                                                                            dropdownMode="select"
+                                                                                            placeholderText="ระบุวันเกิด"
+                                                                                            dateFormat="dd/MM/yyyy"
+                                                                                            minDate={this.setDatePickerMinDate()}
+                                                                                            maxDate={new Date()}
+                                                                                            className="form-control input-md my-react-date-picker"/>
+                                                                                        {/*<input
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_BIRTH_DATE] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_BIRTH_DATE, false)}
+                                                                                            type="number" placeholder="กรอกอายุ"
+                                                                                            className="form-control input-md"/>*/}
+                                                                                        <ErrorLabel
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_BIRTH_DATE]}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="col-md-6">
+                                                                                {/*ตำแหน่งงาน*/}
+                                                                                <div className="row">
+                                                                                    <div className="col-md-4">
+                                                                                        <label
+                                                                                            className="label required-label">ตำแหน่งงาน</label>
+                                                                                    </div>
+                                                                                    <div className="col-md-8">
+                                                                                        <input
+                                                                                            value={this.state.fields[REGISTER_ORGANIZATION_JOB_POSITION] || ''}
+                                                                                            onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_JOB_POSITION, true)}
+                                                                                            type="text" placeholder="กรอกตำแหน่งงาน"
+                                                                                            className="form-control input-md"/>
+                                                                                        <ErrorLabel
+                                                                                            value={this.state.errors[REGISTER_ORGANIZATION_JOB_POSITION]}/>
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
 
@@ -1732,12 +1729,12 @@ export default class Header extends React.Component {
                                                     </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li><a href="download-page.php">เอกสารการอบรม </a></li>
-                                                            <li><a href="download-page2.php">รายงานผลการดำเนินงาน</a>
+                                                            <li><a href="/document-download/training">เอกสารการอบรม </a></li>
+                                                            <li><a href="/document-download/report">รายงานผลการดำเนินงาน</a>
                                                             </li>
-                                                            <li><a href="download-page3.php">KM</a></li>
-                                                            <li><a href="download-page5.php">ประกันคุณภาพ(QA)</a></li>
-                                                            <li><a href="download-page4.php"> จุลสาร/อินโฟกราฟิค</a>
+                                                            <li><a href="/document-download/km">KM</a></li>
+                                                            <li><a href="/document-download/qa">ประกันคุณภาพ (QA)</a></li>
+                                                            <li><a href="/document-download/booklet"> จุลสาร/อินโฟกราฟิค</a>
                                                             </li>
                                                         </ul>
                                                     </div>

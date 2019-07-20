@@ -7,7 +7,7 @@
         <section class="sidebar">
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu" data-widget="tree">
-                <li class="header" style="color: yellow; text-align: center">ระบบ</li>
+                <li class="header" style="color: yellow; text-align: center">บริการ</li>
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-mortar-board"></i> <span><?php echo SERVICE_TYPE_TRAINING_TEXT; ?></span>
@@ -224,11 +224,11 @@
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="training_documents.php"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
-                        <li><a href="performance_report.php"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
-                        <li><a href="km.php"><i class="fa fa-circle-o"></i> KM</a></li>
-                        <li><a href="qa_quality_assurance.php"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
-                        <li><a href="pamphlet_infographic.php"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
+                        <li><a href="document_download.php?document_type=training"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
+                        <li><a href="document_download.php?document_type=report"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
+                        <li><a href="document_download.php?document_type=km"><i class="fa fa-circle-o"></i> KM</a></li>
+                        <li><a href="document_download.php?document_type=qa"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
+                        <li><a href="document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

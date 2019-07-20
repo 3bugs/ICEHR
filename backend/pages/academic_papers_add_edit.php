@@ -245,7 +245,7 @@ if (isset($id)) {
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="pdf_tab_1">
                                                     <div style="padding: 5px">
-                                                        <a target="_blank" href="<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>">เปิดในหน้าจอใหม่</a>
+                                                        <a target="_blank" href="<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>">แสดง PDF ในหน้าจอใหม่</a>
                                                     </div>
                                                     <embed src="<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>"
                                                            width="600px" height="450px">
@@ -285,10 +285,10 @@ if (isset($id)) {
                                         </label>-->
                                         <input id="file-upload" name="file" required
                                                type="file" accept="application/pdf"
-                                               style="margin-top: 10px"
+                                               style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
                                                onChange="getFileData(this);"
                                                oninvalid="this.setCustomValidity('เลือกไฟล์ PDF')"
-                                               oninput="this.setCustomValidity('')"/>&nbsp;<!--<span id="spanFileName">ยังไม่ได้เลือกไฟล์</span>-->
+                                               oninput="this.setCustomValidity('')"/>
                                         <?php
                                     }
                                     ?>

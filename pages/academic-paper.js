@@ -4,7 +4,7 @@ import Link from 'next/link';
 import fetch from 'isomorphic-unfetch';
 import Modal from 'react-bootstrap/Modal';
 import {isString, isValidEmail, nl2br} from '../etc/utils';
-import constants from '../etc/constants';
+import {HOST_BACKEND, LIMIT_PER_PAGE} from "../etc/constants";
 import $ from 'jquery';
 import './academic-paper.css';
 import './pagination.css';
@@ -25,7 +25,6 @@ const SEARCH_INPUT_YEAR_PUBLISHED = 'searchYearPublished';
 const SEARCH_INPUT_NAME = 'searchName';
 
 const KEY_ACADEMIC_PAPER_FORM_SUBMIT_LIST = 'academicPaperStatusList';
-const LIMIT_PER_PAGE = 2;
 
 class AcademicPaperListItem extends React.Component {
 
@@ -359,7 +358,7 @@ class AcademicPaperDetails extends React.Component {
 
     openPdf() {
         const {fileName} = this.props.data;
-        window.open(`${constants.HOST_BACKEND}/uploads/academic_papers/${fileName}`, '_blank');
+        window.open(`${HOST_BACKEND}/uploads/academic_papers/${fileName}`, '_blank');
     }
 
     handleClickDownload = () => {
