@@ -121,6 +121,12 @@ switch ($action) {
     case 'delete_document_download':
         doDeleteDocumentDownload();
         break;
+    case 'add_news':
+        doAddNews();
+        break;
+    case 'delete_news':
+        doDeleteNews();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,8 +136,8 @@ switch ($action) {
     case 'update_training_project_news':
         doUpdateTrainingProjectNews();
         break;
-    case 'add_news':
-        doAddNews();
+    case 'add_news_old':
+        doAddNewsOld();
         break;
     case 'update_news':
         doUpdateNews();
@@ -851,6 +857,35 @@ function doAddDocumentDownload()
     }
 }
 
+function doAddNews()
+{
+    global $db, $response;
+
+    $newsType = $db->real_escape_string($_POST['newsType']);
+    $title = $db->real_escape_string($_POST['title']);
+    $details = $db->real_escape_string($_POST['details']);
+
+    if (!moveUploadedFile('coverImageFile', UPLOAD_DIR_NEWS_ASSETS, $coverImageFileName)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return;
+    }
+
+    $sql = "INSERT INTO news (title, details, image_file_name, news_type) 
+                VALUES ('$title', '$details', '$coverImageFileName', '$newsType')";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
 function doUpdateAcademicPaper()
 {
     global $db, $response;
@@ -960,7 +995,7 @@ function doDeleteAcademicPaper()
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
                 $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบงานวิจัย/วิชาการ: ' . $db->error;
                 $errMessage = $db->error;
-                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $deleteSql";
             }
         } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
@@ -999,7 +1034,7 @@ function doDeleteDocumentDownload()
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
                 $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบเอกสารดาวน์โหลด: ' . $db->error;
                 $errMessage = $db->error;
-                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $deleteSql";
             }
         } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
@@ -1012,6 +1047,35 @@ function doDeleteDocumentDownload()
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteNews()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $deleteNewsSql = "DELETE FROM news WHERE id = $id";
+
+    if ($deleteResult = $db->query($deleteNewsSql)) {
+        $deleteNewsAssetsSql = "DELETE FROM news_asset WHERE news_id = $id";
+
+        if ($deleteNewsAssetsResult = $db->query($deleteNewsAssetsSql)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        }else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล (2): ' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $deleteNewsAssetsSql";
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล (1): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $deleteNewsSql";
     }
 }
 
@@ -1560,7 +1624,7 @@ function doUpdateTrainingProjectNews()
     }
 }
 
-function doAddNews()
+function doAddNewsOld()
 {
     global $db, $response;
 

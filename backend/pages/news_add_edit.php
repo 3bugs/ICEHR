@@ -1,144 +1,76 @@
 <?php
 require_once '../include/head_php.inc';
 
-$itemId = $_POST['itemId'];
-$item = array();
-$media_cover = array();
-$media_gallery = array();
-$document = array();
-if (isset($itemId)) {
-    $itemId = $db->real_escape_string($itemId);
-    /* Item */
-    $sql = "SELECT * FROM article WHERE id=$itemId";
-    if ($result = $db->query($sql)) {
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $item['id'] = (int)$row['id'];
-            $item['title'] = $row['title'];
-            $item['description'] = $row['description'];
-            $item['short_description'] = $row['short_description'];
-            $item['featured'] = (int)$row['featured'];
-            $item['start_date'] = $row['start_date'];
-            $item['end_date'] = $row['end_date'];
-            $item['status'] = $row['status'];
-            $item['meta_title'] = $row['meta_title'];
-            $item['meta_keywords'] = $row['meta_keywords'];
-            $item['meta_description'] = $row['meta_description'];
-        }
-        $result->close();
-    } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
-        $db->close();
-        exit();
-    }
+$newsId = $_GET['news_id'];
 
-    /* Media Cover */
-    $sql_media_cover = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='cover_desktop' AND model_type='news'";    
-    if ($result = $db->query($sql_media_cover)) {
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $media_cover['id'] = (int)$row['id'];
-            $media_cover['name'] = $row['name'];
-            $media_cover['file_name'] = $row['file_name'];
-            $media_cover['mime_type'] = $row['mime_type'];
-            $media_cover['collection_name'] = $row['collection_name'];
-        }
-        $result->close();
-    } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
-        $db->close();
-        exit();
-    }
-
-    /* Media Gallery */
-    $sql_media_gallery = "SELECT * FROM media WHERE model_id=$itemId AND collection_name ='gallery_desktop' AND model_type='news'";    
-    if ($result = $db->query($sql_media_gallery)) {
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_all(MYSQLI_ASSOC);
-            foreach ($row as $key => $value) {
-                $media_gallery[$key]['id'] = (int)$value['id'];
-                $media_gallery[$key]['name'] = $value['name'];
-                $media_gallery[$key]['file_name'] = $value['file_name'];
-                $media_gallery[$key]['mime_type'] = $value['mime_type'];
-                $media_gallery[$key]['collection_name'] = $value['collection_name'];
-            }
-        }
-        $result->close();
-    } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
-        $db->close();
-        exit();
-    }
-
-    /* Document */
-    $sql_documents = "SELECT * FROM documents_download WHERE article_id=$itemId";    
-    if ($result = $db->query($sql_documents)) {
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_all(MYSQLI_ASSOC);
-            foreach ($row as $key => $value) {
-                $document[$key]['id'] = (int)$value['id'];
-                $document[$key]['file_name'] = $value['file_name'];
-                $document[$key]['file_path'] = $value['file_path'];
-            }
-        }
-        $result->close();
-    } else {
-        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
-        $db->close();
-        exit();
-    }
-
-
+$newsType = $_GET['news_type'];
+$newsTypeList = array(
+    'training', 'public-relations', 'in-house', 'activity'
+);
+if (!isset($newsType) || !in_array($newsType, $newsTypeList)) {
+    echo "Invalid news type '$newsType' - ระบุประเภทข่าวไม่ถูกต้อง";
+    $db->close();
+    exit();
 }
 
+$pageTitles['training'] = 'ข่าวการฝึกอบรม';
+$pageTitles['public-relations'] = 'ข่าวประชาสัมพันธ์';
+$pageTitles['in-house'] = 'หลักสูตร In-House ที่ผ่านมา';
+$pageTitles['activity'] = 'ภาพกิจกรรม';
 
-// $target_path = $_SERVER['DOCUMENT_ROOT'] . "static/media/test.docx";
+$pageTitle = $pageTitles[$newsType];
 
-// if (!unlink($target_path))
-// {
-//    echo ("$file_pointer cannot be deleted due to an error");
-// }
-// else
-// {
-//    echo ("$file_pointer has been deleted");
-// }
+$news = array();
+if (isset($newsId)) {
+    $newsId = $db->real_escape_string($newsId);
 
-// echo $target_path;
-// exit();
+    $sql = "SELECT * FROM news WHERE id = $newsId";
 
+    if ($result = $db->query($sql)) {
+        if ($result->num_rows > 0) {
+            $news = $result->fetch_assoc();
+        } else {
+            echo 'ไม่พบข้อมูล';
+            $result->close();
+            $db->close();
+            exit();
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
+}
 
+$imageList = array();
+if (isset($newsId)) {
+    $sql = "SELECT id, title, file_name, created_at 
+            FROM news_asset 
+            WHERE news_id = $newsId";
+    if ($result = $db->query($sql)) {
+        while ($row = $result->fetch_assoc()) {
+            $asset = array();
+            $asset['id'] = (int)$row['id'];
+            $asset['title'] = $row['title'];
+            $asset['file_name'] = $row['file_name'];
+            $asset['created_at'] = $row['created_at'];
 
-// echo $itemId;
-// echo "<pre>";
-//      print_r($item);
-//      print_r($media_cover);
-//      print_r($media_gallery);
-//      print_r($document);
-// echo "</pre>";
-
-// exit();
-
-
-function pathUrl($dir = __DIR__){
-    $root = "";
-    $dir = str_replace('\\', '/', realpath($dir));
-
-    //HTTPS or HTTP
-    $root .= !empty($_SERVER['HTTPS']) ? 'https' : 'http';
-
-    //HOST
-    $root .= '://' . $_SERVER['HTTP_HOST'];
-
-    //ALIAS
-    // if(!empty($_SERVER['CONTEXT_PREFIX'])) {
-    //     $root .= $_SERVER['CONTEXT_PREFIX'];
-    //     $root .= substr($dir, strlen($_SERVER[ 'CONTEXT_DOCUMENT_ROOT' ]));
-    // } else {
-    //     $root .= substr($dir, strlen($_SERVER[ 'DOCUMENT_ROOT' ]));
-    // }
-
-    $root .= '/';
-    return $root;
+            $prefixPosition = strpos($row['file_name'], '-');
+            $extensionPosition = strpos($row['file_name'], '.');
+            $asset['title'] = substr(
+                $row['file_name'],
+                $prefixPosition + 1,
+                $extensionPosition - ($prefixPosition + 1)
+            );
+            array_push($imageList, $asset);
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
 }
 
 ?>
@@ -146,13 +78,49 @@ function pathUrl($dir = __DIR__){
     <html lang="th">
     <head>
         <?php require_once('../include/head.inc'); ?>
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <!--Lightbox-->
+        <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
+
         <style>
-              .error{
-                  color:red;
-              }
+            input[type="file"] {
+                margin-bottom: 15px;
+                /*display: none;*/
+            }
+
+            .custom-file-upload {
+                border: 1px solid #ccc;
+                display: inline-block;
+                padding: 6px 12px;
+                cursor: pointer;
+            }
+
+            .custom-file-upload:hover {
+                background: #f4f4f4;
+            }
+
+            .nav-tabs {
+                background-color: #f8f8f8;
+            }
+
+            .tab-content {
+                /*background-color:#ccc;
+                color:#00ff00;
+                padding:5px*/
+            }
+
+            .nav-tabs > li > a {
+                /*border: medium none;*/
+            }
+
+            .nav-tabs > li > a:hover {
+                /*background-color: #ccc !important;
+                border: medium none;
+                border-radius: 0;
+                color:#fff;*/
+            }
         </style>
-        <script src="../bower_components/dropzone-master/dropzone.js"></script>
-        <link rel="stylesheet" href="../bower_components/dropzone-master/dropzone.css">
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
 
@@ -165,21 +133,26 @@ function pathUrl($dir = __DIR__){
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?php echo(isset($itemId) ? 'แก้ไข' : 'เพิ่ม'); ?>ข่าวประชาสัมพันธ์
-                    <small>ข่าวประชาสัมพันธ์</small>
+                    <?= (isset($newsId) ? 'แก้ไข' : 'เพิ่ม') . $pageTitle; ?>
                 </h1>
             </section>
 
             <!-- Main content -->
             <section class="content">
-                <form id="formAddNews" method="POST" enctype="multipart/form-data">
+                <form id="formAddNews"
+                      action="../api/api.php/<?= (isset($newsId) ? 'update_news' : 'add_news'); ?>"
+                      method="post">
+
+                    <input type="hidden" name="newsId" value="<?php echo $newsId; ?>"/>
+                    <input type="hidden" name="newsType" value="<?php echo $newsType; ?>"/>
+
                     <div class="row">
                         <div class="col-xs-12">
 
-                            <!--รายละเอียดข่าวประชาสัมพันธ์-->
+                            <!--หัวข้อ-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">รายละเอียดข่าวประชาสัมพันธ์</h3>
+                                    <h3 class="box-title"><?= $pageTitle; ?></h3>
 
                                     <div class="box-tools pull-right">
                                         <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -192,78 +165,41 @@ function pathUrl($dir = __DIR__){
                                 <!-- /.box-header -->
                                 <div class="box-body">
 
-                                    <!--ชื่อข่าวประชาสัมพันธ์-->
+                                    <!--หัวข้อ/เรื่อง-->
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-9">
                                             <div class="form-group">
-                                                <label for="inputArticle">ชื่อข่าวประชาสัมพันธ์:</label>
-                                                <input type="text" name="title" value="<?php echo (!empty($item) ? $item['title']:''); ?>" maxlength="50" class="form-control">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- รายละเอียดแบบย่อ -->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputArticle">รายละเอียดแบบย่อ:</label>
-                                                <textarea name="short_description" rows="5" class="form-control"><?php echo (!empty($item) ? $item['short_description']:''); ?></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- รายละเอียด -->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputArticle">รายละเอียด:</label>
-                                                <div class="box-body pad">
-                                                    <textarea name="description" id="editor" rows="20" cols="80" class="form-control"><?php echo (!empty($item) ? $item['description']:''); ?></textarea>
+                                                <label for="inputTitle">หัวข้อ/เรื่อง:</label>
+                                                <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-font"></i>
+                                                </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputTitle"
+                                                           name="title"
+                                                           value="<?php echo(!empty($news) ? $news['title'] : ''); ?>"
+                                                           placeholder="กรอกหัวข้อ/เรื่อง" required
+                                                           oninvalid="this.setCustomValidity('กรอกหัวข้อ/เรื่อง')"
+                                                           oninput="this.setCustomValidity('')">
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!--วันที่-->
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                        <!--วันที่ข่าว-->
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="inputBeginDate">วันที่เริ่มต้น:</label>
-                                                    <?php
-                                                    if (!empty($item)) {
-                                                        $beginDatePart = explode('-',date('Y-m-d',strtotime($item['start_date'])));
-                                                        $year = $beginDatePart[0];
-                                                        $month = $beginDatePart[1];
-                                                        $day = $beginDatePart[2];
-                                                        $beginDate = "$day/$month/$year";
-                                                    }
-                                                    ?>
-                                                    <input type="text" class="form-control"
-                                                           id="inputBeginDate"
-                                                           name="inputBeginDate"
-                                                           value="<?php echo(!empty($item) ? $beginDate : ''); ?>"
-                                                           placeholder="เลือกวันที่เริ่มต้น" >
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="inputEndDate">วันที่สิ้นสุด:</label>
-                                                    <?php
-                                                    if (!empty($item)) {
-                                                        $endDatePart = explode('-',date('Y-m-d',strtotime($item['end_date'])));
-                                                        $year = $endDatePart[0];
-                                                        $month = $endDatePart[1];
-                                                        $day = $endDatePart[2];
-                                                        $endDate = "$day/$month/$year";
-                                                    }
-                                                    ?>
-                                                    <input type="text" class="form-control"
-                                                           id="inputEndDate"
-                                                           name="inputEndDate"
-                                                           value="<?php echo(!empty($item) ? $endDate : ''); ?>"
-                                                           placeholder="เลือกวันที่สิ้นสุด" dateCheck="dateCheck">
+                                                <label for="inputNewsDate">วันที่ของข่าว/กิจกรรม:</label>
+                                                <div class="input-group date">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </div>
+                                                    <input type="text" class="form-control pull-right"
+                                                           id="inputNewsDate"
+                                                           name="newsDate"
+                                                           placeholder="เลือกวันที่ของข่าว/กิจกรรม" required
+                                                           oninvalid="this.setCustomValidity('เลือกวันที่ของข่าว/กิจกรรม')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -272,13 +208,38 @@ function pathUrl($dir = __DIR__){
                             </div>
                             <!-- /.box -->
 
+                            <!--content editor-->
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">รายละเอียดข่าว/กิจกรรม
+                                        <small>&nbsp;</small>
+                                    </h3>
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad">
+                                <textarea id="editor" rows="20" cols="80"
+                                          name="details">
+                                    <?= (!empty($news) ? $news['details'] : ''); ?>
+                                </textarea>
+                                </div>
+                            </div>
+                            <!-- /.box -->
 
-                            <!-- ปภาพหน้าปก -->
-                            <div class="box box-info">
+                            <!--รูปภาพหน้าปก-->
+                            <div class="box box-warning">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">รูปภาพหน้าปก
-                                        <small></small>
+                                        <!--<small></small>-->
                                     </h3>
+
                                     <!-- tools box -->
                                     <div class="pull-right box-tools">
                                         <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -289,92 +250,73 @@ function pathUrl($dir = __DIR__){
                                     <!-- /. tools -->
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body">
-                                    
-                                    <!--รูปภาพหน้าปก-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <div class="input-group" id="cover_desktop">
-                                                    <div id="DropzoneCoverDesktop" class="dropzone">
-  
+                                <div class="box-body pad">
+                                    <?php
+                                    if (!empty($news)) {
+                                        ?>
+                                        <!-- Custom Tabs -->
+                                        <div class="nav-tabs-custom">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a href="#cover_image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน</a></li>
+                                                <li><a href="#cover_image_tab_2" data-toggle="tab">อัพโหลดรูปภาพใหม่</a></li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane active" id="cover_image_tab_1">
+                                                    <div style="padding: 5px">
+                                                        <!--<a target="_blank" href="<?php /*echo(UPLOAD_DIR_NEWS_ASSETS . $news['image_file_name']); */?>">แสดงรูปภาพในหน้าจอใหม่</a>-->
                                                     </div>
-                                                    <div>
-                                                        <?php 
-                                                            if(!empty($media_cover)):
-                                                            $path_cover = pathUrl()."static/media/".$media_cover['file_name'];
-                                                            //echo $path_cover;
-                                                        ?>  
-                                                            1.<img src="<?php echo $path_cover; ?>" style="width:50%;height:100%;padding:20px"><a data-id="<?php echo $media_cover['id']; ?>" data-filename="<?php echo $media_cover['file_name']; ?>" class="btn btn-info btn-remove-images" style="margin-left:35px">ลบ</a>
-                                                        <?php 
-                                                            endif; 
-                                                        ?>
-                                                    </div>
+                                                    <a href="<?= (UPLOAD_DIR_NEWS_ASSETS . $news['image_file_name']); ?>"
+                                                       data-lightbox="coverImage" data-title="<?= $news['title']; ?>">
+                                                        <img src="<?= (UPLOAD_DIR_NEWS_ASSETS . $news['image_file_name']); ?>"
+                                                             width="600px">
+                                                    </a>
                                                 </div>
+                                                <!-- /.tab-pane -->
+                                                <div class="tab-pane" id="cover_image_tab_2" style="padding: 0px">
+                                                    <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                        <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                        <li>รูปภาพที่อัพโหลดใหม่ จะแทนที่รูปภาพปัจจุบัน</li>
+                                                        <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                    </ul>
+                                                    <input id="cover-image-file-upload" name="coverImageFile"
+                                                           type="file" accept="image/*"
+                                                           style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
+                                                           onChange="getImageFileData(this);"/>
+                                                    <div id="cover-image-upload-preview"
+                                                         style="background: #efffd1; padding: 10px;"></div>
+                                                </div>
+                                                <!-- /.tab-pane -->
                                             </div>
+                                            <!-- /.tab-content -->
                                         </div>
-                                    </div>
-
+                                        <!-- nav-tabs-custom -->
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                            <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                            <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                        </ul>
+                                        <input id="cover-image-file-upload" name="coverImageFile" required
+                                               type="file" accept="image/*"
+                                               style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
+                                               onChange="getImageFileData(this);"
+                                               oninvalid="this.setCustomValidity('เลือกรูปภาพหน้าปก')"
+                                               oninput="this.setCustomValidity('')"/>
+                                        <div id="cover-image-upload-preview"
+                                             style="background: #efffd1; padding: 10px;"></div>
+                                        <?php
+                                    }
+                                    ?>
                                 </div>
                             </div>
                             <!-- /.box -->
-
-                            <!-- รูปภาพ -->
-                            <div class="box box-info">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">รูปภาพ
-                                        <small></small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <!-- /. tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body">
-
-                                    <!--รูปภาพ-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <div class="input-group" id="gallery_desktop">
-                                                    <div id="DropzoneGalleryDesktop" class="dropzone">
-  
-                                                    </div>
-                                                    <div>
-                                                    <?php 
-                                                            if(!empty($media_gallery)):
-                                                                foreach ($media_gallery as $key => $value):
-                                                                $path_gallery = pathUrl()."static/media/".$value['file_name'];
-                                                                //echo $path_gallery;
-                                                                //exit();
-                                                        ?>  
-                                                                <?php echo ($key+1) ?>.<img src="<?php echo $path_gallery; ?>" style="width:50%;height:100%;padding:20px"><a data-id="<?php echo $value['id']; ?>" data-filename="<?php echo $value['file_name']; ?>" class="btn btn-info btn-remove-images" style="margin-left:35px">ลบ</a>
-                                                                <br>
-                                                        <?php
-                                                                endforeach;
-                                                            endif; 
-                                                        ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <!-- /.box -->
-
                             
-                            <!-- ไฟล์แนบ -->
-                            <div class="box box-info">
+                            <!--รูปภาพข่าว/กิจกรรม-->
+                            <div class="box box-warning">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">ไฟล์แนบ
-                                        <small></small>
+                                    <h3 class="box-title">รูปภาพข่าว/กิจกรรม
+                                        <!--<small>อัพโหลดรูปภาพ</small>-->
                                     </h3>
                                     <!-- tools box -->
                                     <div class="pull-right box-tools">
@@ -386,32 +328,93 @@ function pathUrl($dir = __DIR__){
                                     <!-- /. tools -->
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body">
-
-                                    <!--ไฟล์แนบ-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <div class="input-group" id="document">
-                                                        <div id="DropzoneDocument" class="dropzone">
-    
-                                                        </div>
-                                                        <div>
-                                                        <?php 
-                                                            if(!empty($document)):
-                                                                foreach ($document as $key => $value):
-                                                                $path_document = pathUrl()."static/media/".$value['file_name'];
-                                                                //echo $path_document;
-                                                                //exit();
-                                                        ?>  
-                                                                <?php echo ($key+1) ?>.<a href="<?php echo $path_document; ?>" download><?php echo $value['file_name']; ?></a><a data-id="<?php echo $value['id']; ?>" data-filename="<?php echo $value['file_name']; ?>" class="btn btn-info btn-remove-documents" style="margin-left:35px">ลบ</a>
-                                                                <br>
-                                                        <?php
-                                                                endforeach;
-                                                            endif; 
+                                <div class="box-body pad" style="background: #f8f8f8">
+                                    <!-- Custom Tabs -->
+                                    <div class="nav-tabs-custom">
+                                        <ul class="nav nav-tabs">
+                                            <?php
+                                            if (isset($newsId)) {
+                                                ?>
+                                                <li class="active"><a href="#image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน <strong>(<?php echo sizeof($imageList); ?>)</strong></a></li>
+                                                <?php
+                                            }
+                                            ?>
+                                            <li <?php echo(!isset($newsId) ? 'class="active"' : ''); ?>><a href="#image_tab_2" data-toggle="tab">เพิ่มรูปภาพ</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <?php
+                                            if (isset($newsId)) {
+                                                ?>
+                                                <!--ตารางรูปภาพ-->
+                                                <div class="tab-pane active" id="image_tab_1">
+                                                    <?php
+                                                    if (sizeof($imageList) === 0) {
                                                         ?>
+                                                        <div class="callout callout-danger" style="margin-top: 10px">
+                                                            <p>ยังไม่มีรูปภาพ!</p>
                                                         </div>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                    <table id="tableImage" class="table table-bordered table-striped">
+                                                        <thead>
+                                                        <tr>
+                                                            <!--<th style="text-align: center; width: 40%;">ชื่อ</th>-->
+                                                            <th style="text-align: center; width: 80%;">รูปภาพ</th>
+                                                            <th style="text-align: center; width: 20%;">อัพโหลดเมื่อ</th>
+                                                            <th style="text-align: center;">จัดการ</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <?php
+                                                        foreach ($imageList as $image) {
+                                                            $createdAt = $image['created_at'];
+                                                            $dateTimePart = explode(' ', $createdAt);
+                                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                                                            $timePart = explode(':', $dateTimePart[1]);
+                                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                                                            $displayDateTime = "$displayDate<br>$displayTime";
+                                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
+                                                            ?>
+                                                            <tr>
+                                                                <!--<td><?php /*echo $image['title']; */ ?></td>-->
+                                                                <td style="text-align: center">
+                                                                    <a href="<?php echo(UPLOAD_DIR_NEWS_ASSETS . $image['file_name']); ?>" data-lightbox="newsImage">
+                                                                        <img src="<?php echo(UPLOAD_DIR_NEWS_ASSETS . $image['file_name']); ?>"
+                                                                             height="120px">
+                                                                    </a>
+                                                                </td>
+                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-danger"
+                                                                            style="margin-left: 6px; margin-right: 6px"
+                                                                            onClick="onClickDeleteAsset(this, <?php echo $image['id']; ?>)">
+                                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                                        ลบ
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
+                                                <?php
+                                            }
+                                            ?>
+                                            <!--เพิ่มรูปภาพใหม่-->
+                                            <div class="tab-pane <?= (!isset($newsId) ? 'active' : ''); ?>" id="image_tab_2">
+                                                <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                    <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                    <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
+                                                    <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                </ul>
+                                                <input id="image-upload" type="file" accept="image/*" multiple
+                                                       name="imageFiles[]"
+                                                       style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <div id="image-upload-preview"
+                                                     style="background: #efffd1; padding: 10px;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -420,551 +423,302 @@ function pathUrl($dir = __DIR__){
                             </div>
                             <!-- /.box -->
 
-                            <!-- SEO -->
-                            <div class="box box-info">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">SEO
-                                        <small></small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
+                            <!--ปุ่ม "บันทึก"-->
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <div id="divLoading" style="text-align: center; margin-bottom: 10px;">
+                                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                                     </div>
-                                    <!-- /. tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body">
-
-                                    <!--Meta Title-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputMetaTitle">Meta Title:</label>
-                                                <div class="input-group">
-                                                <span class="input-group-addon">
-                                                    <i class="fa fa-font"></i>
-                                                </span>
-                                                    <input name="meta_title" type="text" value="<?php echo (!empty($item) ? $item['meta_title']:''); ?>" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--Meta Keywords-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputMetaKeywords">Meta Keywords:</label>
-                                                <div class="input-group">
-                                                <span class="input-group-addon">
-                                                    <i class="fa fa-font"></i>
-                                                </span>
-                                                    <input name="meta_keywords" type="text" value="<?php echo (!empty($item) ? $item['meta_keywords']:''); ?>" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--Meta Description-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputMetaDescription">Meta Description:</label>
-                                                <div class="input-group">   
-                                                <span class="input-group-addon">
-                                                    <i class="fa fa-font"></i>
-                                                </span> 
-                                                    <textarea name="meta_description" class="form-control"><?php echo (!empty($item) ? $item['meta_description']:''); ?></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    <button id="buttonSave" type="submit"
+                                            class="btn btn-info">
+                                        <span class="fa fa-save"></span>&nbsp;
+                                        บันทึก
+                                    </button>
                                 </div>
                             </div>
-                            <!-- /.box -->
 
-
-                            <!--การตั้งค่า-->
-                            <div class="box box-info">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">การตั้งค่า
-                                        <small></small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <!-- /. tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body">
-
-                                    <!--สถานะ-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="selectStatus">สถานะ:</label>
-                                                <div class="input-group">
-                                                    <select name="status" class="form-control" required>
-                                                            <option value="publish" <?php echo (!empty($item) ? ($item['status'] == 'publish' ? 'selected':''):''); ?> >เผยแพร่</option>
-                                                            <option value="draft" <?php echo (!empty($item) ? ($item['status'] == 'draft' ? 'selected':''):''); ?> >ไม่เผยแพร่</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!--ไฮไลท์-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputPlace">ไฮไลท์:</label>
-                                                <div class="input-group">
-                                                    <input name="featured" type="radio" id="featured_1" value="1" <?php echo (!empty($item) ? ($item['featured'] == '1' ? 'checked':''):''); ?> > ไฮไลท์
-                                                    <input name="featured" type="radio" id="featured_2" value="2" <?php echo (!empty($item) ? ($item['featured'] == '2' ? 'checked':''):'checked'); ?> > ไม่ไฮไลท์
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <!-- /.box -->                           
-
-
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <button id="buttonSave" type="submit"
-                                        class="btn btn-info">
-                                    <span class="fa fa-save"></span>&nbsp;
-                                    บันทึก
-                                </button>
-                            </div>
                         </div>
-
+                        <!-- /.col -->
                     </div>
-                    <!-- /.col -->
-        </div>
-        <!-- /.row -->
-        <input name="uid" type="hidden" value="<?php echo $_SESSION[KEY_SESSION_USER_ID]; ?>">
-        <?php 
-            if(isset($itemId)):
-        ?>
-        <input name="itemId" type="hidden" value="<?php echo $itemId ?>">
-        <?php
-            endif;
-        ?>
-        </form>
-        </section>
-        <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
+                    <!-- /.row -->
+                </form>
 
-    <?php require_once('../include/footer.inc'); ?>
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <?php require_once('../include/footer.inc'); ?>
     </div>
     <!-- ./wrapper -->
 
     <script>
-        Dropzone.autoDiscover = false;
-        
         $(() => {
-            //Date picker
-            $('#inputBeginDate').datepicker({
-                format: 'dd/mm/yyyy',
-                orientation: 'bottom',
-                autoclose: true
-            }).on('changeDate', e => {
-                e.target.setCustomValidity('');
-            });
+            <?php
+            if (!empty($news)) {
+                $newsDatePart = explode('-', $news['news_date']);
+                $year = $newsDatePart[0];
+                $month = $newsDatePart[1];
+                $day = $newsDatePart[2];
+                $newsDate = "$day/$month/$year";
+            }
+            ?>
 
-            $('#inputEndDate').datepicker({
+            //Date picker
+            let inputNewsDate = $('#inputNewsDate');
+            inputNewsDate.datepicker({
+                language: 'th',
+                thaiyear: true,
                 format: 'dd/mm/yyyy',
                 orientation: 'bottom',
                 autoclose: true
             }).on('changeDate', e => {
                 e.target.setCustomValidity('');
-            });
+            }).datepicker('update', '<?php echo(!empty($news) ? $newsDate : ''); ?>');
+
             CKEDITOR.replace('editor');
         });
 
-
         $(document).ready(function () {
-
-
-
-            $("#DropzoneCoverDesktop").dropzone({
-                
-                paramName: "file", // The name that will be used to transfer the file
-                maxFilesize: 2, // MB
-                maxFiles:1,
-                acceptedFiles: ".png,.jpg,.jpeg",
-                url: "../pages/upload-target.php",
-                sending:function(file, xhr, formData){
-
-                    let date_now = new Date();
-                    let file_name = date_now.getDate()+'-'+date_now.getMonth()+'-'+date_now.getFullYear()+'-'+date_now.getHours()+'-'+date_now.getMinutes()+'-'+date_now.getMilliseconds()+'.'+file.name.split(".")[1];
-                    let name = file.name.split(".")[0];
-                    formData.append('file_name',file_name);
-                    formData.append('name',name);
-
-                    file.custom_file_name = file_name;
-                    file.custom_name = name;
-                  
-                    //console.log(file);
-
-                    html = '<input name="cover_desktop_file_name" type="hidden" value="'+file.custom_file_name+'">';
-                    html += '<input name="cover_desktop_name" type="hidden" value="'+file.custom_name+'" >';
-                    html += '<input name="cover_desktop_size" type="hidden" value="'+file.size+'" >';
-                    html += '<input name="cover_desktop_type" type="hidden" value="'+file.type+'" >';
-                    $('#cover_desktop').append(html);
-
-                },
-                accept: function(file, done) {
-                    //#add_galleryconsole.log(file,file.myCustomName);
-                    ///console.log(file);
-                    done();
-                    //if (file.type != "image/jpeg" && file.type != "image/png") {}
-                }
-
-            });
-
-
-            $("#DropzoneGalleryDesktop").dropzone({
-                
-                paramName: "file", // The name that will be used to transfer the file
-                maxFilesize: 2, // MB
-                maxFiles:10,
-                acceptedFiles: ".png,.jpg,.jpeg",
-                url: "../pages/upload-target.php",
-                sending:function(file, xhr, formData){
-
-                    let date_now = new Date();
-                    let file_name = date_now.getDate()+'-'+date_now.getMonth()+'-'+date_now.getFullYear()+'-'+date_now.getHours()+'-'+date_now.getMinutes()+'-'+date_now.getMilliseconds()+'.'+file.name.split(".")[1];
-                    let name = file.name.split(".")[0];
-                    formData.append('file_name',file_name);
-                    formData.append('name',name);
-
-                    file.custom_file_name = file_name;
-                    file.custom_name = name;
-                  
-                    //console.log(file);
-
-                    html = '<input name="gallery_desktop_file_name[]" type="hidden" value="'+file.custom_file_name+'">';
-                    html += '<input name="gallery_desktop_name[]" type="hidden" value="'+file.custom_name+'" >';
-                    html += '<input name="gallery_desktop_size[]" type="hidden" value="'+file.size+'" >';
-                    html += '<input name="gallery_desktop_type[]" type="hidden" value="'+file.type+'" >';
-                    $('#gallery_desktop').append(html);
-
-                },
-                accept: function(file, done) {
-                    //#add_galleryconsole.log(file,file.myCustomName);
-                    ///console.log(file);
-                    done();
-                    //if (file.type != "image/jpeg" && file.type != "image/png") {}
-                }
-
-            });
-
-
-            $("#DropzoneDocument").dropzone({
-                
-                paramName: "file", // The name that will be used to transfer the file
-                maxFilesize: 50, // MB
-                maxFiles:10,
-                acceptedFiles: ".xlsx,.xls,.docx,.pdf",
-                url: "../pages/upload-target.php",
-                sending:function(file, xhr, formData){
-
-                    let date_now = new Date();
-                    let file_name = date_now.getDate()+'-'+date_now.getMonth()+'-'+date_now.getFullYear()+'-'+date_now.getHours()+'-'+date_now.getMinutes()+'-'+date_now.getMilliseconds()+'.'+file.name.split(".")[1];
-                    let name = file.name.split(".")[0];
-                    formData.append('file_name',file_name);
-                    formData.append('name',name);
-
-                    file.custom_file_name = file_name;
-                    file.custom_name = name;
-                  
-                    //console.log(file);
-
-                    html = '<input name="document_file_name[]" type="hidden" value="'+file.custom_file_name+'">';
-                    html += '<input name="document_name[]" type="hidden" value="'+file.custom_name+'" >';
-                    html += '<input name="document_size[]" type="hidden" value="'+file.size+'" >';
-                    html += '<input name="document_type[]" type="hidden" value="'+file.type+'" >';
-                    $('#document').append(html);
-
-                },
-                accept: function(file, done) {
-                    //#add_galleryconsole.log(file,file.myCustomName);
-                    ///console.log(file);
-                    done();
-                    //if (file.type != "image/jpeg" && file.type != "image/png") {}
-                }
-
+            lightbox.option({
+                fadeDuration: 500,
+                imageFadeDuration: 500,
+                resizeDuration: 500,
             });
             
-
-            $("#formAddNews").validate({
-                rules:{
-                    title: {
-                    required: true,
-                    minlength: 3
+            $('#tableImage').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                order: [[1, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
                     },
-                    inputBeginDate:"required",
-                    inputEndDate:"required"
-                },
-                messages: {
-                    title: {
-                    required: "ต้องระบุชื่อข่าวประชาสัมพันธ์",
-                    minlength: "ชื่อข่าวประชาสัมพันธ์ ควรมีความยาวอยู่ระหว่าง 3-50 ตัวอักษร"
-                    },
-                    inputBeginDate:{
-                    required: "ต้องระบุวันที่เริ่มต้น",
-                    },
-                    inputEndDate:{
-                    required: "ต้องระบุวันที่สิ้นสุด",
-                    }
-                },
-                submitHandler: function(form) {
-                    //console.log("Testdasdadsa");
-                    doAddNews();
                 }
             });
 
+            $('#formAddNews #divLoading').hide();
 
-            $.validator.addMethod("dateCheck",
-                function(value, element, param) {
-                    
-                    date_start = $('#inputBeginDate').val();
-                    date_end  = $('#inputEndDate').val();
-                    
-                    if(date_start !='' && date_end !=''){
-
-                        let beginDate = $('#inputBeginDate').val();
-                        let beginDatePart = beginDate.split('/');
-                        beginDate = beginDatePart[2] + '-' + beginDatePart[1] + '-' + beginDatePart[0];
-
-                        let endDate = $('#inputEndDate').val();
-                        let endDatePart = endDate.split('/');
-                        endDate = endDatePart[2] + '-' + endDatePart[1] + '-' + endDatePart[0];
-
-                       //return false;
-
-                        let date_start = Date.parse(beginDate);
-                        let date_end = Date.parse(endDate);
-                        
-                        //console.log(date_start,date_end);
-
-                        if(date_end <= date_start){
-                            //console.log("Case False");
-                            return false;
-                        }else{
-                            return true;
-                        }
-			
-                    }else{
-                        return true;
-                    }
-                    
-                    //return true;
-                },
-            "ต้องระบุวันที่สิ้นสุดมากกว่าวันที่เริ่มต้น");
-
-
-            $('.btn-remove-images').click(function(){
-
-                id = $(this).attr('data-id');
-                file_name = $(this).attr('data-filename');
-                //delete_media
-                //console.log(id,file_name);
-
-                $.ajax({
-                    type: "POST",
-                    url: '../api/api.php/delete_media',
-                    dataType: 'json',
-                    data: {id:id,file_name:file_name},
-                    timeout: 600000,
-                    success: function (data) {
-
-                        //console.log(data);
-
-                        if (data.error_code === 0) {
-
-                            BootstrapDialog.show({
-                                title: 'ข่าวประชาสัมพันธ์',
-                                message: data.error_message,
-                                buttons: [{
-                                    label: 'ปิด',
-                                    action: function (self) {
-                                        self.close();
-                                    }
-                                }]
-                            });
-                            location.reload();
-
-                        } else {
-
-                            BootstrapDialog.show({
-                                title: 'ข่าวประชาสัมพันธ์ - ผิดพลาด',
-                                message: data.error_message,
-                                buttons: [{
-                                    label: 'ปิด',
-                                    action: function (self) {
-                                        self.close();
-                                    }
-                                }]
-                            });
-
-                        }
-
-                    },
-                    error: function (e) {
-                        console.log("ERROR : ", e);
-                    }
-
-                });
-
+            $('#formAddNews').submit(event => {
+                event.preventDefault();
+                doAddEditNews();
             });
-
-
-            $('.btn-remove-documents').click(function(){
-
-                id = $(this).attr('data-id');
-                file_name = $(this).attr('data-filename');
-                //delete_media
-                //console.log(id,file_name);
-
-                $.ajax({
-                    type: "POST",
-                    url: '../api/api.php/delete_document',
-                    dataType: 'json',
-                    data: {id:id,file_name:file_name},
-                    timeout: 600000,
-                    success: function (data) {
-
-                        //console.log(data);
-
-                        if (data.error_code === 0) {
-
-                            BootstrapDialog.show({
-                                title: 'ข่าวประชาสัมพันธ์',
-                                message: data.error_message,
-                                buttons: [{
-                                    label: 'ปิด',
-                                    action: function (self) {
-                                        self.close();
-                                    }
-                                }]
-                            });
-                            location.reload();
-
-                        } else {
-
-                            BootstrapDialog.show({
-                                title: 'ข่าวประชาสัมพันธ์ - ผิดพลาด',
-                                message: data.error_message,
-                                buttons: [{
-                                    label: 'ปิด',
-                                    action: function (self) {
-                                        self.close();
-                                    }
-                                }]
-                            });
-
-                        }
-
-                    },
-                    error: function (e) {
-                        console.log("ERROR : ", e);
-                    }
-
-                });
-
-            });
-
-
-
-
         });
 
-        function doAddNews() {
+        $(function () {
+            $('#cover-image-upload-preview').hide();
 
-            $('textarea[name="description"]').text(CKEDITOR.instances.editor.getData());
-            var form = $('#formAddNews')[0];
-            var data = new FormData(form);
-            //console.log(data.entries());
+            const coverImagePreview = function (input, placeToInsertImagePreview) {
+                $(placeToInsertImagePreview).empty();
+                $(placeToInsertImagePreview).hide();
 
+                if (input.files) {
+                    let fileCount = input.files.length;
 
+                    for (let i = 0; i < fileCount; i++) {
+                        $(placeToInsertImagePreview).show();
+                        let reader = new FileReader();
 
-            $.ajax({
-            type: "POST",
-            enctype: 'multipart/form-data',
-            url: '../api/api.php/<?php echo(isset($itemId) ? 'update_news' : 'add_news'); ?>',
-            data: data,
-            processData: false,
-            contentType: false,
-            cache: false,
-            timeout: 600000,
-            success: function (data) {
-                //console.log(data);
-
-                if (data.error_code === 0) {
-
-                    BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวประชาสัมพันธ์' : 'เพิ่มข่าวประชาสัมพันธ์'); ?>',
-                        message: data.error_message,
-                        buttons: [{
-                            label: 'ปิด',
-                            action: function (self) {
-                                self.close();
-                            }
-                        }]
-                    });
-
-                    window.location.href = 'news.php';
-
-                } else {
-
-                    BootstrapDialog.show({
-                        title: '<?php echo(isset($itemId) ? 'แก้ไขข่าวประชาสัมพันธ์' : 'เพิ่มข่าวประชาสัมพันธ์'); ?> - ผิดพลาด',
-                        message: data.error_message,
-                        buttons: [{
-                            label: 'ปิด',
-                            action: function (self) {
-                                self.close();
-                            }
-                        }]
-                    });
-
+                        reader.onload = function (event) {
+                            $($.parseHTML('<img style="width: auto; height: 120px; margin: 3px">')).attr('src', event.target.result).appendTo(placeToInsertImagePreview);
+                        };
+                        reader.readAsDataURL(input.files[i]);
+                    }
                 }
+            };
 
-            },
-            error: function (e) {
-                console.log("ERROR : ", e);
-            }
-
+            $('#cover-image-file-upload').on('change', function () {
+                coverImagePreview(this, 'div#cover-image-upload-preview');
             });
+        });
 
+        /*function readURL(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#image-upload-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }*/
 
+        $(function () {
+            $('#image-upload-preview').hide();
+
+            const imagesPreview = function (input, placeToInsertImagePreview) {
+                $(placeToInsertImagePreview).empty();
+                $(placeToInsertImagePreview).hide();
+
+                if (input.files) {
+                    let fileCount = input.files.length;
+
+                    for (let i = 0; i < fileCount; i++) {
+                        $(placeToInsertImagePreview).show();
+                        let reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            $($.parseHTML('<img style="width: auto; height: 120px; margin: 3px">')).attr('src', event.target.result).appendTo(placeToInsertImagePreview);
+                        };
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+            };
+
+            $('#image-upload').on('change', function () {
+                imagesPreview(this, 'div#image-upload-preview');
+            });
+        });
+
+        function doAddEditNews() {
+            // อัพเดท content ของ ckeditor ไปยัง textarea
+            CKEDITOR.instances.editor.updateElement();
+
+            $('#formAddNews #buttonSave').prop('disabled', true);
+            $('#formAddNews #divLoading').show();
+
+            $('#formAddNews').ajaxSubmit({
+                dataType: 'json',
+                success: (data, statusText) => {
+                    //alert(data.error_message);
+                    $('#formAddNews #buttonSave').prop('disabled', false);
+                    $('#formAddNews #divLoading').hide();
+
+                    if (data.error_code === 0) {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?>',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                    <?php
+                                    if (!isset($newsId)) {
+                                    ?>
+                                    window.location.href = 'news.php?news_type=<?php echo $newsType; ?>';
+                                    <?php
+                                    } else {
+                                    ?>
+                                    window.location.reload(true);
+                                    <?php
+                                    }
+                                    ?>
+                                }
+                            }]
+                        });
+                    } else {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?> - ผิดพลาด',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                }
+                            }]
+                        });
+                    }
+                },
+                error: () => {
+                    $('#formAddNews #buttonSave').prop('disabled', false);
+                    $('#formAddNews #divLoading').hide();
+
+                    BootstrapDialog.show({
+                        title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?> - ผิดพลาด',
+                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            });
         }
 
+        function onClickDeleteAsset(element, assetId) {
+            BootstrapDialog.show({
+                title: 'ลบรูปภาพ',
+                message: `การลบรูปภาพจะมีผลกับฐานข้อมูลทันที!\n\nยืนยันลบรูปภาพนี้?`,
+                buttons: [{
+                    label: 'ลบ',
+                    action: function (self) {
+                        doDeleteAsset(assetId);
+                        self.close();
+                    },
+                    cssClass: 'btn-primary'
+                }, {
+                    label: 'ยกเลิก',
+                    action: function (self) {
+                        self.close();
+                    }
+                }]
+            });
+        }
 
-
+        function doDeleteAsset(assetId) {
+            $.post(
+                '../api/api.php/delete_news_asset',
+                {
+                    assetId: assetId,
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: 'ลบรูปภาพ - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: 'ลบรูปภาพ - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                        }
+                    }]
+                });
+            });
+        }
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
     <!-- CK Editor -->
     <script src="../bower_components/ckeditor/ckeditor.js"></script>
-    <script src="../bower_components/jquery-validation-1.19.0/dist/jquery.validate.js"></script>
-
+    <!-- DataTables -->
+    <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--jQuery Form Plugin-->
+    <script src="../dist/js/jquery.form.js"></script>
+    <!--Lightbox-->
+    <script src="../dist/lightbox/js/lightbox.js"></script>
 
     </body>
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

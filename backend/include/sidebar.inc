@@ -200,18 +200,18 @@
 
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-newspaper-o"></i> <span>ข่าวประชาสัมพันธ์</span>
+                        <i class="fa fa-newspaper-o"></i> <span>ข่าว</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="training_project_news.php"><i class="fa fa-circle-o"></i> ข่าวโครงการฝึกอบรม</a></li>
-                        <li><a href="news.php"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
+                        <li><a href="news.php?news_type=training"><i class="fa fa-circle-o"></i> ข่าวการฝึกอบรม</a></li>
+                        <li><a href="news.php?news_type=public-relations"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="activity_pictures.php">
+                    <a href="news.php?news_type=activity">
                         <i class="fa fa-image"></i> <span>ภาพกิจกรรม</span>
                     </a>
                 </li>

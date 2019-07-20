@@ -283,6 +283,10 @@ if (isset($id)) {
                                         <!--<label for="file-upload" class="custom-file-upload">
                                             <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
                                         </label>-->
+                                        <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                            <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                            <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                        </ul>
                                         <input id="file-upload" name="file" required
                                                type="file" accept="application/pdf"
                                                style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"

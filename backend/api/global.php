@@ -29,6 +29,7 @@ define('KEY_DATA_LIST', 'data_list');
 define('UPLOAD_DIR_ACADEMIC_PAPERS', '../uploads/academic_papers/');
 define('UPLOAD_DIR_COURSE_ASSETS', '../uploads/course_assets/');
 define('UPLOAD_DIR_DOCUMENT_DOWNLOADS', '../uploads/document_downloads/');
+define('UPLOAD_DIR_NEWS_ASSETS', '../uploads/news_assets/');
 
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');

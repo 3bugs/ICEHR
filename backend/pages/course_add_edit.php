@@ -824,8 +824,10 @@ if (isset($courseId)) {
                                                     <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
                                                     <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                                 </ul>
-                                                <input id="image-upload" type="file" accept="image/*" multiple
-                                                       name="imageFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <input id="image-upload" type="file" accept="image/*" multiple required
+                                                       name="imageFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
+                                                       oninvalid="this.setCustomValidity('เลือกอย่างน้อย 1 รูปภาพ')"
+                                                       oninput="this.setCustomValidity('')"/>
                                                 <div id="image-upload-preview"
                                                      style="background: #efffd1; padding: 10px;"></div>
                                             </div>
@@ -1258,13 +1260,15 @@ if (isset($courseId)) {
                         });
                     }
                 },
-                error: () => {
+                error: (e) => {
                     $('#formAddCourse #buttonSave').prop('disabled', false);
                     $('#formAddCourse #divLoading').hide();
 
+                    console.log(e);
+                    
                     BootstrapDialog.show({
                         title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
-                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + e,
                         buttons: [{
                             label: 'ปิด',
                             action: function (self) {

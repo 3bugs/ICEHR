@@ -1,31 +1,23 @@
 <?php
 require_once '../include/head_php.inc';
 
-$newsType = $_GET['news_type'];
-$newsTypeList = array(
-    'training', 'public-relations', 'in-house', 'activity'
-);
-if (!isset($newsType) || !in_array($newsType, $newsTypeList)) {
-    echo "Invalid news type '$newsType' - ระบุประเภทข่าวไม่ถูกต้อง";
-    $db->close();
-    exit();
-}
-
-$pageTitles['training'] = 'ข่าวการฝึกอบรม';
-$pageTitles['public-relations'] = 'ข่าวประชาสัมพันธ์';
-$pageTitles['in-house'] = 'หลักสูตร In-House ที่ผ่านมา';
-$pageTitles['activity'] = 'ภาพกิจกรรม';
-
-$pageTitle = $pageTitles[$newsType];
-
-$sql = "SELECT id, title, details, image_file_name, news_date, created_at 
-            FROM news
-            WHERE news_type = '$newsType'
-            ORDER BY created_at DESC ";
+$sql = "SELECT a.id,a.title,a.status,a.created_at,a.created_by,u.username "
+    . " FROM article a INNER JOIN user u ON a.created_by = u.id "
+    . " WHERE a.page_layout ='news' "
+    . " ORDER BY a.created_at DESC";
+// echo $sql;
+// exit();
+//$sql = "SELECT * FROM course ORDER BY begin_date";
 if ($result = $db->query($sql)) {
-    $newsList = array();
+    $itemsList = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($newsList, $row);
+        $course = array();
+        $course['id'] = (int)$row['id'];
+        $course['name'] = $row['title'];
+        $course['status'] = $row['status'];
+        $course['created_at'] = $row['created_at'];
+        $course['username'] = $row['username'];
+        array_push($itemsList, $course);
     }
     $result->close();
 } else {
@@ -40,17 +32,11 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/head.inc'); ?>
         <!-- DataTables -->
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-        <!--Lightbox-->
-        <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
-
         <style>
-            #tableDownload td:nth-child(5) {
-                text-align: center;
-            }
+
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
-
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
@@ -60,7 +46,8 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?= trim($pageTitle); ?>
+                    ข่าวประชาสัมพันธ์
+                    <small>ข่าวประชาสัมพันธ์</small>
                 </h1>
             </section>
 
@@ -74,68 +61,56 @@ if ($result = $db->query($sql)) {
                                 <button type="button" class="btn btn-success pull-right"
                                         onclick="onClickAdd(this)">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่ม<?= $pageTitle; ?>
+                                    เพิ่มข่าวประชาสัมพันธ์
                                 </button>
                             </div>
                             <div class="box-body">
-                                <table id="tableNews" class="table table-bordered table-striped">
+                                <table id="tableCourse" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="text-align: center; width: 40%;">หัวข้อ/เรื่อง</th>
-                                        <th style="text-align: center; width: 20%;">รูปภาพหน้าปก</th>
-                                        <th style="text-align: center; width: 22%;">วันที่ข่าว/กิจกรรม</th>
-                                        <th style="text-align: center; width: 18%;" nowrap>วันที่สร้าง</th>
-                                        <th style="text-align: center;">จัดการ</th>
+                                        <th style="width: 60%; text-align: center">หัวข้อ</th>
+                                        <th style="width: 20%; text-align: center">สถานะ</th>
+                                        <th style="width: 20%; text-align: center">วันที่สร้าง</th>
+                                        <th style="width: 20%; text-align: center">สร้างโดย</th>
+                                        <th style="text-align: center">จัดการ</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (sizeof($newsList) == 0) {
+                                    if (sizeof($itemsList) == 0) {
                                         ?>
                                         <tr valign="middle">
-                                            <td colspan="20" align="center">ไม่มีข้อมูล</td>
+                                            <td colspan="4" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
-                                        foreach ($newsList as $news) {
-                                            $createdAt = $news['created_at'];
-                                            $dateTimePart = explode(' ', $createdAt);
-                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
-                                            $timePart = explode(':', $dateTimePart[1]);
-                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
-                                            $displayDateTime = "$displayDate<br>$displayTime";
-                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
-
-                                            $newsDate = $news['news_date'];
-                                            $dateTimePart = explode(' ', $newsDate);
-                                            $displayNewsDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
-                                            $newsDateHidden = '<span style="display: none">' . $newsDate . '</span></span>';
+                                        foreach ($itemsList as $item) {
+                                            $itemId = $item['id'];
+                                            $itemName = $item['name'];
+                                            $status = $item['status'];
+                                            $created_at = $item['created_at'];
+                                            $created_by = $item['username'];
                                             ?>
                                             <tr style="">
-                                                <td><?= $news['title']; ?></td>
-                                                <td style="text-align: center; cursor: pointer">
-                                                    <a href="<?php echo(UPLOAD_DIR_NEWS_ASSETS . $news['image_file_name']); ?>"
-                                                       data-lightbox="coverImage" data-title="<?= $news['title']; ?>">
-                                                        <img src="<?php echo(UPLOAD_DIR_NEWS_ASSETS . $news['image_file_name']); ?>"
-                                                             width="120px">
-                                                    </a>
+                                                <td style="vertical-align: middle"><?php echo $itemName; ?></td>
+                                                <td style="vertical-align: middle; text-align: center">
+                                                    <span class="label label-info label-green">
+                                                        <?php echo ($status ==='publish' ? 'เผยแพร่':'ไม่เผยแพร่') ?> 
+                                                    </span>
                                                 </td>
-                                                <td style="text-align: center"><?= ($newsDateHidden . $displayNewsDate); ?></td>
-                                                <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
-                                                <td nowrap>
-                                                    <form method="get" action="news_add_edit.php" style="display: inline; margin: 0">
-                                                        <input type="hidden" name="news_type" value="<?= $newsType; ?>"/>
-                                                        <input type="hidden" name="news_id" value="<?= $news['id']; ?>"/>
+                                                <td style="vertical-align: middle; text-align: center"><?php echo $created_at; ?></td>
+                                                <td style="vertical-align: middle; text-align: center"><?php echo $created_by; ?></td>
 
-                                                        <button type="submit" class="btn btn-warning"
-                                                                style="margin-left: 3px">
+                                                <td style="text-align: center" nowrap>
+                                                    <form method="post" action="news_add_edit.php">
+                                                        <input type="hidden" name="itemId" value="<?php echo $itemId; ?>"/>
+                                                        <button type="submit" class="btn btn-warning">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
                                                         </button>
                                                         <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 3px"
-                                                                onclick="onClickDelete(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                                onclick="onClickDelete(this, <?php echo $itemId; ?>, '<?php echo $itemName; ?>')">
+                                                            <span class="fa fa-pencil"></span>&nbsp;
                                                             ลบ
                                                         </button>
                                                     </form>
@@ -165,13 +140,9 @@ if ($result = $db->query($sql)) {
     <!-- ./wrapper -->
 
     <script>
-        let downloadListDataTable = null;
-
         $(document).ready(function () {
-            $('#tableNews').DataTable({
-                stateSave: true,
-                stateDuration: -1, // sessionStorage
-                order: [[3, 'desc']],
+            $('#tableCourse').DataTable({
+                order: [[1, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -191,30 +162,24 @@ if ($result = $db->query($sql)) {
                     },
                 }
             });
-
-            lightbox.option({
-                fadeDuration: 500,
-                imageFadeDuration: 500,
-                resizeDuration: 500,
-            });
         });
 
         function onClickAdd() {
-            window.location.href = 'news_add_edit.php?news_type=<?= $newsType; ?>';
+            window.location.href = 'news_add_edit.php';
         }
 
-        function onClickDelete(element, id, title) {
+        function onClickDelete(element, articleId, itemName) {
             BootstrapDialog.show({
-                title: 'ลบ<?= $pageTitle; ?>',
-                message: 'ยืนยันลบ \'' + title + '\' ?',
+                title: 'ลบข่าวประชาสัมพันธ์',
+                message: 'ยืนยันลบข่าวประชาสัมพันธ์ \'' + itemName + '\' ?',
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
-                        doDeleteNews(id);
+                        doDeleteArticle(articleId);
                         self.close();
                     },
                     cssClass: 'btn-primary'
-                }, {
+                },{
                     label: 'ยกเลิก',
                     action: function (self) {
                         self.close();
@@ -223,18 +188,19 @@ if ($result = $db->query($sql)) {
             });
         }
 
-        function doDeleteNews(id) {
+        function doDeleteArticle(articleId) {
             $.post(
-                '../api/api.php/delete_news',
+                '../api/api.php/delete_article',
                 {
-                    id: id,
+                    articleId: articleId,
                 }
             ).done(function (data) {
+                console.log(data);
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบ<?= $pageTitle; ?> - ผิดพลาด',
+                        title: 'ลบข่าวประชาสัมพันธ์ - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -246,7 +212,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบชื่อหลักสูตร - ผิดพลาด',
+                    title: 'ลบข่าวประชาสัมพันธ์ - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
@@ -257,18 +223,16 @@ if ($result = $db->query($sql)) {
                 });
             });
         }
+
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-    <!--Lightbox-->
-    <script src="../dist/lightbox/js/lightbox.js"></script>
-
     </body>
     </html>
 
 <?php
-require_once '../include/foot_php.inc';
+$db->close();
 ?>

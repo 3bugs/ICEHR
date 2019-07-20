@@ -188,7 +188,7 @@ if (isset($id)) {
                                             <!-- Custom Tabs -->
                                             <div class="nav-tabs-custom">
                                                 <ul class="nav nav-tabs">
-                                                    <li class="active"><a href="#image_tab_1" data-toggle="tab">PDF ปัจจุบัน</a></li>
+                                                    <li class="active"><a href="#image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน</a></li>
                                                     <li><a href="#image_tab_2" data-toggle="tab">อัพโหลดรูปภาพใหม่</a></li>
                                                 </ul>
                                                 <div class="tab-content">
@@ -224,6 +224,10 @@ if (isset($id)) {
                                             <?php
                                         } else {
                                             ?>
+                                            <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                            </ul>
                                             <input id="image-file-upload" name="image_file" required
                                                    type="file" accept="image/*"
                                                    style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
@@ -297,6 +301,10 @@ if (isset($id)) {
                                         <?php
                                     } else {
                                         ?>
+                                        <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                            <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                            <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                        </ul>
                                         <input id="file-upload" name="file" required
                                                type="file" accept="application/pdf"
                                                style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
