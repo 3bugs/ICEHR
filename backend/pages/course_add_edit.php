@@ -1265,7 +1265,7 @@ if (isset($courseId)) {
                     $('#formAddCourse #divLoading').hide();
 
                     console.log(e);
-                    
+
                     BootstrapDialog.show({
                         title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                         message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + e,

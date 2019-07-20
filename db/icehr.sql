@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 20, 2019 at 08:47 AM
+-- Generation Time: Jul 20, 2019 at 07:30 PM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -200,7 +200,8 @@ INSERT INTO `course` (`id`, `course_master_id`, `batch_number`, `details`, `trai
 (21, 3, 7, '', 7, 7, '7', 2, '2019-10-07', '2019-10-07', 1, 'normal', '2019-06-17 09:21:17'),
 (22, 10, 3, '', 25, NULL, '123', 2, '2019-12-01', '2019-12-01', 1, 'normal', '2019-06-17 10:14:33'),
 (23, 1, 1, '<hr />\n<hr />\n<h2 style=\"font-style:italic;\">Test ฝึกอบรม</h2>\n\n<p>เริ่มงาน</p>\n', 2, 4800, 'กรุงเทพฯ', 1, '2019-10-20', '2019-10-21', 1, 'normal', '2019-06-19 04:28:26'),
-(24, 13, 1, '<p>1</p>\n', 1, 1, '1', 1, '2019-11-01', '2019-12-01', 1, 'normal', '2019-07-05 07:16:56');
+(24, 13, 1, '<p>1</p>\n', 1, 1, '1', 1, '2019-11-01', '2019-12-01', 1, 'normal', '2019-07-05 07:16:56'),
+(25, 3, 1, '<p>1</p>\n', 1, 1, 'มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์', NULL, '2019-07-01', '2019-07-01', 1, 'normal', '2019-07-20 17:25:14');
 
 -- --------------------------------------------------------
 
@@ -251,7 +252,8 @@ INSERT INTO `course_asset` (`id`, `course_id`, `title`, `file_name`, `type`, `cr
 (41, 10, NULL, '1562293941112-AC-2019-0059.pdf', 'pdf', '2019-07-05 02:32:21'),
 (42, 10, NULL, '1562293941112-receipt_2562_1_tonyod.pdf', 'pdf', '2019-07-05 02:32:21'),
 (43, 10, NULL, '1562293941113-receipt_2562_1_numnahm.pdf', 'pdf', '2019-07-05 02:32:21'),
-(44, 10, NULL, '1562293941113-receipt_2562_1_nooknet.pdf', 'pdf', '2019-07-05 02:32:21');
+(44, 10, NULL, '1562293941113-receipt_2562_1_nooknet.pdf', 'pdf', '2019-07-05 02:32:21'),
+(45, 25, NULL, '1563643514488-training03.jpg', 'image', '2019-07-20 17:25:14');
 
 -- --------------------------------------------------------
 
@@ -284,7 +286,8 @@ INSERT INTO `course_fee` (`id`, `course_id`, `title`, `amount`, `created_at`) VA
 (81, 7, 'Early Bird (ภายใน 10 ส.ค. 62)', 4500, '2019-07-17 14:00:00'),
 (82, 7, 'บุคลากร มธ.', 4000, '2019-07-17 14:00:00'),
 (83, 7, '10 แถม 1', NULL, '2019-07-17 14:00:00'),
-(84, 7, '20 แถม 3', NULL, '2019-07-17 14:00:00');
+(84, 7, '20 แถม 3', NULL, '2019-07-17 14:00:00'),
+(85, 25, '1', 1, '2019-07-20 17:25:14');
 
 -- --------------------------------------------------------
 
@@ -1006,6 +1009,49 @@ INSERT INTO `name_title` (`id`, `title`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `news`
+--
+
+CREATE TABLE `news` (
+  `id` int(11) NOT NULL,
+  `title` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `details` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `news_type` enum('training','public-relations','in-house','activity') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `news_date` date NOT NULL,
+  `image_file_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'ชื่อไฟล์ภาพหน้าปก',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `news`
+--
+
+INSERT INTO `news` (`id`, `title`, `details`, `news_type`, `news_date`, `image_file_name`, `created_at`) VALUES
+(1, 'หัวข้อข่าวการฝึกอบรม 1', 'เนื้อหาข่าวการฝึกอบรม 1', 'training', '2019-07-20', 'training01.jpg', '2019-07-20 07:55:26'),
+(2, 'หัวข้อข่าวการฝึกอบรม 2', 'เนื้อหาข่าวการฝึกอบรม 2', 'training', '2019-07-20', 'training02.jpg', '2019-07-20 07:55:26'),
+(3, 'หัวข้อข่าวการฝึกอบรม 3', 'เนื้อหาข่าวการฝึกอบรม 3', 'training', '2019-07-19', 'training03.jpg', '2019-07-20 07:55:26'),
+(4, 'หัวข้อข่าวการฝึกอบรม 4', 'เนื้อหาข่าวการฝึกอบรม 4', 'training', '2019-07-18', 'training04.png', '2019-07-20 07:55:26'),
+(5, 'หัวข้อข่าวประชาสัมพันธ์ 1', 'เนื้อหาข่าวประชาสัมพันธ์ 1', 'public-relations', '2019-07-20', 'public01.jpg', '2019-07-20 07:55:26'),
+(6, 'หัวข้อข่าวประชาสัมพันธ์ 2', 'เนื้อหาข่าวประชาสัมพันธ์ 2', 'public-relations', '2019-07-19', 'public02.jpg', '2019-07-20 07:55:26'),
+(7, 'หัวข้อข่าวประชาสัมพันธ์ 3', 'เนื้อหาข่าวประชาสัมพันธ์ 3', 'public-relations', '2019-07-17', 'public03.jpg', '2019-07-20 07:55:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `news_asset`
+--
+
+CREATE TABLE `news_asset` (
+  `id` int(11) NOT NULL,
+  `news_id` int(11) NOT NULL,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `organization`
 --
 
@@ -1319,6 +1365,18 @@ ALTER TABLE `name_title`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `news`
+--
+ALTER TABLE `news`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `news_asset`
+--
+ALTER TABLE `news_asset`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `organization`
 --
 ALTER TABLE `organization`
@@ -1392,19 +1450,19 @@ ALTER TABLE `banners`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `course_asset`
 --
 ALTER TABLE `course_asset`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `course_fee`
 --
 ALTER TABLE `course_fee`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT for table `course_master`
@@ -1495,6 +1553,18 @@ ALTER TABLE `menus`
 --
 ALTER TABLE `name_title`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `news`
+--
+ALTER TABLE `news`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `news_asset`
+--
+ALTER TABLE `news_asset`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `organization`
