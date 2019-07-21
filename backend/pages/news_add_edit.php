@@ -280,8 +280,7 @@ if (isset($newsId)) {
                                                     </ul>
                                                     <input id="cover-image-file-upload" name="coverImageFile"
                                                            type="file" accept="image/*"
-                                                           style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
-                                                           onChange="getImageFileData(this);"/>
+                                                           style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
                                                     <div id="cover-image-upload-preview"
                                                          style="background: #efffd1; padding: 10px;"></div>
                                                 </div>
@@ -300,7 +299,6 @@ if (isset($newsId)) {
                                         <input id="cover-image-file-upload" name="coverImageFile" required
                                                type="file" accept="image/*"
                                                style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
-                                               onChange="getImageFileData(this);"
                                                oninvalid="this.setCustomValidity('เลือกรูปภาพหน้าปก')"
                                                oninput="this.setCustomValidity('')"/>
                                         <div id="cover-image-upload-preview"

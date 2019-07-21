@@ -124,8 +124,14 @@ switch ($action) {
     case 'add_news':
         doAddNews();
         break;
+    case 'update_news':
+        doUpdateNews();
+        break;
     case 'delete_news':
         doDeleteNews();
+        break;
+    case 'delete_news_asset':
+        doDeleteNewsAsset();
         break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,8 +145,8 @@ switch ($action) {
     case 'add_news_old':
         doAddNewsOld();
         break;
-    case 'update_news':
-        doUpdateNews();
+    case 'update_news_old':
+        doUpdateNewsOld();
         break;
     case 'add_menu':
         doAddMenu();
@@ -615,7 +621,26 @@ function doDeleteCourseAsset()
 
     $assetId = $db->real_escape_string($_POST['assetId']);
 
-    $sql = "DELETE FROM course_asset WHERE id=$assetId";
+    $sql = "DELETE FROM course_asset WHERE id = $assetId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteNewsAsset()
+{
+    global $db, $response;
+
+    $assetId = $db->real_escape_string($_POST['assetId']);
+
+    $sql = "DELETE FROM news_asset WHERE id = $assetId";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
@@ -864,6 +889,7 @@ function doAddNews()
     $newsType = $db->real_escape_string($_POST['newsType']);
     $title = $db->real_escape_string($_POST['title']);
     $details = $db->real_escape_string($_POST['details']);
+    $newsDate = getMySqlDateFormat($db->real_escape_string($_POST['newsDate']));
 
     if (!moveUploadedFile('coverImageFile', UPLOAD_DIR_NEWS_ASSETS, $coverImageFileName)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
@@ -872,13 +898,46 @@ function doAddNews()
         return;
     }
 
-    $sql = "INSERT INTO news (title, details, image_file_name, news_type) 
-                VALUES ('$title', '$details', '$coverImageFileName', '$newsType')";
+    $db->query('START TRANSACTION');
+
+    $sql = "INSERT INTO news (title, details, image_file_name, news_type, news_date) 
+                VALUES ('$title', '$details', '$coverImageFileName', '$newsType', '$newsDate')";
     if ($result = $db->query($sql)) {
-        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
-        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
-        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $insertId = $db->insert_id;
+
+        for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_IMAGE_FILES, UPLOAD_DIR_NEWS_ASSETS, $fileName, $i)) {
+                $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_IMAGE_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+
+            $sql = "INSERT INTO news_asset (news_id, title, file_name) 
+                    VALUES ($insertId, null, '$fileName')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ: ' . $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+            $db->query('COMMIT');
+        }
     } else {
+        $db->query('ROLLBACK');
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข้อมูล: ' . $db->error;
         $errMessage = $db->error;
@@ -967,6 +1026,74 @@ function doUpdateDocumentDownload()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขเอกสารดาวน์โหลด: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateNews()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['newsId']);
+    $title = $db->real_escape_string($_POST['title']);
+    $details = $db->real_escape_string($_POST['details']);
+    $newsDate = getMySqlDateFormat($db->real_escape_string($_POST['newsDate']));
+
+    $coverImageFileName = NULL;
+
+    if ($_FILES['coverImageFile']) {
+        if (!moveUploadedFile('coverImageFile', UPLOAD_DIR_NEWS_ASSETS, $coverImageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $setUploadFileName = $coverImageFileName ? "image_file_name = '$coverImageFileName', " : '';
+
+    $db->query('START TRANSACTION');
+
+    $sql = "UPDATE news 
+            SET $setUploadFileName title = '$title', details = '$details', news_date = '$newsDate' 
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_IMAGE_FILES, UPLOAD_DIR_NEWS_ASSETS, $fileName, $i)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_IMAGE_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+
+            $sql = "INSERT INTO news_asset (news_id, title, file_name) 
+                    VALUES ($id, null, '$fileName')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+                $db->query('ROLLBACK');
+                return;
+            }
+        }
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'แก้ไขข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+        $db->query('COMMIT');
+    } else {
+        $db->query('ROLLBACK');
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -1065,7 +1192,7 @@ function doDeleteNews()
             $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
             $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
             $response[KEY_ERROR_MESSAGE_MORE] = '';
-        }else {
+        } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
             $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล (2): ' . $db->error;
             $errMessage = $db->error;
@@ -1804,7 +1931,7 @@ function doAddNewsOld()
     $response['slug'] = $slug;
 }
 
-function doUpdateNews()
+function doUpdateNewsOld()
 {
     global $db, $response;
 

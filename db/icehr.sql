@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 20, 2019 at 07:30 PM
+-- Generation Time: Jul 21, 2019 at 12:18 PM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -1031,9 +1031,13 @@ INSERT INTO `news` (`id`, `title`, `details`, `news_type`, `news_date`, `image_f
 (2, 'หัวข้อข่าวการฝึกอบรม 2', 'เนื้อหาข่าวการฝึกอบรม 2', 'training', '2019-07-20', 'training02.jpg', '2019-07-20 07:55:26'),
 (3, 'หัวข้อข่าวการฝึกอบรม 3', 'เนื้อหาข่าวการฝึกอบรม 3', 'training', '2019-07-19', 'training03.jpg', '2019-07-20 07:55:26'),
 (4, 'หัวข้อข่าวการฝึกอบรม 4', 'เนื้อหาข่าวการฝึกอบรม 4', 'training', '2019-07-18', 'training04.png', '2019-07-20 07:55:26'),
-(5, 'หัวข้อข่าวประชาสัมพันธ์ 1', 'เนื้อหาข่าวประชาสัมพันธ์ 1', 'public-relations', '2019-07-20', 'public01.jpg', '2019-07-20 07:55:26'),
+(5, 'หัวข้อข่าวประชาสัมพันธ์ 1', '<h3>เนื้อหาข่าวประชาสัมพันธ์ 1</h3>\n\n<ol>\n	<li>ทดสอบ</li>\n	<li>ทดสอบ</li>\n	<li>ทดสอบ</li>\n	<li>ทดสอบ</li>\n</ol>\n', 'public-relations', '2019-07-20', 'public01.jpg', '2019-07-20 07:55:26'),
 (6, 'หัวข้อข่าวประชาสัมพันธ์ 2', 'เนื้อหาข่าวประชาสัมพันธ์ 2', 'public-relations', '2019-07-19', 'public02.jpg', '2019-07-20 07:55:26'),
-(7, 'หัวข้อข่าวประชาสัมพันธ์ 3', 'เนื้อหาข่าวประชาสัมพันธ์ 3', 'public-relations', '2019-07-17', 'public03.jpg', '2019-07-20 07:55:26');
+(7, 'หัวข้อข่าวประชาสัมพันธ์ 3', 'เนื้อหาข่าวประชาสัมพันธ์ 3', 'public-relations', '2019-07-17', 'public03.jpg', '2019-07-20 07:55:26'),
+(13, 'aaaaa123456', '<p>bbbbb123456</p>\n', 'training', '2019-11-02', '1563698154129-image_slide_03.jpg', '2019-07-21 07:39:44'),
+(14, 'ทดสอบหัวข้อภาพกิจกรรม 1', '<p>ทดสอบรายละเอียดภาพกิจกรรม 1</p>\n', 'activity', '2019-07-01', '1563698603167-react-node01.jpeg', '2019-07-21 08:43:23'),
+(15, 'ทดสอบหัวข้อหลักสูตร In-House ที่ผ่านมา 1', '<p>ทดสอบรายละเอียดหลักสูตร In-House ที่ผ่านมา 1</p>\n', 'in-house', '2019-05-02', '1563699537583-react-node02.jpg', '2019-07-21 08:58:57'),
+(16, 'ทดสอบหัวข้อหลักสูตร In-House ที่ผ่านมา 2', '<p>ทดสอบรายละเอียดหลักสูตร In-House ที่ผ่านมา 2</p>\r\n', 'in-house', '2019-05-02', '1563699537583-react-node02.jpg', '2019-07-21 08:58:57');
 
 -- --------------------------------------------------------
 
@@ -1048,6 +1052,23 @@ CREATE TABLE `news_asset` (
   `file_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `news_asset`
+--
+
+INSERT INTO `news_asset` (`id`, `news_id`, `title`, `file_name`, `created_at`) VALUES
+(14, 13, NULL, '1563694784996-training06.jpg', '2019-07-21 07:39:44'),
+(15, 13, NULL, '1563694785000-training05.jpg', '2019-07-21 07:39:44'),
+(16, 13, NULL, '1563694785002-training04.png', '2019-07-21 07:39:45'),
+(17, 13, NULL, '1563694785007-training03.jpg', '2019-07-21 07:39:45'),
+(18, 13, NULL, '1563694785012-training02.jpg', '2019-07-21 07:39:45'),
+(19, 13, NULL, '1563696033084-image_slide_02.jpg', '2019-07-21 08:00:33'),
+(21, 13, NULL, '1563696617902-image_slide_04.jpg', '2019-07-21 08:10:17'),
+(22, 14, NULL, '1563698603169-training06.jpg', '2019-07-21 08:43:23'),
+(23, 15, NULL, '1563699537584-training03.jpg', '2019-07-21 08:58:57'),
+(24, 15, NULL, '1563699537588-training02.jpg', '2019-07-21 08:58:57'),
+(25, 15, NULL, '1563699537593-training01.jpg', '2019-07-21 08:58:57');
 
 -- --------------------------------------------------------
 
@@ -1558,13 +1579,13 @@ ALTER TABLE `name_title`
 -- AUTO_INCREMENT for table `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `news_asset`
 --
 ALTER TABLE `news_asset`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `organization`

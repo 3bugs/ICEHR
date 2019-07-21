@@ -45,26 +45,64 @@
                     </ul>
                 </li>
 
-                <li>
-                    <a href="../pages/in_house.php">
+                <li class="treeview">
+                    <a href="#">
                         <i class="fa fa-home"></i> <span>In-House Training</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
                         <?php
                         $sql = "SELECT id FROM in_house WHERE status = 'wait'";
                         if ($result = $db->query($sql)) {
                             $numRows = $result->num_rows;
                             if ($numRows > 0) {
                                 ?>
-                                <span class="pull-right-container">
-                                    <small class="label pull-right bg-yellow"><?php echo $numRows; ?></small>
-                                </span>
+                                <small class="label pull-right bg-yellow"><?php echo $numRows; ?></small>
                                 <?php
                             }
                             $result->close();
                         }
                         ?>
-
+                        </span>
                     </a>
+                    <ul class="treeview-menu">
+                        <li style="margin-left: 20px"><a href="news.php?news_type=in-house"><i class="fa fa-newspaper-o"></i> ข่าวหลักสูตรที่ผ่านมา</a></li>
+                        <li style="margin-left: 20px">
+                            <a href="in_house.php">
+                                <i class="fa fa-server"></i> รายชื่อผู้ติดต่อ
+                                <?php
+                                if ($numRows > 0) {
+                                    ?>
+                                    <span class="pull-right-container">
+                                        <small class="label pull-right bg-yellow"><?php echo $numRows; ?></small>
+                                    </span>
+                                    <?php
+                                }
+                                ?>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
+                <!--<li>
+                    <a href="../pages/in_house.php">
+                        <i class="fa fa-home"></i> <span>In-House Training</span>
+                        <?php
+/*                        $sql = "SELECT id FROM in_house WHERE status = 'wait'";
+                        if ($result = $db->query($sql)) {
+                            $numRows = $result->num_rows;
+                            if ($numRows > 0) {
+                                */?>
+                                <span class="pull-right-container">
+                                    <small class="label pull-right bg-yellow"><?php /*echo $numRows; */?></small>
+                                </span>
+                                <?php
+/*                            }
+                            $result->close();
+                        }
+                        */?>
+                    </a>
+                </li>-->
+
                 <li>
                     <a href="../pages/academic_papers.php">
                         <i class="fa fa-flask"></i> <span>งานวิจัยและวิชาการ</span>
