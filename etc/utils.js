@@ -130,6 +130,13 @@ module.exports = {
         return `${yyyy}-${mm}-${dd}`;
     },
 
+    getDateDisplayFromDateObject: (d) => {
+        let yyyy = d.getFullYear() + 543;
+        let mm = d.getMonth() + 1;
+        let dd = d.getDate();
+        return `${dd}/${mm}/${yyyy}`;
+    },
+
     nl2br: (str, is_xhtml) => {
         if (typeof str === 'undefined' || str === null) {
             return '';

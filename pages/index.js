@@ -1,401 +1,43 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
 import Link from 'next/link';
+//import $ from 'jquery';
+import fetch from 'isomorphic-unfetch';
+import {HOST_BACKEND} from '../etc/constants';
+import {getDateFormatFromDateObject, getDateDisplayFromDateObject} from '../etc/utils';
+import './index.css';
 
-export default class Index extends React.Component {
+class NewsItem extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
 
     render() {
+        const {data} = this.props;
+
         return (
-            <MainLayout>
-                <NextHead>
-                    <link rel="stylesheet" href="/static/owlcarousel/assets/owl.carousel.min.css"/>
-                    <link rel="stylesheet" href="/static/owlcarousel/assets/owl.theme.default.min.css"/>
-                    <script src="/static/owlcarousel/owl.carousel.min.js"/>
-                </NextHead>
-
-                <div className="container-fluid">
-                    <div className="row wow fadeInUp">
-                        <div className="col-12">
-                            <div className="owl-topbanner owl-carousel owl-theme">
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>INSTITUTE</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>SERVICES</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>TRAINING</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <React.Fragment>
+                <div className="col-6 col-sm-3">
+                    <div className="pic-inhouse">
+                        <figure><img src={`${HOST_BACKEND}/uploads/news_assets/${data.image_file_name}`} className="img-fluid"/></figure>
                     </div>
-                    <div className="container">
+                    <div className="inhouse-detail">
+                        <h3>{data.title}</h3>
+                        <p className="dotmaster">
+                            {data.short_description}
+                        </p>
                         <div className="row">
-                            <div className="col-sm-3 wow fadeInLeft">
-                                <div className="bg-yellow"><img src="/static/images/service-icon.svg" className="icon-dm-big"/>
-                                    <div className="title-service-index">
-                                        <h5>บริการของหน่วยงาน</h5>
-                                        <h2>OUR SERVICES</h2>
-                                    </div>
-                                </div>
+                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
+                                <img src="/static/images/calendar.svg"/> {getDateDisplayFromDateObject(new Date(data.news_date))}
                             </div>
-                            <div className="col-sm-9 wow fadeInRight">
-                                <div className="service-crop d-none d-sm-block d-md-none d-lg-block d-xl-block">
-                                    <div className="row border-bottom mt-3">
-                                        {/*บริการฝึกอบรม*/}
-                                        <div className="col-sm-4">
-                                            <Link href="/service-training">
-                                                <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                    <h4>บริการฝึกอบรม</h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        {/*In-house Training*/}
-                                        <div className="col-sm-4">
-                                            <Link href="/in-house">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>IN-HOUSE Training</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        {/*บริการสังคม*/}
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/service-social">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>บริการสังคม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                        {/*อบรมสอบใบขับขี่*/}
-                                        <div className="col-sm-4 ">
-                                            <Link href="/service-driving-license">
-                                                <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                    <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        {/*งานวิจัยและวิชาการ*/}
-                                        <div className="col-sm-4">
-                                            <Link href="/academic-paper">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        {/*วารสาร HR Intelligence*/}
-                                        <div className="col-sm-4 service-index">
-                                            <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                <h4>วารสาร HR Intelligence </h4>
-                                                <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem Ipsum
-                                                    has been of the printing and typesetting industry. </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
-                                    <div className="owl-news owl-carousel owl-theme mobilespec">
-                                        <div className="item">
-                                            <a href="service-1.php">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                        <h4>บริการฝึกอบรม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="service-4.php">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>IN-HOUSE Training</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="service-3.php">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>บริการสังคม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="service-2.php">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                        <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
-                                                            ขอใบอนุญาตขับขี่</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="service-5.php">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <div className="service-index">
-                                                <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                    <h4>วารสาร HR Intelligence </h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row wow fadeInUp">
-                            <div className="col">
-                                <div className="tab">
-                                    <ul className="tabs">
-                                        <li className="after-text"><a href="#">ข่าวการฝึกอบรม</a></li>
-                                        <li><a href="#">ข่าวประชาสัมพันธ์</a></li>
-                                        <a href="javascript:void(0)" className="readmore-text"> อ่านทั้งหมด <i className="fas fa-plus"></i></a>
-                                    </ul>
-                                    <div className="tab_content">
-                                        <div className="tabs_item">
-                                            <div className="row">
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date"><img src="/static/images/calendar.svg"/> 6/12/61</div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="tabs_item">
-                                            <div className="row">
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ
-                                                            ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsfหลักสูตร :
-                                                            เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย
-                                                            สุทธาโรจน์ อบรม ณ ห้องประชุม...fsdfdsfdsfdsfdsfdsfdsfdsfdsdsf </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน
-                                                            (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ ห้อง </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6 col-sm-3">
-                                                    <div className="pic-inhouse">
-                                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                                    </div>
-                                                    <div className="inhouse-detail">
-                                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                                        <p className="dotmaster"> หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique)
-                                                            วิ </p>
-                                                        <div className="row">
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6  date">
-                                                                <img src="/static/images/calendar.svg"/> 6/12/61
-                                                            </div>
-                                                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
-                                                                <a href="#" className="readmore-red">อ่านต่อ<img src="/static/images/arrow-more.svg"/></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row wow fadeInUp">
-                            <div className="col text-title-top">
-                                <h3>ภาพกิจกรรม</h3></div>
-                            <div className="col">
-                                <a href="javascript:void(0)" className="viewmoreindex"> ดูทั้งหมด <i className="fas fa-plus"></i></a>
+                            <div className="col-12 col-sm-6 col-md-12 col-lg-6 ">
+                                <Link href={`/news?id=${data.id}`}
+                                      as={`/news/${data.id}`}>
+                                    <a href="javascript:void(0)" className="readmore-red">
+                                        อ่านต่อ<img src="/static/images/arrow-more.svg"/>
+                                    </a>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -874,6 +516,717 @@ export default class Index extends React.Component {
                             padding-right: 15px;
                         }
                     }     
+                `}</style>
+            </React.Fragment>
+        );
+    }
+}
+
+class ActivityItem extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
+
+    render() {
+        const {data} = this.props;
+
+        return (
+            <React.Fragment>
+                <div className="item">
+                    <div className="row">
+                        <div className="col-12 col-sm-6">
+                            <section className="slideshow wow fadeInLeft">
+                                <div className="flexslider">
+                                    <ul className="slides">
+                                        {
+                                            data.image_list.map(image => (
+                                                <li>
+                                                    <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
+                                                         className="img-fluid"/>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+                                </div>
+                            </section>
+                        </div>
+                        <div className="col-12 col-sm-6 wow fadeInRight">
+                            <div className="inhouse-detail">
+                                <h3>{data.title}</h3>
+                                <p className="dotmaster">{data.short_description}</p>
+                                <div className="row">
+                                    <div className="col date"><img src="/static/images/calendar.svg"/> {getDateDisplayFromDateObject(new Date(data.news_date))}</div>
+                                    <div className="col">
+                                        <Link href={`/news?id=${data.id}`}
+                                              as={`/news/${data.id}`}>
+                                            <a href="javascript:void(0)" className="readmore-red">
+                                                อ่านต่อ<img src="/static/images/arrow-more.svg"/>
+                                            </a>
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <div className="list-event">
+                                            {
+                                                data.image_list.map((image, index) => (
+                                                    <li>
+                                                        <a href="javascript:void(0)" className="eventPic" rel={index}>
+                                                            <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
+                                                                 className="img-fluid"/>
+                                                        </a>
+                                                    </li>
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style jsx>{`
+                         
+                `}</style>
+            </React.Fragment>
+        );
+    }
+}
+
+export default class Index extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            activeNewsTab: 0,
+        };
+    }
+
+    static getInitialProps = async ({req, query}) => {
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+
+        const res = await fetch(baseUrl + '/api/get_news_latest', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({}),
+        });
+
+        const result = await res.json();
+        if (result.error.code === 0) {
+            const {trainingNewsList, publicRelationsNewsList} = result;
+
+            const activityRes = await fetch(baseUrl + '/api/get_activity', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    offset: 0,
+                    limit: 4,
+                }),
+            });
+
+            const activityResult = await activityRes.json();
+            if (activityResult.error.code === 0) {
+                const {activityList} = activityResult;
+                return {
+                    trainingNewsList,
+                    publicRelationsNewsList,
+                    activityList,
+                };
+            } else {
+                return {
+                    trainingNewsList: null,
+                    publicRelationsNewsList: null,
+                    activityList: null,
+                };
+            }
+        } else {
+            return {
+                trainingNewsList: null,
+                publicRelationsNewsList: null,
+                activityList: null,
+            };
+        }
+    };
+
+    handleClickNewsHeader = (tabIndex, e) => {
+        this.setState({
+            activeNewsTab: tabIndex,
+        })
+    };
+
+    componentDidMount() {
+        $('.owl-news').on('initialized.owl.carousel', function (event) {
+            $(".dotmaster").trigger("update.dot");
+        });
+        $(".owl-news").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: true
+            , dots: false
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 1
+                    , nav: false
+                    , dots: true
+                }
+                , 500: {
+                    items: 2
+                    , nav: false
+                    , dots: true
+                }
+                , 768: {
+                    margin: 30
+                    , items: 3
+                    , nav: false
+                    , dots: true
+                }
+                , 992: {
+                    margin: 80
+                    , items: 3
+                }
+                , 1025: {
+                    margin: 80
+                    , items: 3
+                }
+            }
+        });
+        $(".owl-newsbottom").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: false
+            , dots: true
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 1
+                    , nav: false
+                    , dots: true
+                }
+                , 500: {
+                    items: 1
+                    , nav: false
+                    , dots: true
+                }
+                , 768: {
+                    margin: 30
+                    , items: 1
+                    , nav: false
+                    , dots: true
+                }
+                , 992: {
+                    margin: 80
+                    , items: 1
+                }
+                , 1025: {
+                    margin: 80
+                    , items: 1
+                }
+            }
+        });
+        $(".owl-newstop").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: true
+            , dots: false
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 1
+                    , margin: 15, //slideBy: 3
+                }
+                , 500: {
+                    items: 2
+                }
+                , 768: {
+                    margin: 20
+                    , items: 4
+                }
+                , 992: {
+                    margin: 10
+                    , items: 4
+                }
+                , 1025: {
+                    margin: 10
+                    , items: 4
+                }
+            }
+        });
+        $('.owl-newsmobile').on('initialized.owl.carousel', function (event) {
+            $(".dotmaster").trigger("update.dot");
+        });
+        $(".owl-newsmobile").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: true
+            , dots: false
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , items: 1
+        });
+        $(".owl-link").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: false
+            , dots: false
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 1
+                    , margin: 15
+                    , slideBy: 1
+                }
+                , 500: {
+                    items: 2
+                    , slideBy: 2
+                }
+                , 768: {
+                    margin: 30
+                    , items: 3
+                    , slideBy: 3
+                }
+                , 992: {
+                    margin: 30
+                    , items: 4
+                    , slideBy: 4
+                }
+                , 1025: {
+                    margin: 35
+                    , items: 4
+                    , slideBy: 4
+                }
+            }
+        });
+        $(".owl-media").owlCarousel({
+            loop: false
+            , margin: 20
+            , nav: false
+            , dots: false
+            , autoplay: false
+            , autoplayTimeout: 6000
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 2
+                    , margin: 15
+                    , slideBy: 2
+                }
+                , 500: {
+                    items: 2
+                    , slideBy: 2
+                }
+                , 768: {
+                    margin: 30
+                    , items: 3
+                    , slideBy: 3
+                }
+                , 992: {
+                    margin: 30
+                    , items: 4
+                    , slideBy: 4
+                }
+                , 1025: {
+                    margin: 35
+                    , items: 4
+                    , slideBy: 4
+                }
+            }
+        });
+        var owlstagepad = $('.container').offset().left / 1;
+        $('.banner-txt-slide').css('left', owlstagepad * 2 - 1);
+        $('.social-fixed').css('left', owlstagepad * 2 - 1);
+        $('.customowlnext').css('right', owlstagepad);
+        //$('.owl-banner').on('initialized.owl.carousel', function (event) {
+        //    $('.customowlnext').css('right', owlstagepad);
+        //});
+        var owlright = $('.container').offset().left;
+        var owlleft = $('.container').offset().left + 60;
+        if (Modernizr.mq('(max-width: 991px)')) {
+            var bannersp = $('.container').offset().left;
+            $('.bg_search').css('right', bannersp + 60);
+        } else {
+            var bannersp = $('.container').offset().left + 50;
+            $('.bg_search').css('right', bannersp + 90);
+        }
+        $(".owl-topbanner").on('changed.owl.carousel initialized.owl.carousel', function (event) {
+            $(event.target).find('.owl-item').removeClass('last').eq(event.item.index + event.page.size - 2).addClass('last');
+            $('.owl-topbanner.owl-carousel .owl-stage').css('left', '-50px');
+        }).owlCarousel({
+            loop: true, //margin:20,
+            //navText: ["<img src='images/chevron_leftgrey.png'>","<img src='images/chevron_rightgrey.png'>"],
+            nav: false
+            , dots: true
+            , rewind: true
+            , autoplay: false
+            , autoplayTimeout: 5000
+            , smartSpeed: 800
+            , stagePadding: bannersp
+            , slideBy: 1
+            , responsive: {
+                0: {
+                    items: 1
+                    , margin: 10
+                    //slideBy: 3
+                }
+                , 500: {
+                    items: 1
+                }
+                , 768: {
+                    margin: 15
+                    , items: 1
+                }
+                , 992: {
+                    margin: 15
+                    , items: 1
+                }
+                , 1025: {
+                    margin: 15
+                    , items: 1
+                }
+            }
+        });
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        $(window).on("load resize", function () {
+            var offsetctn = $('.container').offset();
+            var home_news_item = $('.home_news_item').width();
+            var home_head = $('.home_head').offset();
+            var container_width = $('.container').width();
+            console.log(offsetctn);
+            $(' .bg_news > span').css('width', offsetctn.left + (container_width / 2) - 30);
+            var blogh = $('.padding_blog .home_head').outerHeight() + $('.blog_item img').outerHeight() + 80;
+            $('.bg_blog > span').css('height', blogh);
+        });
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        function slideshow() {
+            if ($('.slideshow,.flexslider').size()) {
+                $('.slideshow .flexslider').flexslider({
+                    animation: 'slide'
+                    , slideshowSpeed: 5000
+                    , animationDuration: 1000
+                });
+                $('.slideshow .flexslider').flexslider(1);
+            }
+        }
+
+        $('.eventPic').click(function () {
+            var rel = parseInt($(this).attr('rel'));
+            console.log(rel);
+            $(this).parent().parent().parent().parent().parent().parent().parent().find('.slideshow .flexslider').flexslider(rel);
+            //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
+        });
+        slideshow();
+    }
+
+    render() {
+        const {trainingNewsList, publicRelationsNewsList, activityList} = this.props;
+
+        const settings = {
+            dots: true
+        };
+
+        return (
+            <MainLayout>
+                <NextHead>
+                </NextHead>
+
+                <div className="container-fluid">
+                    <div className="row wow fadeInUp">
+                        <div className="col-12">
+                            <div className="owl-topbanner owl-carousel owl-theme">
+                                <div><img src="/static/images/banner.jpg"/>
+                                    <div className="text_banner">
+                                        <div className="border-left-1"></div>
+                                        <h1>INSTITUTE</h1>
+                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
+                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                            <br/> industry There are many variations of passages of Lorem Ipsum
+                                            <br/> available, but the majority have suffered alteration in some .</p>
+                                    </div>
+                                </div>
+                                <div><img src="/static/images/banner.jpg"/>
+                                    <div className="text_banner">
+                                        <div className="border-left-1"></div>
+                                        <h1>SERVICES</h1>
+                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
+                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                            <br/> industry There are many variations of passages of Lorem Ipsum
+                                            <br/> available, but the majority have suffered alteration in some .</p>
+                                    </div>
+                                </div>
+                                <div><img src="/static/images/banner.jpg"/>
+                                    <div className="text_banner">
+                                        <div className="border-left-1"></div>
+                                        <h1>TRAINING</h1>
+                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
+                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                            <br/> industry There are many variations of passages of Lorem Ipsum
+                                            <br/> available, but the majority have suffered alteration in some .</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-sm-3 wow fadeInLeft">
+                                <div className="bg-yellow"><img src="/static/images/service-icon.svg" className="icon-dm-big"/>
+                                    <div className="title-service-index">
+                                        <h5>บริการของหน่วยงาน</h5>
+                                        <h2>OUR SERVICES</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-sm-9 wow fadeInRight">
+                                <div className="service-crop d-none d-sm-block d-md-none d-lg-block d-xl-block">
+                                    <div className="row border-bottom mt-3">
+                                        {/*บริการฝึกอบรม*/}
+                                        <div className="col-sm-4">
+                                            <Link href="/service-training">
+                                                <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
+                                                    <h4>บริการฝึกอบรม</h4>
+                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        {/*In-house Training*/}
+                                        <div className="col-sm-4">
+                                            <Link href="/in-house">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
+                                                        <h4>IN-HOUSE Training</h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        {/*บริการสังคม*/}
+                                        <div className="col-sm-4 service-index">
+                                            <Link href="/service-social">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
+                                                        <h4>บริการสังคม </h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                    <div className="row mt-3">
+                                        {/*อบรมสอบใบขับขี่*/}
+                                        <div className="col-sm-4 ">
+                                            <Link href="/service-driving-license">
+                                                <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
+                                                    <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
+                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        {/*งานวิจัยและวิชาการ*/}
+                                        <div className="col-sm-4">
+                                            <Link href="/academic-paper">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
+                                                        <h4>งานวิจัยและวิชาการ</h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        {/*วารสาร HR Intelligence*/}
+                                        <div className="col-sm-4 service-index">
+                                            <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
+                                                <h4>วารสาร HR Intelligence </h4>
+                                                <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem Ipsum
+                                                    has been of the printing and typesetting industry. </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
+                                    <div className="owl-news owl-carousel owl-theme mobilespec">
+                                        <div className="item">
+                                            <a href="service-1.php">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
+                                                        <h4>บริการฝึกอบรม </h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div className="item">
+                                            <a href="service-4.php">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
+                                                        <h4>IN-HOUSE Training</h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div className="item">
+                                            <a href="service-3.php">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
+                                                        <h4>บริการสังคม </h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div className="item">
+                                            <a href="service-2.php">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
+                                                        <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
+                                                            ขอใบอนุญาตขับขี่</h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div className="item">
+                                            <a href="service-5.php">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
+                                                        <h4>งานวิจัยและวิชาการ</h4>
+                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div className="item">
+                                            <div className="service-index">
+                                                <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
+                                                    <h4>วารสาร HR Intelligence </h4>
+                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
+                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/*ข่าว*/}
+                        <div className="row wow fadeInUp">
+                            <div className="col">
+                                <div className="tab">
+                                    <ul className="tabs">
+                                        <li className={this.state.activeNewsTab === 0 ? 'after-text current' : 'after-text'}>
+                                            <a href="javascript:void(0)"
+                                               onClick={this.handleClickNewsHeader.bind(this, 0)}>
+                                                ข่าวการฝึกอบรม
+                                            </a>
+                                        </li>
+                                        <li className={this.state.activeNewsTab === 1 ? 'current' : ''}>
+                                            <a href="javascript:void(0)"
+                                               onClick={this.handleClickNewsHeader.bind(this, 1)}>
+                                                ข่าวประชาสัมพันธ์
+                                            </a>
+                                        </li>
+                                        <a href="javascript:void(0)" className="readmore-text">
+                                            อ่านทั้งหมด <i className="fas fa-plus"></i>
+                                        </a>
+                                    </ul>
+                                    <div className="tab_content">
+                                        {this.state.activeNewsTab === 0 &&
+                                        <div className="tabs_item">
+                                            <div className="row">
+                                                {trainingNewsList &&
+                                                trainingNewsList.map(newsItem => (
+                                                    <NewsItem data={newsItem}/>
+                                                ))
+                                                }
+                                                {trainingNewsList && trainingNewsList.length === 0 &&
+                                                <div className="col-12" style={{textAlign: 'center'}}>
+                                                    ไม่มีข่าวการฝึกอบรม
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        }
+                                        {this.state.activeNewsTab === 1 &&
+                                        <div className="tabs_item">
+                                            <div className="row">
+                                                {publicRelationsNewsList &&
+                                                publicRelationsNewsList.map(newsItem => (
+                                                    <NewsItem data={newsItem}/>
+                                                ))
+                                                }
+                                                {publicRelationsNewsList && publicRelationsNewsList.length === 0 &&
+                                                <div className="col-12" style={{textAlign: 'center'}}>
+                                                    ไม่มีข่าวประชาสัมพันธ์
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/*หัวข้อภาพกิจกรรม*/}
+                        <div className="row wow fadeInUp">
+                            <div className="col text-title-top" style={{marginBottom: 0, paddingBottom: 0}}>
+                                <h3 style={{marginBottom: 0, paddingBottom: 0}}>ภาพกิจกรรม</h3>
+                            </div>
+                            <div className="col">
+                                <a href="javascript:void(0)" className="viewmoreindex"> ดูทั้งหมด <i className="fas fa-plus"/></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/*ภาพกิจกรรม*/}
+                <div className="activity">
+                    <div className="container" style={{position: 'relative'}}><span className="bgyellow1"/>
+                        <div className="owl-newsbottom owl-carousel owl-theme">
+                            {activityList &&
+                            activityList.map(item => (
+                                <ActivityItem data={item}/>
+                            ))
+                            }
+                            {activityList && activityList.length === 0 &&
+                            <div className="col-12" style={{textAlign: 'center'}}>
+                                ไม่มีภาพกิจกรรม
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <style jsx>{`
+                         
                 `}</style>
             </MainLayout>
         );

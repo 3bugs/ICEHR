@@ -1,6 +1,15 @@
 import NextHead from 'next/head';
+import $ from 'jquery';
 
 export default class Head extends React.Component {
+
+    componentDidMount() {
+        const wow = new WOW({
+            animateClass: 'animated',
+            offset: 100
+        });
+        wow.init();
+    }
 
     render() {
         return (
@@ -21,7 +30,11 @@ export default class Head extends React.Component {
                           crossOrigin="anonymous"/>
                     <link rel="stylesheet" href="/static/scrollbar-plugin/jquery.mCustomScrollbar.css"/>
                     <link rel="stylesheet" href="/static/css/input-radio-style.css"/>
-                    {/*<link rel="stylesheet" href="/static/flexslider/flexslider.css" media="screen"/>*/}
+
+                    <link rel="stylesheet" href="/static/owlcarousel/assets/owl.carousel.min.css"/>
+                    <link rel="stylesheet" href="/static/owlcarousel/assets/owl.theme.default.min.css"/>
+
+                    <link rel="stylesheet" href="/static/flexslider/flexslider.css" media="screen"/>
 
                     <script src="/static/js/jquery-3.3.1.slim.min.js"/>
                     <script src="/static/js/jquery.min.js"/>
@@ -29,10 +42,13 @@ export default class Head extends React.Component {
                     <script src="/static/js/popper.min.js"/>
                     <script src="/static/js/bootstrap.min.js"/>
 
-                    {/*<script src="/static/flexslider/demo/js/modernizr.js"/>
+                    <script src="/static/owlcarousel/owl.carousel.min.js" defer/>
+                    <link rel="stylesheet" href="/static/flexslider/flexslider.css" type="text/css" media="screen"/>
+
+                    <script src="/static/flexslider/demo/js/modernizr.js"/>
                     <script defer src="/static/flexslider/jquery.flexslider.js"/>
                     <script src="/static/flexslider/demo/js/shCore.js"/>
-                    <script src="/static/flexslider/demo/js/shBrushJScript.js"/>*/}
+                    <script src="/static/flexslider/demo/js/shBrushJScript.js"/>
 
                     <script src="/static/dotdotdot-master/src/js/jquery.dotdotdot.js"/>
 
@@ -58,6 +74,11 @@ export default class Head extends React.Component {
 
                     {/*<link rel="stylesheet" href="/static/flexslider2/flexslider.css" type="text/css" media="screen"/>
                     <script defer src="/static/flexslider2/jquery.flexslider.js"/>*/}
+
+
+                    <link rel="stylesheet" href="/static/wow-master/css/libs/animate.css"/>
+                    <script src="/static/wow-master/dist/wow.js"/>
+
                 </NextHead>
 
                 <style jsx global>{`

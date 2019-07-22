@@ -716,17 +716,26 @@ export default class ServiceSocialRegister extends React.Component {
             .then(result => result.json())
             .then(result => {
                 let msg = result['error']['message'];
-                //alert(msg);
                 if (result['error']['code'] === 0) {
-                    this.showDialog(msg, "success", () => {
+                    alert(msg);
+                    Router.back();
+
+                    /*this.showDialog(msg, "success", () => {
                         this.dismissDialog();
                         Router.back();
-                    });
+                    });*/
                 } else {
-                    this.showDialog(msg, "error", () => {
+                    alert(msg)
+                    /*this.showDialog(msg, "error", () => {
                         this.dismissDialog();
-                    });
+                    });*/
                 }
+            })
+            .catch(error => {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                /*this.showDialog('เกิดข้อผิดพลาดในการเชื่อมต่อ Server', "error", () => {
+                    this.dismissDialog();
+                });*/
             });
     };
 
@@ -762,9 +771,9 @@ export default class ServiceSocialRegister extends React.Component {
                     this.props.course &&
                     <div className="container">
                         <div className="row">
-                            <div className="col text-title-top">
-                                <p>โครงการบริการสังคม สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3>แบบฟอร์มลงทะเบียนอบรม</h3></div>
+                            <div className="col">
+                                <p style={{fontSize: '1.3rem', lineHeight: '30px', textAlign: 'center'}}>โครงการบริการสังคม สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}>แบบฟอร์มลงทะเบียนอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">

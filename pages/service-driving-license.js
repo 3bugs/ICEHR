@@ -82,8 +82,9 @@ export default class ServiceDrivingLicense extends React.Component {
                 {/*หัวข้อ "บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่"*/}
                 <div className="container">
                     <div className="row">
-                        <div className="col text-title-top">
-                            <h3 onClick={this.test}>บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
+                        <div className="col">
+                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px'}}>บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3>
+                        </div>
                     </div>
                 </div>
 

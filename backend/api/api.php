@@ -888,6 +888,7 @@ function doAddNews()
 
     $newsType = $db->real_escape_string($_POST['newsType']);
     $title = $db->real_escape_string($_POST['title']);
+    $shortDescription = $db->real_escape_string($_POST['shortDescription']);
     $details = $db->real_escape_string($_POST['details']);
     $newsDate = getMySqlDateFormat($db->real_escape_string($_POST['newsDate']));
 
@@ -900,8 +901,8 @@ function doAddNews()
 
     $db->query('START TRANSACTION');
 
-    $sql = "INSERT INTO news (title, details, image_file_name, news_type, news_date) 
-                VALUES ('$title', '$details', '$coverImageFileName', '$newsType', '$newsDate')";
+    $sql = "INSERT INTO news (title, short_description, details, image_file_name, news_type, news_date) 
+                VALUES ('$title', '$shortDescription', '$details', '$coverImageFileName', '$newsType', '$newsDate')";
     if ($result = $db->query($sql)) {
         $insertId = $db->insert_id;
 
@@ -1037,6 +1038,7 @@ function doUpdateNews()
 
     $id = $db->real_escape_string($_POST['newsId']);
     $title = $db->real_escape_string($_POST['title']);
+    $shortDescription = $db->real_escape_string($_POST['shortDescription']);
     $details = $db->real_escape_string($_POST['details']);
     $newsDate = getMySqlDateFormat($db->real_escape_string($_POST['newsDate']));
 
@@ -1056,7 +1058,7 @@ function doUpdateNews()
     $db->query('START TRANSACTION');
 
     $sql = "UPDATE news 
-            SET $setUploadFileName title = '$title', details = '$details', news_date = '$newsDate' 
+            SET $setUploadFileName title = '$title', short_description = '$shortDescription', details = '$details', news_date = '$newsDate' 
             WHERE id = $id";
     if ($result = $db->query($sql)) {
         for ($i = 0; $i < sizeof($_FILES[KEY_IMAGE_FILES]['name']); $i++) {

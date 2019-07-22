@@ -8,10 +8,12 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Cache-Control: post-check=0, pre-check=0', FALSE);
 header('Pragma: no-cache');
 
-session_start();
-if (!isset($_SESSION[KEY_SESSION_USER_ID])) {
-    header('Location: login.php');
-    exit();
+if (!isset($_GET['user'])) { // สำหรับกรณีเรียกมาจากฝั่ง front-end ตอนแสดงใบสมัคร
+    session_start();
+    if (!isset($_SESSION[KEY_SESSION_USER_ID])) {
+        header('Location: login.php');
+        exit();
+    }
 }
 
 require_once '../include/db_config.inc';

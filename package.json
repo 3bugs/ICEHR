@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start_old": "next start",
+    "start": "NODE_ENV=production node server.js",
     "start-production": "cross-env NODE_ENV=production node server.js"
   },
   "keywords": [],
@@ -37,13 +38,17 @@
     "react-floater": "^0.6.4",
     "react-input-mask": "^2.0.4",
     "react-modal": "^3.8.1",
+    "react-owl-carousel": "^2.3.1",
+    "react-owl-carousel2": "^0.3.0",
     "react-paginate": "^6.3.0",
     "react-responsive-carousel": "^3.1.49",
     "react-router": "^5.0.0",
     "react-scroll": "^1.7.11",
     "react-share": "^3.0.0",
     "react-show": "^3.0.4",
+    "react-slick": "^0.24.0",
     "react-themeable": "^1.1.0",
+    "slick-carousel": "^1.8.1",
     "video-react": "^0.14.0"
   },
   "devDependencies": {

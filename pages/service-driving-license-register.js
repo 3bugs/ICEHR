@@ -866,9 +866,9 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                     this.props.course && this.state.courseTypeList &&
                     <div className="container">
                         <div className="row">
-                            <div className="col text-title-top">
+                            <div className="col">
                                 {/*<p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>*/}
-                                <h3>แบบฟอร์มสมัครอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px'}}>แบบฟอร์มสมัครอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">

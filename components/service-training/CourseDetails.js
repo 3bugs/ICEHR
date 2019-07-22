@@ -108,7 +108,14 @@ export default class CourseDetails extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <hr/>
+                    <hr style={{
+                        border: 0,
+                        clear: 'both',
+                        display: 'block',
+                        width: '100%',
+                        backgroundColor: '#f0f0f0',
+                        height: '1px',
+                    }}/>
                     <div className="row">
                         <div className="col-12 col-md-6">
                             <Scrollbars style={{ height: 450 }}>

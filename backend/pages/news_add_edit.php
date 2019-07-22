@@ -203,6 +203,28 @@ if (isset($newsId)) {
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!--รายละเอียดแบบย่อ-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="inputTitle">รายละเอียดแบบย่อ (สำหรับแสดงในหน้า List):</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-font"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputShortDescription" name="shortDescription"
+                                                           value="<?= (!empty($news) ? $news['short_description'] : ''); ?>"
+                                                           placeholder="กรอกรายละเอียดแบบย่อ" required
+                                                           maxlength="150"
+                                                           oninvalid="this.setCustomValidity('กรอกรายละเอียดแบบย่อ')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <!-- /.box-body -->
                             </div>
@@ -250,7 +272,7 @@ if (isset($newsId)) {
                                     <!-- /. tools -->
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body pad">
+                                <div class="box-body pad" style="background_: #f8f8f8">
                                     <?php
                                     if (!empty($news)) {
                                         ?>
@@ -309,7 +331,7 @@ if (isset($newsId)) {
                                 </div>
                             </div>
                             <!-- /.box -->
-                            
+
                             <!--รูปภาพข่าว/กิจกรรม-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">

@@ -756,7 +756,12 @@ export default class ServiceTrainingRegister extends React.Component {
         let {coordinatorForm} = this.state;
         let {fields} = coordinatorForm;
         //fields[field] = isString(e.target.value) ? e.target.value.trim() : e.target.value;
-        fields[field] = e.target.value;
+
+        if (field === REGISTER_COORDINATOR_BIRTH_DATE) {
+            fields[field] = e;
+        } else {
+            fields[field] = e.target.value;
+        }
 
         //ถ้าหากเลือก "อื่นๆ" ในช่อง "ประเภทหน่วยงาน" ก็จะ focus ไปที่ช่องกรอกประเภทหน่วยงานที่อยู่ถัดลงไป (ต้องรอ setState ทำงานก่อน)
         let setFocus = (field === REGISTER_COORDINATOR_ORGANIZATION_TYPE) && (parseInt(e.target.value) === ORGANIZATION_TYPE_OTHER);
@@ -1262,8 +1267,8 @@ export default class ServiceTrainingRegister extends React.Component {
                     <div className="container">
                         <div className="row">
                             <div className="col text-title-top">
-                                <p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3>แบบฟอร์มลงทะเบียนอบรม</h3></div>
+                                <p style={{fontSize: '1.3rem', lineHeight: '30px', textAlign: 'center'}}>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}>แบบฟอร์มลงทะเบียนอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -1820,7 +1825,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <a className="btn btn-dark"
                            style={{marginLeft: 0, padding: '5px 20px'}}
                            href={`/api/get_trainee_form_pdf?courseRegId=${this.state.courseRegId}&download=true`}>
-                            Save ใบสมัคร{/*<i className="far fa-save" style={{color: '#aaa'}}></i>*/}
+                            Save ใบสมัคร<i className="far fa-save" style={{color: '#aaa'}}></i>
                         </a>
                         <a className="btn btn-dark"
                            style={{marginRight: 0, padding: '5px 20px'}}

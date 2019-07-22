@@ -109,6 +109,13 @@ app
             app.render(req, res, actualPage, queryParams)
         });
 
+        /* ********** ข่าว/กิจกรรม/หลักสูตร In-House ที่ผ่านมา ********** */
+        server.get('/news/:id', (req, res) => {
+            const actualPage = '/news';
+            const queryParams = {id: req.params.id};
+            app.render(req, res, actualPage, queryParams)
+        });
+
         /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -194,6 +201,16 @@ app
                     case 'update_document_download_count':
                         doUpdateDocumentDownloadCount(req, res, db);
                         break;
+                    case 'get_news_latest':
+                        doGetNewsLatest(req, res, db);
+                        break;
+                    case 'get_news_by_id':
+                        doGetNewsById(req, res, db);
+                        break;
+                    case 'get_activity':
+                        doGetActivity(req, res, db);
+                        break;
+
                     default:
                         //res.status(404).end();
                         res.send({
@@ -916,6 +933,7 @@ doRegisterCourseSocial = (req, res, db) => {
                             res.send({
                                 error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
                             });
+                            console.log('ลงทะเบียนสำเร็จ');
                         }
                     }
                 );
@@ -1548,7 +1566,14 @@ doGetDocumentDownload = (req, res, db) => {
     const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
     db.query(
-            `SELECT id, title, short_description, file_path, file_name, image_file_name, download, hit
+            `SELECT id,
+                    title,
+                    short_description,
+                    file_path,
+                    file_name,
+                    image_file_name,
+                    download,
+                    hit
              FROM document_download
              WHERE document_type = ?
             ORDER BY created_at DESC
@@ -1593,7 +1618,7 @@ doUpdateDocumentDownloadCount = (req, res, db) => {
 
     db.query(
             `UPDATE document_download
-             SET download = download + 1 
+             SET download = download + 1
              WHERE id = ?`,
         [id],
         function (err, results, fields) {
@@ -1605,6 +1630,159 @@ doUpdateDocumentDownloadCount = (req, res, db) => {
                 res.send({
                     error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
                 });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetNewsLatest = (req, res, db) => {
+    db.query(
+            `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+             FROM news
+             WHERE news_type = ?
+             ORDER BY created_at DESC
+             LIMIT 0, 4`,
+        ['training'],
+        function (err, resultsTrainingNews, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+                db.query(
+                        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+                         FROM news
+                         WHERE news_type = ?
+                         ORDER BY created_at DESC
+                         LIMIT 0, 4`,
+                    ['public-relations'],
+                    function (err, resultsPublicRelationsNews, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                trainingNewsList: resultsTrainingNews,
+                                publicRelationsNewsList: resultsPublicRelationsNews,
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
+};
+
+doGetActivity = (req, res, db) => {
+    const {id, offset, limit} = req.body;
+    const whereClause = id == null ? 'TRUE' : 'id = ?';
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+
+    db.query(
+            `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
+                    na.file_name
+             FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} ${limitClause}) n
+                 LEFT JOIN news_asset na 
+                     ON n.id = na.news_id
+             ORDER BY n.created_at DESC`,
+        id == null ? [] : [id],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                let previousId = 0;
+                const activityList = [];
+                let activity = null;
+                for (let i = 0; i < results.length; i++) {
+                    const row = results[i];
+                    if (row['id'] !== previousId) {
+                        if (previousId !== 0) {
+                            activityList.push(activity);
+                        }
+                        activity = {
+                            id: row['id'],
+                            title: row['title'],
+                            short_description: row['short_description'],
+                            details: row['details'],
+                            image_file_name: row['image_file_name'],
+                            news_date: row['news_date'],
+                            news_type: row['news_type'],
+                        };
+                        activity['image_list'] = (row['file_name'] == null ? [] : [row['file_name']]);
+                    } else {
+                        activity['image_list'].push(row['file_name']);
+                    }
+                    previousId = row['id'];
+                }
+                activityList.push(activity);
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    activityList: activityList,
+                    count: results.length,
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetNewsById = (req, res, db) => {
+    const {id} = req.body;
+
+    db.query(
+            `SELECT n.id,
+                    n.title,
+                    n.short_description,
+                    n.details,
+                    n.image_file_name,
+                    n.news_date,
+                    n.news_type,
+                    na.file_name
+             FROM news n
+                      LEFT JOIN news_asset na
+                                ON n.id = na.news_id
+             WHERE n.id = ?`,
+        [id],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                if (results.length > 0) {
+                    let news = {
+                        id: results[0].id,
+                        title: results[0].title,
+                        details: results[0].details,
+                        newsDate: results[0].news_date,
+                        newsType: results[0].news_type,
+                    };
+
+                    let imageList = [];
+                    results.forEach(row => {
+                        if (row.file_name != null) {
+                            imageList.push(row.file_name);
+                        }
+                    });
+                    news['imageList'] = imageList;
+
+                    res.send({
+                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                        news: news,
+                    });
+                } else {
+                    res.send({
+                        error: new Error(1, 'ไม่พบข้อมูล', ''),
+                    });
+                }
             }
         }
     );
