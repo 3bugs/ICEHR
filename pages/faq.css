@@ -1,0 +1,105 @@
+.bg-search-service1 .col {
+    padding: 5px;
+}
+
+.submitbox {
+    margin-top: 0px;
+}
+
+.bg-search-service1 {
+    height: 120px;
+}
+
+.wrap {
+    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+}
+
+[data-toggle="collapse"] .fa:before {
+    content: "\f13a";
+}
+
+[data-toggle="collapse"].collapsed .fa:before {
+
+    content: "\f139";
+}
+
+.card-header {
+    border-bottom: 3px solid #b50303;
+    background-color: transparent;
+    padding: 10px 1.2rem;
+}
+
+.card {
+    border-radius: 0px;
+    margin-top: 10px;
+    border: none;
+}
+
+.card-body {
+    background-color: #eeeeee;
+}
+
+.btn-link:hover,
+.btn-link {
+    color: black;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+}
+
+.mb-0 i {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    color: #b40303;
+}
+
+@media only screen and (max-width: 991px) {
+    .card-header {
+        padding: 5px;
+    }
+
+    .btn-link {
+        border: none;
+    }
+
+    .btn-link {
+        font-size: 0.9em;
+        text-align: left;
+    }
+
+    .mb-0 i {
+        top: 0;
+    }
+
+}
+
+@media only screen and (max-width: 767px) {
+    .mb-0 i {
+        display: none;
+    }
+
+    .bg-search-service1 {
+        height: auto;
+    }
+
+    .panel-title a {
+        font-size: 1rem;
+    }
+
+    .btn-link {
+        font-size: 0.9em;
+        text-align: left;
+    }
+
+    .card-header {
+        padding: 5px;
+    }
+
+    .btn-link {
+        border: none;
+    }
+}

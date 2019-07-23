@@ -1580,34 +1580,60 @@ export default class Header extends React.Component {
     }
 
     componentDidMount() {
-        /*$(document).ready(function () {
-            $('input:not(:checked)').parent().find(".contentpay").slideUp();
-            $('input:checked').parent().find(".contentpay").slideDown();
-            $('input').click(function () {
-                $('input:not(:checked)').parent().find(".contentpay").slideUp();
-                $('input:checked').parent().find(".contentpay").slideDown();
-            });
-            $(".modal-signin-up-next").click(function () {
-                var step = $(this).attr("step");
-                if (!isNaN(step)) {
-                    if (step == 2 || step == 3) {
-                        if ($(window).width() >= 900) {
-                            $('#myModal').find(".modal-dialog").css("width", "900");
-                        }
-                    } else {
-                        $('#myModal').find(".modal-dialog").css("width", "");
-                    }
-                    $(".modal-signin-up").addClass("hide");
-                    $(".modal-signin-up[step='" + step + "']").removeClass("hide");
-                } else {
-                    $('#myModal').modal("toggle");
-                    setTimeout(function () {
-                        $(".modal-signin-up").addClass("hide");
-                        $(".modal-signin-up[step='1']").removeClass("hide");
-                    }, 2000);
+        $('.btn_menu').click(function (event) {
+            if ($(".mainmenu > ul").is(":hidden")) {
+                $(this).addClass("active");
+                $('.mainmenu > ul').slideDown();
+            } else {
+                $('.mainmenu > ul').slideUp();
+                $(this).removeClass("active");
+                $('.submenu').slideUp();
+                $('.hassub').removeClass("active");
+            }
+            event.stopPropagation();
+        });
+        $('.hassub').click(function (event) {
+            if ($(this).children(".submenu").is(":hidden")) {
+                $('.hassub').removeClass("active");
+                $(this).addClass("active");
+                $('.submenu').slideUp();
+                $(this).children(".submenu").slideDown();
+            } else {
+                if (Modernizr.mq('(max-width: 991px)')) {
+                    $('.submenu').slideUp();
+                    $(this).removeClass("active");
                 }
-            });
-        });*/
+            }
+            event.stopPropagation();
+        });
+        $('.search_btn').click(function (event) {
+            $('.searchbox').toggleClass('active');
+            $('.top_bar').toggleClass('active');
+            event.stopPropagation();
+        });
+        $('.social_btn').click(function (event) {
+            $('.social').slideToggle();
+            event.stopPropagation();
+        });
+        $('.searchbox').click(function (event) {
+            event.stopPropagation();
+        });
+        $('html').click(function (event) {
+            $('.searchbox').removeClass('active');
+            $('.top_bar').removeClass('active');
+            $('.social').slideUp();
+        });
+        $('.fontsize_s').click(function (event) {
+            $('html').removeClass('fz_l');
+            $('html').addClass('fz_s');
+        });
+        $('.fontsize_m').click(function (event) {
+            $('html').removeClass('fz_l fz_s');
+        });
+        $('.fontsize_l').click(function (event) {
+            $('html').removeClass('fz_s');
+            $('html').addClass('fz_l');
+        });
 
         $(window).scroll(function () {
             if ($(this).scrollTop() > 25) {
@@ -1616,6 +1642,29 @@ export default class Header extends React.Component {
                 $('.wrap_menu').removeClass("sticky");
             }
         });
+
+        const TabToggler = {
+            init: function () {
+                if (document.getElementsByClassName("js-tab")) Array.prototype.slice.call(document.getElementsByClassName("js-tab-trigger")).forEach(TabToggler.attachEventListener);
+            }
+            , attachEventListener: function (item) {
+                item.addEventListener("change", TabToggler.toggleElement);
+            }
+            , toggleElement: function (event) {
+                event.preventDefault();
+                var groupClassName = "js-tab-" + this.name;
+                Array.prototype.slice.call(document.getElementsByClassName(groupClassName)).forEach(TabToggler.hideTab);
+                var targetClassName = "js-tab-" + this.id;
+                Array.prototype.slice.call(document.getElementsByClassName(targetClassName)).forEach(TabToggler.showTab);
+            }
+            , showTab: function (item) {
+                item.classList.add("is-active");
+            }
+            , hideTab: function (item) {
+                item.classList.remove("is-active");
+            }
+        };
+        window.addEventListener("DOMContentLoaded", TabToggler.init);
     }
 
     render() {
@@ -1672,13 +1721,13 @@ export default class Header extends React.Component {
                                                             <li>
                                                                 <a href="/service-social" target="_parent">บริการสังคม</a>
                                                             </li>
-                                                            <li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
                                                                 <a href="/service-driving-license" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</a>
                                                             </li>
-                                                            <li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
                                                                 <a href="/academic-paper" target="_parent">วิจัยและวิชาการ</a>
                                                             </li>
-                                                            <li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
                                                                 <a href="#" target="_parent">วารสาร HR Intelligence</a>
                                                             </li>
                                                         </ul>
@@ -1701,14 +1750,18 @@ export default class Header extends React.Component {
                                                     </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li><a href="vision.php"
-                                                                   target="_parent">เกี่ยวกับองค์กร</a>
+                                                            <li>
+                                                                <a href="/about" target="_parent">เกี่ยวกับองค์กร</a>
                                                             </li>
-                                                            <li><a href="mission.php" target="_parent">ภารกิจ </a></li>
-                                                            <li><a href="structure.php"
-                                                                   target="_parent"> โครงสร้างองค์กร </a></li>
-                                                            <li><a href="executive.php"
-                                                                   target="_parent"> ผู้บริหารและบุคลากร</a></li>
+                                                            <li>
+                                                                <a href="/mission" target="_parent">ภารกิจ </a>
+                                                            </li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                                <a href="/organization" target="_parent"> โครงสร้างองค์กร </a>
+                                                            </li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                                <a href="/personnel" target="_parent"> ผู้บริหารและบุคลากร</a>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                     <div className="col-xs-12 col-sm-3 submenu_right"><img
@@ -1729,12 +1782,20 @@ export default class Header extends React.Component {
                                                     </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li><a href="/document-download/training">เอกสารการอบรม </a></li>
-                                                            <li><a href="/document-download/report">รายงานผลการดำเนินงาน</a>
+                                                            <li>
+                                                                <a href="/document-download/training">เอกสารการอบรม </a>
                                                             </li>
-                                                            <li><a href="/document-download/km">KM</a></li>
-                                                            <li><a href="/document-download/qa">ประกันคุณภาพ (QA)</a></li>
-                                                            <li><a href="/document-download/booklet"> จุลสาร/อินโฟกราฟิค</a>
+                                                            <li>
+                                                                <a href="/document-download/report">รายงานผลการดำเนินงาน</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/document-download/km">KM</a>
+                                                            </li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                                <a href="/document-download/qa">ประกันคุณภาพ (QA)</a>
+                                                            </li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                                <a href="/document-download/booklet"> จุลสาร/อินโฟกราฟิค</a>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -1745,11 +1806,11 @@ export default class Header extends React.Component {
                                         </div>
                                     </li>
                                     {/*FAQ*/}
-                                    <li className="hassub"><a href="faq.php">FAQ</a></li>
+                                    <li className="hassub"><a href="/faq">FAQ</a></li>
                                     {/*ติดต่อ*/}
-                                    <li className="hassub"><a href="contact.php">ติดต่อ</a></li>
+                                    <li className="hassub"><a href="/contact">ติดต่อ</a></li>
                                     {/*Link*/}
-                                    <li className="hassub"><a href="#"> Link</a>
+                                    <li className="hassub"><a href="#">Link</a>
                                         <div className="submenu">
                                             <div className="container">
                                                 <div className="row">

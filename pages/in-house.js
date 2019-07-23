@@ -258,7 +258,8 @@ export default class InHouse extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col text-title-top">
-                            <h3>IN-HOUSE TRAINING</h3></div>
+                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px'}}>IN-HOUSE TRAINING</h3>
+                        </div>
                     </div>
                     <div className="row mt-3">
                         <div className="col-12 col-md-9">

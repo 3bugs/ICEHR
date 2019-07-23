@@ -154,13 +154,15 @@ app
                         doSearchCourse(req, res, db);
                         break;
                     case 'register_course':
-                        doRegisterCourse(req, res, db);
+                        registerCourse(req, res, db, constants.SERVICE_TRAINING);
                         break;
                     case 'register_course_social':
-                        doRegisterCourseSocial(req, res, db);
+                        registerCourse(req, res, db, constants.SERVICE_SOCIAL);
+                        //doRegisterCourseSocial(req, res, db);
                         break;
                     case 'register_course_driving_license':
-                        doRegisterCourseDrivingLicense(req, res, db);
+                        registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
+                        //doRegisterCourseDrivingLicense(req, res, db);
                         break;
                     case 'register_in_house':
                         doRegisterInHouse(req, res, db);
@@ -209,6 +211,9 @@ app
                         break;
                     case 'get_activity':
                         doGetActivity(req, res, db);
+                        break;
+                    case 'get_course_num_trainee_available':
+                        doGetCourseNumTraineeAvailable(req, res, db);
                         break;
 
                     default:
@@ -493,6 +498,7 @@ doGetCourse = (req, res, db) => {
                                  c.begin_date,
                                  c.end_date,
                                  c.place,
+                                 c.trainee_limit,
                                  cm.title,
                                  cm.service_type,
                                  u.first_name,
@@ -547,7 +553,7 @@ doGetCourse = (req, res, db) => {
 
                 const dataList = [];
                 results.forEach(row => {
-                    dataList.push({
+                    const length = dataList.push({
                         id: row.id,
                         serviceType: row.service_type,
                         name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number : ''),
@@ -556,6 +562,7 @@ doGetCourse = (req, res, db) => {
                         place: row.place,
                         beginDate: row.begin_date,
                         endDate: row.end_date,
+                        traineeLimit: row.trainee_limit,
                         responsibleUser: {
                             firstName: row.first_name,
                             lastName: row.last_name,
@@ -749,9 +756,164 @@ doSearchCourse = (req, res, db) => {
     db.end();
 };
 
+doGetCourseNumTraineeAvailable = (req, res, db) => {
+    const {courseId} = req.body;
+
+    getCourseNumTraineeAvailable(
+        db, courseId, (success, data) => {
+            if (success) {
+                res.send({
+                    error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
+                });
+            } else {
+                res.send({
+                    error: new Error(1, data, ''),
+                });
+            }
+        }
+    );
+};
+
+getCourseNumTraineeAvailable = (db, courseId, callback) => {
+    let registrationTable = null;
+
+    db.query(
+            `SELECT cm.service_type
+             FROM course c
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+             WHERE c.id = ?`,
+        [courseId],
+        function (err, results, fields) {
+            if (err) {
+                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (1)');
+            } else {
+                const serviceType = results[0]['service_type'];
+                switch (serviceType) {
+                    case constants.SERVICE_TRAINING:
+                        registrationTable = 'course_registration';
+                        break;
+                    case constants.SERVICE_SOCIAL:
+                        registrationTable = 'course_registration_social';
+                        break;
+                    case constants.SERVICE_DRIVING_LICENSE:
+                        registrationTable = 'course_registration_driving_license';
+                        break;
+                }
+
+                db.query(
+                        `SELECT trainee_limit
+                         FROM course
+                         WHERE id = ?`,
+                    [courseId],
+                    function (err, results, fields) {
+                        if (err) {
+                            callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (2)');
+                        } else {
+                            if (results.length > 0) {
+                                const traineeLimit = results[0]['trainee_limit'];
+
+                                if (serviceType === constants.SERVICE_SOCIAL || serviceType === constants.SERVICE_DRIVING_LICENSE) {
+                                    db.query(
+                                        `SELECT COUNT(id) AS trainee_count 
+                             FROM ${registrationTable}
+                             WHERE course_id = ? AND register_status <> ?`,
+                                        [courseId, 'cancel'],
+                                        function (err, results, fields) {
+                                            if (err) {
+                                                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (3)');
+                                            } else {
+                                                const traineeCount = results[0]['trainee_count'];
+                                                callback(true, traineeLimit - traineeCount);
+                                            }
+                                        }
+                                    );
+                                } else if (serviceType === constants.SERVICE_TRAINING) {
+                                    db.query(
+                                            `SELECT COUNT(*) AS trainee_count
+                                             FROM course_registration cr
+                                                      INNER JOIN course_trainee ct
+                                                                 ON cr.id = ct.course_registration_id
+                                             WHERE cr.course_id = ?
+                                               AND ct.register_status <> ?`,
+                                        [courseId, 'cancel'],
+                                        function (err, results, fields) {
+                                            if (err) {
+                                                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (4):');
+                                            } else {
+                                                const traineeCount = results[0]['trainee_count'];
+                                                callback(true, traineeLimit - traineeCount);
+                                            }
+                                        }
+                                    );
+                                }
+                            } else {
+                                callback(false, 'ไม่พบข้อมูลหลักสูตร');
+                            }
+                        }
+                    }
+                );
+            }
+        }
+    );
+};
+
+registerCourse = (req, res, db, serviceType) => {
+    const {courseId, trainees} = req.body;
+
+    getCourseNumTraineeAvailable(
+        db, courseId, (success, data) => {
+            if (success) {
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /*res.send({
+                    error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
+                });
+                db.end();
+                return;*/
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                const available = data; //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส
+                if (available > 0) { //คอร์สยังไม่เต็ม
+                    //สำหรับวิชาการ ต้องเช็คต่อว่า จำนวนที่สมัครเข้ามา รับได้หรือไม่ (วิชาการ สามารถกรอกใบสมัครได้ครั้งละมากกว่า 1 คน)
+                    if (serviceType === constants.SERVICE_TRAINING && trainees.length > available) {
+                        res.send({
+                            error: new Error(1, 'ขออภัย ไม่สามารถรับสมัครได้ เนื่องจากจำนวนผู้สมัครที่ท่านกรอกใบสมัครเข้ามา มีมากกว่าจำนวนที่รับได้ในตอนนี้', ''),
+                        });
+                        db.end();
+                    } else {
+                        //สมัครได้
+                        switch (serviceType) {
+                            case constants.SERVICE_TRAINING:
+                                doRegisterCourse(req, res, db);
+                                break;
+                            case constants.SERVICE_SOCIAL:
+                                doRegisterCourseSocial(req, res, db);
+                                break;
+                            case constants.SERVICE_DRIVING_LICENSE:
+                                doRegisterCourseDrivingLicense(req, res, db);
+                                break;
+                        }
+                    }
+                } else { //คอร์สเต็มแล้ว
+                    res.send({
+                        error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
+                    });
+                    db.end();
+                }
+            } else {
+                res.send({
+                    error: new Error(1, data, ''),
+                });
+                db.end();
+            }
+        }
+    );
+};
+
 doRegisterCourse = (req, res, db) => {
     const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+
     let {
         coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
         coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
@@ -1684,7 +1846,7 @@ doGetActivity = (req, res, db) => {
     const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
     db.query(
-            `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
+        `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
                     na.file_name
              FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} ${limitClause}) n
                  LEFT JOIN news_asset na 

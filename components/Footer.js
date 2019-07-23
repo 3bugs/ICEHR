@@ -9,6 +9,21 @@ export default class Footer extends React.Component {
     }
 
     componentDidMount() {
+        $(".set > a").on("click", function () {
+            if ($(this).hasClass("active")) {
+                $(this).removeClass("active");
+                $(this).siblings(".content-footer").slideUp(200);
+                $(".set > a i").removeClass("fa-minus").addClass("fa-plus");
+            }
+            else {
+                $(".set > a i").removeClass("fa-minus").addClass("fa-plus");
+                $(this).find("i").removeClass("fa-plus").addClass("fa-minus");
+                $(".set > a").removeClass("active");
+                $(this).addClass("active");
+                $(".content-footer").slideUp(200);
+                $(this).siblings(".content-footer").slideDown(200);
+            }
+        });
     }
 
     render() {
@@ -18,7 +33,9 @@ export default class Footer extends React.Component {
                     <div className="container">
                         <div className="row">
                             <div className="col-12 col-md-3 col-xl-3">
-                                <div className="logo-footer"><img src="/static/images/logo_icess_LOGO%20ICT.svg" className="img-fluid"/></div>
+                                <div className="logo-footer">
+                                    <img src="/static/images/logo_icess_LOGO%20ICT.svg" className="img-fluid"/>
+                                </div>
                                 <div className="social-footer">
                                     <h3>สถาบันเสริมศึกษาและทรัพยากรมนุษย์</h3>
                                     <li><a href="#"><i className="fab fa-facebook-f"/></a></li>
@@ -56,31 +73,31 @@ export default class Footer extends React.Component {
                                         <div className="footer-menugroup">
                                             <h4 className="title-footer">บริการ</h4>
                                             <ul>
-                                                <li><a href="service-1.php" target="_parent">บริการฝึกอบรม</a></li>
-                                                <li><a href="service-4.php" target="_parent">IN-HOUSE Training</a></li>
-                                                <li><a href="service-3.php" target="_parent">บริการสังคม</a></li>
-                                                <li><a href="service-2.php" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</a></li>
-                                                <li><a href="service-5.php" target="_parent">วิจัยและวิชาการ</a></li>
-                                                <li><a href="#" target="_parent">วารสาร HR Intelligence</a></li>
+                                                <li><a href="/service-training" target="_parent">บริการฝึกอบรม</a></li>
+                                                <li><a href="/in-house" target="_parent">IN-HOUSE Training</a></li>
+                                                <li><a href="/service-social" target="_parent">บริการสังคม</a></li>
+                                                <li><a href="/service-driving-license" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอ<br/>ใบอนุญาตขับขี่</a></li>
+                                                <li><a href="/academic-paper" target="_parent">วิจัยและวิชาการ</a></li>
+                                                <li><a href="javascript:void(0)" target="_parent">วารสาร HR Intelligence</a></li>
                                             </ul>
                                         </div>
                                         <div className="footer-menugroup">
                                             <h4 className="title-footer">แนะนำหน่วยงาน</h4>
                                             <ul>
-                                                <li><a href="vision.php" target="_parent">เกี่ยวกับองค์กร</a></li>
-                                                <li><a href="mission.php" target="_parent">ภารกิจ </a></li>
-                                                <li><a href="structure.php" target="_parent"> โครงสร้างองค์กร </a></li>
-                                                <li><a href="executive.php" target="_parent"> ผู้บริหารและบุคลากร</a></li>
+                                                <li><a href="/about" target="_parent">เกี่ยวกับองค์กร</a></li>
+                                                <li><a href="/mission" target="_parent">ภารกิจ </a></li>
+                                                <li><a href="/organization" target="_parent"> โครงสร้างองค์กร </a></li>
+                                                <li><a href="/personnel" target="_parent"> ผู้บริหารและบุคลากร</a></li>
                                             </ul>
                                         </div>
                                         <div className="footer-menugroup">
                                             <h4 className="title-footer">เอกสารดาวน์โหลด</h4>
                                             <ul>
-                                                <li><a href="download-page.php">เอกสารการอบรม </a></li>
-                                                <li><a href="download-page2.php">รายงานผลการดำเนินงาน</a></li>
-                                                <li><a href="download-page3.php">KM</a></li>
-                                                <li><a href="download-page5.php">ประกันคุณภาพ (QA)</a></li>
-                                                <li><a href="download-page4.php"> จุลสาร/อินโฟกราฟิค</a></li>
+                                                <li><a href="/document-download/training">เอกสารการอบรม </a></li>
+                                                <li><a href="/document-download/report">รายงานผลการดำเนินงาน</a></li>
+                                                <li><a href="/document-download/km">KM</a></li>
+                                                <li><a href="/document-download/qa">ประกันคุณภาพ (QA)</a></li>
+                                                <li><a href="/document-download/booklet"> จุลสาร/อินโฟกราฟิค</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -89,8 +106,8 @@ export default class Footer extends React.Component {
                                     <div className="col-12 col-md-6">
                                         <div className="footer-link-list">
                                             <ul>
-                                                <li><a href="#">Site map</a></li>
-                                                <li><a href="#">Thammasat University</a></li>
+                                                <li><a href="javascript:void(0)">Site map</a></li>
+                                                <li><a href="https://tu.ac.th/">Thammasat University</a></li>
                                             </ul>
                                         </div>
                                     </div>

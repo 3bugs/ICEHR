@@ -141,7 +141,10 @@ if ($result = $db->query($sql)) {
                                             ?>
 
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $courseName; ?></td>
+                                                <td style="vertical-align: middle"><?php echo $courseName; ?>&nbsp;&nbsp;
+                                                    <a target="_blank" title="ไปหน้าเว็บของหลักสูตร"
+                                                       href="<?= HOST_FRONTEND . "/service-{$serviceType}/{$courseId}" ?>"><i class="fa fa-external-link"></i></a>
+                                                </td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
                                                 <td style="vertical-align: middle; text-align: center"><?php echo "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
 

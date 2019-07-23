@@ -1,5 +1,8 @@
 <?php
 
+define('HOST_FRONTEND', 'http://localhost:3000');
+//define('HOST_FRONTEND', 'http://202.6.26.3:3000');
+
 define('SECRET_KEY', 'icehr_and_2fellows');
 define('FOLDER_UPLOAD_INFO', '../files/info/');
 define('FOLDER_UPLOAD_PARTY', '../files/party/');

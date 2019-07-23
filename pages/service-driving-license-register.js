@@ -830,7 +830,12 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                         this.dismissDialog();
                         Router.back();
                     });
+                } else {
+                    alert(msg);
                 }
+            })
+            .catch(err => {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + err);
             });
     };
 

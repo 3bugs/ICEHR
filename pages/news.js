@@ -9,6 +9,7 @@ import Modal from "react-bootstrap/Modal";
 import {Element} from "react-scroll/modules";
 import {Scrollbars} from "react-custom-scrollbars";
 import {Carousel} from "react-responsive-carousel";
+import {FacebookShareButton, TwitterShareButton, LineShareButton, EmailShareButton} from 'react-share';
 
 export default class News extends React.Component {
     constructor(props, context) {
@@ -74,10 +75,26 @@ export default class News extends React.Component {
                         </div>
                         <div className="col-md-4">
                             <div className="social-inside" style={{marginTop: '30px'}}>
-                                <a href="#"><i className="fab fa-facebook-f"></i></a>
-                                <a href="#"><i className="fab fa-twitter"></i></a>
-                                <a href="#"><i className="fab fa-google-plus-g"></i></a>
-                                <a href="#"><i className="fab fa-line"></i></a>
+                                <FacebookShareButton
+                                    style={{display: 'inline'}}
+                                    url={window.location.href}>
+                                    <a href="#"><i className="fab fa-facebook-f"/></a>
+                                </FacebookShareButton>
+                                <TwitterShareButton
+                                    style={{display: 'inline'}}
+                                    url={window.location.href}>
+                                    <a href="#"><i className="fab fa-twitter"/></a>
+                                </TwitterShareButton>
+                                <LineShareButton
+                                    style={{display: 'inline'}}
+                                    url={window.location.href}>
+                                    <a href="#"><i className="fab fa-line"/></a>
+                                </LineShareButton>
+                                <EmailShareButton
+                                    style={{display: 'inline'}}
+                                    url={window.location.href}>
+                                    <a href="#"><i className="fa fa-envelope"/></a>
+                                </EmailShareButton>
                             </div>
                         </div>
                     </div>

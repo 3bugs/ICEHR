@@ -725,14 +725,15 @@ export default class ServiceSocialRegister extends React.Component {
                         Router.back();
                     });*/
                 } else {
-                    alert(msg)
+                    alert(msg);
+
                     /*this.showDialog(msg, "error", () => {
                         this.dismissDialog();
                     });*/
                 }
             })
-            .catch(error => {
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+            .catch(err => {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + err);
                 /*this.showDialog('เกิดข้อผิดพลาดในการเชื่อมต่อ Server', "error", () => {
                     this.dismissDialog();
                 });*/

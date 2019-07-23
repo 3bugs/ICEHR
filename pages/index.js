@@ -528,6 +528,29 @@ class ActivityItem extends React.Component {
         this.state = {};
     }
 
+    componentDidMount() {
+        const {data} = this.props;
+
+        function slideshow() {
+            if ($('.slideshow,.flexslider').size()) {
+                $('.slideshow .flexslider').flexslider({
+                    animation: 'slide'
+                    , slideshowSpeed: 5000
+                    , animationDuration: 1000
+                });
+                $('.slideshow .flexslider').flexslider(1);
+            }
+        }
+
+        $('.eventPic').click(function () {
+            var rel = parseInt($(this).attr('rel'));
+            console.log(rel);
+            $(this).parent().parent().parent().parent().parent().parent().parent().find('.slideshow .flexslider').flexslider(rel);
+            //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
+        });
+        slideshow();
+    }
+
     render() {
         const {data} = this.props;
 
@@ -536,8 +559,8 @@ class ActivityItem extends React.Component {
                 <div className="item">
                     <div className="row">
                         <div className="col-12 col-sm-6">
-                            <section className="slideshow wow fadeInLeft">
-                                <div className="flexslider">
+                            <section className={`slideshow wow fadeInLeft`}>
+                                <div className={`flexslider`}>
                                     <ul className="slides">
                                         {
                                             data.image_list.map(image => (
@@ -913,7 +936,7 @@ export default class Index extends React.Component {
         });
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        function slideshow() {
+        /*function slideshow() {
             if ($('.slideshow,.flexslider').size()) {
                 $('.slideshow .flexslider').flexslider({
                     animation: 'slide'
@@ -930,7 +953,7 @@ export default class Index extends React.Component {
             $(this).parent().parent().parent().parent().parent().parent().parent().find('.slideshow .flexslider').flexslider(rel);
             //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
         });
-        slideshow();
+        slideshow();*/
     }
 
     render() {

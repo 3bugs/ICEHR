@@ -1198,7 +1198,12 @@ export default class ServiceTrainingRegister extends React.Component {
                         courseRegId,
                         registerSuccessDialog,
                     });
+                } else {
+                    alert(msg);
                 }
+            })
+            .catch(err => {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + err);
             });
     };
 

@@ -632,95 +632,101 @@ if (isset($courseId)) {
                             <!-- /.box -->
 
                             <!--ตารางราคา-->
-                            <div class="box box-warning">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">ตารางราคา
-                                        <small>ราคาเต็ม / Early Bird / ราคาสำหรับบุคลากร ฯลฯ</small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <!-- /. tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body pad">
-                                    <?php
-                                    if (isset($courseId) && sizeof($feeList) === 1 && $feeList[0]['title'] === '') {
-                                        ?>
-                                        <div class="callout callout-danger" style="margin-top: 10px">
-                                            <p>ยังไม่มีรายการราคา!</p>
+                            <?php
+                            if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                ?>
+                                <div class="box box-warning">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">ตารางราคา
+                                            <small>ราคาเต็ม / Early Bird / ราคาสำหรับบุคลากร ฯลฯ</small>
+                                        </h3>
+                                        <!-- tools box -->
+                                        <div class="pull-right box-tools">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                    data-toggle="tooltip" title="ย่อ">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
                                         </div>
+                                        <!-- /. tools -->
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body pad">
                                         <?php
-                                    }
-                                    ?>
-
-                                    <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
-                                        <li>รายการราคาที่เพิ่ม/ลบ/แก้ไข จะถูกบันทึกลงฐานข้อมูลจริง หลังจากกดปุ่ม "บันทึก"</li>
-                                    </ul>
-
-                                    <table id="tableFee" class="table table-bordered table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th style="text-align: center; width: 80%;">ข้อความ</th>
-                                            <th style="text-align: center; width: 20%;">ราคา</th>
-                                            <th style="text-align: center;">จัดการ</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-
-                                        <?php
-                                        foreach ($feeList as $fee) {
+                                        if (isset($courseId) && sizeof($feeList) === 1 && $feeList[0]['title'] === '') {
                                             ?>
-                                            <tr id="trFeeRow">
-                                                <td style="">
-                                                    <input type="text" class="form-control"
-                                                           id="inputFeeTitle"
-                                                           name="feeTitle[]"
-                                                           value="<?php echo $fee['title']; ?>"
-                                                           placeholder="กรอกข้อความ" required
-                                                           oninvalid="this.setCustomValidity('กรอกข้อความสำหรับรายการราคานี้')"
-                                                           oninput="this.setCustomValidity('')">
-                                                </td>
-                                                <td style="">
-                                                    <input type="number" class="form-control"
-                                                           style="text-align: right"
-                                                           id="inputFeeAmount"
-                                                           name="feeAmount[]"
-                                                           value="<?php echo $fee['amount']; ?>"
-                                                           placeholder="กรอกราคา">
-                                                </td>
-                                                <td style="">
-                                                    <button type="button" class="btn btn-danger removeFeeRow"
-                                                            style="margin-left: 6px; margin-right: 6px"
-                                                            onClick="onClickDeleteFee(this)">
-                                                        <span class="fa fa-remove"></span>&nbsp;
-                                                        ลบ
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <div class="callout callout-danger" style="margin-top: 10px">
+                                                <p>ยังไม่มีรายการราคา!</p>
+                                            </div>
                                             <?php
                                         }
                                         ?>
 
-                                        </tbody>
-                                    </table>
+                                        <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                            <li>รายการราคาที่เพิ่ม/ลบ/แก้ไข จะถูกบันทึกลงฐานข้อมูลจริง หลังจากกดปุ่ม "บันทึก"</li>
+                                        </ul>
 
-                                    <div class="row" style="margin: 10px">
-                                        <div class="col-12" style="text-align: center">
-                                            <button type="button" class="btn btn-success"
-                                                    id="buttonAddFeeRow">
-                                                <span class="fa fa-plus"></span>&nbsp;
-                                                เพิ่มรายการราคา
-                                            </button>
+                                        <table id="tableFee" class="table table-bordered table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th style="text-align: center; width: 80%;">ข้อความ</th>
+                                                <th style="text-align: center; width: 20%;">ราคา</th>
+                                                <th style="text-align: center;">จัดการ</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            <?php
+                                            foreach ($feeList as $fee) {
+                                                ?>
+                                                <tr id="trFeeRow">
+                                                    <td style="">
+                                                        <input type="text" class="form-control"
+                                                               id="inputFeeTitle"
+                                                               name="feeTitle[]"
+                                                               value="<?php echo $fee['title']; ?>"
+                                                               placeholder="กรอกข้อความ" required
+                                                               oninvalid="this.setCustomValidity('กรอกข้อความสำหรับรายการราคานี้')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </td>
+                                                    <td style="">
+                                                        <input type="number" class="form-control"
+                                                               style="text-align: right"
+                                                               id="inputFeeAmount"
+                                                               name="feeAmount[]"
+                                                               value="<?php echo $fee['amount']; ?>"
+                                                               placeholder="กรอกราคา">
+                                                    </td>
+                                                    <td style="">
+                                                        <button type="button" class="btn btn-danger removeFeeRow"
+                                                                style="margin-left: 6px; margin-right: 6px"
+                                                                onClick="onClickDeleteFee(this)">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                            }
+                                            ?>
+
+                                            </tbody>
+                                        </table>
+
+                                        <div class="row" style="margin: 10px">
+                                            <div class="col-12" style="text-align: center">
+                                                <button type="button" class="btn btn-success"
+                                                        id="buttonAddFeeRow">
+                                                    <span class="fa fa-plus"></span>&nbsp;
+                                                    เพิ่มรายการราคา
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- /.box -->
+                                <!-- /.box -->
+                                <?php
+                            }
+                            ?>
 
                             <!--รูปภาพ-->
                             <div class="box box-warning">
@@ -824,8 +830,9 @@ if (isset($courseId)) {
                                                     <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
                                                     <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                                 </ul>
-                                                <input id="image-upload" type="file" accept="image/*" multiple required
+                                                <input id="image-upload" type="file" accept="image/*" multiple
                                                        name="imageFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
+                                                       <?= !isset($courseId) ? 'required' : '' ?>
                                                        oninvalid="this.setCustomValidity('เลือกอย่างน้อย 1 รูปภาพ')"
                                                        oninput="this.setCustomValidity('')"/>
                                                 <div id="image-upload-preview"

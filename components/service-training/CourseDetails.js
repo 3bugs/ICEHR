@@ -99,10 +99,26 @@ export default class CourseDetails extends React.Component {
                             <div className="row">
                                 <div className="col">
                                     <div className="social-inside">
-                                        <a href="#"><i className="fab fa-facebook-f"></i></a>
-                                        <a href="#"><i className="fab fa-twitter"></i></a>
-                                        <a href="#"><i className="fab fa-google-plus-g"></i></a>
-                                        <a href="#"><i className="fab fa-line"></i></a>
+                                        <FacebookShareButton
+                                            style={{display: 'inline'}}
+                                            url={window.location.href}>
+                                            <a href="#"><i className="fab fa-facebook-f"/></a>
+                                        </FacebookShareButton>
+                                        <TwitterShareButton
+                                            style={{display: 'inline'}}
+                                            url={window.location.href}>
+                                            <a href="#"><i className="fab fa-twitter"/></a>
+                                        </TwitterShareButton>
+                                        <LineShareButton
+                                            style={{display: 'inline'}}
+                                            url={window.location.href}>
+                                            <a href="#"><i className="fab fa-line"/></a>
+                                        </LineShareButton>
+                                        <EmailShareButton
+                                            style={{display: 'inline'}}
+                                            url={window.location.href}>
+                                            <a href="#"><i className="fa fa-envelope"/></a>
+                                        </EmailShareButton>
                                     </div>
                                 </div>
                             </div>
