@@ -206,6 +206,9 @@ app
                     case 'get_news_latest':
                         doGetNewsLatest(req, res, db);
                         break;
+                    case 'get_in_house_latest':
+                        doGetInHouseLatest(req, res, db);
+                        break;
                     case 'get_news_by_id':
                         doGetNewsById(req, res, db);
                         break;
@@ -1838,6 +1841,30 @@ doGetNewsLatest = (req, res, db) => {
             }
         }
     );
+};
+
+doGetInHouseLatest = (req, res, db) => {
+    db.query(
+            `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+             FROM news
+             WHERE news_type = ?
+             ORDER BY created_at DESC
+             LIMIT 0, 3`,
+        ['in-house'],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList: results,
+                });
+            }
+        }
+    );
+    db.end();
 };
 
 doGetActivity = (req, res, db) => {

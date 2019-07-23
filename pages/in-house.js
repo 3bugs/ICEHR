@@ -2,12 +2,12 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject, getDateDisplayFromDateObject} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
-import {SERVICE_SOCIAL} from "../etc/constants";
+import {HOST_BACKEND, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import DatePicker from "react-datepicker";
 
@@ -50,8 +50,49 @@ class RegisterForm extends React.Component {
     }
 }
 
-export default class InHouse extends React.Component {
+class InHouseItem extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
 
+    componentDidMount() {
+
+    }
+
+    render() {
+        const {data} = this.props;
+
+        return (
+            <div className="col-12 col-md-4">
+                <div className="pic-inhouse">
+                    <figure>
+                        <img src={`${HOST_BACKEND}/uploads/news_assets/${data.image_file_name}`} className="img-fluid"/>
+                    </figure>
+                </div>
+                <div className="inhouse-detail">
+                    <h3>{data.title}</h3>
+                    <p>{data.short_description}</p>
+                    <div className="row">
+                        <div className="col date">
+                            <img src="/static/images/calendar.svg"/> {getDateDisplayFromDateObject(new Date(data.news_date))}
+                        </div>
+                        <div className="col">
+                            <Link href={`/news?id=${data.id}`}
+                                  as={`/news/${data.id}`}>
+                                <a href="javascript:void(0)" className="readmore-red">
+                                    อ่านต่อ<img src="/static/images/arrow-more.svg"/>
+                                </a>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+export default class InHouse extends React.Component {
     constructor(props, context) {
         super(props, context);
 
@@ -73,6 +114,7 @@ export default class InHouse extends React.Component {
 
     static getInitialProps = async function ({req, query}) {
         let nameTitleList = null;
+        let inHouseList = null;
         let errorMessage = null;
 
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
@@ -82,17 +124,34 @@ export default class InHouse extends React.Component {
         const resultNameTitle = await resNameTitle.json();
         if (resultNameTitle['error']['code'] === 0) {
             nameTitleList = resultNameTitle['dataList'];
-            errorMessage = null;
+
+            const resInHouse = await fetch(baseUrl + '/api/get_in_house_latest', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                }),
+            });
+            const resultInHouse = await resInHouse.json();
+            if (resultInHouse['error']['code'] === 0) {
+                inHouseList = resultInHouse['dataList'];
+                errorMessage = null;
+            } else {
+                nameTitleList = null;
+                inHouseList = null;
+                errorMessage = resultNameTitle['error']['message'];
+            }
         } else {
             nameTitleList = null;
+            inHouseList = null;
             errorMessage = resultNameTitle['error']['message'];
         }
 
-        return {nameTitleList, errorMessage};
+        return {nameTitleList, inHouseList, errorMessage};
     };
 
     componentDidMount() {
-
     }
 
     handleChange = (field, e) => {
@@ -249,6 +308,7 @@ export default class InHouse extends React.Component {
 
     render() {
         let {formData, dialog} = this.state;
+        const {inHouseList} = this.props;
 
         return (
             <MainLayout>
@@ -267,23 +327,16 @@ export default class InHouse extends React.Component {
                         <div className="col-12 col-md-3"><a href="#" className="readmore">ดูทั้งหมด</a></div>
                     </div>
                     <div className="row mt-3">
-                        {[0, 1, 2].map(() => {
-                            return (
-                                <div className="col-12 col-md-4">
-                                    <div className="pic-inhouse">
-                                        <figure><img src="/static/images/inhouse1.png" className="img-fluid"/></figure>
-                                    </div>
-                                    <div className="inhouse-detail">
-                                        <h3>หลักสูตรเทคนิคการฝึกสอนแนะนำงาน Coaching Technique</h3>
-                                        <p>หลักสูตร : เทคนิคการฝึกสอนแนะนำงาน (Coaching Technique) วิทยากร : อาจารย์อภิชัย สุทธาโรจน์ อบรม ณ ห้องประชุม... </p>
-                                        <div className="row">
-                                            <div className="col date"><img src="/static/images/calendar.svg"/> 6/12/61</div>
-                                            <div className="col"><a href="#" className="readmore-red">อ่านต่อ <img src="/static/images/arrow-more.svg"/></a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        {inHouseList &&
+                        inHouseList.map(inHouse => (
+                            <InHouseItem data={inHouse}/>
+                        ))
+                        }
+                        {inHouseList && inHouseList.length === 0 &&
+                        <div className="col-12" style={{textAlign: 'center'}}>
+                            ไม่มีข้อมูลหลักสูตร In-House Training ที่ผ่านมา
+                        </div>
+                        }
                     </div>
                     <div className="row mt-5">
                         <div className="col">

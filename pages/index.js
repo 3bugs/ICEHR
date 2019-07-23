@@ -20,7 +20,9 @@ class NewsItem extends React.Component {
             <React.Fragment>
                 <div className="col-6 col-sm-3">
                     <div className="pic-inhouse">
-                        <figure><img src={`${HOST_BACKEND}/uploads/news_assets/${data.image_file_name}`} className="img-fluid"/></figure>
+                        <figure>
+                            <img src={`${HOST_BACKEND}/uploads/news_assets/${data.image_file_name}`} className="img-fluid"/>
+                        </figure>
                     </div>
                     <div className="inhouse-detail">
                         <h3>{data.title}</h3>
