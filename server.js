@@ -161,7 +161,8 @@ app
                         //doRegisterCourseSocial(req, res, db);
                         break;
                     case 'register_course_driving_license':
-                        registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
+                        registerCourseDrivingLicense(req, res, db);
+                        //registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
                         //doRegisterCourseDrivingLicense(req, res, db);
                         break;
                     case 'register_in_house':
@@ -780,6 +781,8 @@ doGetCourseNumTraineeAvailable = (req, res, db) => {
 getCourseNumTraineeAvailable = (db, courseId, callback) => {
     let registrationTable = null;
 
+    //
+
     db.query(
             `SELECT cm.service_type
              FROM course c
@@ -861,8 +864,34 @@ getCourseNumTraineeAvailable = (db, courseId, callback) => {
     );
 };
 
+/*const upload = multer().single();
+
+getCourseDrivingLicenseCourseId = (req, res, db) => {
+    upload(req, res, err => {
+        if (err instanceof multer.MulterError) {
+            res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (1)', ''),
+            });
+            return;
+        } else if (err) {
+            res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (2)', ''),
+            });
+            return;
+        }
+        const {courseId} = req.body;
+        const msg = `Course ID: ${courseId}`;
+        console.log(msg);
+        res.send({
+            error: new Error(0, msg, ''),
+        });
+    });
+};*/
+
 registerCourse = (req, res, db, serviceType) => {
-    const {courseId, trainees} = req.body;
+    let {courseId, trainees} = req.body;
+
+    console.log(`Course ID: ${courseId}`);
 
     getCourseNumTraineeAvailable(
         db, courseId, (success, data) => {
@@ -875,7 +904,7 @@ registerCourse = (req, res, db, serviceType) => {
                 return;*/
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                const available = data; //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส
+                const available = data; //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
                 if (available > 0) { //คอร์สยังไม่เต็ม
                     //สำหรับวิชาการ ต้องเช็คต่อว่า จำนวนที่สมัครเข้ามา รับได้หรือไม่ (วิชาการ สามารถกรอกใบสมัครได้ครั้งละมากกว่า 1 คน)
                     if (serviceType === constants.SERVICE_TRAINING && trainees.length > available) {
@@ -893,7 +922,7 @@ registerCourse = (req, res, db, serviceType) => {
                                 doRegisterCourseSocial(req, res, db);
                                 break;
                             case constants.SERVICE_DRIVING_LICENSE:
-                                doRegisterCourseDrivingLicense(req, res, db);
+                                //doRegisterCourseDrivingLicense(req, res, db);
                                 break;
                         }
                     }
@@ -1120,7 +1149,7 @@ const pidImageStorage = multer.diskStorage({
 
 const uploadPidImage = multer({storage: pidImageStorage}).single('traineeImageFilePid');
 
-doRegisterCourseDrivingLicense = (req, res, db) => {
+registerCourseDrivingLicense = (req, res, db) => {
     uploadPidImage(req, res, function (err) {
         if (err instanceof multer.MulterError) {
             res.send({
@@ -1134,66 +1163,96 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
             return;
         }
 
-        const {
-            loginToken, courseId,
-            traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-            traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode,
-            traineePhone, traineeSelectedCourseType, traineeSelectedLicenseTypeCar, traineeSelectedLicenseTypeBicycle, traineeSelectedLicenseTypeTricycle
-        } = req.body;
+        const {courseId} = req.body;
 
-        const memberId = loginToken === null ? 0 : decodeToken(loginToken);
-
-        /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
-        const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
-
-        /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
-
-        const {filename} = req.file;
-
-        db.query(
-                `INSERT INTO course_registration_driving_license
-                 (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-                  province, postal_code, phone, pid_file_name, course_type, license_type)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-                traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename, traineeSelectedCourseType, licenseType],
-
-            function (err, results, fields) {
-                if (err) {
-                    res.send({
-                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-                    });
-                    console.log(err.stack);
-                    db.end();
+        getCourseNumTraineeAvailable(
+            db, courseId, (success, data) => {
+                if (success) {
+                    if (data > 0) { //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
+                        doRegisterCourseDrivingLicense(req, res, db);
+                    } else {
+                        res.send({
+                            error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
+                        });
+                        db.end();
+                    }
                 } else {
-                    let insertId = results.insertId;
-
-                    /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
-                    const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
-                    db.query(
-                            `UPDATE course_registration_driving_license
-                             SET form_number = ?
-                             WHERE id = ?`,
-                        [formNumber, insertId],
-
-                        function (err, results, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-                                });
-                                console.log(err.stack);
-                            } else {
-                                res.send({
-                                    error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                                });
-                            }
-                        }
-                    );
+                    res.send({
+                        error: new Error(1, data, ''),
+                    });
                     db.end();
                 }
             }
         );
     });
+};
+
+doRegisterCourseDrivingLicense = (req, res, db) => {
+    const {
+        loginToken, courseId,
+        traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
+        traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode,
+        traineePhone, traineeSelectedCourseType, traineeSelectedLicenseTypeCar, traineeSelectedLicenseTypeBicycle, traineeSelectedLicenseTypeTricycle
+    } = req.body;
+
+    console.log('Login Token: ' + loginToken);
+    console.log('1: ' + loginToken == null);
+    console.log('2: ' + loginToken === null);
+    console.log(typeof loginToken);
+
+    // ถ้า user ไม่ได้ login, ค่า loginToken จะส่งมาเป็นสตริงว่าง
+    const memberId = loginToken === '' ? 0 : decodeToken(loginToken);
+
+    /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
+    const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
+
+    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+
+    const {filename} = req.file;
+
+    db.query(
+        `INSERT INTO course_registration_driving_license
+                 (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
+                  province, postal_code, phone, pid_file_name, course_type, license_type)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
+            traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename, traineeSelectedCourseType, licenseType],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+                db.end();
+            } else {
+                let insertId = results.insertId;
+
+                /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
+                const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+                db.query(
+                    `UPDATE course_registration_driving_license
+                             SET form_number = ?
+                             WHERE id = ?`,
+                    [formNumber, insertId],
+
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                            console.log(err.stack);
+                        } else {
+                            res.send({
+                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
 };
 
 doRegisterInHouse = (req, res, db) => {

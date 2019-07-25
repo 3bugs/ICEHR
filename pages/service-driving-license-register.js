@@ -10,6 +10,7 @@ import Link from "next/link";
 import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import InputMask from 'react-input-mask';
+import Dropzone from 'react-dropzone';
 
 const TOP_OF_FORM = 'topOfForm';
 
@@ -37,12 +38,47 @@ const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE = 'traineeSelectedLicenseT
 class TraineeRegisterForm extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {};
+        this.state = {
+            fileDataUrlList: [],
+        };
     }
 
     handleChange(field, e) {
         this.props.handleChangeCallback(field, e);
     }
+
+    handleDropFiles = acceptedFiles => {
+        console.log(acceptedFiles);
+
+        const count = this.state.fileDataUrlList.length + acceptedFiles.length;
+        if (count > 5) {
+            alert('เลือกไฟล์ได้สูงสุดไม่เกิน 5 ไฟล์');
+            return;
+        }
+
+        acceptedFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onabort = () => console.log('file reading was aborted');
+            reader.onerror = () => console.log('file reading has failed');
+            reader.onload = () => {
+                // Do whatever you want with the file contents
+                const fileUrl = reader.result;
+                console.log('URL คือ ' + fileUrl);
+
+                const {fileDataUrlList} = this.state;
+                fileDataUrlList.push(fileUrl);
+                this.setState({fileDataUrlList});
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    handleClickFilePreview = (index, e) => {
+        e.stopPropagation();
+        const {fileDataUrlList} = this.state;
+        fileDataUrlList.splice(index, 1);
+        this.setState({fileDataUrlList});
+    };
 
     render() {
         let {traineeForm, isReadOnly} = this.props;
@@ -63,7 +99,7 @@ class TraineeRegisterForm extends React.Component {
                                                 <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
                                                         onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
                                                         className="form-control-2 mt-2">
-                                                    <option value="0" disabled selected>
+                                                    <option value="0" disabled>
                                                         เลือกคำนำหน้า
                                                     </option>
                                                     {
@@ -231,12 +267,11 @@ class TraineeRegisterForm extends React.Component {
                                                     value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
                                             </div>
                                         </div>
-                                        <div className="row">
+                                        {/*<div className="row">
                                             <div className="col-md-3">
                                                 <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
                                             </div>
                                             <div className="col-md-9">
-                                                {/*<form method="post" action="#" id="#">*/}
                                                 <div className="form-group files" style={{margin: 0}}>
                                                     <input type="file" name="file"
                                                            accept="image/*"
@@ -249,7 +284,39 @@ class TraineeRegisterForm extends React.Component {
                                                 </div>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_IMAGE_FILE_PID]}/>
-                                                {/*</form>*/}
+                                            </div>
+                                        </div>*/}
+                                        <div className="row">
+                                            <div className="col-md-3">
+                                                <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
+                                            </div>
+                                            <div className="col-md-9">
+                                                {<Dropzone onDrop={this.handleDropFiles}>
+                                                    {({getRootProps, getInputProps}) => (
+                                                        <section>
+                                                            <div {...getRootProps()}
+                                                                 id="fileDocument"
+                                                                 className="form-control mt-2">
+                                                                <input {...getInputProps()}/>
+                                                                <div>{this.state.fileDataUrlList.length === 0 ? 'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่ (ไม่เกิน 5 ไฟล์)' : 'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}</div>
+                                                                {
+                                                                    this.state.fileDataUrlList.map((fileData, index) => (
+                                                                        <div className="preview-container">
+                                                                            <img className="preview-image"
+                                                                                 src={fileData}
+                                                                                 style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                             <div className="middle"
+                                                                                  onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                 <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                             </div>
+                                                                        </div>
+                                                                    ))
+                                                                }
+                                                            </div>
+                                                        </section>
+                                                    )}
+                                                </Dropzone>}
                                             </div>
                                         </div>
                                     </div>
@@ -328,7 +395,60 @@ class TraineeRegisterForm extends React.Component {
                 </div>
 
                 <style jsx>{`
-                    .files input {
+                    .preview-container {
+                        position: relative;
+                        display: inline;
+                    }
+                    .preview-container img {
+                        opacity: 1;
+                        transition: .3s ease;
+                    }
+                    .preview-container:hover img {
+                        opacity: 0.3;
+                        transition: .3s ease;
+                    }
+                    .middle {
+                        transition: .3s ease;
+                        opacity: 0;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        -ms-transform: translate(-50%, -50%);
+                        text-align: center;
+                    }
+                    .preview-container:hover .middle {
+                        opacity: 1;
+                        transition: .3s ease;
+                    }
+                    #fileDocument  {
+                        outline: 2px dashed #92b0b3;
+                        outline-offset: -10px;
+                        -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        padding: 100px 0 30px;
+                        text-align: center !important;
+                        margin: 0;
+                        width: 100% !important;
+                        cursor: pointer;
+                    }
+                    #fileDocument:after {  
+                        pointer-events: none;
+                        position: absolute;
+                        top: 40px;
+                        left: 0;
+                        width: 50px;
+                        right: 0;
+                        height: 56px;
+                        content: "";
+                        background-image: url(https://image.flaticon.com/icons/png/128/109/109612.png);
+                        display: block;
+                        margin: 0 auto;
+                        background-size: 100%;
+                        background-repeat: no-repeat;
+                    }
+                    
+                    .files input  {
                         outline: 2px dashed #92b0b3;
                         outline-offset: -10px;
                         -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
@@ -565,6 +685,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
     componentDidMount() {
         console.log('ServiceSocialRegister componentDidMount() - ' + Math.random());
 
+        //this.setupDropZone();
+
         let user = getLoginUser();
         let initialTraineeFields = {};
 
@@ -580,6 +702,36 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         this.setState({traineeForm});
 
         this.getCourseTypeList();
+    }
+
+    setupDropZone() {
+        Dropzone.options.dropzone = {
+            url: 'upload.php',
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            parallelUploads: 5,
+            maxFiles: 5,
+            maxFilesize: 1,
+            acceptedFiles: 'image/*',
+            addRemoveLinks: true,
+            init: function () {
+                dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
+
+                // for Dropzone to process the queue (instead of default form behavior):
+                document.getElementById("submit-all").addEventListener("click", function (e) {
+                    // Make sure that the form isn't actually being sent.
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dzClosure.processQueue();
+                });
+
+                //send all the form data along with the files:
+                this.on("sendingmultiple", function (data, xhr, formData) {
+                    formData.append("firstname", jQuery("#firstname").val());
+                    formData.append("lastname", jQuery("#lastname").val());
+                });
+            }
+        }
     }
 
     getCourseTypeList() {
@@ -623,7 +775,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                     && (fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]
                         || fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]
                         || fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE])) {
-                    alert('การอบรมสำหรับผู้ขอ \'ต่อ\' ใบอนุญาต สามารถเลือกประเภทใบอนุญาตได้ 1 ประเภทเท่านั้น\n\nหมายเหตุ: ถ้าหากต้องการใบอนุญาตมากกว่า 1 ประเภท จะต้องกรอกข้อมูลลงทะเบียนอบรมใหม่อีกครั้ง');
+                    alert('การอบรมสำหรับผู้ขอ \'ต่อ\' ใบอนุญาต สามารถเลือกประเภทใบอนุญาตได้ 1 ประเภทเท่านั้น\n\nหมายเหตุ: ถ้าหากต้องการใบอนุญาตมากกว่า 1 ประเภท จะต้องสมัครใหม่อีกครั้งสำหรับแต่ละประเภทใบอนุญาต');
                     fields[field] = false;
                 } else {
                     fields[field] = target.checked;
@@ -780,7 +932,9 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
 
     doRegister = () => {
         const user = getLoginUser();
-        const loginToken = user === null ? null : getLoginUser().loginToken;
+        // ถ้าไม่ได้ login จะส่ง loginToken เป็นสตริงว่าง ('') ซึ่งต่างจากวิชาการและสังคม ที่จะส่ง null
+        // ทั้งนี้เพราะถ้ากำหนดเป็น null เมื่อเก็บลง FormData แล้วจะถูกแปลงเป็นสตริง 'null'
+        const loginToken = user === null ? '' : getLoginUser().loginToken;
 
         const {traineeForm} = this.state;
         //const traineeData = traineeForm.fields;
@@ -865,6 +1019,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             <MainLayout>
                 <NextHead>
                     <style>{'body_ { background-color: red; }'}</style>
+                    {/*<script src="/static/dropzone/dropzone.js"/>
+                    <link rel="stylesheet" href="/static/dropzone/dropzone.css"/>*/}
                 </NextHead>
 
                 {
@@ -900,7 +1056,10 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                         </div>
 
                         {/*ฟอร์มสมัครอบรม*/}
-                        <form id="applicationFormGroup" method="post" noValidate={true} onSubmit={this.handleSubmit}>
+                        <form id="applicationFormGroup"
+                              method="post"
+                              noValidate={true}
+                              onSubmit={this.handleSubmit}>
                             {/*ขั้นตอน 1 กรอกข้อมูลผู้สมัครอบรม*/}
                             {((step === 1) || (step === 2)) &&
                             <div style={{marginTop: '15px'}}>

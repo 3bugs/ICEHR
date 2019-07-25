@@ -861,11 +861,14 @@ function doAddDocumentDownload()
         $response[KEY_ERROR_MESSAGE_MORE] = '';
         return;
     }
-    if (!moveUploadedFile('image_file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $imageFileName)) {
-        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
-        $response[KEY_ERROR_MESSAGE_MORE] = '';
-        return;
+
+    if ($_FILES['image_file']) {
+        if (!moveUploadedFile('image_file', UPLOAD_DIR_DOCUMENT_DOWNLOADS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
     }
 
     $sql = "INSERT INTO document_download (title, short_description, file_name, image_file_name, document_type) 
