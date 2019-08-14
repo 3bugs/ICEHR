@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue.JS - Tutorial</title>
+    <!-- production version, optimized for size and speed -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+<div id="test">
+    <button type="button" name="button" v-on:click="alert('test')">Test</button>
+
+</div>
+
+<div id="vue-app">
+    <div id="post">
+        หัวข้อ : {{title}} <br>
+        ข้อความ : {{message}}
+    </div>
+    <br>
+    <div id="comment">
+        <textarea name="" id="" cols="30" rows="10">{{text}}</textarea>
+    </div>
+    <br>
+
+    <hr>
+    <span>ชื่อพนักงาน</span>
+    <input v-model="newData.empName">
+    <span>เงินเดือน</span>
+    <input v-model="newData.salary">
+    <br><br>
+    <button @click="addEmp">บันทึกข้อมูล</button>
+    <br>
+    <ul>
+        <li v-for="emp in empGroup">
+            {{emp.empName}} ได้เงินเดือน {{emp.salary}}
+        </li>
+    </ul>
+    <h1>จำนวนเงินที่ต้องจ่ายพนักงาน : {{summation}}</h1>
+    <h1>ค่าเฉลีย : {{avg}}</h1>
+    <hr>
+    <button type="button" name="button" v-on:click="like=!like">Like</button>
+    <h1 v-if="like">สวัสดี</h1>
+
+    <hr>
+
+    <div id="likeSystem">
+        <button type="button" name="button" v-on:click="like = false">Like</button>
+        {{like}}
+    </div>
+
+
+
+    <h1>{{product[0]}}</h1>
+    <ul>
+        <li v-for="result in product">{{result}}</li>
+    </ul>
+    <hr>
+    <ul>
+        <li v-for="emp in employee">{{emp.name}} | {{emp.age}}</li>
+    </ul>
+    <hr>
+    Name : <input type="text" v-model="name">
+    Fodd Fav :
+    <input type="checkbox" value="ส้มตำ" v-model="foods">
+    <label>ส้มตำ</label>
+    <input type="checkbox" value="พิซซ่า" v-model="foods">
+    <label>พิซซ่า</label>
+    <input type="checkbox" value="มาม่า" v-model="foods">
+    <label>มาม่า</label>
+    <br>
+    Gender :
+    <input type="radio" value="ชาย" v-model="gender">
+    <label>ชาย</label>
+    <br>
+    <input type="radio" value="หญิง" v-model="gender">
+    <label>หญิง</label>
+    <br>
+    อาชีพ :
+    <select v-model="job">
+        <option disabled value="">กรุณาเลือกอาชีพของคุณ :</option>
+        <option>โปรแกรมเมอร์</option>
+        <option>พ่อค้า</option>
+        <option>นิสิต นักศึกษา</option>
+    </select>
+    <hr>
+    <h1>Name : {{name}}</h1>
+    <h1>Job : {{job}}</h1>
+    <b>Age : {{age}}</b>
+    <h1>Website : <a v-bind:href="website">click link..</a></h1>
+    <h1>Food : {{foods}}</h1>
+    <h1>Gender : {{gender}}</h1>
+    <hr>
+    <input type="text" name="" v-on:keyup.enter="addCount">
+    <h1>Count : {{count}}</h1>
+    <input type="text" name=""  v-bind:value="job">
+    <button type="button" v-on:click="addAge" >Add</button>
+    <button type="button" v-on:click="SubtractAge">Subtract</button>
+    <hr>
+    <h1>{{getName()}}</h1>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

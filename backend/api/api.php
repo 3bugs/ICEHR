@@ -133,6 +133,15 @@ switch ($action) {
     case 'delete_news_asset':
         doDeleteNewsAsset();
         break;
+    case 'add_user':
+        doAddUser();
+        break;
+    case 'update_user':
+        doUpdateUser();
+        break;
+    case 'update_user_status':
+        doUpdateUserStatus();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -268,10 +277,10 @@ function doLoginUser($username, $password)
             $user['first_name'] = $row['first_name'];
             $user['last_name'] = $row['last_name'];
             $user['email'] = $row['email'];
-            $user['role'] = $row['role'];
+            //$user['role'] = $row['role'];
             $response['user'] = $user;
 
-            createSession($user);
+            createSession($row);
         } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_LOGIN_FAILED;
             $response[KEY_ERROR_MESSAGE] = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
@@ -288,12 +297,13 @@ function doLoginUser($username, $password)
 
 function createSession($user)
 {
-    $_SESSION[KEY_SESSION_USER_ID] = $user['id'];
+    $_SESSION[KEY_SESSION_USER_ID] = (int)$user['id'];
     $_SESSION[KEY_SESSION_USER_USERNAME] = $user['username'];
     $_SESSION[KEY_SESSION_USER_FIRST_NAME] = $user['first_name'];
     $_SESSION[KEY_SESSION_USER_LAST_NAME] = $user['last_name'];
     $_SESSION[KEY_SESSION_USER_EMAIL] = $user['email'];
-    $_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
+    //$_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
+    $_SESSION[KEY_SESSION_USER_PERMISSION] = (int)$user['permissions'];
 }
 
 function doLogoutUser()
@@ -880,6 +890,216 @@ function doAddDocumentDownload()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มเอกสารดาวน์โหลด: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddUser()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_CREATE)) {
+        return;
+    }
+
+    $username = $db->real_escape_string($_POST['username']);
+
+    $sql = "SELECT COUNT(username) username_count FROM user WHERE username = '$username'";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        if ((int)$row['username_count'] > 0) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = "ไม่สามารถเพิ่มผู้ใช้งานได้ เนื่องจากมีชื่อ Username '$username' ในระบบแล้ว";
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            $result->close();
+            return;
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มผู้ใช้งานระบบ (1): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        return;
+    }
+
+    $password = $db->real_escape_string(MD5($_POST['password']));
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+
+    $position = $db->real_escape_string($_POST['position']);
+    $department = $db->real_escape_string($_POST['department']);
+
+    $email = $db->real_escape_string($_POST['email']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
+    $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
+
+    $showDetails = isset($_POST['showDetails']) ? 1 : 0;
+    $details = isset($_POST['details']) ? $db->real_escape_string($_POST['details']) : '';
+
+    $sql = "SELECT MAX(sort_index) AS max_sort_index FROM user WHERE department_id = $department";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        $nextSortIndex = 1;
+        if ($row['max_sort_index'] != null) {
+            $nextSortIndex = (int)$row['max_sort_index'] + 1;
+        }
+        $result->close();
+
+        if ($_FILES['imageFile']) {
+            if (!moveUploadedFile('imageFile', UPLOAD_DIR_USER_ASSETS, $imageFileName)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์รูปภาพ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+        }
+
+        $sql = "INSERT INTO user (username, password, title, first_name, last_name, position, department_id, sort_index,
+                              email, phone, phone_office, phone_extension, show_details, details, image_file_name) 
+                VALUES ('$username', '$password', '$title', '$firstName', '$lastName', '$position', $department, $nextSortIndex, 
+                        '$email', '$phone', '$phoneOffice', '$phoneExtension', $showDetails, '$details', '$imageFileName')";
+        if ($result = $db->query($sql)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'เพิ่มผู้ใช้งานระบบสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มผู้ใช้งานระบบ (3): ' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มผู้ใช้งานระบบ (2): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function checkPermission($permission, $errorMessage = 'คุณไม่มีสิทธิ์สำหรับการดำเนินการนี้') {
+    global $response;
+
+    if (currentUserHasPermission($permission)) {
+        return true;
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = $errorMessage;
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        return false;
+    }
+}
+
+function doUpdateUser() {
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }
+
+    $userId = $db->real_escape_string($_POST['userId']);
+    $departmentId = $db->real_escape_string($_POST['department']);
+
+    $sql = "SELECT department_id, sort_index, image_file_name FROM user WHERE id = $userId";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        $result->close();
+
+        $oldDepartmentId = $row['department_id'];
+        $sortIndex = $row['sort_index'];
+        $imageFileName = $row['image_file_name'];
+
+        if ($departmentId != $oldDepartmentId) {
+            //มีการแก้ไขข้อมูล "ฝ่าย" ดังนั้นต้องกำหนด sort_index ใหม่!
+            $sql = "SELECT MAX(sort_index) AS max_sort_index FROM user WHERE department_id = $departmentId";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+                $result->close();
+
+                $sortIndex = 1;
+                if ($row['max_sort_index'] != null) {
+                    $sortIndex = (int)$row['max_sort_index'] + 1;
+                }
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้งานระบบ (2): ' . $db->error;
+                $errMessage = $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+                return;
+            }
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้งานระบบ (1): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        return;
+    }
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+
+    $position = $db->real_escape_string($_POST['position']);
+
+    $email = $db->real_escape_string($_POST['email']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
+    $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
+
+    $showDetails = isset($_POST['showDetails']) ? 1 : 0;
+    $details = isset($_POST['details']) ? $db->real_escape_string($_POST['details']) : '';
+
+    if ($_FILES['imageFile']) {
+        if (!moveUploadedFile('imageFile', UPLOAD_DIR_USER_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์รูปภาพ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $sql = "UPDATE user SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', department_id = $departmentId, sort_index = $sortIndex, 
+                email = '$email', phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', show_details = $showDetails, details = '$details', image_file_name = '$imageFileName' 
+                WHERE id = $userId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลผู้ใช้งานระบบสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้งานระบบ (3): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateUserStatus() {
+    global $db, $response;
+
+    $userId = $db->real_escape_string($_POST['userId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    if ($newStatus === 'deleted') {
+        if (!checkPermission(PERMISSION_USER_DELETE)) {
+            return;
+        }
+    } else if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }
+
+    $sql = "UPDATE user SET status = '$newStatus' WHERE id = $userId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะผู้ใช้งานสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

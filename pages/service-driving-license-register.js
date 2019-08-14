@@ -62,7 +62,7 @@ class TraineeRegisterForm extends React.Component {
             reader.onerror = () => console.log('file reading has failed');
             reader.onload = () => {
                 // Do whatever you want with the file contents
-                const fileUrl = reader.result;
+                const fileUrl = reader.result; // Base64 data
                 console.log('URL คือ ' + fileUrl);
 
                 const {fileDataUrlList} = this.state;
@@ -624,8 +624,11 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             step: 1,
             traineeForm: {
                 fields: {},
-                errors: {}
+                errors: {},
             },
+
+            fileDataUrlList: [],
+
             nameTitleList: [],
             courseTypeList: null,
             errorMessage: null,
@@ -761,6 +764,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             });
     }
 
+    //https://stackoverflow.com/questions/35940290/how-to-convert-base64-string-to-javascript-file-object-like-as-from-file-input-f
+
     handleChange = (field, e) => {
         let {traineeForm} = this.state;
         let {fields} = traineeForm;
@@ -789,6 +794,14 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         this.setState({traineeForm}, () => {
             //this.validateForm();
         });
+    };
+
+    handleDropFiles = acceptedFiles => {
+
+    };
+
+    handleClickFilePreview = (index) => {
+
     };
 
     handleSubmit = (event) => {
@@ -883,10 +896,10 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) {
+        /*if (!fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) {
             errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = 'กรุณาใส่รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)';
             formIsValid = false;
-        }
+        }*/
         if (!fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]) {
             errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] = 'กรุณาเลือกประเภทหลักสูตร';
             formIsValid = false;
@@ -1079,6 +1092,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                                         nameTitleList={this.props.nameTitleList}
                                         courseTypeList={this.state.courseTypeList}
                                         handleChangeCallback={this.handleChange}
+                                        handleDropFilesCallback={this.handleDropFiles}
+                                        handleClickFilePreviewCallback={this.handleClickFilePreview}
                                     />
                                 </Element>
                             </div>

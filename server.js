@@ -3,6 +3,8 @@
     SERVICE_PREFIX_TRAINING, SERVICE_PREFIX_DRIVING_LICENSE, SERVICE_PREFIX_SOCIAL
 } from "./etc/constants";*/
 
+//https://medium.com/@mhagemann/create-a-mysql-database-middleware-with-node-js-8-and-async-await-6984a09d49f4
+
 const constants = require('./etc/constants');
 const utils = require('./etc/utils');
 

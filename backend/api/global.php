@@ -33,6 +33,7 @@ define('UPLOAD_DIR_ACADEMIC_PAPERS', '../uploads/academic_papers/');
 define('UPLOAD_DIR_COURSE_ASSETS', '../uploads/course_assets/');
 define('UPLOAD_DIR_DOCUMENT_DOWNLOADS', '../uploads/document_downloads/');
 define('UPLOAD_DIR_NEWS_ASSETS', '../uploads/news_assets/');
+define('UPLOAD_DIR_USER_ASSETS', '../uploads/user_assets/');
 
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');
@@ -40,6 +41,26 @@ define('KEY_SESSION_USER_FIRST_NAME', 'session_user_first_name');
 define('KEY_SESSION_USER_LAST_NAME', 'session_user_last_name');
 define('KEY_SESSION_USER_EMAIL', 'session_user_email');
 define('KEY_SESSION_USER_ROLE', 'session_user_role');
+define('KEY_SESSION_USER_PERMISSION', 'session_user_permission');
+
+define('PERMISSION_USER_READ', 0);
+define('PERMISSION_USER_CREATE', 1);
+define('PERMISSION_USER_UPDATE', 2);
+define('PERMISSION_USER_DELETE', 3);
+
+$permissionList = array(
+    //PERMISSION_USER_READ,
+    PERMISSION_USER_CREATE,
+    PERMISSION_USER_UPDATE,
+    PERMISSION_USER_DELETE
+);
+
+$permissionText = array(
+    //PERMISSION_USER_READ => 'ดูข้อมูลผู้ใช้',
+    PERMISSION_USER_CREATE => 'เพิ่มผู้ใช้',
+    PERMISSION_USER_UPDATE => 'แก้ข้อมูลผู้ใช้',
+    PERMISSION_USER_DELETE => 'ลบผู้ใช้'
+);
 
 define('ROLE_USER', 'user');
 define('ROLE_ADMIN', 'admin');
@@ -90,6 +111,14 @@ $dayNames = array(
 $dayShortNames = array(
     'อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'
 );
+
+function userHasPermission($userPermissions, $permissionToCheck) {
+    return (($userPermissions & (1 << $permissionToCheck)) > 0);
+}
+
+function currentUserHasPermission($permissionToCheck) {
+    return userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
+}
 
 function getThaiDate($date) {
     global $monthNames, $dayNames;

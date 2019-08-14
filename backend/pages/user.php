@@ -1,20 +1,14 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT id, username, first_name, last_name, phone_office, email, role FROM user";
+$sql = "SELECT u.id, u.username, u.title, u.first_name, u.last_name, u.position, ud.name AS department, u.email, 
+               u.phone, u.phone_office, u.phone_extension, u.image_file_name, u.status, u.permissions
+        FROM user u INNER JOIN user_department ud ON u.department_id = ud.id
+        WHERE u.status <> 'deleted'";
 if ($result = $db->query($sql)) {
     $userList = array();
     while ($row = $result->fetch_assoc()) {
-        $user = array();
-        $user['id'] = (int)$row['id'];
-        $user['username'] = $row['username'];
-        $user['first_name'] = $row['first_name'];
-        $user['last_name'] = $row['last_name'];
-        $user['phone_office'] = $row['phone_office'];
-        $user['email'] = $row['email'];
-        $user['role'] = $row['role'];
-
-        array_push($userList, $user);
+        array_push($userList, $row);
     }
     $result->close();
 } else {
@@ -29,6 +23,12 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/head.inc'); ?>
         <!-- DataTables -->
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <!--Lightbox-->
+        <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
+        <!--Bootstrap Toggle-->
+        <link href="../dist/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
+        <script src="../dist/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+
         <style>
 
         </style>
@@ -54,16 +54,28 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
+                                <?php
+                                if (currentUserHasPermission(PERMISSION_USER_CREATE)) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มผู้ใช้
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableUser" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="width: 15%; text-align: center">Username</th>
-                                        <th style="width: 30%; text-align: center">ชื่อ-นามสกุล</th>
-                                        <th style="width: 20%; text-align: center">เบอร์โทร</th>
-                                        <th style="width: 20%; text-align: center">อีเมล</th>
-                                        <th style="width: 15%; text-align: center">สิทธิ์การใช้งาน</th>
+                                        <th style="text-align: center">รูปภาพ</th>
+                                        <th style="width: 15%; text-align: center">ชื่อผู้ใช้</th>
+                                        <th style="width: 25%; text-align: center">ชื่อ-นามสกุล</th>
+                                        <th style="width: 25%; text-align: center">ฝ่าย / ตำแหน่ง</th>
+                                        <th style="width: 35%; text-align: center">สิทธิ์</th>
+                                        <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center">จัดการ</th>
                                         <?php
                                         if ($_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin') {
@@ -89,53 +101,61 @@ if ($result = $db->query($sql)) {
                                                 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
                                                 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
                                             );
-                                            $userId = $user['id'];
-                                            $userUsername = $user['username'];
-                                            $userFirstName = $user['first_name'];
-                                            $userLastName = $user['last_name'];
-                                            $userPhoneOffice = $user['phone_office'];
-                                            $userEmail = $user['email'];
-                                            $userRole = $user['role'];
+                                            $userInfo = sprintf(
+                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
+                                                $user['title'], $user['first_name'], $user['last_name'],
+                                                $user['phone'], $user['email'], $user['email']
+                                            );
+                                            $departmentAndPosition = sprintf(
+                                                '%s / %s<br><i class="fa fa-phone" style="color: black"></i> %s (ต่อ %s)',
+                                                $user['department'], $user['position'], $user['phone_office'], $user['phone_extension']
+                                            );
+                                            $image = sprintf(
+                                                '<a href="%s" data-lightbox="coverImage" data-title="%s"><img src="%s" width="60px"/></a>',
+                                                UPLOAD_DIR_USER_ASSETS . $user['image_file_name'],
+                                                "{$user['title']} {$user['first_name']} {$user['last_name']}",
+                                                UPLOAD_DIR_USER_ASSETS . $user['image_file_name']
+                                            );
+                                            $permissionTags = createPermissionTags((int)$user['permissions']);
                                             ?>
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $userUsername; ?></td>
-                                                <td style="vertical-align: middle"><?php echo "$userFirstName $userLastName"; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $userPhoneOffice; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $userEmail; ?></td>
-                                                <td style="vertical-align: middle"><?php echo $userRole; ?></td>
-
-                                                <td style="text-align: center" nowrap>
-                                                    <button type="button" class="btn btn-info">
-                                                        <span class="fa fa-info"></span>&nbsp;
-                                                        รายละเอียด
-                                                    </button>
+                                                <td style="text-align: center; vertical-align: top"><?= $image; ?></td>
+                                                <td style="vertical-align: top; font-family: monospace,serif">
+                                                    <?= $user['username'] . ((int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID] ? '<br/><span class="label label-success"><i class="fa fa-chevron-up" style=""></i>&nbsp;YOU</span>' : ''); ?>
+                                                </td>
+                                                <td style="vertical-align: top"><?= $userInfo; ?></td>
+                                                <td style="vertical-align: top"><?= $departmentAndPosition; ?></td>
+                                                <td style="vertical-align: top"><?= $permissionTags; ?></td>
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $user['status'] == 'active' ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
+                                                        <?= $user['status'] == 'active' ? 'checked' : '' ?>>
                                                 </td>
 
-                                                <?php
-                                                if ($_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin') {
-                                                    ?>
-                                                    <!--<td style="text-align: center">
-                                                        <form method="post" action="">
-                                                            <input type="hidden" name="edit_mode" value="true">
-                                                            <input type="hidden" name="election_id"
-                                                                   value="<?php /*echo $member['id']; */?>">
-                                                            <button type="submit" class="btn btn-warning">
-                                                                <span class="fa fa-edit"></span>&nbsp;
-                                                                แก้ไข
-                                                            </button>
-                                                        </form>
-                                                    </td>-->
-                                                    <td style="width: 10px; text-align: center">
-                                                        <button type="button" class="btn btn-danger"
-                                                                onclick="onClickDelete(this, <?php echo $userId; ?>,
-                                                                        '<?php echo "$memberTitle $userUsername $userFirstName"; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
+                                                <td style="text-align: center" nowrap>
+                                                    <form method="get" action="user_add_edit.php" style="display: inline">
+                                                        <input type="hidden" name="user_id" value="<?= $user['id']; ?>"/>
+                                                        <button type="submit" class="btn btn-warning" style="margin-right: 3px">
+                                                            <span class="fa fa-pencil"></span>&nbsp;
+                                                            แก้ไข
                                                         </button>
-                                                    </td>
-                                                    <?php
-                                                }
-                                                ?>
+                                                    </form>
+
+                                                    <button type="button" class="btn btn-danger"
+                                                            onclick="onClickDelete(
+                                                                    this,
+                                                            <?= $user['id']; ?>,
+                                                                    '<?= $user['username']; ?>',
+                                                                    '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>'
+                                                                    )">
+                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                        ลบ
+                                                    </button>
+                                                </td>
                                             </tr>
                                             <?php
                                         }
@@ -163,6 +183,9 @@ if ($result = $db->query($sql)) {
     <script>
         $(document).ready(function () {
             $('#tableUser').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
+                order: [[1, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -184,9 +207,99 @@ if ($result = $db->query($sql)) {
             });
         });
 
-        function doDeleteMember(memberId) {
+        function onClickAdd() {
+            window.location.href = 'user_add_edit.php';
+        }
+
+        function onChangeStatus(element, userId, username, userDisplayName) {
+            let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ปิด') + "' การใช้งานระบบ สำหรับผู้ใช้คนนี้ (" + userDisplayName + ")?");
+            if (result) {
+                doChangeStatus(userId, (element.checked ? 'active' : 'inactive'));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
+        function onClickDelete(element, userId, username, userDisplayName) {
+            let result = confirm("ยืนยันลบผู้ใช้คนนี้ (" + userDisplayName + ")?");
+            if (result) {
+                doChangeStatus(userId, 'deleted');
+            } else {
+                //do nothing
+            }
+        }
+
+        function doChangeStatus(userId, newStatus) {
+            let title = 'แก้ไขสถานะผู้ใช้งานระบบ';
+            if (newStatus === 'deleted') {
+                title = 'ลบผู้ใช้งานระบบ';
+            }
+
             $.post(
-                '../api/api.php/delete_member',
+                '../api/api.php/update_user_status',
+                {
+                    userId: userId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
+        }
+
+        /*function onChangeStatus_Old(element, userId) {
+            BootstrapDialog.show({
+                title: "Change User's Status",
+                message: 'ยืนยันเปลี่ยนสถานะผู้ใช้งาน?',
+                buttons: [
+                    {
+                        label: 'ยกเลิก',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    },
+                    {
+                        label: 'เปลี่ยนสถานะ',
+                        action: function (self) {
+                            self.close();
+                            const newStatus = element.checked ? 1 : 0;
+                            doChangeStatus(electionId, newStatus);
+                        }
+                    }
+                ]
+            });
+        }*/
+
+        /*function doDeleteUser(userId) {
+            $.post(
+                '../api/api.php/delete_user',
                 {
                     member_id: memberId
                 }
@@ -217,12 +330,12 @@ if ($result = $db->query($sql)) {
                     }]
                 });
             });
-        }
+        }*/
 
-        function onClickDelete(element, memberId, memberDisplayName) {
+        /*function onClickDelete_Old(element, userId, username, userDisplayName) {
             BootstrapDialog.show({
-                title: 'Confirm Delete Member',
-                message: 'ยืนยันลบสมาชิก \'' + memberDisplayName + '\' ?',
+                title: 'Delete User',
+                message: 'ยืนยันลบสมาชิก \'' + userDisplayName + '\' ?',
                 buttons: [
                     {
                         label: 'ยกเลิก',
@@ -234,87 +347,39 @@ if ($result = $db->query($sql)) {
                         label: 'ลบ',
                         action: function (self) {
                             self.close();
-                            doDeleteMember(memberId);
+                            //doDeleteMember(memberId);
                         }
                     }
                 ]
             });
-        }
+        }*/
 
-        function onClickEdit(element, electionId, dateString) {
+        /*function onClickEdit(element, electionId, dateString) {
             window.location.href = 'election_add.php?edit=true&election_id=' + electionId;
-        }
-
-        function doChangeStatus(electionId, newStatus) {
-            $.post(
-                '../api/api.php/update_election_status',
-                {
-                    election_id: electionId,
-                    new_status: newStatus
-                }
-            ).done(function (data) {
-                if (data.error_code === 0) {
-                    location.reload(true);
-                } else {
-                    BootstrapDialog.show({
-                        title: 'Change Election Status',
-                        message: data.error_message,
-                        buttons: [{
-                            label: 'ปิด',
-                            action: function (self) {
-                                self.close();
-                                location.reload(true);
-                            }
-                        }]
-                    });
-                }
-            }).fail(function () {
-                BootstrapDialog.show({
-                    title: 'Change Election Status',
-                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
-                    buttons: [{
-                        label: 'ปิด',
-                        action: function (self) {
-                            self.close();
-                            location.reload(true);
-                        }
-                    }]
-                });
-            });
-        }
-
-        function onChangeStatus(element, electionId, dateString) {
-            BootstrapDialog.show({
-                title: 'Confirm Change Election Status',
-                message: 'ยืนยันเปลี่ยนสถานะการเลือกตั้ง วันที่ ' + dateString + ' ?',
-                buttons: [
-                    {
-                        label: 'ยกเลิก',
-                        action: function (self) {
-                            self.close();
-                            location.reload(true);
-                        }
-                    },
-                    {
-                        label: 'เปลี่ยนสถานะ',
-                        action: function (self) {
-                            self.close();
-                            const newStatus = element.checked ? 1 : 0;
-                            doChangeStatus(electionId, newStatus);
-                        }
-                    }
-                ]
-            });
-        }
+        }*/
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--Lightbox-->
+    <script src="../dist/lightbox/js/lightbox.js"></script>
     </body>
     </html>
 
 <?php
+function createPermissionTags($userPermissions) {
+    global $permissionList, $permissionText;
+
+    $tags = '';
+    foreach ($permissionList as $permission) {
+        if (userHasPermission($userPermissions, $permission)) {
+            $tags .= '<span class="label label-info" style="margin-right: 3px">' . $permissionText[$permission] . '</span>';
+        }
+    }
+    return $tags;
+}
+
 require_once '../include/foot_php.inc';
 ?>

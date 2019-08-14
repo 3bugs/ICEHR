@@ -13,7 +13,7 @@ if (!isset($newsType) || !in_array($newsType, $newsTypeList)) {
 
 $pageTitles['training'] = 'ข่าวการฝึกอบรม';
 $pageTitles['public-relations'] = 'ข่าวประชาสัมพันธ์';
-$pageTitles['in-house'] = 'หลักสูตร In-House ที่ผ่านมา';
+$pageTitles['in-house'] = 'ข่าวหลักสูตร In-House ที่ผ่านมา';
 $pageTitles['activity'] = 'ภาพกิจกรรม';
 
 $pageTitle = $pageTitles[$newsType];
