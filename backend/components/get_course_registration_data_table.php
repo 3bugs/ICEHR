@@ -320,7 +320,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">รอตรวจสอบ</a></li>
                                 <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
                                 <li class="divider"></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิก</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิกใบสมัคร</a></li>
                             </ul>
                         </div>
                     </h4>

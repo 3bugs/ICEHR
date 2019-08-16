@@ -111,7 +111,7 @@ if ($result = $db->query($sql)) {
                                                 $user['department'], $user['position'], $user['phone_office'], $user['phone_extension']
                                             );
                                             $image = sprintf(
-                                                '<a href="%s" data-lightbox="coverImage" data-title="%s"><img src="%s" width="60px"/></a>',
+                                                '<a href="%s" data-lightbox="coverImage" data-title="%s"><img src="%s" width="60px" style="border-radius: 50%%;"/></a>',
                                                 UPLOAD_DIR_USER_ASSETS . $user['image_file_name'],
                                                 "{$user['title']} {$user['first_name']} {$user['last_name']}",
                                                 UPLOAD_DIR_USER_ASSETS . $user['image_file_name']

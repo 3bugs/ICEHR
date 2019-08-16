@@ -148,7 +148,7 @@ if ($result = $db->query($sql)) {
                                                             <i class="fa fa-user"></i>
                                                         </span>
                                                     <input type="text" class="form-control"
-                                                           <?= empty($user) ? '' : 'readonly'; ?>
+                                                        <?= empty($user) ? '' : 'readonly'; ?>
                                                            id="inputUsername"
                                                            name="username"
                                                            value="<?php echo(!empty($user) ? $user['username'] : ''); ?>"
@@ -391,6 +391,295 @@ if ($result = $db->query($sql)) {
                             </div>
                             <!-- /.box -->
 
+                            <!--สิทธิ์การใช้งาน-->
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">สิทธิ์การใช้งาน
+                                        <small>&nbsp;</small>
+                                    </h3>
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad" style="background: #f8f8f8">
+                                    <!--จัดการผู้ใช้, จัดการฝ่าย-->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>จัดการผู้ใช้:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionUserCreate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_USER_CREATE) ? 'checked' : '' ?>>
+                                                                เพิ่ม
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionUserUpdate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_USER_UPDATE) ? 'checked' : '' ?>>
+                                                                แก้ไข
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionUserDelete" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_USER_DELETE) ? 'checked' : '' ?>>
+                                                                ลบ
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col (left) -->
+                                        <div class="col-md-6">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>จัดการฝ่าย:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionUserDepartmentManage" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_USER_DEPARTMENT_MANAGE) ? 'checked' : '' ?>>
+                                                                เพิ่ม, แก้ไข, ลบ, เรียงลำดับฝ่าย/ผู้ใช้ในฝ่าย
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col (right) -->
+                                    </div>
+                                    <!-- /.row -->
+
+                                    <!--บริการวิชาการ-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>บริการวิชาการ:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingCreate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_CREATE) ? 'checked' : '' ?>>
+                                                                เพิ่มหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingUpdate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_UPDATE) ? 'checked' : '' ?>>
+                                                                แก้ไขหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingDelete" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_DELETE) ? 'checked' : '' ?>>
+                                                                ลบหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingManageRegistration" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
+                                                                จัดการสถานะใบสมัคร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingManageCourseMaster" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
+                                                                จัดการชื่อหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-9">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseTrainingManageCategory" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_CATEGORY) ? 'checked' : '' ?>>
+                                                                จัดการหมวดหมู่หลักสูตร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+
+                                    <!--บริการสังคม-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>บริการสังคม:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseSocialCreate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_CREATE) ? 'checked' : '' ?>>
+                                                                เพิ่มหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseSocialUpdate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_UPDATE) ? 'checked' : '' ?>>
+                                                                แก้ไขหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseSocialDelete" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_DELETE) ? 'checked' : '' ?>>
+                                                                ลบหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseSocialManageRegistration" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
+                                                                จัดการสถานะใบสมัคร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseSocialManageCourseMaster" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
+                                                                จัดการชื่อหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+
+                                    <!--บริการใบขับขี่-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>บริการใบขับขี่:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseCreate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_CREATE) ? 'checked' : '' ?>>
+                                                                เพิ่มหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseUpdate" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_UPDATE) ? 'checked' : '' ?>>
+                                                                แก้ไขหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseDelete" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_DELETE) ? 'checked' : '' ?>>
+                                                                ลบหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseManageRegistration" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
+                                                                จัดการสถานะใบสมัคร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseManageCourseMaster" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
+                                                                จัดการชื่อหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-9">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionCourseDrivingLicenseManageCategory" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_CATEGORY) ? 'checked' : '' ?>>
+                                                                จัดการประเภทหลักสูตร
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
                             <!--ผลงานที่ผ่านมา-->
                             <div class="box box-warning">
                                 <div class="box-header with-border">
@@ -459,7 +748,7 @@ if ($result = $db->query($sql)) {
                                                     <a href="<?= (UPLOAD_DIR_USER_ASSETS . $user['image_file_name']); ?>"
                                                        data-lightbox="coverImage" data-title="<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>">
                                                         <img src="<?= (UPLOAD_DIR_USER_ASSETS . $user['image_file_name']); ?>"
-                                                             width="200px">
+                                                             width="200px" style="border-radius: 50%;">
                                                     </a>
                                                 </div>
                                                 <!-- /.tab-pane -->

@@ -142,6 +142,42 @@ switch ($action) {
     case 'update_user_status':
         doUpdateUserStatus();
         break;
+    case 'add_user_department':
+        doAddUserDepartment();
+        break;
+    case 'update_user_department':
+        doUpdateUserDepartment();
+        break;
+    case 'delete_user_department':
+        doDeleteUserDepartment();
+        break;
+    case 'sort_user_department':
+        doSortUserDepartment();
+        break;
+    case 'get_user_by_department':
+        doGetUserByDepartment();
+        break;
+    case 'sort_user':
+        doSortUser();
+        break;
+    case 'add_training_course_category':
+        doAddTrainingCourseCategory();
+        break;
+    case 'update_training_course_category':
+        doUpdateTrainingCourseCategory();
+        break;
+    case 'delete_training_course_category':
+        doDeleteTrainingCourseCategory();
+        break;
+    case 'add':
+        doAdd();
+        break;
+    case 'update':
+        doUpdate();
+        break;
+    case 'delete':
+        doDelete();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -381,6 +417,323 @@ function doDeleteCourseMaster($courseMasterId)
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบชื่อหลักสูตร';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddUserDepartment()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+        return;
+    }
+
+    $sql = "SELECT MAX(sort_index) AS max_sort_index FROM user_department";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        $nextSortIndex = 1;
+        if ($row['max_sort_index'] != null) {
+            $nextSortIndex = (int)$row['max_sort_index'] + 1;
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มชื่อฝ่าย (1): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        return;
+    }
+
+    $departmentName = $db->real_escape_string($_POST['departmentName']);
+
+    $sql = "INSERT INTO user_department (name, sort_index) 
+            VALUES ('$departmentName', $nextSortIndex)";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มชื่อฝ่ายสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มชื่อฝ่าย (2): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateUserDepartment()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+        return;
+    }
+
+    $departmentId = $db->real_escape_string($_POST['departmentId']);
+    $departmentName = $db->real_escape_string($_POST['departmentName']);
+
+    $sql = "UPDATE user_department SET name = '$departmentName' 
+            WHERE id = $departmentId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทชื่อฝ่ายสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทชื่อฝ่าย' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteUserDepartment()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+        return;
+    }
+
+    $departmentId = $db->real_escape_string($_POST['departmentId']);
+
+    $sql = "DELETE FROM user_department  
+            WHERE id = $departmentId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบชื่อฝ่ายสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบชื่อฝ่าย' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddTrainingCourseCategory()
+{
+    global $db, $response;
+
+    $categoryTitle = $db->real_escape_string($_POST['categoryTitle']);
+
+    $sql = "INSERT INTO training_course_category (title) 
+            VALUES ('$categoryTitle')";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateTrainingCourseCategory()
+{
+    global $db, $response;
+
+    $categoryId = $db->real_escape_string($_POST['categoryId']);
+    $categoryTitle = $db->real_escape_string($_POST['categoryTitle']);
+
+    $sql = "UPDATE training_course_category SET title = '$categoryTitle' 
+            WHERE id = $categoryId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteTrainingCourseCategory()
+{
+    global $db, $response;
+
+    $categoryId = $db->real_escape_string($_POST['categoryId']);
+
+    $sql = "DELETE FROM training_course_category  
+            WHERE id = $categoryId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAdd()
+{
+    global $db, $response;
+
+    $tableName = $db->real_escape_string($_POST['tableName']);
+    $title = $db->real_escape_string($_POST['title']);
+
+    $sql = "INSERT INTO $tableName (title) 
+            VALUES ('$title')";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdate()
+{
+    global $db, $response;
+
+    $tableName = $db->real_escape_string($_POST['tableName']);
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+
+    $sql = "UPDATE $tableName SET title = '$title' 
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDelete()
+{
+    global $db, $response;
+
+    $tableName = $db->real_escape_string($_POST['tableName']);
+    $id = $db->real_escape_string($_POST['id']);
+
+    $sql = "DELETE FROM $tableName
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doSortUserDepartment()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+        return;
+    }
+
+    $sortValue = $db->real_escape_string($_POST['sortValue']);
+
+    $sortValuePartList = explode(',', $sortValue);
+    foreach ($sortValuePartList as $part) {
+        $p = explode('-', $part);
+        $departmentId = $p[0];
+        $sortIndex = $p[1];
+
+        $sql = "UPDATE user_department SET sort_index = $sortIndex 
+                WHERE id = $departmentId";
+        if ($result = $db->query($sql)) {
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+}
+
+function doSortUser()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+        return;
+    }
+
+    $sortValue = $db->real_escape_string($_POST['sortValue']);
+
+    $sortValuePartList = explode(',', $sortValue);
+    foreach ($sortValuePartList as $part) {
+        $p = explode('-', $part);
+        $userId = $p[0];
+        $sortIndex = $p[1];
+
+        $sql = "UPDATE user SET sort_index = $sortIndex 
+                WHERE id = $userId";
+        if ($result = $db->query($sql)) {
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+}
+
+function doGetUserByDepartment() {
+    global $db, $response;
+
+    $departmentId = $db->real_escape_string($_POST['departmentId']);
+
+    $sql = "SELECT id, username, title, first_name, last_name, position, image_file_name, sort_index FROM user 
+            WHERE department_id = $departmentId 
+            ORDER BY sort_index";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลผู้ใช้งานสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $response[KEY_DATA_LIST] = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $user = array();
+            $user['id'] = (int)$row['id'];
+            $user['username'] = $row['username'];
+            $user['title'] = $row['title'];
+            $user['first_name'] = $row['first_name'];
+            $user['last_name'] = $row['last_name'];
+            $user['position'] = $row['position'];
+            $user['image_file_name'] = $row['image_file_name'];
+            $user['sort_index'] = (int)$row['sort_index'];
+
+            array_push($response[KEY_DATA_LIST], $user);
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูลผู้ใช้งาน';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -941,6 +1294,8 @@ function doAddUser()
     $showDetails = isset($_POST['showDetails']) ? 1 : 0;
     $details = isset($_POST['details']) ? $db->real_escape_string($_POST['details']) : '';
 
+    $permissions = getPermissionValuesFromPost();
+
     $sql = "SELECT MAX(sort_index) AS max_sort_index FROM user WHERE department_id = $department";
     if ($result = $db->query($sql)) {
         $row = $result->fetch_assoc();
@@ -960,9 +1315,9 @@ function doAddUser()
         }
 
         $sql = "INSERT INTO user (username, password, title, first_name, last_name, position, department_id, sort_index,
-                              email, phone, phone_office, phone_extension, show_details, details, image_file_name) 
+                              email, phone, phone_office, phone_extension, show_details, details, image_file_name, permissions) 
                 VALUES ('$username', '$password', '$title', '$firstName', '$lastName', '$position', $department, $nextSortIndex, 
-                        '$email', '$phone', '$phoneOffice', '$phoneExtension', $showDetails, '$details', '$imageFileName')";
+                        '$email', '$phone', '$phoneOffice', '$phoneExtension', $showDetails, '$details', '$imageFileName', $permissions)";
         if ($result = $db->query($sql)) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
             $response[KEY_ERROR_MESSAGE] = 'เพิ่มผู้ใช้งานระบบสำเร็จ';
@@ -981,7 +1336,18 @@ function doAddUser()
     }
 }
 
-function checkPermission($permission, $errorMessage = 'คุณไม่มีสิทธิ์สำหรับการดำเนินการนี้') {
+function getPermissionValuesFromPost()
+{
+    $permissions = 0;
+    $permissions += pow(2, PERMISSION_USER_CREATE) * (isset($_POST['permissionUserCreate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_USER_UPDATE) * (isset($_POST['permissionUserUpdate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_USER_DELETE) * (isset($_POST['permissionUserDelete']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_USER_DEPARTMENT_MANAGE) * (isset($_POST['permissionUserDepartmentManage']) ? 1 : 0);
+    return $permissions;
+}
+
+function checkPermission($permission, $errorMessage = 'คุณไม่มีสิทธิ์สำหรับการดำเนินการนี้')
+{
     global $response;
 
     if (currentUserHasPermission($permission)) {
@@ -994,7 +1360,8 @@ function checkPermission($permission, $errorMessage = 'คุณไม่มี�
     }
 }
 
-function doUpdateUser() {
+function doUpdateUser()
+{
     global $db, $response;
 
     if (!checkPermission(PERMISSION_USER_UPDATE)) {
@@ -1054,6 +1421,8 @@ function doUpdateUser() {
     $showDetails = isset($_POST['showDetails']) ? 1 : 0;
     $details = isset($_POST['details']) ? $db->real_escape_string($_POST['details']) : '';
 
+    $permissions = getPermissionValuesFromPost();
+
     if ($_FILES['imageFile']) {
         if (!moveUploadedFile('imageFile', UPLOAD_DIR_USER_ASSETS, $imageFileName)) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
@@ -1063,8 +1432,9 @@ function doUpdateUser() {
         }
     }
 
-    $sql = "UPDATE user SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', department_id = $departmentId, sort_index = $sortIndex, 
-                email = '$email', phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', show_details = $showDetails, details = '$details', image_file_name = '$imageFileName' 
+    $sql = "UPDATE user SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', department_id = $departmentId, 
+                sort_index = $sortIndex, email = '$email', phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', 
+                show_details = $showDetails, details = '$details', image_file_name = '$imageFileName', permissions = $permissions
                 WHERE id = $userId";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -1078,7 +1448,8 @@ function doUpdateUser() {
     }
 }
 
-function doUpdateUserStatus() {
+function doUpdateUserStatus()
+{
     global $db, $response;
 
     $userId = $db->real_escape_string($_POST['userId']);

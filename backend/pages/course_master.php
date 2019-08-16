@@ -324,12 +324,18 @@ if ($result = $db->query($sql)) {
                                                         <span class="fa fa-edit"></span>&nbsp;
                                                         แก้ไข
                                                     </button>
-                                                    <button type="button" class="btn btn-danger"
-                                                            style="margin-left: 3px; margin-right: 6px"
-                                                            onclick="onClickDelete(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>')">
-                                                        <span class="fa fa-remove"></span>&nbsp;
-                                                        ลบ
-                                                    </button>
+                                                    <?php
+                                                    if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                                        ?>
+                                                        <button type="button" class="btn btn-danger"
+                                                                style="margin-left: 3px; margin-right: 6px"
+                                                                onclick="onClickDelete(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>')">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
+                                                        </button>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </td>
                                             </tr>
                                             <?php
