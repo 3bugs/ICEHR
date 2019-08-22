@@ -1031,6 +1031,11 @@ function doUpdateRegisterStatus()
                 SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
                 WHERE id = $traineeId ";
             break;
+        case SERVICE_TYPE_SOCIAL:
+            $sql = "UPDATE course_registration_social 
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
+                WHERE id = $traineeId ";
+            break;
         case SERVICE_TYPE_DRIVING_LICENSE:
             $sql = "UPDATE course_registration_driving_license 
                 SET register_status = '$newRegisterStatus', paid_amount = $paidAmount

@@ -436,7 +436,7 @@ if (isset($courseId)) {
                                             </div>
                                         </div>
                                         <?php
-                                        if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                        if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
                                             ?>
                                             <div class="col-md-3">
                                                 <div class="form-group">
@@ -449,10 +449,18 @@ if (isset($courseId)) {
                                                                id="inputApplicationFee"
                                                                name="applicationFee"
                                                                value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
+                                                               min="0"
                                                                placeholder="กรอกค่าสมัคร" required
                                                                oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
                                                                oninput="this.setCustomValidity('')">
                                                     </div>
+                                                    <?php
+                                                    if ($serviceType === SERVICE_TYPE_SOCIAL) {
+                                                        ?>
+                                                        <div style="text-align: center; color: orangered">หลักสูตรฟรี ให้กรอก 0</div>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </div>
                                             </div>
                                             <?php
@@ -633,9 +641,9 @@ if (isset($courseId)) {
 
                             <!--ตารางราคา-->
                             <?php
-                            if ($serviceType === SERVICE_TYPE_TRAINING) {
+                            if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
                                 ?>
-                                <div class="box box-warning">
+                                <div class="box box-warning" id="boxFee">
                                     <div class="box-header with-border">
                                         <h3 class="box-title">ตารางราคา
                                             <small>ราคาเต็ม / Early Bird / ราคาสำหรับบุคลากร ฯลฯ</small>
@@ -1135,6 +1143,25 @@ if (isset($courseId)) {
             /*$("#image-upload").change(function() {
                 readURL(this);
             });*/
+
+            const inputApplicationFee = $('#inputApplicationFee');
+
+            inputApplicationFee.keyup(function() {
+                let fee = parseInt($(this).val());
+                if (fee === 0) {
+                    setFeeTableEnabled(false);
+                } else {
+                    setFeeTableEnabled(true);
+                }
+            });
+            inputApplicationFee.change(function() {
+                let fee = parseInt($(this).val());
+                if (fee === 0) {
+                    setFeeTableEnabled(false);
+                } else {
+                    setFeeTableEnabled(true);
+                }
+            });
         });
 
         /*function readURL(input) {
@@ -1146,6 +1173,34 @@ if (isset($courseId)) {
                 reader.readAsDataURL(input.files[0]);
             }
         }*/
+
+        function setFeeTableEnabled(enabled) {
+            const inputFeeTitle = $('#inputFeeTitle');
+            const inputFeeAmount = $('#inputFeeAmount');
+            const buttonAddFeeRow = $('#buttonAddFeeRow');
+            const tableFeeRow = $('#tableFee > tbody > tr');
+
+            if (enabled) {
+                //$('#boxFee').show();
+                inputFeeTitle.prop('required', true);
+                inputFeeTitle.prop('disabled', false);
+                inputFeeAmount.prop('disabled', false);
+                buttonAddFeeRow.prop('disabled', false);
+            } else {
+                //$('#boxFee').hide();
+                inputFeeTitle.prop('required', false);
+                inputFeeTitle.prop('disabled', true);
+                inputFeeAmount.prop('disabled', true);
+                buttonAddFeeRow.prop('disabled', true);
+                inputFeeTitle.val('');
+                inputFeeAmount.val('');
+
+                /*ลบให้เหลือเฉพาะแถวแรก*/
+                tableFeeRow.each(function (index, item) {
+                    if (index > 0) item.remove();
+                });
+            }
+        }
 
         $(function () {
             $('#image-upload-preview').hide();

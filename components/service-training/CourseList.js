@@ -106,9 +106,7 @@ export default class CourseList extends React.Component {
                                     <tr>
                                         <th scope="col" style={{width: '15%'}}>วันที่อบรม</th>
                                         <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '35%' : '40%'}}>ชื่อหลักสูตร / รุ่นที่</th>
-                                        {this.props.serviceType === SERVICE_TRAINING &&
                                         <th scope="col" style={{width: '10%'}}>ค่าลงทะเบียน</th>
-                                        }
                                         <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '30%' : '35%'}}>สถานที่อบรม</th>
                                         <th scope="col" style={{width: '10%'}}>สถานะ</th>
                                     </tr>
@@ -126,9 +124,7 @@ export default class CourseList extends React.Component {
                                                     <tr className={'course-row'}>
                                                         <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
                                                         <td>{course.name}</td>
-                                                        {this.props.serviceType === SERVICE_TRAINING &&
-                                                        <td style={{textAlign: 'right'}}>{numberWithCommas(course.applicationFee)}</td>
-                                                        }
+                                                        <td style={{textAlign: 'center'}}>{(course.applicationFee == null || course.applicationFee === 0) ? 'ฟรี' : numberWithCommas(course.applicationFee)}</td>
                                                         <td>{course.place}</td>
                                                         <td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>
                                                     </tr>

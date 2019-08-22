@@ -1079,7 +1079,7 @@ doRegisterCourse = (req, res, db) => {
 };
 
 doRegisterCourseSocial = (req, res, db) => {
-    const {loginToken, courseId, traineeData} = req.body;
+    const {loginToken, courseId, traineeData, receipt} = req.body;
     const memberId = loginToken === null ? 0 : decodeToken(loginToken);
 
     const {
@@ -1088,6 +1088,10 @@ doRegisterCourseSocial = (req, res, db) => {
         traineeNewsSourceWeb, traineeNewsSourceEmail, traineeNewsSourceBrochure, traineeNewsSourceOnline, traineeNewsSourceMouth
     } = traineeData;
 
+    const {
+        registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode
+    } = receipt;
+
     /*ใช้แต่ละ bit เก็บค่า news source แต่ละค่า*/
     const newsSource = (traineeNewsSourceWeb ? 1 : 0) + (traineeNewsSourceEmail ? 2 : 0) + (traineeNewsSourceBrochure ? 4 : 0)
         + (traineeNewsSourceOnline ? 8 : 0) + (traineeNewsSourceMouth ? 16 : 0);
@@ -1095,11 +1099,13 @@ doRegisterCourseSocial = (req, res, db) => {
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
     db.query(
-            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district, province, postal_code,
-                                                     phone, email, contact_name, contact_phone, disease, news_source)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district, 
+                                                     province, postal_code, phone, email, contact_name, contact_phone, disease, news_source, 
+                                                     receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
-            traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource],
+            traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource,
+            registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode],
 
         function (err, results, fields) {
             if (err) {

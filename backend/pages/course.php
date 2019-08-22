@@ -12,7 +12,7 @@ if (!isset($serviceType)) {
     exit();
 }
 
-$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, c.trainee_limit, cm.title 
+$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.application_fee, c.place, c.trainee_limit, cm.title 
         FROM course c 
             INNER JOIN course_master cm 
                 ON c.course_master_id = cm.id 
@@ -93,7 +93,7 @@ if ($result = $db->query($sql)) {
             <section class="content-header">
                 <h1>
                     หลักสูตร
-                    <small><?php echo $serviceTypeText[$serviceType]; ?></small>
+                    <small><?= $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 
@@ -114,10 +114,24 @@ if ($result = $db->query($sql)) {
                                 <table id="tableCourse" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="width: 60%; text-align: center">หลักสูตร</th>
-                                        <th style="width: 20%; text-align: center">วันที่อบรม</th>
-                                        <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
-                                        <th style="text-align: center">จัดการ</th>
+                                        <?php
+                                        if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                                            ?>
+                                            <th style="width: 50%; text-align: center">หลักสูตร</th>
+                                            <th style="width: 10%; text-align: center">ค่าสมัคร</th>
+                                            <th style="width: 20%; text-align: center">วันที่อบรม</th>
+                                            <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
+                                            <th style="text-align: center">จัดการ</th>
+                                            <?php
+                                        } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                                            ?>
+                                            <th style="width: 60%; text-align: center">หลักสูตร</th>
+                                            <th style="width: 20%; text-align: center">วันที่อบรม</th>
+                                            <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
+                                            <th style="text-align: center">จัดการ</th>
+                                            <?php
+                                        }
+                                        ?>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -132,6 +146,7 @@ if ($result = $db->query($sql)) {
                                         foreach ($courseList as $course) {
                                             $courseId = $course['id'];
                                             $courseName = $course['name'];
+                                            $courseApplicationFee = $course['application_fee'] === 0 ? 'ฟรี' : number_format($course['application_fee']);
                                             $beginDate = date_create($course['begin_date']);
                                             $endDate = date_create($course['end_date']);
                                             $courseDate = ($course['begin_date'] === $course['end_date'] ? getThaiShortDate($beginDate) : getThaiIntervalShortDate($beginDate, $endDate));
@@ -141,24 +156,31 @@ if ($result = $db->query($sql)) {
                                             ?>
 
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $courseName; ?>&nbsp;&nbsp;
+                                                <td style="vertical-align: top"><?= $courseName; ?>&nbsp;&nbsp;
                                                     <a target="_blank" title="ไปหน้าเว็บของหลักสูตร"
                                                        href="<?= HOST_FRONTEND . "/service-{$serviceType}/{$courseId}" ?>"><i class="fa fa-external-link"></i></a>
                                                 </td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo $courseDateHidden . $courseDate; ?></td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
+                                                <?php
+                                                if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                                                    ?>
+                                                    <td style="vertical-align: top; text-align: center"><?= $courseApplicationFee; ?></td>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <td style="vertical-align: top; text-align: center"><?= $courseDateHidden . $courseDate; ?></td>
+                                                <td style="vertical-align: top; text-align: center"><?= "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
 
                                                 <td style="text-align: center" nowrap>
                                                     <form method="get" action="course_add_edit.php" style="display: inline">
-                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
-                                                        <input type="hidden" name="service_type" value="<?php echo $serviceType; ?>"/>
+                                                        <input type="hidden" name="course_id" value="<?= $courseId; ?>"/>
+                                                        <input type="hidden" name="service_type" value="<?= $serviceType; ?>"/>
                                                         <button type="submit" class="btn btn-warning" style="margin-right: 3px">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
                                                         </button>
                                                     </form>
                                                     <form method="get" action="course_details.php" style="display: inline">
-                                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>"/>
+                                                        <input type="hidden" name="course_id" value="<?= $courseId; ?>"/>
                                                         <button type="submit" class="btn btn-info">
                                                             <span class="fa fa-files-o"></span>&nbsp;
                                                             ใบสมัคร
@@ -195,7 +217,7 @@ if ($result = $db->query($sql)) {
             $('#tableCourse').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
-                order: [[1, 'desc']],
+                order: [[<?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? '1' : '2'; ?>, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -218,7 +240,7 @@ if ($result = $db->query($sql)) {
         });
 
         function onClickAdd() {
-            window.location.href = 'course_add_edit.php?service_type=<?php echo $serviceType; ?>';
+            window.location.href = 'course_add_edit.php?service_type=<?= $serviceType; ?>';
         }
 
         function onClickDelete(element, courseId, courseName) {

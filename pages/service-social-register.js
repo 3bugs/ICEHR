@@ -36,6 +36,184 @@ const REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE = 'traineeNewsSourceBrochure'; // 4
 const REGISTER_TRAINEE_NEWS_SOURCE_ONLINE = 'traineeNewsSourceOnline'; // 8
 const REGISTER_TRAINEE_NEWS_SOURCE_MOUTH = 'traineeNewsSourceMouth'; // 16ne
 
+const REGISTER_RECEIPT_NAME = 'registerReceiptName';
+const REGISTER_RECEIPT_ADDRESS = 'registerReceiptAddress';
+const REGISTER_RECEIPT_SUB_DISTRICT = 'registerReceiptSubDistrict';
+const REGISTER_RECEIPT_DISTRICT = 'registerReceiptDistrict';
+const REGISTER_RECEIPT_PROVINCE = 'registerReceiptProvince';
+const REGISTER_RECEIPT_POSTAL_CODE = 'registerReceiptPostalCode';
+const REGISTER_RECEIPT_ORGANIZATION_PHONE = 'registerReceiptOrganizationPhone';
+const REGISTER_RECEIPT_TAX_ID = 'registerReceiptTaxId';
+
+class RegisterProgress extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
+
+    render() {
+        let {activeStep, text} = this.props;
+
+        return (
+            <div className="container">
+                <ul className="progressbar">
+                    <li className={activeStep === 1 ? 'active' : 'complete'}>{text[0]}</li>
+                    <li className={activeStep === 2 ? 'active' : (activeStep > 2 ? 'complete' : '')}>{text[1]}</li>
+                    <li className={activeStep === 3 ? 'active' : ''}>{text[2]}</li>
+                </ul>
+
+                <style jsx>{`
+                    .container {
+                        width: 100%;
+                        margin: 50px auto;
+                    }
+                    .progressbar {
+                        counter-reset: step;
+                    }
+                    .progressbar li {
+                        list-style-type: none;
+                        width: 32%;
+                        float: left;
+                        font-size: 0.8rem;
+                        position: relative;
+                        text-align: center;
+                        text-transform: uppercase;
+                        color: #7d7d7d;
+                    }
+                    .progressbar li:before {
+                        width: 40px;
+                        height: 40px;
+                        content: counter(step);
+                        counter-increment: step;
+                        line-height: 36px;
+                        border: 3px solid #ccc;
+                        display: block;
+                        font-size: 1.2rem;
+                        text-align: center;
+                        margin: 0 auto 5px auto;
+                        border-radius: 50%;
+                        background-color: white;
+                    }
+                    .progressbar li:after {
+                        width: 100%;
+                        height: 2px;
+                        content: '';
+                        position: absolute;
+                        background-color: #ccc;
+                        top: 18px;
+                        left: -50%;
+                        z-index: -1;
+                    }
+                    .progressbar li:first-child:after {
+                        content: none;
+                    }
+                    .progressbar li.active, .progressbar li.complete {
+                        color: green;
+                    }
+                    .progressbar li.active:before {
+                        border-color: #55b776;
+                    }
+                    .progressbar li.complete:before {
+                        border-color: #55b776;
+                        background-color: #55b776;
+                        color: white;
+                    }
+                    .progressbar_not_used li.active + li:after {
+                        background-color: #55b776;
+                    }
+                    .progressbar li.complete + li:after {
+                        background-color: #55b776;
+                    }
+                `}</style>
+            </div>
+        );
+    }
+}
+
+class RegisterProgress2Step extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
+
+    render() {
+        let {activeStep, text} = this.props;
+
+        return (
+            <div className="container">
+                <ul className="progressbar">
+                    <li className={activeStep === 1 ? 'active' : 'complete'}>{text[0]}</li>
+                    <li className={activeStep === 3 ? 'active' : ''}>{text[1]}</li>
+                </ul>
+
+                <style jsx>{`
+                    .container {
+                        width: 100%;
+                        margin: 50px auto;
+                    }
+                    .progressbar {
+                        counter-reset: step;
+                    }
+                    .progressbar li {
+                        list-style-type: none;
+                        width: 48%;
+                        float: left;
+                        font-size: 0.8rem;
+                        position: relative;
+                        text-align: center;
+                        text-transform: uppercase;
+                        color: #7d7d7d;
+                    }
+                    .progressbar li:before {
+                        width: 40px;
+                        height: 40px;
+                        content: counter(step);
+                        counter-increment: step;
+                        line-height: 36px;
+                        border: 3px solid #ccc;
+                        display: block;
+                        font-size: 1.2rem;
+                        text-align: center;
+                        margin: 0 auto 5px auto;
+                        border-radius: 50%;
+                        background-color: white;
+                    }
+                    .progressbar li:after {
+                        width: 100%;
+                        height: 2px;
+                        content: '';
+                        position: absolute;
+                        background-color: #ccc;
+                        top: 18px;
+                        left: -50%;
+                        z-index: -1;
+                    }
+                    .progressbar li:first-child:after {
+                        content: none;
+                    }
+                    .progressbar li.active, .progressbar li.complete {
+                        color: green;
+                    }
+                    .progressbar li.active:before {
+                        border-color: #55b776;
+                    }
+                    .progressbar li.complete:before {
+                        border-color: #55b776;
+                        background-color: #55b776;
+                        color: white;
+                    }
+                    .progressbar_not_used li.active + li:after {
+                        background-color: #55b776;
+                    }
+                    .progressbar li.complete + li:after {
+                        background-color: #55b776;
+                    }
+                `}</style>
+            </div>
+        );
+    }
+}
+
 class TraineeRegisterForm extends React.Component {
     constructor(props, context) {
         super(props, context);
@@ -72,7 +250,9 @@ class TraineeRegisterForm extends React.Component {
                                             <div className="col-md-9">
                                                 <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
                                                         onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
-                                                        className="form-control-2 mt-2">
+                                                        className="form-control-2 mt-2"
+                                                        style={{background: isReadOnly ? '#E9EBE2' : '#fff'}}
+                                                        disabled={isReadOnly}>
                                                     <option value="0" disabled selected>
                                                         เลือกคำนำหน้า
                                                     </option>
@@ -95,7 +275,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_FIRST_NAME)}
                                                        type="text"
                                                        placeholder="กรอกชื่อ"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
                                             </div>
@@ -109,7 +290,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_LAST_NAME)}
                                                        type="text"
                                                        placeholder="กรอกนามสกุล"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_LAST_NAME]}/>
                                             </div>
@@ -135,7 +317,8 @@ class TraineeRegisterForm extends React.Component {
                                                         dateFormat="dd/MM/yyyy"
                                                         minDate={this.setDatePickerMinDate()}
                                                         maxDate={new Date()}
-                                                        className="form-control my-react-date-picker"/>
+                                                        className="form-control my-react-date-picker"
+                                                        disabled={isReadOnly}/>
 
                                                     {/*<input value={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
@@ -157,7 +340,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_OCCUPATION)}
                                                        type="text"
                                                        placeholder="กรอกอาชีพ"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_OCCUPATION]}/>
                                             </div>
@@ -171,7 +355,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_WORK_PLACE)}
                                                        type="text"
                                                        placeholder="กรอกสถานทีทำงาน"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_WORK_PLACE]}/>
                                             </div>
@@ -187,7 +372,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ADDRESS)}
                                                                type="text"
                                                                placeholder="บ้านเลขที่ / หมู่ / ซอย / ถนน"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
                                                     </div>
@@ -207,7 +393,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SUB_DISTRICT)}
                                                                type="text"
                                                                placeholder="แขวง / ตำบล"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_SUB_DISTRICT]}/>
                                                     </div>
@@ -216,7 +403,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISTRICT)}
                                                                type="text"
                                                                placeholder="เขต / อำเภอ"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_DISTRICT]}/>
                                                     </div>
@@ -226,7 +414,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PROVINCE)}
                                                                type="text"
                                                                placeholder="จังหวัด"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_PROVINCE]}/>
                                                     </div>
@@ -236,7 +425,8 @@ class TraineeRegisterForm extends React.Component {
                                                                type="text"
                                                                maxLength={5}
                                                                placeholder="รหัสไปรษณีย์"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_POSTAL_CODE]}/>
                                                     </div>
@@ -256,7 +446,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PHONE)}
                                                        type="text"
                                                        placeholder="เบอร์โทรศัพท์"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
                                             </div>
@@ -275,7 +466,8 @@ class TraineeRegisterForm extends React.Component {
                                                            }
                                                        }}
                                                        placeholder="อีเมล"
-                                                       className="form-control-2 input-md mt-2"/>
+                                                       className="form-control-2 input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_EMAIL]}/>
                                             </div>
@@ -291,7 +483,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_CONTACT_PERSON_NAME)}
                                                                type="text"
                                                                placeholder="ชื่อบุคคลที่สามารถติดต่อได้"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_CONTACT_PERSON_NAME]}/>
                                                     </div>
@@ -300,7 +493,8 @@ class TraineeRegisterForm extends React.Component {
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_CONTACT_PERSON_PHONE)}
                                                                type="text"
                                                                placeholder="เบอร์โทรศัพท์มือถือ"
-                                                               className="form-control input-md mt-2"/>
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_CONTACT_PERSON_PHONE]}/>
                                                     </div>
@@ -316,7 +510,8 @@ class TraineeRegisterForm extends React.Component {
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISEASE)}
                                                        type="text"
                                                        placeholder="กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว"
-                                                       className="form-control input-md mt-2"/>
+                                                       className="form-control input-md mt-2"
+                                                       disabled={isReadOnly}/>
                                                 <ErrorLabel
                                                     value={traineeForm.errors[REGISTER_TRAINEE_DISEASE]}/>
                                             </div>
@@ -329,35 +524,38 @@ class TraineeRegisterForm extends React.Component {
                                         <div className="col-md-9 mt-3">
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_WEB]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_WEB)}
-                                                   type="checkbox" id="news-source-web"/>
+                                                   type="checkbox" id="news-source-web"
+                                                   disabled={isReadOnly}/>
                                             <label htmlFor="news-source-web">เว็บไซต์</label><br/>
 
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_EMAIL]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_EMAIL)}
-                                                   type="checkbox" id="news-source-email"/>
+                                                   type="checkbox" id="news-source-email"
+                                                   disabled={isReadOnly}/>
                                             <label htmlFor="news-source-email">อีเมล</label><br/>
 
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_BROCHURE)}
-                                                   type="checkbox" id="news-source-brochure"/>
+                                                   type="checkbox" id="news-source-brochure"
+                                                   disabled={isReadOnly}/>
                                             <label htmlFor="news-source-brochure">แผ่นประชาสัมพันธ์</label><br/>
 
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_ONLINE]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_ONLINE)}
-                                                   type="checkbox" id="news-source-online"/>
+                                                   type="checkbox" id="news-source-online"
+                                                   disabled={isReadOnly}/>
                                             <label htmlFor="news-source-online">สื่อสังคมออนไลน์</label><br/>
 
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_MOUTH]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_MOUTH)}
-                                                   type="checkbox" id="news-source-mouth"/>
+                                                   type="checkbox" id="news-source-mouth"
+                                                   disabled={isReadOnly}/>
                                             <label htmlFor="news-source-mouth">บอกต่อ</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="btn-red-submit" style={{marginTop: '20px'}}>
-                                <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -375,7 +573,6 @@ class TraineeRegisterForm extends React.Component {
                         padding: 0.375rem 0.75rem;
                         line-height: 1.5;
                         color: #252525;
-                        background-color: #fff;
                         background-clip: padding-box;
                         border: 1px solid #ced4da;
                         margin-top: 0px;
@@ -480,6 +677,10 @@ export default class ServiceSocialRegister extends React.Component {
                 fields: {},
                 errors: {}
             },
+            receiptForm: {
+                fields: {},
+                errors: {}
+            },
             nameTitleList: [],
             dialog: {
                 isOpen: false,
@@ -577,22 +778,32 @@ export default class ServiceSocialRegister extends React.Component {
         });
     };
 
+    handleChangeReceipt = (field, e) => {
+        let {receiptForm} = this.state;
+        let {fields} = receiptForm;
+
+        if (field === REGISTER_RECEIPT_PROVINCE || field === REGISTER_RECEIPT_POSTAL_CODE) {
+            fields[field] = e.target.value.trim();
+        } else {
+            fields[field] = e.target.value;
+        }
+
+        this.setState({receiptForm});
+    };
+
     handleSubmit = (event) => {
         event.preventDefault();
         if (this.validateForm()) {
             this.doRegister();
         } else {
-            this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+            /*this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
                 scroller.scrollTo(TOP_OF_FORM, {
                     duration: 500,
                     smooth: true,
                     offset: -80,
-                    //delay: 100,
-                    //containerId: 'ContainerElementID',
-                    //offset: 50, // Scrolls to element + 50 pixels down the page
                 });
                 this.dismissDialog();
-            });
+            });*/
         }
     };
 
@@ -680,25 +891,88 @@ export default class ServiceSocialRegister extends React.Component {
             traineeForm: traineeForm,
         }, () => {
             if (!formIsValid) {
-                /*scroller.scrollTo(TOP_OF_FORM, {
-                    duration: 500,
-                    smooth: true,
-                    offset: -80,
-                    //delay: 100,
-                    //containerId: 'ContainerElementID',
-                    //offset: 50, // Scrolls to element + 50 pixels down the page
-                });*/
+                this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                    scroller.scrollTo(TOP_OF_FORM, {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                    this.dismissDialog();
+                });
             }
         });
 
         return formIsValid;
     };
 
+    /*validate ฟอร์ม ข้อมูลการออกใบเสร็จ*/
+    validateFormReceipt = () => {
+        let valid = true;
+
+        let {receiptForm} = this.state;
+        let receiptFields = receiptForm.fields;
+        let receiptErrors = {};
+
+        if (!receiptFields[REGISTER_RECEIPT_NAME] || receiptFields[REGISTER_RECEIPT_NAME].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_NAME] = 'กรุณากรอกชื่อสำหรับการออกใบเสร็จ';
+            valid = false;
+        }
+        if (!receiptFields[REGISTER_RECEIPT_ADDRESS] || receiptFields[REGISTER_RECEIPT_ADDRESS].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_ADDRESS] = 'กรุณากรอกเลขที่ / อาคาร / หมู่ / ซอย / ถนน';
+            valid = false;
+        }
+        if (!receiptFields[REGISTER_RECEIPT_SUB_DISTRICT] || receiptFields[REGISTER_RECEIPT_SUB_DISTRICT].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_SUB_DISTRICT] = 'กรุณากรอกแขวง / ตำบล';
+            valid = false;
+        }
+        if (!receiptFields[REGISTER_RECEIPT_DISTRICT] || receiptFields[REGISTER_RECEIPT_DISTRICT].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_DISTRICT] = 'กรุณากรอกเขต / อำเภอ';
+            valid = false;
+        }
+        if (!receiptFields[REGISTER_RECEIPT_PROVINCE] || receiptFields[REGISTER_RECEIPT_PROVINCE].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_PROVINCE] = 'กรุณากรอกจังหวัด';
+            valid = false;
+        }
+        if (!receiptFields[REGISTER_RECEIPT_POSTAL_CODE]
+            || receiptFields[REGISTER_RECEIPT_POSTAL_CODE].trim().length !== 5
+            || !isPositiveInteger(receiptFields[REGISTER_RECEIPT_POSTAL_CODE])) {
+            receiptErrors[REGISTER_RECEIPT_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
+            valid = false;
+        }
+        /*if (!receiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE] || receiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_ORGANIZATION_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์หน่วยงาน';
+            valid = false;
+        }*/
+        /*if (!receiptFields[REGISTER_RECEIPT_TAX_ID] || receiptFields[REGISTER_RECEIPT_TAX_ID].trim().length === 0) {
+            receiptErrors[REGISTER_RECEIPT_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี';
+            valid = false;
+        }*/
+        receiptForm.errors = receiptErrors;
+
+        this.setState({
+            receiptForm: receiptForm,
+        }, () => {
+            if (!valid) {
+                this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {
+                    scroller.scrollTo(TOP_OF_FORM, {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                    this.dismissDialog();
+                });
+            }
+        });
+
+        return valid;
+    };
+
     doRegister = () => {
         const user = getLoginUser();
         const loginToken = user === null ? null : getLoginUser().loginToken;
-        const {traineeForm} = this.state;
+        const {traineeForm, receiptForm} = this.state;
         const traineeData = traineeForm.fields;
+        const receipt = receiptForm.fields;
 
         traineeData[REGISTER_TRAINEE_BIRTH_DATE] = getDateFormatFromDateObject(traineeData[REGISTER_TRAINEE_BIRTH_DATE]);
 
@@ -711,6 +985,7 @@ export default class ServiceSocialRegister extends React.Component {
                 loginToken,
                 courseId: this.props.course.id,
                 traineeData,
+                receipt,
             }),
         })
             .then(result => result.json())
@@ -759,8 +1034,89 @@ export default class ServiceSocialRegister extends React.Component {
         this.setState({dialog});
     };
 
+    onClickPrevious = () => {
+        const {step} = this.state;
+        const {applicationFee} = this.props.course;
+
+        if (step === 3 && (applicationFee == null || applicationFee === 0)) {
+            this.setState({
+                step: 1
+            }, () => {
+                scroller.scrollTo(TOP_OF_FORM, {
+                    duration: 500,
+                    smooth: true,
+                    offset: -80,
+                });
+            });
+        } else {
+            this.setState({
+                step: step - 1
+            }, () => {
+                scroller.scrollTo(TOP_OF_FORM, {
+                    duration: 500,
+                    smooth: true,
+                    offset: -80,
+                });
+            });
+        }
+    };
+
+    onClickNext = () => {
+        const {step, traineeForm, receiptForm} = this.state;
+        const {applicationFee} = this.props.course;
+        let valid = true;
+
+        switch (step) {
+            case 1:
+                valid = this.validateForm();
+                break;
+            case 2:
+                valid = this.validateFormReceipt();
+                break;
+        }
+        if (valid) {
+            if (step === 1 && (applicationFee == null || applicationFee === 0)) {
+                this.setState({
+                    step: 3
+                }, () => {
+                    scroller.scrollTo(TOP_OF_FORM, {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                });
+            } else {
+                if (step === 1) {
+                    receiptForm.fields = {
+                        registerReceiptName: `${traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME]} ${traineeForm.fields[REGISTER_TRAINEE_LAST_NAME]}`,
+                        registerReceiptAddress: traineeForm.fields[REGISTER_TRAINEE_ADDRESS],
+                        registerReceiptSubDistrict: traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT],
+                        registerReceiptDistrict: traineeForm.fields[REGISTER_TRAINEE_DISTRICT],
+                        registerReceiptProvince: traineeForm.fields[REGISTER_TRAINEE_PROVINCE],
+                        registerReceiptPostalCode: traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE],
+                    };
+                    this.setState({
+                        receiptForm
+                    });
+                }
+
+                this.setState({
+                    step: step + 1
+                }, () => {
+                    scroller.scrollTo(TOP_OF_FORM, {
+                        duration: 500,
+                        smooth: true,
+                        offset: -80,
+                    });
+                });
+            }
+        } else {
+            //alert('กรุณากรอกข้อมูลในหน้านี้ให้ครบถ้วน');
+        }
+    };
+
     render() {
-        let {traineeForm, step, dialog} = this.state;
+        let {traineeForm, receiptForm, step, dialog} = this.state;
 
         return (
             <MainLayout>
@@ -800,10 +1156,30 @@ export default class ServiceSocialRegister extends React.Component {
                             </div>
                         </div>
 
+                        <Element name={TOP_OF_FORM}>
+                            {this.props.course.applicationFee && (this.props.course.applicationFee > 0) &&
+                            <RegisterProgress
+                                text={[
+                                    'ข้อมูลผู้สมัคร', 'ข้อมูลการออกใบเสร็จ', 'ตรวจสอบข้อมูล'
+                                ]}
+                                activeStep={step}
+                            />
+                            }
+                            {(!this.props.course.applicationFee || this.props.course.applicationFee === 0) &&
+                            <RegisterProgress2Step
+                                text={[
+                                    'ข้อมูลผู้สมัคร', 'ตรวจสอบข้อมูล'
+                                ]}
+                                activeStep={step}
+                            />
+                            }
+                            <br/>
+                        </Element>
+
                         {/*ฟอร์มสมัครอบรม*/}
                         <form id="applicationFormGroup" method="post" noValidate={true} onSubmit={this.handleSubmit}>
                             {/*ขั้นตอน 1 กรอกข้อมูลผู้สมัครอบรม*/}
-                            {((step === 1) || (step === 2)) &&
+                            {((step === 1) || (step === 3)) &&
                             <div style={{marginTop: '15px'}}>
                                 {/*หัวข้อ*/}
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
@@ -815,17 +1191,191 @@ export default class ServiceSocialRegister extends React.Component {
                                 </div>
 
                                 {/*ฟอร์มข้อมูลผู้สมัครอบรม*/}
-                                <Element name={TOP_OF_FORM}>
-                                    <TraineeRegisterForm
-                                        traineeForm={traineeForm}
-                                        nameTitleList={this.props.nameTitleList}
-                                        handleChangeCallback={this.handleChange}
-                                    />
-                                </Element>
+                                <TraineeRegisterForm
+                                    traineeForm={traineeForm}
+                                    isReadOnly={step === 3}
+                                    nameTitleList={this.props.nameTitleList}
+                                    handleChangeCallback={this.handleChange}
+                                />
                             </div>
                             }
 
-                            {/* //todo: ปุ่ม สมัคร ควรไว้ตรงนี้ */}
+                            {/*ขั้นตอน 2 กรอกข้อมูลการออกใบเสร็จ*/}
+                            {((step === 2) || (step === 3 && (this.props.course.applicationFee != null && this.props.course.applicationFee > 0))) &&
+                            <div>
+                                {/*ฟอร์มข้อมูลการออกใบเสร็จ*/}
+                                <div className="row" style={{border: '0 solid red', clear: 'both'}}>
+                                    <div className="col">
+                                        <Element name={'receipt-form'}>
+                                            <h4 className="text-black" style={{marginTop: '20px'}}>
+                                                ข้อมูลการออกใบเสร็จ
+                                            </h4>
+                                        </Element>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <div className="border-inside" style={{marginTop: '10px'}}>
+                                            <div className="regisfo">
+                                                <div className="row">
+                                                    <div className="col-md-12">
+                                                        <div className="row">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">ชื่อ</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <input value={receiptForm.fields[REGISTER_RECEIPT_NAME] || ''}
+                                                                       onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_NAME)}
+                                                                       type="text"
+                                                                       placeholder="ชื่อ"
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 3}/>
+                                                                <ErrorLabel
+                                                                    value={receiptForm.errors[REGISTER_RECEIPT_NAME]}/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="row mt-2">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">ที่อยู่</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <div className="row">
+                                                                    <div className="col-12 col-md-12">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_ADDRESS] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ADDRESS)}
+                                                                               type="text"
+                                                                               placeholder="เลขที่ / อาคาร / หมู่ / ซอย / ถนน"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_ADDRESS]}/>
+                                                                    </div>
+                                                                    <div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_SUB_DISTRICT] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_SUB_DISTRICT)}
+                                                                               type="text"
+                                                                               placeholder="แขวง / ตำบล"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_SUB_DISTRICT]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_DISTRICT] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_DISTRICT)}
+                                                                               type="text"
+                                                                               placeholder="เขต / อำเภอ"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_DISTRICT]}/>
+                                                                    </div>
+                                                                    <div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_PROVINCE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_PROVINCE)}
+                                                                               type="text" placeholder="จังหวัด"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_PROVINCE]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_POSTAL_CODE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_POSTAL_CODE)}
+                                                                               type="text"
+                                                                               maxLength={5}
+                                                                               placeholder="รหัสไปรษณีย์"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_POSTAL_CODE]}/>
+                                                                    </div>
+                                                                    {/*<div className="w-100"></div>
+                                                                    <div className="col-12 col-md-6">
+                                                                        <input value={receiptForm.fields[REGISTER_RECEIPT_ORGANIZATION_PHONE] || ''}
+                                                                               onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_ORGANIZATION_PHONE)}
+                                                                               type="text"
+                                                                               placeholder="เบอร์โทรศัพท์หน่วยงาน"
+                                                                               className="form-control input-md"
+                                                                               disabled={step === 3}/>
+                                                                        <ErrorLabel
+                                                                            value={receiptForm.errors[REGISTER_RECEIPT_ORGANIZATION_PHONE]}/>
+                                                                    </div>
+                                                                    <div className="col-12 col-md-6 nopadleft">
+                                                                    </div>*/}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/*<div className="row mt-2 mb-1">
+                                                            <div className="col-12 col-md-2" style={{paddingRight: 0}}>
+                                                                <label className="label required-label">เลขประจำตัวผู้เสียภาษี</label>
+                                                            </div>
+                                                            <div className="col-12 col-md-9">
+                                                                <input value={receiptForm.fields[REGISTER_RECEIPT_TAX_ID] || ''}
+                                                                       onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_TAX_ID)}
+                                                                       type="text"
+                                                                       placeholder="เลขประจำตัวผู้เสียภาษี"
+                                                                       className="form-control input-md"
+                                                                       disabled={step === 3}/>
+                                                                <ErrorLabel
+                                                                    value={receiptForm.errors[REGISTER_RECEIPT_TAX_ID]}/>
+                                                            </div>
+                                                        </div>*/}
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+
+                            {/*ปุ่มลงทะเบียน*/}
+                            {step === 3 &&
+                            <div className="row mt-3 mb-3">
+                                <div className="col">
+                                    <div className="btn-red-submit">
+                                        <button type="submit" value="submit" className="btn btn-danger">
+                                            ยืนยันลงทะเบียนอบรม
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+
+                            {/*ปุ่มย้อนกลับ/ถัดไป*/}
+                            <div className="container mt-4 mb-4" style={{marginBottom: '0px'}}>
+                                <div className="row">
+                                    <div className="col-6 nopad">
+                                        <div className="text-left">
+                                            {step !== 1 &&
+                                            <button type="button" className="btn btn-normal" onClick={this.onClickPrevious}>
+                                                <i className="fas fa-arrow-left" style={{fontSize: '0.8rem'}}/>&nbsp;&nbsp;&nbsp;ย้อนกลับ
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div className="col-6 nopad">
+                                        <div className="text-right">
+                                            {step !== 3 &&
+                                            <button type="button" className="btn btn-normal" onClick={this.onClickNext}>
+                                                &nbsp;ถัดไป&nbsp;&nbsp;&nbsp;<i className="fas fa-arrow-right" style={{fontSize: '0.8rem'}}/>&nbsp;
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/*<div className="btn-red-submit" style={{marginTop: '20px'}}>
+                                <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
+                            </div>*/}
+
                         </form>
                     </div>
                 }

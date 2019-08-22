@@ -27,7 +27,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
         case SERVICE_TYPE_SOCIAL:
             $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.email, cr.contact_name, cr.contact_phone, 
-                           cr.register_status, cr.created_at, cr.course_id
+                           cr.register_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number
                     FROM course_registration_social cr  
                     WHERE $whereClause
                     ORDER BY id DESC";
@@ -306,8 +306,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <h4 class="modal-title">
                         จัดการสถานะการลงทะเบียน: ใบสมัครเลขที่ <span id="spanFormNumber"></span>
 
-                        <!--สถานะการลงทะเบียน-->
-                        <div class="btn-group pull-right">
+                        <!--สถานะการลงทะเบียน สำหรับคอร์สเสียเงิน-->
+                        <div class="btn-group pull-right" id="buttonStatusForPaidCourse">
                             <button id="buttonStatus" type="button" class="btn btn-default">
                                 <span id="spanCurrentStatus" style="color: white">&nbsp;</span>
                             </button>
@@ -316,15 +316,31 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('start')">ไม่ได้ชำระเงิน</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('wait-approve')">รอตรวจสอบ</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('complete')">สมบูรณ์</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'start')">ยังไม่ได้ชำระเงิน</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'wait-approve')">รอตรวจสอบ</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'complete')">สมบูรณ์</a></li>
                                 <li class="divider"></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus('cancel')">ยกเลิกใบสมัคร</a></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'cancel')">ยกเลิกใบสมัคร</a></li>
+                            </ul>
+                        </div>
+                        <!--สถานะการลงทะเบียน สำหรับคอร์สฟรี-->
+                        <div class="btn-group pull-right" id="buttonStatusForFreeCourse">
+                            <button id="buttonStatus" type="button" class="btn btn-default">
+                                <span id="spanCurrentStatus" style="color: white">&nbsp;</span>
+                            </button>
+                            <button id="buttonStatusDropDown" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret" style="color: white"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'start')">สมัคร</a></li>
+                                <li class="divider"></li>
+                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'cancel')">ยกเลิกใบสมัคร</a></li>
                             </ul>
                         </div>
                     </h4>
                 </div>
+
                 <div class="modal-body">
                     <div id="spanLoading" style="text-align: center">
                         <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
@@ -352,6 +368,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <div class="tab-pane active" id="tab_info">
                                     <div class="box-body">
                                         <input type="hidden" id="inputTraineeId">
+                                        <input type="hidden" id="inputCoursePaidType">
                                         <!--<input type="hidden" id="inputRegisterStatus">-->
 
                                         <!--ชื่อ-นามสกุล-เบอร์โทร-อีเมล ผู้สมัคร-->
@@ -377,7 +394,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             </div>
                                         </div>
                                         <?php
-                                        if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                        if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
                                             ?>
                                             <!--หลักสูตรที่สมัคร-->
                                             <div class="form-group">
@@ -1018,45 +1035,25 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         <thead>
         <tr>
             <?php
-            if ($serviceType === SERVICE_TYPE_TRAINING) {
+            if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
                 if ($paramCourseId == NULL) {
                     ?>
                     <th style="width: 10%; text-align: center">เลขที่</th>
                     <th style="width: 20%; text-align: center">ผู้สมัคร</th>
-                    <th style="width: 20%; text-align: center">ผู้ประสานงาน</th>
+                    <th style="width: 20%; text-align: center"><?= $serviceType === SERVICE_TYPE_TRAINING ? 'ผู้ประสานงาน' : 'ผู้ติดต่อกรณีฉุกเฉิน'; ?></th>
                     <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
                     <th style="width: 10%; text-align: center">วันอบรม</th>
                     <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
-                    <th style="text-align: center">การชำระเงิน</th>
+                    <th style="text-align: center">สถานะ</th>
                     <th style="text-align: center" nowrap>พิมพ์</th>
                     <?php
                 } else {
                     ?>
                     <th style="width: 20%; text-align: center">เลขที่</th>
                     <th style="width: 30%; text-align: center">ผู้สมัคร</th>
-                    <th style="width: 30%; text-align: center">ผู้ประสานงาน</th>
+                    <th style="width: 30%; text-align: center"><?= $serviceType === SERVICE_TYPE_TRAINING ? 'ผู้ประสานงาน' : 'ผู้ติดต่อกรณีฉุกเฉิน'; ?></th>
                     <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
-                    <th style="text-align: center">การชำระเงิน</th>
-                    <th style="text-align: center" nowrap>พิมพ์</th>
-                    <?php
-                }
-            } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
-                if ($paramCourseId == NULL) {
-                    ?>
-                    <th style="width: 10%; text-align: center">เลขที่</th>
-                    <th style="width: 20%; text-align: center">ผู้สมัคร</th>
-                    <th style="width: 20%; text-align: center">ผู้ติดต่อ</th>
-                    <th style="width: 27%; text-align: center">หลักสูตรที่สมัคร</th>
-                    <th style="width: 10%; text-align: center">วันอบรม</th>
-                    <th style="width: 13%; text-align: center">วัน/เวลาที่สมัคร</th>
-                    <th style="text-align: center" nowrap>พิมพ์</th>
-                    <?php
-                } else {
-                    ?>
-                    <th style="width: 20%; text-align: center">เลขที่</th>
-                    <th style="width: 30%; text-align: center">ผู้สมัคร</th>
-                    <th style="width: 30%; text-align: center">ผู้ติดต่อ</th>
-                    <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
+                    <th style="text-align: center">สถานะ</th>
                     <th style="text-align: center" nowrap>พิมพ์</th>
                     <?php
                 }
@@ -1068,7 +1065,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <th style="width: 30%; text-align: center">ประเภท/ราคา</th>
                     <th style="width: 10%; text-align: center">วันอบรม</th>
                     <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
-                    <th style="text-align: center">ชำระเงิน</th>
+                    <th style="text-align: center">สถานะ</th>
                     <th style="text-align: center" nowrap>พิมพ์</th>
                     <?php
                 } else {
@@ -1077,7 +1074,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <th style="width: 25%; text-align: center">ผู้สมัคร</th>
                     <th style="width: 35%; text-align: center">ประเภท/ราคา</th>
                     <th style="width: 20%; text-align: center">วัน/เวลาที่สมัคร</th>
-                    <th style="text-align: center">ชำระเงิน</th>
+                    <th style="text-align: center">สถานะ</th>
                     <th style="text-align: center">เอกสาร</th>
                     <th style="text-align: center">บันทึกผล</th>
                     <th style="text-align: center" nowrap>พิมพ์</th>
@@ -1234,7 +1231,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     <td style="vertical-align: top; text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
 
                     <?php
-                    if ($serviceType !== SERVICE_TYPE_SOCIAL) {
+                    if (TRUE /*$serviceType !== SERVICE_TYPE_SOCIAL*/) {
                         ?>
                         <td style="vertical-align: top; text-align: center" nowrap>
                             <?php
@@ -1244,7 +1241,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             switch ($registerStatus) {
                                 case 'start':
                                     $btnClass = 'btn-info';
-                                    $btnText = 'ยังไม่ชำระเงิน';
+                                    $btnText = $courseApplicationFee === 0 ? 'สมัคร' : 'ยังไม่ชำระเงิน';
                                     $sortOrder = 3;
                                     break;
                                 case 'wait-approve':
@@ -1268,23 +1265,23 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                             <button id="buttonStatus<?php echo $traineeId; ?>" type="button" class="btn-xs <?php echo $btnClass; ?>" style="width: 90px;"
                                     onClick="onClickStatus(
-                                            '<?php echo $formNumber; ?>',
-                                    <?php echo $traineeId; ?>,
-                                            '<?php echo "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
-                                            '<?php echo($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
-                                            '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? $courseDetails : $trainee['driving_license_course_type']); ?>',
-                                            '<?php echo($serviceType === SERVICE_TYPE_TRAINING ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
-                                            '<?php echo $paidAmount; ?>',
-                                            '<?php echo $trainee['pid_file_name']; ?>'
+                                            '<?= $formNumber; ?>',
+                                    <?= $traineeId; ?>,
+                                            '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
+                                            '<?= ($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
+                                            '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? $courseDetails : $trainee['driving_license_course_type']); ?>',
+                                            '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
+                                            '<?= $paidAmount; ?>',
+                                            '<?= $trainee['pid_file_name']; ?>'
                                             )">
-                                <?php echo $btnText ?>
+                                <?= $btnText; ?>
                             </button>
 
                             <?php
                             if ($paidAmount !== '') {
                                 ?>
                                 <div style="text-align: center; margin-top: 5px">
-                                    <?php echo $paidAmount; ?>&nbsp;บาท
+                                    <?= $paidAmount; ?>&nbsp;บาท
                                 </div>
                                 <?php
                             }
@@ -1767,6 +1764,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
             $('#manageRegisterStatusModal #spanFormNumber').text(formNumber);
             $('#manageRegisterStatusModal #inputTraineeId').val(traineeId);
+            $('#manageRegisterStatusModal #inputCoursePaidType').val(courseApplicationFee === '0' ? 'free' : 'paid');
             //$('#formManageRegisterStatus #inputRegisterStatus').val(registerStatus);
             $('#manageRegisterStatusModal #inputTraineeName').val(traineeName);
             $('#manageRegisterStatusModal #inputCoordinatorName').val(coordinatorName);
@@ -1776,14 +1774,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
             $('#manageRegisterStatusModal #inputCourseName').val(courseName);
             $('#manageRegisterStatusModal #inputCourseFee').val(courseApplicationFee);
-            $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
+
+            const registerStatus = $('#inputRegisterStatus' + traineeId).val();
+
+            if (courseApplicationFee === '0') {
+                $('#manageRegisterStatusModal #buttonStatusForPaidCourse').hide();
+                $('#manageRegisterStatusModal #buttonStatusForFreeCourse').show();
+                $('#manageRegisterStatusModal #inputPaidAmount').parent().parent().hide();
+
+                setButtonStatusClassForFreeCourse(registerStatus);
+            } else {
+                $('#manageRegisterStatusModal #buttonStatusForPaidCourse').show();
+                $('#manageRegisterStatusModal #buttonStatusForFreeCourse').hide();
+                $('#manageRegisterStatusModal #inputPaidAmount').parent().parent().show();
+                $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
+
+                setButtonStatusClassForPaidCourse(registerStatus);
+            }
 
             $('#manageRegisterStatusModal #alertSuccess').hide();
             $('#manageRegisterStatusModal #alertError').hide();
             $('#manageRegisterStatusModal #spanLoading').hide();
 
-            const registerStatus = $('#inputRegisterStatus' + traineeId).val();
-            setButtonStatusClass(registerStatus);
 
             $('#manageRegisterStatusModal').modal('show');
         }
@@ -1804,7 +1816,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             buttonStatusDropDown.removeClass('btn-warning');
         }
 
-        function setButtonStatusClass(registerStatus) {
+        function setButtonStatusClassForPaidCourse(registerStatus) {
             let statusClass, statusText;
             switch (registerStatus) {
                 case 'start':
@@ -1818,6 +1830,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 case 'complete':
                     statusClass = 'btn-success';
                     statusText = 'สมบูรณ์';
+                    break;
+                case 'cancel':
+                    statusClass = 'btn-danger';
+                    statusText = 'ยกเลิก';
+                    break;
+            }
+
+            $('#manageRegisterStatusModal #spanCurrentStatus').text(statusText);
+
+            removeButtonStatusClass();
+            const buttonStatus = $('#manageRegisterStatusModal #buttonStatus');
+            const buttonStatusDropDown = $('#manageRegisterStatusModal #buttonStatusDropDown');
+            buttonStatus.addClass(statusClass);
+            buttonStatusDropDown.addClass(statusClass);
+        }
+
+        function setButtonStatusClassForFreeCourse(registerStatus) {
+            let statusClass, statusText;
+            switch (registerStatus) {
+                case 'start':
+                    statusClass = 'btn-info';
+                    statusText = 'สมัคร';
                     break;
                 case 'cancel':
                     statusClass = 'btn-danger';
@@ -1931,7 +1965,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             });
         }
 
-        function updateRegisterStatus(newStatus) {
+        function updateRegisterStatus(element, newStatus) {
             $('#manageRegisterStatusModal #alertSuccess').hide();
             $('#manageRegisterStatusModal #alertError').hide();
 
@@ -1943,8 +1977,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             //alert('Trainee ID: ' + traineeId + ', Old Status: ' + oldStatus + ', New Status: ' + newStatus);
 
             if (oldStatus !== newStatus) {
-                let text = '';
-                switch (newStatus) {
+                let text = $(element).text();
+                /*switch (newStatus) {
                     case 'start':
                         text = 'ยังไม่ได้ชำระเงิน';
                         break;
@@ -1957,12 +1991,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     case 'cancel':
                         text = 'ยกเลิก';
                         break;
-                }
+                }*/
 
                 if (newStatus === 'complete') {
                     const courseFee = $('#manageRegisterStatusModal #inputCourseFee').val();
                     const paidAmount =
-                    <?php if ($serviceType === SERVICE_TYPE_TRAINING) { ?>
+                    <?php if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) { ?>
                         prompt('กรอกยอดเงินที่ลูกค้าจ่ายจริง (ไม่ต้องใส่เครื่องหมาย , ):', courseFee.replace(/\,/g, ''));
                     <?php } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) { ?>
                     courseFee.replace(/\,/g, '');
@@ -2009,7 +2043,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                     //$('#formManageRegisterStatus #inputRegisterStatus').val(newStatus);
                     $('#inputRegisterStatus' + traineeId).val(newStatus);
-                    setButtonStatusClass(newStatus);
+                    const inputPaidType = $('#manageRegisterStatusModal #inputCoursePaidType');
+                    if (inputPaidType.val() === 'paid') {
+                        setButtonStatusClassForPaidCourse(newStatus);
+                    } else {
+                        setButtonStatusClassForFreeCourse(newStatus);
+                    }
 
                     shouldReload = true;
                     //updateStatusButtonInTable(traineeId, oldStatus, newStatus);

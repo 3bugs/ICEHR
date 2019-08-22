@@ -211,7 +211,7 @@ if ($result = $db->query($sql)) {
                             <span class="info-box-icon bg-aqua"><i class="fa fa-pencil-square-o"></i></span>
 
                             <div class="info-box-content">
-                                <span class="info-box-text"><?php echo($course['service_type'] === SERVICE_TYPE_SOCIAL ? 'สมัคร' : 'ยังไม่ได้ชำระเงิน'); ?></span>
+                                <span class="info-box-text"><?php echo(($course['service_type'] === SERVICE_TYPE_SOCIAL && $course['application_fee'] === 0) ? 'สมัคร' : 'ยังไม่ได้ชำระเงิน'); ?></span>
                                 <span id="spanStart" class="info-box-number"><?php echo $registerStatusStart; ?></span>
                             </div>
                             <!-- /.info-box-content -->
@@ -221,7 +221,7 @@ if ($result = $db->query($sql)) {
                     <!-- /.col -->
 
                     <?php
-                    if ($course['service_type'] !== SERVICE_TYPE_SOCIAL) {
+                    if (!($course['service_type'] === SERVICE_TYPE_SOCIAL && $course['application_fee'] === 0)) {
                         ?>
                         <div class="col-md-3 col-sm-6 col-xs-12">
                             <div class="info-box">
@@ -367,7 +367,7 @@ if ($result = $db->query($sql)) {
                                         </div>
                                     </div>
                                     <?php
-                                    if ($course['service_type'] === SERVICE_TYPE_TRAINING) {
+                                    if ($course['service_type'] === SERVICE_TYPE_TRAINING || $course['service_type'] === SERVICE_TYPE_SOCIAL) {
                                         ?>
                                         <div class="col-md-3">
                                             <div class="form-group">
