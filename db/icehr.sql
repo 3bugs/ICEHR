@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 23, 2019 at 07:54 PM
+-- Generation Time: Aug 23, 2019 at 11:09 AM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -201,7 +201,9 @@ INSERT INTO `course` (`id`, `course_master_id`, `batch_number`, `details`, `trai
 (22, 10, 3, '', 25, NULL, '123', 2, '2019-12-01', '2019-12-01', 1, 'normal', '2019-06-17 10:14:33'),
 (23, 1, 1, '<hr />\n<hr />\n<h2 style=\"font-style:italic\">Test ฝึกอบรม</h2>\n\n<p>เริ่มงาน</p>\n', 4, 4800, 'กรุงเทพฯ', 1, '2019-10-20', '2019-10-21', 1, 'normal', '2019-06-19 04:28:26'),
 (24, 13, 1, '<p>1</p>\n', 1, 1, '1', 1, '2019-11-01', '2019-12-01', 1, 'normal', '2019-07-05 07:16:56'),
-(25, 3, 1, '<p>1</p>\n', 1, 1, 'มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์', NULL, '2019-07-01', '2019-07-01', 1, 'normal', '2019-07-20 17:25:14');
+(25, 3, 1, '<p>1</p>\n', 1, 1, 'มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์', NULL, '2019-07-01', '2019-07-01', 1, 'normal', '2019-07-20 17:25:14'),
+(26, 1, 1, '', 1, 0, 'มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์', NULL, '2562-07-01', '2562-07-02', 7, 'normal', '2019-08-19 10:06:14'),
+(27, 10, 555, '<p>555</p>\n', 555, 555, '555', NULL, '2019-09-05', '2019-10-05', 7, 'normal', '2019-08-19 10:19:15');
 
 -- --------------------------------------------------------
 
@@ -254,7 +256,9 @@ INSERT INTO `course_asset` (`id`, `course_id`, `title`, `file_name`, `type`, `cr
 (43, 10, NULL, '1562293941113-receipt_2562_1_numnahm.pdf', 'pdf', '2019-07-05 02:32:21'),
 (44, 10, NULL, '1562293941113-receipt_2562_1_nooknet.pdf', 'pdf', '2019-07-05 02:32:21'),
 (45, 25, NULL, '1563643514488-training03.jpg', 'image', '2019-07-20 17:25:14'),
-(46, 23, NULL, '1563854196100-training01.jpg', 'image', '2019-07-23 03:56:36');
+(46, 23, NULL, '1563854196100-training01.jpg', 'image', '2019-07-23 03:56:36'),
+(47, 26, NULL, '1566209174539-image_slide_02.jpg', 'image', '2019-08-19 10:06:14'),
+(48, 27, NULL, '1566209955816-training01.jpg', 'image', '2019-08-19 10:19:15');
 
 -- --------------------------------------------------------
 
@@ -290,7 +294,10 @@ INSERT INTO `course_fee` (`id`, `course_id`, `title`, `amount`, `created_at`) VA
 (84, 7, '20 แถม 3', NULL, '2019-07-17 14:00:00'),
 (85, 25, '1', 1, '2019-07-20 17:25:14'),
 (87, 23, 'ราคาปกติ', 6900, '2019-07-23 04:07:33'),
-(88, 4, 'ราคาปกติ', 5000, '2019-07-23 10:01:41');
+(88, 4, 'ราคาปกติ', 5000, '2019-07-23 10:01:41'),
+(89, 27, 'ราคาปกติ', 555, '2019-08-19 10:19:15'),
+(90, 27, 'Early Bird (ภายใน 15 ก.ย. 62)', 444, '2019-08-19 10:19:15'),
+(91, 27, '10 แถม 1', NULL, '2019-08-19 10:19:15');
 
 -- --------------------------------------------------------
 
@@ -495,7 +502,14 @@ INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_
 (8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '', '', '', '2', '2', '2', '22222', '0850581776', '', 1, 4, 'complete', 0, 0, 0, 0, 0, '8888.00', NULL, '2019-06-16 17:26:25'),
 (9, 'DL-2019-0009', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '99999', '', '', '', '99999', '99999', '99999', '99999', '0850581776', '', 1, 7, 'start', 1, 1, 0, 1, 1, NULL, NULL, '2019-07-11 08:15:52'),
 (10, 'DL-2019-0010', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '88888', '', '', '', '88888', '88888', '88888', '88888', '0850581776', '1562834704481-ทดสอบทดสอบทดสอบ.jpg', 2, 2, 'start', 1, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-11 08:45:04'),
-(11, 'DL-2019-0011', 99, 13, 'นาย', 'พร้อมเลิศ123', 'หล่อวิจิตร123', '11111', '33333', '44444', '55555', '66666', '88888', '99999', '00000', '77777', '22222', '1562835268812-ทดสอบทดสอบทดสอบ.jpg', 2, 4, 'complete', 1, 1, NULL, NULL, NULL, '500.00', '987654', '2019-07-11 08:54:28');
+(11, 'DL-2019-0011', 99, 13, 'นาย', 'พร้อมเลิศ123', 'หล่อวิจิตร123', '11111', '33333', '44444', '55555', '66666', '88888', '99999', '00000', '77777', '22222', '1562835268812-ทดสอบทดสอบทดสอบ.jpg', 2, 4, 'complete', 1, 1, NULL, NULL, NULL, '500.00', '987654', '2019-07-11 08:54:28'),
+(12, 'DL-2019-0012', 0, 13, 'Mr.', 'จิตริณีย์', 'หล่อวิจิตร', '3100501848570', '11/13', '-', 'งามวงศ์วาน 59', 'งามวงศ์วาน', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', NULL, '0869991827', '1563963549448-image_slide_04.jpg', 1, 7, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:19:09'),
+(13, 'DL-2019-0013', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, '0850581776', '1563964020405-ic_tuktuk.png', 1, 4, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:27:00'),
+(14, 'DL-2019-0014', 0, 13, 'ส.อ.หญิง', 'b', 'b', '3100600317068', 'b', 'b', 'b', 'b', 'b', 'b', 'b', NULL, 'b', '1563964128368-65506329_2284719714945274_1666976343444684800_n.jpg', 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:28:48'),
+(15, 'DL-2019-0015', 0, 13, 'ส.อ.หญิง', '9', '9', '3100600317068', '9', '9', '9', '9', '9', '9', '9', NULL, '9', '1563964492371-image_slide_04.jpg', 1, 1, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:34:52'),
+(16, 'DL-2019-0016', 0, 13, 'Mr.', '7', '7', '3100600317068', '7', '7', '7', '7', '7', '7', '7', NULL, '7', '1563964618691-2787830.jpg', 1, 1, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:36:58'),
+(17, 'DL-2019-0017', 0, 13, 'ร.ต.หญิง', '8', '8', '3100600317068', '8', '8', '8', '8', '8', '8', '8', NULL, '8', '1563964803561-image_slide_02.jpg', 3, 4, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:40:03'),
+(18, 'DL-2019-0018', 0, 13, 'ส.อ.หญิง', '0', '0', '3100600317068', '0', '0', '0', '0', '0', '0', '0', NULL, '0', '1564025959173-react-node01.jpeg', 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-25 03:39:19');
 
 -- --------------------------------------------------------
 
@@ -525,7 +539,15 @@ CREATE TABLE `course_registration_social` (
   `contact_phone` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `disease` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `news_source` int(11) NOT NULL COMMENT 'ทราบข่าวการอบรมจากไหน (bit field: bit 0 = เว็บ, bit 1 = อีเมล, bit 2 = โบรชัวร์, bit 3 = ออนไลน์, bit 4 = บอกต่อ)',
+  `receipt_name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `receipt_address` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `receipt_sub_district` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `receipt_district` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `receipt_province` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `receipt_postal_code` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `register_status` enum('start','wait-approve','complete','cancel') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'start',
+  `paid_amount` decimal(13,2) DEFAULT NULL,
+  `receipt_number` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -533,23 +555,28 @@ CREATE TABLE `course_registration_social` (
 -- Dumping data for table `course_registration_social`
 --
 
-INSERT INTO `course_registration_social` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `birth_date`, `occupation`, `work_place`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `email`, `contact_name`, `contact_phone`, `disease`, `news_source`, `register_status`, `created_at`) VALUES
-(1, '2019-0001', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'Programmer', '3bugs', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'promlert@gmail.com', 'ยุ้ย', '0869991827', '-', 0, 'start', '2019-05-28 08:10:36'),
-(2, '2019-0002', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 10, 'start', '2019-05-28 08:19:32'),
-(3, '2019-0003', 0, 11, 'นาง', 'b', 'b', '0000-00-00', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b@b.com', 'b', 'b', 'b', 17, 'start', '2019-05-28 08:24:24'),
-(4, '2019-0004', 0, 11, 'นาย', 'กกก', 'กกก', '0000-00-00', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'aaa@aaa.com', 'กกก', 'กกก', 'กกก', 10, 'start', '2019-05-30 04:11:02'),
-(5, 'SO-2019-0005', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 0, 'start', '2019-06-17 09:43:28'),
-(6, 'SO-2019-0006', 99, 22, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 2, 'start', '2019-06-17 10:15:21'),
-(7, 'SO-2019-0007', 0, 11, 'นาย', 'สมหมาย', 'สายเสมอ', '2003-07-10', 'SA', 'SA Company', '110', 'หนองเขม', 'หนองเขม', 'กทม', '10990', '0987786655', 'SA@gmail.com', 'อินทราม', 'จันทร์', '-', 2, 'start', '2019-07-19 10:25:32'),
-(8, 'SO-2019-0008', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, 'start', '2019-07-22 06:15:16'),
-(9, 'SO-2019-0009', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, 'start', '2019-07-22 06:16:56'),
-(10, 'SO-2019-0010', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, 'start', '2019-07-22 06:38:10'),
-(11, 'SO-2019-0011', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, 'start', '2019-07-22 06:40:45'),
-(12, 'SO-2019-0012', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, 'start', '2019-07-22 06:42:51'),
-(13, 'SO-2019-0013', 0, 17, 'นาง', 'b', 'b', '2019-07-02', 'b', 'b', 'b', 'b', 'b', 'b', '22222', 'b', 'b@b.com', 'b', 'b', 'b', 2, 'start', '2019-07-22 06:46:34'),
-(14, 'SO-2019-0014', 0, 17, 'นางสาว', 'c', 'c', '2019-07-03', 'c', 'c', 'c', 'c', 'c', 'c', '33333', 'c', 'c@c.com', 'c', 'c', 'c', 4, 'start', '2019-07-22 06:48:34'),
-(15, 'SO-2019-0015', 0, 17, 'Mr.', 'd', 'd', '2019-07-04', 'd', 'd', 'd', 'd', 'd', 'd', '44444', 'd', 'd@d.com', 'd', 'd', 'd', 8, 'start', '2019-07-22 06:52:22'),
-(16, 'SO-2019-0016', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '9', '9', '9', '9', '9', '9', '99999', '0850581776', 'promlert@gmail.com', '9', '9', '9', 0, 'start', '2019-07-23 09:59:58');
+INSERT INTO `course_registration_social` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `birth_date`, `occupation`, `work_place`, `address`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `email`, `contact_name`, `contact_phone`, `disease`, `news_source`, `receipt_name`, `receipt_address`, `receipt_sub_district`, `receipt_district`, `receipt_province`, `receipt_postal_code`, `register_status`, `paid_amount`, `receipt_number`, `created_at`) VALUES
+(1, '2019-0001', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'Programmer', '3bugs', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'promlert@gmail.com', 'ยุ้ย', '0869991827', '-', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-05-28 08:10:36'),
+(2, '2019-0002', 99, 11, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '0000-00-00', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 10, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-05-28 08:19:32'),
+(3, '2019-0003', 0, 11, 'นาง', 'b', 'b', '0000-00-00', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b@b.com', 'b', 'b', 'b', 17, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-05-28 08:24:24'),
+(4, '2019-0004', 0, 11, 'นาย', 'กกก', 'กกก', '0000-00-00', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'กกก', 'aaa@aaa.com', 'กกก', 'กกก', 'กกก', 10, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-05-30 04:11:02'),
+(5, 'SO-2019-0005', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-06-17 09:43:28'),
+(6, 'SO-2019-0006', 99, 22, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '1', '1', '1', '1', '1', '1', '11111', '0850581776', 'promlert@gmail.com', '1', '1', '1', 2, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-06-17 10:15:21'),
+(7, 'SO-2019-0007', 0, 11, 'นาย', 'สมหมาย', 'สายเสมอ', '2003-07-10', 'SA', 'SA Company', '110', 'หนองเขม', 'หนองเขม', 'กทม', '10990', '0987786655', 'SA@gmail.com', 'อินทราม', 'จันทร์', '-', 2, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-19 10:25:32'),
+(8, 'SO-2019-0008', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:15:16'),
+(9, 'SO-2019-0009', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:16:56'),
+(10, 'SO-2019-0010', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:38:10'),
+(11, 'SO-2019-0011', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:40:45'),
+(12, 'SO-2019-0012', 0, 17, 'นาย', 'a', 'a', '2019-07-01', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:42:51'),
+(13, 'SO-2019-0013', 0, 17, 'นาง', 'b', 'b', '2019-07-02', 'b', 'b', 'b', 'b', 'b', 'b', '22222', 'b', 'b@b.com', 'b', 'b', 'b', 2, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:46:34'),
+(14, 'SO-2019-0014', 0, 17, 'นางสาว', 'c', 'c', '2019-07-03', 'c', 'c', 'c', 'c', 'c', 'c', '33333', 'c', 'c@c.com', 'c', 'c', 'c', 4, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-22 06:48:34'),
+(15, 'SO-2019-0015', 0, 17, 'Mr.', 'd', 'd', '2019-07-04', 'd', 'd', 'd', 'd', 'd', 'd', '44444', 'd', 'd@d.com', 'd', 'd', 'd', 8, NULL, NULL, NULL, NULL, NULL, NULL, 'cancel', NULL, NULL, '2019-07-22 06:52:22'),
+(16, 'SO-2019-0016', 99, 17, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', '9', '9', '9', '9', '9', '9', '99999', '0850581776', 'promlert@gmail.com', '9', '9', '9', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-07-23 09:59:58'),
+(17, 'SO-2019-0017', 0, 27, 'นาย', 'p', 'p', '2019-08-04', 'p', 'p', 'p', 'p', 'p', 'p', '11111', 'p', 'p@p.com', 'p', 'p', 'p', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-08-20 05:07:54'),
+(18, 'SO-2019-0018', 0, 27, 'นาย', 'บัลลพ', 'หล่อวิจิตร', '2010-01-07', 'นักเรียน', 'โรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'tonyod@gmail.com', 'พร้อมเลิศ', '0850581776', 'ภูมิแพ้', 8, NULL, NULL, NULL, NULL, NULL, NULL, 'wait-approve', NULL, NULL, '2019-08-20 08:42:40'),
+(19, 'SO-2019-0019', 0, 27, 'นาง', 'จิตริณีย์', 'หล่อวิจิตร', '1972-01-12', 'เจ้าหน้าที่ตรวจสอบบัญชี', 'มหาวิทยาลัยเกษตรศาสตร์', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0869991827', 'chitrinee@gmail.com', 'พร้อมเลิศ', '0850581776', '-', 1, 'จิตริณีย์ หล่อวิจิตร', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', 'complete', '555.00', NULL, '2019-08-20 08:49:44'),
+(20, 'SO-2019-0020', 0, 11, 'นาย', 'a', 'a', '2019-08-20', 'a', 'a', 'a', 'a', 'a', 'a', '11111', 'a', 'a@a.com', 'a', 'a', 'a', 1, NULL, NULL, NULL, NULL, NULL, NULL, 'start', NULL, NULL, '2019-08-20 08:58:50'),
+(21, 'SO-2019-0021', 0, 27, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '2019-08-20', 'Programmer', '3bugs', '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซ.งามวงศ์วาน 59', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0850581776', 'promlert@gmail.com', 'a', 'a', 'a', 1, 'พร้อมเลิศ หล่อวิจิตร', '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซ.งามวงศ์วาน 59', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', 'complete', '555.00', '98765', '2019-08-20 09:40:52');
 
 -- --------------------------------------------------------
 
@@ -648,7 +675,7 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (64, 55, 'AC-2019-0055-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 9999, 'b', 'b', 'b@b.com', 'start', NULL, NULL, '2019-06-10 03:31:41'),
 (65, 56, 'AC-2019-0056-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 04:05:00'),
 (66, 57, 'AC-2019-0057-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 04:25:52'),
-(67, 58, 'AC-2019-0058-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 04:55:20'),
+(67, 58, 'AC-2019-0058-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', '111.00', '111', '2019-06-10 04:55:20'),
 (68, 59, 'AC-2019-0059-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 05:31:59'),
 (69, 59, 'AC-2019-0059-0002', 'นาง', 'b', 'b', '2019-06-02', 'b', 'b', 2, NULL, 'b', 'b@b.com', 'start', NULL, NULL, '2019-06-10 05:31:59'),
 (70, 59, 'AC-2019-0059-0003', 'นางสาว', 'c', 'c', '2019-06-03', 'c', 'c', 3, NULL, 'c', 'c@c.com', 'cancel', NULL, NULL, '2019-06-14 05:44:43'),
@@ -661,10 +688,10 @@ INSERT INTO `course_trainee` (`id`, `course_registration_id`, `form_number`, `ti
 (77, 65, 'AC-2019-0065-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:04:38'),
 (78, 66, 'AC-2019-0066-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-10 07:07:10'),
 (79, 67, 'AC-2019-0067-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 07:42:35'),
-(80, 68, 'AC-2019-0068-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:48:34'),
-(81, 69, 'AC-2019-0069-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-10 07:50:19'),
-(82, 69, 'AC-2019-0069-0002', 'นาง', 'b', 'b', '2019-06-02', 'b', 'b', 9999, 'bbb', 'b', 'b@b.com', 'start', NULL, NULL, '2019-06-10 07:50:19'),
-(83, 70, 'AC-2019-0070-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', '8888.00', '321', '2019-06-10 08:12:38'),
+(80, 68, 'AC-2019-0068-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 07:48:34'),
+(81, 69, 'AC-2019-0069-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'wait-approve', NULL, NULL, '2019-06-10 07:50:19'),
+(82, 69, 'AC-2019-0069-0002', 'นาง', 'b', 'b', '2019-06-02', 'b', 'b', 9999, 'bbb', 'b', 'b@b.com', 'complete', '88888.00', NULL, '2019-06-10 07:50:19'),
+(83, 70, 'AC-2019-0070-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'complete', '8888.00', '322', '2019-06-10 08:12:38'),
 (84, 71, 'AC-2019-0071-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', '0850581776', 'promlert@gmail.com', 'start', NULL, NULL, '2019-06-12 02:42:04'),
 (85, 71, 'AC-2019-0071-0002', 'นาง', 'b', 'b', '2019-06-01', 'b', 'b', 9999, 'xxxx', '222', 'b@b.com', 'complete', '987.00', NULL, '2019-06-12 02:42:04'),
 (86, 72, 'AC-2019-0072-0001', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 9999, 'aaa', '0850581776', 'promlert@gmail.com', 'complete', NULL, NULL, '2019-06-13 08:18:52'),
@@ -773,7 +800,9 @@ INSERT INTO `document_download` (`id`, `title`, `status`, `created_at`, `updated
 (11, 'Test', 'publish', '2019-07-19 14:33:18', '2019-07-20 06:36:38', 6, NULL, 'km', '1563602537370-รหัสพรรคการเมืองประจำปีภาษี 2561 ส่งกรมสรรพ.pdf', '1563602496424-training05.jpg', NULL, '/static/media/19-6-2019-14-53-21.pdf', NULL, 0, 2, 'TestTestTestTest'),
 (12, 'ทดสอบชื่อเรื่อง เอกสารการอบรม123456', NULL, '2019-07-20 03:40:15', '2019-07-20 06:45:45', NULL, NULL, 'training', '1563594823857-receipt_2562_1_tonyod.pdf', '', NULL, NULL, NULL, 0, 2, 'ทดสอบรายละเอียดแบบย่อ เอกสารการอบรม123456'),
 (14, 'ทดสอบชื่อเรื่อง KM', NULL, '2019-07-20 04:14:55', '2019-07-20 05:23:53', NULL, NULL, 'km', '1563596095065-คำสั่งศาลฎีกา 40 รายแรก-แบบบัญชีรายชื่อ.PDF', '1563600233363-training06.jpg', NULL, NULL, NULL, 0, 0, 'ทดสอบรายละเอียดแบบย่อ KM'),
-(15, 'aaaaaaaaaa123', NULL, '2019-07-20 05:16:15', '2019-07-20 05:21:59', NULL, NULL, 'km', '1563600119701-ข้อมูลเพิกถอน-รับเพิ่ม-ยกคำร้อง.PDF', '1563600119702-react-node04.jpg', NULL, NULL, NULL, 0, 0, 'bbbbbbbbbb123');
+(15, 'aaaaaaaaaa123', NULL, '2019-07-20 05:16:15', '2019-07-20 05:21:59', NULL, NULL, 'km', '1563600119701-ข้อมูลเพิกถอน-รับเพิ่ม-ยกคำร้อง.PDF', '1563600119702-react-node04.jpg', NULL, NULL, NULL, 0, 0, 'bbbbbbbbbb123'),
+(16, 'ชื่อเรื่อง', NULL, '2019-07-24 07:41:12', NULL, NULL, NULL, 'training', '1563954072994-ใบสมัครของนักกีฬา (อ.ฐาปนา).pdf', '', NULL, NULL, NULL, 0, 0, 'รายละเอียดแบบย่อ'),
+(17, 'ชื่อเรื่องรายงานผลการดำเนินงาน', NULL, '2019-07-24 07:43:39', NULL, NULL, NULL, 'report', '1563954219464-คำสั่งศาลฎีกา 40 รายแรก-แบบบัญชีรายชื่อ.PDF', '', NULL, NULL, NULL, 0, 0, 'รายละเอียดแบบย่อรายงานผลการดำเนินงาน');
 
 -- --------------------------------------------------------
 
@@ -1203,7 +1232,8 @@ INSERT INTO `payment_notification` (`id`, `member_id`, `trainee_id`, `service_ty
 (9, 99, 6, 'driving-license', 6, '2019-06-06', '1560674876460-exit_poll.png', '2019-06-16 08:47:56'),
 (10, 99, 6, 'driving-license', 6, '2019-06-06', '1560675958810-vote_no.png', '2019-06-16 09:05:58'),
 (11, 99, 83, 'training', 456, '2019-05-27', '1560676090510-two.png', '2019-06-16 09:08:10'),
-(12, 110, 90, 'training', 500, '2019-06-19', '1560924229916-bg-white-300x165.jpg', '2019-06-19 06:03:49');
+(12, 110, 90, 'training', 500, '2019-06-19', '1560924229916-bg-white-300x165.jpg', '2019-06-19 06:03:49'),
+(13, 110, 21, 'social', 500, '2019-06-19', '1560676090510-two.png', '2019-06-19 06:03:49');
 
 -- --------------------------------------------------------
 
@@ -1239,17 +1269,18 @@ CREATE TABLE `research_and_academic` (
 
 CREATE TABLE `training_course_category` (
   `id` int(11) NOT NULL,
-  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `training_course_category`
 --
 
-INSERT INTO `training_course_category` (`id`, `title`) VALUES
-(1, 'หลักสูตรสำหรับนักบริหาร'),
-(2, 'การบริหารและจัดการทั่วไป'),
-(3, 'พัฒนาระบบคิด');
+INSERT INTO `training_course_category` (`id`, `title`, `created_at`) VALUES
+(1, 'หลักสูตรสำหรับนักบริหาร', '2019-08-16 03:17:52'),
+(2, 'การบริหารและจัดการทั่วไป', '2019-08-16 03:17:52'),
+(3, 'พัฒนาระบบคิด', '2019-08-16 03:17:52');
 
 -- --------------------------------------------------------
 
@@ -1261,26 +1292,65 @@ CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `department_id` int(11) NOT NULL,
+  `sort_index` int(11) NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone_office` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone_extension` int(11) NOT NULL,
+  `details` text COLLATE utf8mb4_unicode_ci,
+  `show_details` tinyint(1) NOT NULL,
+  `image_file_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `role` enum('user','admin','super_admin','') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','deleted','') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active'
+  `status` enum('active','inactive','deleted','') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `permissions` int(11) NOT NULL DEFAULT '0' COMMENT 'bit fields ระบุสิทธิการจัดการต่างๆ',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `phone_office`, `role`, `created_at`, `status`) VALUES
-(1, 'promlert', 'e99a18c428cb38d5f260853678922e03', 'พร้อมเลิศ', 'หล่อวิจิตร', 'promlert@gmail.com', '02-555-5555-99 ต่อ 1234', 'super_admin', '2018-11-23 17:13:45', 'active'),
-(2, 'test', '098f6bcd4621d373cade4e832627b4f6', 'test_first_name', 'test_last_name', NULL, '', 'admin', '2018-11-23 17:17:09', 'active'),
-(3, 'user', 'ee11cbb19052e40b07aac0ca060c23ee', 'Normal', 'User', NULL, '', 'user', '2018-11-28 08:20:36', 'active'),
-(4, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'Normal', 'Admin', NULL, '', 'admin', '2018-11-28 08:20:36', 'active'),
-(5, 'superadmin', '17c4520f6cfd1ab53d8745e84681eb49', 'Super', 'Admin', NULL, '', 'super_admin', '2018-11-28 08:21:08', 'active'),
-(6, 'super', '1b3231655cebb7a1f783eddf27d254ca', 'Super', 'Admin', NULL, '', 'super_admin', '2018-11-28 08:22:35', 'active');
+INSERT INTO `user` (`id`, `username`, `password`, `title`, `first_name`, `last_name`, `position`, `department_id`, `sort_index`, `email`, `phone`, `phone_office`, `phone_extension`, `details`, `show_details`, `image_file_name`, `role`, `status`, `permissions`, `created_at`) VALUES
+(1, 'promlert', 'e99a18c428cb38d5f260853678922e03', '', 'พร้อมเลิศ', 'หล่อวิจิตร', '', 0, 0, 'promlert@gmail.com', '', '02-555-5555-99 ต่อ 1234', 0, '', 0, '', 'super_admin', 'active', 1, '2018-11-23 17:13:45'),
+(2, 'test', '098f6bcd4621d373cade4e832627b4f6', '', 'test_first_name', 'test_last_name', '', 0, 0, NULL, '', '', 0, '', 0, '', 'admin', 'active', 1, '2018-11-23 17:17:09'),
+(3, 'user', 'ee11cbb19052e40b07aac0ca060c23ee', '', 'Normal', 'User', '', 0, 0, NULL, '', '', 0, '', 0, '', 'user', 'active', 1, '2018-11-28 08:20:36'),
+(4, 'admin', '21232f297a57a5a743894a0e4a801fc3', '', 'Normal', 'Admin', '', 0, 0, NULL, '', '', 0, '', 0, '', 'admin', 'active', 1, '2018-11-28 08:20:36'),
+(5, 'superadmin', '17c4520f6cfd1ab53d8745e84681eb49', '', 'Super', 'Admin', '', 0, 0, NULL, '', '', 0, '', 0, '', 'super_admin', 'active', 1, '2018-11-28 08:21:08'),
+(6, 'super', '1b3231655cebb7a1f783eddf27d254ca', '', 'Super', 'Admin', '', 0, 0, NULL, '', '', 0, '', 0, '', 'super_admin', 'active', 1, '2018-11-28 08:22:35'),
+(7, 'supachai', 'supachai', 'ผศ.ดร.', 'ศุภชัย', 'ศรีสุชาติ', 'ผู้อำนวยการ', 1, 1, 'supachai@gmail.com', '081-222-3333', '02-123-4567', 111, '', 1, '_profile.jpg', 'user', 'active', 0, '2019-08-08 08:15:25'),
+(8, 'a', '0cc175b9c0f1b6a831c399e269772661', 'a', 'a', 'a', 'a', 1, 4, 'a@a.com', 'a', 'a', 0, '<p>aaa</p>\n', 1, '1565259248354-2843807.jpg', 'user', 'active', 22, '2019-08-08 10:14:08'),
+(9, 'b', '92eb5ffee6ae2fec3ad71c777531578f', 'b', 'b', 'b', 'b', 1, 3, 'b@b.com', 'b', 'b', 222, '', 0, '1565259453869-android.png', 'user', 'active', 1, '2019-08-08 10:17:33'),
+(10, 'aa', '0cc175b9c0f1b6a831c399e269772661', 'a', 'a', 'a', 'a', 1, 2, 'a@a.com', 'a', 'a', 1, '', 0, '1565260826501-android.png', 'user', 'active', 1, '2019-08-08 10:40:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_department`
+--
+
+CREATE TABLE `user_department` (
+  `id` int(11) NOT NULL,
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sort_index` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user_department`
+--
+
+INSERT INTO `user_department` (`id`, `name`, `sort_index`, `created_at`) VALUES
+(1, 'ผู้บริหาร', 1, '2019-08-08 04:07:42'),
+(2, 'หัวหน้างาน', 2, '2019-08-08 04:07:42'),
+(3, 'งานวิจัยและวิชาการ', 6, '2019-08-08 04:08:15'),
+(4, 'งานพัฒนาคนและองค์กร', 5, '2019-08-08 04:08:15'),
+(5, 'งานบริการสังคมและชุมชน', 4, '2019-08-08 04:08:40'),
+(6, 'งานบริหารสำนักงาน', 3, '2019-08-08 04:08:40');
 
 --
 -- Indexes for dumped tables
@@ -1474,6 +1544,12 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_department`
+--
+ALTER TABLE `user_department`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1505,19 +1581,19 @@ ALTER TABLE `banners`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `course_asset`
 --
 ALTER TABLE `course_asset`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `course_fee`
 --
 ALTER TABLE `course_fee`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `course_master`
@@ -1535,13 +1611,13 @@ ALTER TABLE `course_registration`
 -- AUTO_INCREMENT for table `course_registration_driving_license`
 --
 ALTER TABLE `course_registration_driving_license`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `course_registration_social`
 --
 ALTER TABLE `course_registration_social`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `course_trainee`
@@ -1559,7 +1635,7 @@ ALTER TABLE `documents_download`
 -- AUTO_INCREMENT for table `document_download`
 --
 ALTER TABLE `document_download`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `driving_license_course_type`
@@ -1643,7 +1719,7 @@ ALTER TABLE `organization_type`
 -- AUTO_INCREMENT for table `payment_notification`
 --
 ALTER TABLE `payment_notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `research_and_academic`
@@ -1661,6 +1737,12 @@ ALTER TABLE `training_course_category`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `user_department`
+--
+ALTER TABLE `user_department`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
