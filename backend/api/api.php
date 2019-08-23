@@ -1983,6 +1983,10 @@ function doUpdateReceiptNumber()
         $sql = "UPDATE course_trainee 
                 SET receipt_number = '$receiptNumber'
                 WHERE id = $traineeId";
+    } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+        $sql = "UPDATE course_registration_social
+                SET receipt_number = '$receiptNumber'
+                WHERE id = $traineeId";
     } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
         $sql = "UPDATE course_registration_driving_license
                 SET receipt_number = '$receiptNumber'

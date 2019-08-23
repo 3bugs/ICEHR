@@ -111,7 +111,7 @@
 
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-files-o"></i> <span>ใบสมัคร</span>
+                        <i class="fa fa-money"></i> <span>การเงิน</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
 
@@ -123,6 +123,13 @@
                                 $result->close();
                             }
 
+                            $numRowsSocial = 0;
+                            $sql = "SELECT id FROM course_registration_social WHERE register_status = 'wait-approve'";
+                            if ($result = $db->query($sql)) {
+                                $numRowsSocial = $result->num_rows;
+                                $result->close();
+                            }
+
                             $numRowsDrivingLicense = 0;
                             $sql = "SELECT id FROM course_registration_driving_license WHERE register_status = 'wait-approve'";
                             if ($result = $db->query($sql)) {
@@ -130,7 +137,7 @@
                                 $result->close();
                             }
 
-                            $numRowsAll = $numRowsTraining + $numRowsDrivingLicense;
+                            $numRowsAll = $numRowsTraining + $numRowsSocial + $numRowsDrivingLicense;
                             if ($numRowsAll > 0) {
                                 ?>
                                 <small class="label pull-right bg-yellow"><?php echo $numRowsAll; ?></small>
@@ -148,6 +155,20 @@
                                     ?>
                                     <span class="pull-right-container">
                                         <small class="label pull-right bg-yellow"><?php echo $numRowsTraining; ?></small>
+                                    </span>
+                                    <?php
+                                }
+                                ?>
+                            </a>
+                        </li>
+                        <li style="margin-left: 20px">
+                            <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>">
+                                <i class="fa fa-male"></i>&nbsp;&nbsp;สังคม
+                                <?php
+                                if ($numRowsSocial > 0) {
+                                    ?>
+                                    <span class="pull-right-container">
+                                        <small class="label pull-right bg-yellow"><?php echo $numRowsSocial; ?></small>
                                     </span>
                                     <?php
                                 }

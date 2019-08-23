@@ -27,7 +27,17 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
                 INNER JOIN course_master cm 
                     ON cm.id = c.course_master_id 
             WHERE ct.id = $traineeId";
-} else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+} else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+    $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, 
+                   cr.receipt_district, cr.receipt_province, cr.receipt_postal_code,  
+                   cm.title AS course_title, c.batch_number AS course_batch_number, c.application_fee AS course_fee, cr.paid_amount
+            FROM course_registration_social cr 
+                INNER JOIN course c 
+                    ON c.id = cr.course_id 
+                INNER JOIN course_master cm 
+                    ON cm.id = c.course_master_id 
+            WHERE cr.id = $traineeId";
+}  else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
     $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                cr.sub_district, cr.district, cr.province, cr.phone,
                cr.course_type, cr.license_type, dlct.application_fee AS course_fee, cr.paid_amount
@@ -48,7 +58,7 @@ if ($result = $db->query($sql)) {
         $trainee = $result->fetch_assoc();
         $result->close();
 
-        if ($serviceType == SERVICE_TYPE_TRAINING) {
+        if ($serviceType == SERVICE_TYPE_TRAINING || $serviceType == SERVICE_TYPE_SOCIAL) {
             $trainee['course_name'] = "{$trainee['course_title']} รุ่นที่ {$trainee['course_batch_number']}";
         } else if ($serviceType == SERVICE_TYPE_DRIVING_LICENSE) {
             $trainee['course_name'] = ((int)$trainee['course_type'] === 1)
@@ -149,7 +159,7 @@ $pdf->SetXY(60, 34);
 //$pdf->SetXY(60,30);
 
 $address = '';
-if ($serviceType === SERVICE_TYPE_TRAINING) {
+if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
     $address = "{$trainee['receipt_address']} แขวง/ตำบล{$trainee['receipt_sub_district']} เขต/อำเภอ{$trainee['receipt_district']} จังหวัด{$trainee['receipt_province']}";
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
     $address = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง/ตำบล{$trainee['sub_district']} เขต/อำเภอ{$trainee['district']} จังหวัด{$trainee['province']}";
@@ -158,13 +168,13 @@ $pdf->MultiCell(300, 5, $address, 0, 'L');
 $pdf->SetXY(34, 55);
 //$pdf->SetXY(40,53);
 $pdf->Cell(13, 6, '', 0, 0, 'C', 0);
-$pdf->MultiCell(300, 6, "หลักสูตร{$trainee['course_name']}", 0, 'L');
+$pdf->MultiCell(400, 6, "หลักสูตร{$trainee['course_name']}", 0, 'L');
 
 $pdf->SetXY(47, 70);
 $pdf->Cell(110, 7, "ค่าลงทะเบียนอบรม", 0, 0, 'L', 0);
 $pdf->Cell(25, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
 
-if ($serviceType === SERVICE_TYPE_TRAINING) {
+if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
     if ((int)$trainee['course_fee'] > (int)$trainee['paid_amount']) {
         $pdf->SetXY(47, 78);
         $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);

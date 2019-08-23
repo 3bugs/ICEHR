@@ -360,7 +360,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         <div class="nav-tabs-custom" style="margin-bottom: 0">
                             <ul class="nav nav-tabs">
                                 <li class="active"><a href="#tab_info" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
-                                <li><a href="#tab_noti" data-toggle="tab">การแจ้งโอนเงิน</a></li>
+                                <li id="tabPaymentNotification"><a href="#tab_noti" data-toggle="tab">การแจ้งโอนเงิน</a></li>
                             </ul>
                             <div class="tab-content">
 
@@ -429,7 +429,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                         <input type="text" class="form-control" disabled
                                                                id="inputPaidAmount">
                                                     </div>
-                                                    <div style="color: red; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
+                                                    <div style="color: orangered; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
                                             </div>
                                             <?php
@@ -468,7 +468,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                         <input type="text" class="form-control" disabled
                                                                id="inputPaidAmount">
                                                     </div>
-                                                    <div style="color: red; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
+                                                    <div style="color: orangered; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
                                             </div>
                                             <?php
@@ -485,7 +485,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <div id="paymentNotificationDetails">
                                             <div class="row">
                                                 <!--ผู้แจ้งโอนเงิน (สมาชิกที่ login)-->
-                                                <div class="form-group col-md-8">
+                                                <div class="form-group col-md-6">
                                                     <label for="inputMemberName">แจ้งโดย:</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -496,8 +496,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     </div>
                                                 </div>
                                                 <!--วัน/เวลาที่แจ้ง-->
-                                                <div class="form-group col-md-4">
-                                                    <label for="inputNotificationDateTime">เมื่อ:</label>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputNotificationDateTime">แจ้งเมื่อ: <span
+                                                                style="color: orangered; font-weight: normal">(วันเวลาที่แจ้ง ไม่ใช่วันเวลาที่โอน)</span></label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-clock-o"></i>
@@ -507,7 +508,44 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div class="row">
+                                                <!--เบอร์โทรของผู้แจ้งโอน-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputMemberPhone">เบอร์โทรผู้แจ้งโอน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-phone"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputMemberPhone">
+                                                    </div>
+                                                </div>
+                                                <!--อีเมลของผู้แจ้งโอน-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputMemberEmail">อีเมลผู้แจ้งโอน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputMemberEmail">
+                                                    </div>
+                                                </div>
+                                                <!--ยอดเงินที่แจ้งโอน-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputAmount">ยอดเงินที่แจ้งโอน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputAmount">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" style="margin-top: 10px">
                                                 <div class="col-md-12" style="text-align: center">
                                                     <img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>
                                                 </div>
@@ -1157,6 +1195,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             $row['title'], $row['batch_number']
                         );
                         $courseApplicationFee = (int)$row['application_fee'];
+                        if ($paramCourseId == null && $courseApplicationFee === 0) {
+                            continue;
+                        }
 
                         $beginDate = date_create($row['begin_date']);
                         $endDate = date_create($row['end_date']);
@@ -1267,9 +1308,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     onClick="onClickStatus(
                                             '<?= $formNumber; ?>',
                                     <?= $traineeId; ?>,
-                                            '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
+                                            '<?= $trainee['title'] . ' ' . htmlentities($trainee['first_name']) . ' ' . htmlentities($trainee['last_name']) . "  •  {$trainee['phone']}  •  {$trainee['email']}"; ?>',
                                             '<?= ($trainee['coordinator']['first_name'] ? "{$trainee['coordinator']['title']} {$trainee['coordinator']['first_name']} {$trainee['coordinator']['last_name']}  •  {$trainee['coordinator']['phone']}  •  {$trainee['coordinator']['email']}" : ''); ?>',
-                                            '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? $courseDetails : $trainee['driving_license_course_type']); ?>',
+                                            '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? htmlentities($courseDetails) : htmlentities($trainee['driving_license_course_type'])); ?>',
                                             '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
                                             '<?= $paidAmount; ?>',
                                             '<?= $trainee['pid_file_name']; ?>'
@@ -1301,8 +1342,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 '<?= $formNumber; ?>',
                                         <?= $traineeId; ?>,
                                                 '<?= $trainee['title']; ?>',
-                                                '<?= $trainee['first_name']; ?>',
-                                                '<?= $trainee['last_name']; ?>',
+                                                '<?= htmlentities($trainee['first_name']); ?>',
+                                                '<?= htmlentities($trainee['last_name']); ?>',
                                                 '<?= $trainee['pid']; ?>',
                                                 '<?= $trainee['address']; ?>',
                                                 '<?= $trainee['moo']; ?>',
@@ -1330,8 +1371,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 '<?= $formNumber; ?>',
                                         <?= $traineeId; ?>,
                                                 '<?= $trainee['title']; ?>',
-                                                '<?= $trainee['first_name']; ?>',
-                                                '<?= $trainee['last_name']; ?>',
+                                                '<?= htmlentities($trainee['first_name']); ?>',
+                                                '<?= htmlentities($trainee['last_name']); ?>',
                                                 '<?= $trainee['pid']; ?>',
                                                 '<?= $trainee['phone']; ?>',
                                         <?= $trainee['driving_license_course_type_id']; ?>,
@@ -1370,34 +1411,51 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
-                                <li><a href="javascript:void(0)"
-                                       onClick="onClickPrintReceipt(
-                                               '<?= $formNumber; ?>',
-                                       <?= $traineeId; ?>,
-                                               '<?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>',
-                                               '<?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_type'] : $courseDetails; ?>',
-                                       <?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_fee'] : $courseApplicationFee; ?>,
-                                               '<?= $paidAmount; ?>',
-                                               '<?= $trainee['receipt_number']; ?>'
-                                               )">
-                                        <i class="fa fa-print"></i>ใบเสร็จรับเงิน
-                                    </a>
-                                </li>
                                 <?php
-                                if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                if ($courseApplicationFee !== 0) {
                                     ?>
-                                    <li class="divider"></li>
+                                    <li><a href="javascript:void(0)"
+                                           onClick="onClickPrintReceipt(
+                                                   '<?= $formNumber; ?>',
+                                           <?= $traineeId; ?>,
+                                                   '<?= $trainee['title'] . ' ' . htmlentities($trainee['first_name']) . ' ' . htmlentities($trainee['last_name']); ?>',
+                                                   '<?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? htmlentities($trainee['driving_license_course_type']) : htmlentities($courseDetails); ?>',
+                                           <?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_fee'] : $courseApplicationFee; ?>,
+                                                   '<?= $paidAmount; ?>',
+                                                   '<?= $trainee['receipt_number']; ?>'
+                                                   )">
+                                            <i class="fa fa-print"></i>ใบเสร็จรับเงิน
+                                        </a>
+                                    </li>
+                                    <?php
+                                }
+                                ?>
+
+                                <?php
+                                if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                                    if ($courseApplicationFee !== 0) {
+                                        ?>
+                                        <li class="divider"></li>
+                                        <?php
+                                    }
+                                    ?>
                                     <li><a target="_blank" href="print_ac_registration_form.php?trainee_id=<?= $traineeId; ?>&payment=1">
                                             <i class="fa fa-print"></i>ใบสมัคร
                                         </a>
                                     </li>
-                                    <li><a href="javascript:void(0)"
-                                           onClick="alert('feature นี้ยังไม่เสร็จครับ ;-)')">
-                                            <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
-                                        </a>
-                                    </li>
                                     <?php
-                                } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && $paramCourseId != null) {
+                                    if ($paramCourseId != null) {
+                                        ?>
+                                        <li><a href="javascript:void(0)"
+                                               onClick="alert('feature นี้ยังไม่เสร็จครับ ;-)')">
+                                                <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
+                                            </a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <?php
+                                } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                                     ?>
                                     <li class="divider"></li>
                                     <li><a href="javascript:void(0)"
@@ -1405,17 +1463,21 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             <i class="fa fa-print"></i>ใบสมัคร
                                         </a>
                                     </li>
-                                    <li><a href="javascript:void(0)"
-                                           onClick="onClickPrintResult('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                            <i class="fa fa-print"></i>ใบบันทึกผลการอบรม
-                                        </a>
-                                    </li>
-                                    <li><a href="javascript:void(0)"
-                                           onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                            <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
-                                        </a>
-                                    </li>
                                     <?php
+                                    if ($paramCourseId != null) {
+                                        ?>
+                                        <li><a href="javascript:void(0)"
+                                               onClick="onClickPrintResult('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                                <i class="fa fa-print"></i>ใบบันทึกผลการอบรม
+                                            </a>
+                                        </li>
+                                        <li><a href="javascript:void(0)"
+                                               onClick="onClickPrintCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
+                                                <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
+                                            </a>
+                                        </li>
+                                        <?php
+                                    }
                                 }
                                 ?>
                             </ul>
@@ -1783,6 +1845,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $('#manageRegisterStatusModal #inputPaidAmount').parent().parent().hide();
 
                 setButtonStatusClassForFreeCourse(registerStatus);
+
+                $('#formManageRegisterStatus #tabPaymentNotification').hide();
             } else {
                 $('#manageRegisterStatusModal #buttonStatusForPaidCourse').show();
                 $('#manageRegisterStatusModal #buttonStatusForFreeCourse').hide();
@@ -1790,6 +1854,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
 
                 setButtonStatusClassForPaidCourse(registerStatus);
+
+                $('#formManageRegisterStatus #tabPaymentNotification').show();
             }
 
             $('#manageRegisterStatusModal #alertSuccess').hide();
@@ -2140,13 +2206,14 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 if (data.error_code === 0) {
                     if (data.data_list.length > 0) {
                         const {
-                            member, slip_file_name, created_at, notification_date_format, notification_time_format
+                            member, amount, slip_file_name, created_at, notification_date_format, notification_time_format
                         } = data.data_list[0];
 
                         const inputMemberName = $('#manageRegisterStatusModal #inputMemberName');
                         const inputNotificationDateTime = $('#manageRegisterStatusModal #inputNotificationDateTime');
-                        //const inputMemberPhone = $('#manageRegisterStatusModal #inputMemberPhone');
-                        //const inputMemberEmail = $('#manageRegisterStatusModal #inputMemberEmail');
+                        const inputMemberPhone = $('#manageRegisterStatusModal #inputMemberPhone');
+                        const inputMemberEmail = $('#manageRegisterStatusModal #inputMemberEmail');
+                        const inputAmount = $('#manageRegisterStatusModal #inputAmount');
                         const imgPaymentSlip = $('#imgPaymentSlip');
 
                         if (member.id === 0) { // user ไม่ได้ login
@@ -2154,12 +2221,14 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             /*inputMemberPhone.val('');
                             inputMemberEmail.val('');*/
                         } else {
-                            inputMemberName.val(`${member.title} ${member.first_name} ${member.last_name}  •  ${member.phone}  •  ${member.email}`);
-                            /*inputMemberPhone.val(`${member.phone}`);
-                            inputMemberEmail.val(`${member.email}`);*/
+                            //inputMemberName.val(`${member.title} ${member.first_name} ${member.last_name}  •  ${member.phone}  •  ${member.email}`);
+                            inputMemberName.val(`${member.title} ${member.first_name} ${member.last_name}`);
+                            inputMemberPhone.val(`${member.phone}`);
+                            inputMemberEmail.val(`${member.email}`);
                         }
 
                         inputNotificationDateTime.val(`${notification_date_format}  •  ${notification_time_format}`);
+                        inputAmount.val(amount);
                         imgPaymentSlip.attr('src', '../uploads/slip_images/' + slip_file_name);
 
                         paymentNotificationDetails.show();

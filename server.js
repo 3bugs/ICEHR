@@ -1099,8 +1099,8 @@ doRegisterCourseSocial = (req, res, db) => {
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
     db.query(
-            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district, 
-                                                     province, postal_code, phone, email, contact_name, contact_phone, disease, news_source, 
+            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district,
+                                                     province, postal_code, phone, email, contact_name, contact_phone, disease, news_source,
                                                      receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
@@ -1219,10 +1219,10 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
     const {filename} = req.file;
 
     db.query(
-        `INSERT INTO course_registration_driving_license
-                 (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-                  province, postal_code, phone, pid_file_name, course_type, license_type)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO course_registration_driving_license
+             (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
+              province, postal_code, phone, pid_file_name, course_type, license_type)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
             traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename, traineeSelectedCourseType, licenseType],
 
@@ -1239,9 +1239,9 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
                 /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
                 const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
                 db.query(
-                    `UPDATE course_registration_driving_license
-                             SET form_number = ?
-                             WHERE id = ?`,
+                        `UPDATE course_registration_driving_license
+                         SET form_number = ?
+                         WHERE id = ?`,
                     [formNumber, insertId],
 
                     function (err, results, fields) {
@@ -1573,11 +1573,35 @@ doAddTransferNotification = (req, res, db) => {
 
         const {formNumber, memberId, traineeId, amount, transferDate} = req.body;
         const serviceTypePrefix = formNumber.substring(0, 2).toUpperCase();
-        let serviceType = serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING // AC
+
+        let serviceType = null;
+        let sql = null;
+
+        if (serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING) {
+            serviceType = constants.SERVICE_TRAINING;
+            sql = `UPDATE course_trainee
+                   SET register_status = 'wait-approve'
+                   WHERE id = ?
+                     AND register_status <> 'complete'`;
+        } else if (serviceTypePrefix === constants.SERVICE_PREFIX_SOCIAL) {
+            serviceType = constants.SERVICE_SOCIAL;
+            sql = `UPDATE course_registration_social
+                   SET register_status = 'wait-approve'
+                   WHERE id = ?
+                     AND register_status <> 'complete'`;
+        } else if (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE) {
+            serviceType = constants.SERVICE_DRIVING_LICENSE;
+            sql = `UPDATE course_registration_driving_license
+                   SET register_status = 'wait-approve'
+                   WHERE id = ?
+                     AND register_status <> 'complete'`;
+        }
+
+        /*let serviceType = serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING // AC
             ? constants.SERVICE_TRAINING
             : (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE // DL
                 ? constants.SERVICE_DRIVING_LICENSE
-                : null);
+                : null);*/
         const {filename} = req.file;
         db.query(
                 `INSERT INTO payment_notification
@@ -1592,16 +1616,7 @@ doAddTransferNotification = (req, res, db) => {
                     db.end();
                 } else {
                     db.query(
-                        serviceType === constants.SERVICE_TRAINING ?
-                                `UPDATE course_trainee
-                                 SET register_status = 'wait-approve'
-                                 WHERE id = ?
-                                   AND register_status <> 'complete'` :
-                            (serviceType === constants.SERVICE_DRIVING_LICENSE ?
-                                    `UPDATE course_registration_driving_license
-                                     SET register_status = 'wait-approve'
-                                     WHERE id = ?
-                                       AND register_status <> 'complete'` : ''),
+                        sql,
                         [traineeId],
                         function (err, results, fields) {
                             if (err) {
@@ -1798,7 +1813,7 @@ doGetDocumentDownload = (req, res, db) => {
     const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
     db.query(
-            `SELECT id,
+        `SELECT id,
                     title,
                     short_description,
                     file_path,
