@@ -39,6 +39,7 @@ class TraineeRegisterForm extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
+            fileList: [],
             fileDataUrlList: [],
         };
     }
@@ -57,6 +58,10 @@ class TraineeRegisterForm extends React.Component {
         }
 
         acceptedFiles.forEach(file => {
+            const {fileList} = this.state;
+            fileList.push(file);
+            this.setState({fileList});
+
             const reader = new FileReader();
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
@@ -620,6 +625,8 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
     constructor(props, context) {
         super(props, context);
 
+        this.RegisterForm = React.createRef();
+
         this.state = {
             step: 1,
             traineeForm: {
@@ -797,11 +804,9 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
     };
 
     handleDropFiles = acceptedFiles => {
-
     };
 
     handleClickFilePreview = (index) => {
-
     };
 
     handleSubmit = (event) => {
@@ -905,6 +910,13 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             formIsValid = false;
         }
 
+        /* https://stackoverflow.com/questions/27864951/how-to-access-childs-state-in-react */
+        const registerForm = this.RegisterForm.current;
+        if (registerForm.state.fileList.length === 0) {
+            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = 'กรุณาใส่รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)';
+            formIsValid = false;
+        }
+
         const fieldLicenseTypeCar = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR];
         const fieldLicenseTypeBicycle = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE];
         const fieldLicenseTypeTricycle = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE];
@@ -975,7 +987,11 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE] ? '1' : '0');
         formData.append(REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE,
             traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE] ? '1' : '0');
-        formData.append(REGISTER_TRAINEE_IMAGE_FILE_PID, traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID]);
+
+        const registerForm = this.RegisterForm.current;
+        for (let i = 0; i < registerForm.state.fileList.length; i++) {
+            formData.append(REGISTER_TRAINEE_IMAGE_FILE_PID, registerForm.state.fileList[i]);
+        }
 
         fetch('/api/register_course_driving_license', {
             method: 'post',
@@ -1088,6 +1104,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                                 {/*ฟอร์มข้อมูลผู้สมัครอบรม*/}
                                 <Element name={TOP_OF_FORM}>
                                     <TraineeRegisterForm
+                                        ref={this.RegisterForm}
                                         traineeForm={traineeForm}
                                         nameTitleList={this.props.nameTitleList}
                                         courseTypeList={this.state.courseTypeList}

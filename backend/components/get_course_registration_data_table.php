@@ -37,8 +37,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         case SERVICE_TYPE_DRIVING_LICENSE:
             $sql = "SELECT cr.id, cr.form_number, 
                            cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
-                           cr.sub_district, cr.district, cr.province, cr.phone, cr.pid_file_name, cr.register_status, 
-                           cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number,
+                           cr.sub_district, cr.district, cr.province, cr.phone, 
+                           cr.pid_file_name, cr.pid_file_name_2, cr.pid_file_name_3, cr.pid_file_name_4, cr.pid_file_name_5, 
+                           cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number,
                            cr.license_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
                            ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
@@ -92,6 +93,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             /*สำหรับบริการใบขับขี่*/
             $trainee['pid'] = $row['pid'];
             $trainee['pid_file_name'] = $row['pid_file_name'];
+            $trainee['pid_file_name_2'] = $row['pid_file_name_2'];
+            $trainee['pid_file_name_3'] = $row['pid_file_name_3'];
+            $trainee['pid_file_name_4'] = $row['pid_file_name_4'];
+            $trainee['pid_file_name_5'] = $row['pid_file_name_5'];
             $trainee['doc_status'] = (int)$row['doc_status'];
             $trainee['driving_license_course_type_id'] = (int)$row['course_type_id'];
             $trainee['driving_license_course_type'] = $row['course_type_title'];
@@ -909,8 +914,21 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <div class="tab-pane" id="tab_doc_pid">
                                     <div class="box-body">
                                         <div id="docDetails" class="row">
-                                            <div class="col" style="text-align: center">
-                                                <img id="imgPid" style="height: 600px; width: 600px; object-fit: contain"/>
+                                            <div class="col" style="text-align: left">
+                                                <?php
+                                                $thumbnailSize = 150;
+                                                ?>
+                                                <a href="#" data-lightbox="pidImage" data-title="">
+                                                    <img id="imgPid" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/>
+                                                </a>&nbsp;
+                                                <a href="#" data-lightbox="pidImage" data-title="">
+                                                    <img id="imgPid2" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                <a href="#" data-lightbox="pidImage" data-title="">
+                                                    <img id="imgPid3" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                <a href="#" data-lightbox="pidImage" data-title="">
+                                                    <img id="imgPid4" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                <a href="#" data-lightbox="pidImage" data-title="">
+                                                    <img id="imgPid5" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>
                                             </div>
                                         </div>
                                         <div id="alertNoDoc" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
@@ -1416,7 +1434,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <?= $trainee['driving_license_course_type_id']; ?>,
                                         <?= $trainee['license_type']; ?>,
                                         <?= $trainee['doc_status']; ?>,
-                                                '<?= $trainee['pid_file_name']; ?>'
+                                                '<?= $trainee['pid_file_name']; ?>',
+                                                '<?= $trainee['pid_file_name_2']; ?>',
+                                                '<?= $trainee['pid_file_name_3']; ?>',
+                                                '<?= $trainee['pid_file_name_4']; ?>',
+                                                '<?= $trainee['pid_file_name_5']; ?>'
                                                 )">
                                     <?= ($docStatus === 1 ? 'สมบูรณ์' : 'รอตรวจสอบ'); ?>
                                 </button>
@@ -1493,13 +1515,15 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                                 <?php
                                 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                                    //$printRegFormFile = $serviceType === SERVICE_TYPE_TRAINING ? 'print_ac_registration_form.php' : 'print_so_registration_form.php';
+
                                     if ($courseApplicationFee !== 0) {
                                         ?>
                                         <li class="divider"></li>
                                         <?php
                                     }
                                     ?>
-                                    <li><a target="_blank" href="print_ac_registration_form.php?trainee_id=<?= $traineeId; ?>&payment=1">
+                                    <li><a target="_blank" href="print_ac_registration_form.php?service_type=<?= $serviceType; ?>&trainee_id=<?= $traineeId; ?>&payment=1">
                                             <i class="fa fa-print"></i>ใบสมัคร
                                         </a>
                                     </li>
@@ -1833,7 +1857,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
         function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,
                             traineeAddress, traineeMoo, traineeSoi, traineeRoad, traineeSubDistrict, traineeDistrict, traineeProvince, traineePhone,
-                            courseType, licenseType, docStatus, pidFileName) {
+                            courseType, licenseType, docStatus, pidFileName, pidFileName2, pidFileName3, pidFileName4, pidFileName5) {
 
             $('#manageDocStatusModal #alertDocSuccess').hide();
             $('#manageDocStatusModal #alertDocError').hide();
@@ -1864,16 +1888,57 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
             const docDetails = $('#manageDocStatusModal #docDetails');
             const imgPid = $('#manageDocStatusModal #imgPid');
+            imgPid.attr('src', '../images/ic_no_image.png');
+            const imgPid2 = $('#manageDocStatusModal #imgPid2');
+            imgPid2.attr('src', '../images/ic_no_image.png');
+            const imgPid3 = $('#manageDocStatusModal #imgPid3');
+            imgPid3.attr('src', '../images/ic_no_image.png');
+            const imgPid4 = $('#manageDocStatusModal #imgPid4');
+            imgPid4.attr('src', '../images/ic_no_image.png');
+            const imgPid5 = $('#manageDocStatusModal #imgPid5');
+            imgPid5.attr('src', '../images/ic_no_image.png');
             const noDocAlert = $('#manageDocStatusModal #alertNoDoc');
 
-            if (imgPid != null) {
-                if (pidFileName === '') {
-                    docDetails.hide();
-                    noDocAlert.show();
+            if (pidFileName === '') {
+                docDetails.hide();
+                noDocAlert.show();
+            } else {
+                docDetails.show();
+                noDocAlert.hide();
+                imgPid.attr('src', '../uploads/slip_images/' + pidFileName);
+                imgPid.parent().attr('href', '../uploads/slip_images/' + pidFileName);
+
+                if (pidFileName2 === '') {
+                    imgPid2.parent().attr('href', '../images/ic_no_image.png');
+                    imgPid2.hide()
                 } else {
-                    docDetails.show();
-                    noDocAlert.hide();
-                    imgPid.attr('src', '../uploads/slip_images/' + pidFileName);
+                    imgPid2.attr('src', '../uploads/slip_images/' + pidFileName2);
+                    imgPid2.parent().attr('href', '../uploads/slip_images/' + pidFileName2);
+                    imgPid2.show()
+                }
+                if (pidFileName3 === '') {
+                    imgPid3.parent().attr('href', '../images/ic_no_image.png');
+                    imgPid3.hide()
+                } else {
+                    imgPid3.attr('src', '../uploads/slip_images/' + pidFileName3);
+                    imgPid3.parent().attr('href', '../uploads/slip_images/' + pidFileName3);
+                    imgPid3.show()
+                }
+                if (pidFileName4 === '') {
+                    imgPid4.parent().attr('href', '../images/ic_no_image.png');
+                    imgPid4.hide()
+                } else {
+                    imgPid4.attr('src', '../uploads/slip_images/' + pidFileName4);
+                    imgPid4.parent().attr('href', '../uploads/slip_images/' + pidFileName4);
+                    imgPid4.show()
+                }
+                if (pidFileName5 === '') {
+                    imgPid5.parent().attr('href', '../images/ic_no_image.png');
+                    imgPid5.hide();
+                } else {
+                    imgPid5.attr('src', '../uploads/slip_images/' + pidFileName5);
+                    imgPid5.parent().attr('href', '../uploads/slip_images/' + pidFileName5);
+                    imgPid5.show()
                 }
             }
 

@@ -1158,7 +1158,7 @@ const pidImageStorage = multer.diskStorage({
     }
 });
 
-const uploadPidImage = multer({storage: pidImageStorage}).single('traineeImageFilePid');
+const uploadPidImage = multer({storage: pidImageStorage}).array('traineeImageFilePid', 5);
 
 registerCourseDrivingLicense = (req, res, db) => {
     uploadPidImage(req, res, function (err) {
@@ -1219,15 +1219,25 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
 
     /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
-    const {filename} = req.file;
+    //const {filename} = req.file;
+    const filename = [];
+    let i;
+    for (i = 0; i < req.files.length; i++) {
+        filename.push(req.files[i].filename);
+    }
+    for (; i < 5; i++) {
+        filename.push(null);
+    }
 
     db.query(
             `INSERT INTO course_registration_driving_license
              (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-              province, postal_code, phone, pid_file_name, course_type, license_type)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5, 
+              course_type, license_type)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-            traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename, traineeSelectedCourseType, licenseType],
+            traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename[0], filename[1], filename[2], filename[3], filename[4],
+            traineeSelectedCourseType, licenseType],
 
         function (err, results, fields) {
             if (err) {

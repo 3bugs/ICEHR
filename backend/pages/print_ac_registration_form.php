@@ -3,17 +3,26 @@ ob_start();
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
+$serviceType = $_GET['service_type'];
 $traineeId = $_GET['trainee_id'];
 $payment = $_GET['payment'];
+
+if (!in_array($serviceType, array(SERVICE_TYPE_TRAINING, SERVICE_TYPE_SOCIAL))) {
+    echo 'Error: ระบุประเภทบริการไม่ถูกต้อง';
+    $db->close();
+    exit();
+}
 if (!isset($traineeId)) {
     echo 'Error: ไม่ได้ระบุ ID ใบสมัคร';
     $db->close();
     exit();
 }
 
-$sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email,
+if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email,
                cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_phone, cr.coordinator_email,
-               cm.title AS course_title, c.batch_number AS course_batch_number, c.id AS course_id, c.begin_date, c.end_date, c.place, c.responsible_user_id
+               cm.title AS course_title, c.batch_number AS course_batch_number, c.id AS course_id, c.begin_date, c.end_date, c.place, c.responsible_user_id,
+               c.application_fee
             FROM course_trainee ct 
                 INNER JOIN course_registration cr 
                     ON cr.id = ct.course_registration_id 
@@ -22,6 +31,18 @@ $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, 
                 INNER JOIN course_master cm 
                     ON cm.id = c.course_master_id 
             WHERE ct.id IN ($traineeId) AND ct.register_status <> 'cancel'";
+} else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+    $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.email,
+               cr.contact_name, cr.contact_phone, 
+               cm.title AS course_title, c.batch_number AS course_batch_number, c.id AS course_id, c.begin_date, c.end_date, c.place, c.responsible_user_id,
+               c.application_fee
+            FROM course_registration_social cr  
+                INNER JOIN course c 
+                    ON c.id = cr.course_id 
+                INNER JOIN course_master cm 
+                    ON cm.id = c.course_master_id 
+            WHERE cr.id IN ($traineeId) AND cr.register_status <> 'cancel'";
+}
 
 if ($result = $db->query($sql)) {
     if ($result->num_rows > 0) {
@@ -139,7 +160,7 @@ $mpdf = new \Mpdf\Mpdf([
                             </tr>
                             <tr>
                                 <td align="center" colspan="2" height="80px">
-                                    <div style="font-size: 30px">ใบสมัครเข้ารับการอบรม โครงการบริการวิชาการ</div>
+                                    <div style="font-size: 30px">ใบสมัครเข้ารับการอบรม โครงการบริการ<?= $serviceType === SERVICE_TYPE_TRAINING ? 'วิชาการ' : 'สังคม'; ?></div>
                                 </td>
                             </tr>
                             <tr>
@@ -268,17 +289,31 @@ $mpdf = new \Mpdf\Mpdf([
                 </tr>
 
                 <?php
-                if ($trainee['coordinator_first_name'] != null) {
+                if (($serviceType === SERVICE_TYPE_TRAINING && $trainee['coordinator_first_name'] != null)
+                    || $serviceType === SERVICE_TYPE_SOCIAL) {
                     ?>
                     <tr>
                         <td>
                             <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 60px;">
                                 <tr>
                                     <td width="80px">&nbsp;</td>
-                                    <td width="85px">ผู้ประสานงาน</td>
-                                    <td width="485px" class="txtDash">
-                                        <strong><?= "{$trainee['coordinator_title']}{$trainee['coordinator_first_name']}&nbsp;{$trainee['coordinator_last_name']}"; ?></strong>
-                                    </td>
+                                    <?php
+                                    if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                        ?>
+                                        <td width="85px">ผู้ประสานงาน</td>
+                                        <td width="485px" class="txtDash">
+                                            <strong><?= "{$trainee['coordinator_title']}{$trainee['coordinator_first_name']}&nbsp;{$trainee['coordinator_last_name']}"; ?></strong>
+                                        </td>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <td width="115px">ผู้ติดต่อกรณีฉุกเฉิน</td>
+                                        <td width="455px" class="txtDash">
+                                            <strong><?= "{$trainee['contact_name']}"; ?></strong>
+                                        </td>
+                                        <?php
+                                    }
+                                    ?>
                                 </tr>
                             </table>
                         </td>
@@ -288,10 +323,21 @@ $mpdf = new \Mpdf\Mpdf([
                         <td>
                             <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                                 <tr>
-                                    <td width="105px">โทรมือถือ/Phone</td>
-                                    <td width="220px" class="txtDash"><strong><?= $trainee['coordinator_phone']; ?></strong></td>
-                                    <td width="95px" align="right" style="padding-right: 8px">อีเมล/E-mail</td>
-                                    <td width="230px" class="txtDash"><strong><?= $trainee['coordinator_email']; ?></strong></td>
+                                    <?php
+                                    if ($serviceType === SERVICE_TYPE_TRAINING) {
+                                        ?>
+                                        <td width="60px">โทรมือถือ</td>
+                                        <td width="265px" class="txtDash"><strong><?= $trainee['coordinator_phone']; ?></strong></td>
+                                        <td width="55px" align="right" style="padding-right: 8px">อีเมล</td>
+                                        <td width="270px" class="txtDash"><strong><?= $trainee['coordinator_email']; ?></strong></td>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <td width="90px">เบอร์โทรติดต่อ</td>
+                                        <td width="560px" class="txtDash"><strong><?= $trainee['contact_phone']; ?></strong></td>
+                                        <?php
+                                    }
+                                    ?>
                                 </tr>
                             </table>
                         </td>
@@ -303,7 +349,7 @@ $mpdf = new \Mpdf\Mpdf([
         </div>
 
         <?php
-        if (isset($payment)) {
+        if (isset($payment) && ((int)$trainee['application_fee'] !== 0)) {
             ?>
             <div style="page-break-before: always">
                 <table width="650px" align="center" border="0" cellspacing="0" cellpadding="0">
