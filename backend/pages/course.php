@@ -12,7 +12,7 @@ if (!isset($serviceType)) {
     exit();
 }
 
-$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.application_fee, c.place, c.trainee_limit, cm.title 
+$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.application_fee, c.place, c.trainee_limit, c.responsible_user_id, cm.title 
         FROM course c 
             INNER JOIN course_master cm 
                 ON c.course_master_id = cm.id 
@@ -33,6 +33,7 @@ if ($result = $db->query($sql)) {
         $course['begin_date'] = $row['begin_date'];
         $course['end_date'] = $row['end_date'];
         $course['trainee_limit'] = (int)$row['trainee_limit'];
+        $course['responsible_user_id'] = (int)$row['responsible_user_id'];
 
         switch ($serviceType) {
             case SERVICE_TYPE_TRAINING:
@@ -104,11 +105,19 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        onclick="onClickAdd(this)">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มหลักสูตร
-                                </button>
+                                <?php
+                                if (($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_CREATE))
+                                    || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_CREATE))
+                                    || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_CREATE))) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มหลักสูตร
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableCourse" class="table table-bordered table-striped">
@@ -153,6 +162,7 @@ if ($result = $db->query($sql)) {
                                             $courseDateHidden = '<span style="display: none">' . $course['begin_date'] . '</span></span>';
                                             $traineeCount = $course['trainee_count'];
                                             $traineeLimit = $course['trainee_limit'];
+                                            $responsibleUserId = $course['responsible_user_id'];
                                             ?>
 
                                             <tr style="">
@@ -170,14 +180,24 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: top; text-align: center"><?= $courseDateHidden . $courseDate; ?></td>
                                                 <td style="vertical-align: top; text-align: center"><?= "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
 
-                                                <td style="text-align: center" nowrap>
-                                                    <form method="get" action="course_add_edit.php" style="display: inline">
+                                                <td style="text-align: right" nowrap>
+                                                    <form method="post" action="course_add_edit.php" style="display: inline">
                                                         <input type="hidden" name="course_id" value="<?= $courseId; ?>"/>
                                                         <input type="hidden" name="service_type" value="<?= $serviceType; ?>"/>
-                                                        <button type="submit" class="btn btn-warning" style="margin-right: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
+
+                                                        <?php
+                                                        if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID] // ถ้าเป็นผู้รับผิดชอบหลักสูตร ให้แสดงปุ่มแก้ไข
+                                                            || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_UPDATE))
+                                                            || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_UPDATE))
+                                                            || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_UPDATE))) {
+                                                            ?>
+                                                            <button type="submit" class="btn btn-warning" style="margin-right: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                            <?php
+                                                        }
+                                                        ?>
                                                     </form>
                                                     <form method="get" action="course_details.php" style="display: inline">
                                                         <input type="hidden" name="course_id" value="<?= $courseId; ?>"/>

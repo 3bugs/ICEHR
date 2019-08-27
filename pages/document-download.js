@@ -292,7 +292,7 @@ export default class DocumentDownload extends React.Component {
 
                         {!documentDownloadList &&
                         <div style={{textAlign: 'center', color: 'red'}}>
-                            {this.state.errorMessage}
+                            {errorMessage}
                         </div>
                         }
 

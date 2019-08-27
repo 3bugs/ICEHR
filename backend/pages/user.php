@@ -137,24 +137,36 @@ if ($result = $db->query($sql)) {
                                                 </td>
 
                                                 <td style="text-align: center" nowrap>
-                                                    <form method="get" action="user_add_edit.php" style="display: inline">
-                                                        <input type="hidden" name="user_id" value="<?= $user['id']; ?>"/>
-                                                        <button type="submit" class="btn btn-warning" style="margin-right: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
-                                                    </form>
+                                                    <?php
+                                                    if (currentUserHasPermission(PERMISSION_USER_UPDATE)) {
+                                                        ?>
+                                                        <form method="get" action="user_add_edit.php" style="display: inline">
+                                                            <input type="hidden" name="user_id" value="<?= $user['id']; ?>"/>
+                                                            <button type="submit" class="btn btn-warning" style="margin-right: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                        </form>
+                                                        <?php
+                                                    }
+                                                    ?>
 
-                                                    <button type="button" class="btn btn-danger"
-                                                            onclick="onClickDelete(
-                                                                    this,
-                                                            <?= $user['id']; ?>,
-                                                                    '<?= $user['username']; ?>',
-                                                                    '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>'
-                                                                    )">
-                                                        <span class="fa fa-remove"></span>&nbsp;
-                                                        ลบ
-                                                    </button>
+                                                    <?php
+                                                    if (currentUserHasPermission(PERMISSION_USER_DELETE)) {
+                                                        ?>
+                                                        <button type="button" class="btn btn-danger"
+                                                                onclick="onClickDelete(
+                                                                        this,
+                                                                <?= $user['id']; ?>,
+                                                                        '<?= $user['username']; ?>',
+                                                                        '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>'
+                                                                        )">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
+                                                        </button>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </td>
                                             </tr>
                                             <?php
@@ -369,13 +381,15 @@ if ($result = $db->query($sql)) {
     </html>
 
 <?php
-function createPermissionTags($userPermissions) {
-    global $permissionList, $permissionText;
+function createPermissionTags($userPermissions)
+{
+    global $permissionList, $permissionText, $permissionColor;
 
     $tags = '';
     foreach ($permissionList as $permission) {
         if (userHasPermission($userPermissions, $permission)) {
-            $tags .= '<span class="label label-info" style="margin-right: 3px">' . $permissionText[$permission] . '</span>';
+            $color = $permissionColor[$permission];
+            $tags .= '<span style="display: inline-block" class="label label-' . $color . '" style="margin-right: 4px">' . $permissionText[$permission] . '</span>&nbsp;';
         }
     }
     return $tags;

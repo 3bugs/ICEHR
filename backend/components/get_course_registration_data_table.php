@@ -5,8 +5,9 @@ require_once '../api/global.php';
  * @param mysqli $db
  * @param string $serviceType
  * @param int $paramCourseId
+ * @param int $responsibleUserId
  */
-function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null)
+function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null, $responsibleUserId = null)
 {
     $whereClause = ' TRUE ';
     if ($paramCourseId !== null) {
@@ -279,11 +280,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         </div>
                         <!-- /.box-body -->
                         <div class="box-footer">
-                            <button id="buttonPrintReceipt" type="submit"
-                                    class="btn btn-info pull-right">
-                                <span class="fa fa-save"></span>&nbsp;
-                                พิมพ์
-                            </button>
+                            <?php
+                            if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION))
+                                || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION))
+                                || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                                ?>
+                                <button id="buttonPrintReceipt" type="submit"
+                                        class="btn btn-info pull-right">
+                                    <span class="fa fa-print"></span>&nbsp;
+                                    พิมพ์
+                                </button>
+                                <?php
+                            } else {
+                                ?>
+                                <button id="buttonCantPrintReceipt" type="button"
+                                        class="btn btn-danger pull-right">
+                                    <span class="fa fa-print"></span>&nbsp;
+                                    คุณไม่มีสิทธิ์สำหรับการพิมพ์ใบเสร็จ
+                                </button>
+                                <?php
+                            }
+                            ?>
                         </div>
                         <!-- /.box-footer -->
                     </form>
@@ -315,13 +333,22 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="caret" style="color: white"></span>
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'start')">ยังไม่ได้ชำระเงิน</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'wait-approve')">รอตรวจสอบ</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'complete')">สมบูรณ์</a></li>
-                                <li class="divider"></li>
-                                <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'cancel')">ยกเลิกใบสมัคร</a></li>
-                            </ul>
+                            <?php
+                            if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION))
+                                || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION))
+                                || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                                ?>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'start')">ยังไม่ได้ชำระเงิน</a></li>
+                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'wait-approve')">รอตรวจสอบ</a></li>
+                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'complete')">สมบูรณ์</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="javascript:void(0)" onClick="updateRegisterStatus(this, 'cancel')">ยกเลิกใบสมัคร</a></li>
+                                </ul>
+                                <?php
+                            }
+                            ?>
                         </div>
                         <!--สถานะการลงทะเบียน สำหรับคอร์สฟรี-->
                         <div class="btn-group pull-right" id="buttonStatusForFreeCourse">
@@ -594,10 +621,17 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <span class="caret" style="color: white"></span>
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:void(0)" onClick="updateDocStatus(0)">รอตรวจสอบ</a></li>
-                                <li><a href="javascript:void(0)" onClick="updateDocStatus(1)">สมบูรณ์</a></li>
-                            </ul>
+                            <?php
+                            if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                                ?>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="javascript:void(0)" onClick="updateDocStatus(0)">รอตรวจสอบ</a></li>
+                                    <li><a href="javascript:void(0)" onClick="updateDocStatus(1)">สมบูรณ์</a></li>
+                                </ul>
+                                <?php
+                            }
+                            ?>
                         </div>
                     </h4>
                 </div>
@@ -849,9 +883,22 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         </div>
 
                                         <div style="margin-top: 15px; text-align: center">
-                                            <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
-                                                <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
-                                            </button>
+                                            <?php
+                                            if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                                || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                                                ?>
+                                                <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
+                                                    <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
+                                                </button>
+                                                <?php
+                                            } else {
+                                                ?>
+                                                <button type="button" class="btn btn-block btn-danger" style="display: inline; width: 240px;">
+                                                    <i class="fa fa-save"></i>&nbsp;&nbsp;คุณไม่มีสิทธิ์บันทึกการแก้ไข
+                                                </button>
+                                                <?php
+                                            }
+                                            ?>
                                         </div>
                                     </div>
                                     <!-- /.box-body -->
@@ -1050,9 +1097,22 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 </div>
 
                                 <div style="margin-top: 15px; text-align: center">
-                                    <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 160px;">
-                                        <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกผลการอบรม
-                                    </button>
+                                    <?php
+                                    if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                        || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                                        ?>
+                                        <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 160px;">
+                                            <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกผลการอบรม
+                                        </button>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <button type="button" class="btn btn-block btn-danger" style="display: inline; width: 240px;">
+                                            <i class="fa fa-save"></i>&nbsp;&nbsp;คุณไม่มีสิทธิ์บันทึกผลการอบรม
+                                        </button>
+                                        <?php
+                                    }
+                                    ?>
                                 </div>
                             </div>
                             <!-- /.box-body -->

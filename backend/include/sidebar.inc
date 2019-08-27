@@ -8,42 +8,60 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu" data-widget="tree">
                 <li class="header" style="color: yellow; text-align: center">บริการ</li>
-                <li class="treeview">
+
+
+                <li>
+                    <a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_TRAINING; ?>">
+                        <i class="fa fa-mortar-board"></i> <span>วิชาการ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>">
+                        <i class="fa fa-male"></i> <span>สังคม</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>">
+                        <i class="fa fa-car"></i> <span>ใบขับขี่</span>
+                    </a>
+                </li>
+
+                <!--<li class="treeview">
                     <a href="#">
-                        <i class="fa fa-mortar-board"></i> <span><?php echo SERVICE_TYPE_TRAINING_TEXT; ?></span>
+                        <i class="fa fa-mortar-board"></i> <span><?php /*echo SERVICE_TYPE_TRAINING_TEXT; */?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_TRAINING; ?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
-                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php echo SERVICE_TYPE_TRAINING; ?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php /*echo SERVICE_TYPE_TRAINING; */?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php /*echo SERVICE_TYPE_TRAINING; */?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-male"></i> <span><?php echo SERVICE_TYPE_SOCIAL_TEXT; ?></span>
+                        <i class="fa fa-male"></i> <span><?php /*echo SERVICE_TYPE_SOCIAL_TEXT; */?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
-                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php /*echo SERVICE_TYPE_SOCIAL; */?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php /*echo SERVICE_TYPE_SOCIAL; */?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-car"></i> <span><?php echo SERVICE_TYPE_DRIVING_LICENSE_TEXT; ?></span>
+                        <i class="fa fa-car"></i> <span><?php /*echo SERVICE_TYPE_DRIVING_LICENSE_TEXT; */?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
-                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course.php?service_type=<?php /*echo SERVICE_TYPE_DRIVING_LICENSE; */?>"><i class="fa fa-server"></i>หลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/course_add_edit.php?service_type=<?php /*echo SERVICE_TYPE_DRIVING_LICENSE; */?>"><i class="fa fa-plus"></i>เพิ่มหลักสูตร</a></li>
                     </ul>
-                </li>
+                </li>-->
 
                 <li class="treeview">
                     <a href="#">

@@ -1,22 +1,15 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT a.id,a.title,a.status,a.created_at,a.created_by,u.username "
-    . " FROM faq a INNER JOIN user u ON a.created_by = u.id "
-    . " ORDER BY a.created_at DESC";
-// echo $sql;
-// exit();
-//$sql = "SELECT * FROM course ORDER BY begin_date";
+$pageTitle = 'คำถามที่พบบ่อย';
+
+$sql = "SELECT id, title, details, created_at, status
+            FROM faq
+            ORDER BY created_at DESC ";
 if ($result = $db->query($sql)) {
-    $itemsList = array();
+    $faqList = array();
     while ($row = $result->fetch_assoc()) {
-        $course = array();
-        $course['id'] = (int)$row['id'];
-        $course['name'] = $row['title'];
-        $course['status'] = $row['status'];
-        $course['created_at'] = $row['created_at'];
-        $course['username'] = $row['username'];
-        array_push($itemsList, $course);
+        array_push($faqList, $row);
     }
     $result->close();
 } else {
@@ -31,11 +24,36 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/head.inc'); ?>
         <!-- DataTables -->
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-        <style>
 
+        <style>
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
+
+    <!-- Answer Modal (คำตอบ) -->
+    <div class="modal fade" id="answerModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">คำตอบ</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formAnswer" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <div id="divAnswer" class="box-body"></div>
+                        <!-- /.box-body -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
@@ -45,8 +63,7 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    คำถามที่พบบ่อย
-                    <small>คำถามที่พบบ่อย</small>
+                    <?= trim($pageTitle); ?>
                 </h1>
             </section>
 
@@ -60,56 +77,72 @@ if ($result = $db->query($sql)) {
                                 <button type="button" class="btn btn-success pull-right"
                                         onclick="onClickAdd(this)">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มคำถามที่พบบ่อย
+                                    เพิ่ม<?= $pageTitle; ?>
                                 </button>
                             </div>
                             <div class="box-body">
-                                <table id="tableCourse" class="table table-bordered table-striped">
+                                <table id="tableFaq" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="width: 60%; text-align: center">หัวข้อ</th>
-                                        <th style="width: 20%; text-align: center">สถานะ</th>
-                                        <th style="width: 20%; text-align: center">วันที่สร้าง</th>
-                                        <th style="width: 20%; text-align: center">สร้างโดย</th>
-                                        <th style="text-align: center">จัดการ</th>
+                                        <th style="text-align: center; width: 75%;">คำถาม</th>
+                                        <th style="text-align: center; width: 10%;" nowrap>คำตอบ</th>
+                                        <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
+                                        <th style="text-align: center;" nowrap>เผยแพร่</th>
+                                        <th style="text-align: center;">จัดการ</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (sizeof($itemsList) == 0) {
+                                    if (sizeof($faqList) == 0) {
                                         ?>
                                         <tr valign="middle">
-                                            <td colspan="4" align="center">ไม่มีข้อมูล</td>
+                                            <td colspan="20" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
-                                        foreach ($itemsList as $item) {
-                                            $itemId = $item['id'];
-                                            $itemName = $item['name'];
-                                            $status = $item['status'];
-                                            $created_at = $item['created_at'];
-                                            $created_by = $item['username'];
+                                        foreach ($faqList as $faq) {
+                                            $createdAt = $faq['created_at'];
+                                            $dateTimePart = explode(' ', $createdAt);
+                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                                            $timePart = explode(':', $dateTimePart[1]);
+                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                                            $displayDateTime = "$displayDate<br>$displayTime";
+                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
                                             ?>
                                             <tr style="">
-                                                <td style="vertical-align: middle"><?php echo $itemName; ?></td>
-                                                <td style="vertical-align: middle; text-align: center">
-                                                    <span class="label label-info label-green">
-                                                        <?php echo ($status ==='publish' ? 'เผยแพร่':'ไม่เผยแพร่') ?> 
-                                                    </span>
-                                                </td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo $created_at; ?></td>
-                                                <td style="vertical-align: middle; text-align: center"><?php echo $created_by; ?></td>
+                                                <td><?= $faq['title']; ?></td>
 
-                                                <td style="text-align: center" nowrap>
-                                                    <form method="post" action="faq_add_edit.php">
-                                                        <input type="hidden" name="itemId" value="<?php echo $itemId; ?>"/>
-                                                        <button type="submit" class="btn btn-warning">
+                                                <td style="text-align: center; cursor: pointer"
+                                                    onClick="onClickAnswer(this, '<?= str_replace(array("\n", "\r"), '', nl2br(htmlspecialchars($faq['details']))); ?>')">
+                                                    <a href="javascript:void(0)">
+                                                        <span style="font-size: 25px"><i class="fa fa-file-text-o"></i></span>
+                                                    </a>
+                                                </td>
+
+                                                <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $faq['status'] == 'publish' ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(this, <?= $faq['id']; ?>, '<?= $faq['title']; ?>')"
+                                                        <?= $faq['status'] == 'publish' ? 'checked' : '' ?>>
+                                                </td>
+
+                                                <td nowrap>
+                                                    <form method="get" action="faq_add_edit.php" style="display: inline; margin: 0">
+                                                        <input type="hidden" name="faq_id" value="<?= $faq['id']; ?>"/>
+
+                                                        <button type="submit" class="btn btn-warning"
+                                                                style="margin-left: 3px">
                                                             <span class="fa fa-pencil"></span>&nbsp;
                                                             แก้ไข
                                                         </button>
                                                         <button type="button" class="btn btn-danger"
-                                                                onclick="onClickDelete(this, <?php echo $itemId; ?>, '<?php echo $itemName; ?>')">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
+                                                                style="margin-left: 3px; margin-right: 3px"
+                                                                onclick="onClickDelete(this, <?= $faq['id']; ?>, '<?= $faq['title']; ?>')">
+                                                            <span class="fa fa-remove"></span>&nbsp;
                                                             ลบ
                                                         </button>
                                                     </form>
@@ -139,9 +172,13 @@ if ($result = $db->query($sql)) {
     <!-- ./wrapper -->
 
     <script>
+        let downloadListDataTable = null;
+
         $(document).ready(function () {
-            $('#tableCourse').DataTable({
-                order: [[1, 'desc']],
+            $('#tableFaq').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
+                order: [[2, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -161,24 +198,86 @@ if ($result = $db->query($sql)) {
                     },
                 }
             });
+
+            lightbox.option({
+                fadeDuration: 500,
+                imageFadeDuration: 500,
+                resizeDuration: 500,
+            });
         });
+
+        function onClickAnswer(element, details) {
+            $('#formAnswer #divAnswer').html(details);
+            $('#answerModal').modal('show');
+        }
 
         function onClickAdd() {
             window.location.href = 'faq_add_edit.php';
         }
 
-        function onClickDelete(element, faqId, itemName) {
+        function onChangeStatus(element, faqId, title) {
+            let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
+            if (result) {
+                doChangeStatus(faqId, (element.checked ? 'publish' : 'draft'));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
+        function doChangeStatus(faqId, newStatus) {
+            let title = 'แก้ไขสถานะเอกสารดาวน์โหลด';
+
+            $.post(
+                '../api/api.php/update_status',
+                {
+                    tableName: 'faq',
+                    id: faqId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
+        }
+
+        function onClickDelete(element, id, title) {
             BootstrapDialog.show({
-                title: 'ลบคำถามที่พบบ่อย',
-                message: 'ยืนยันลบคำถามที่พบบ่อย \'' + itemName + '\' ?',
+                title: 'ลบ<?= $pageTitle; ?>',
+                message: 'ยืนยันลบ \'' + title + '\' ?',
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
-                        doDeleteFaq(faqId);
+                        doDeleteFaq(id);
                         self.close();
                     },
                     cssClass: 'btn-primary'
-                },{
+                }, {
                     label: 'ยกเลิก',
                     action: function (self) {
                         self.close();
@@ -189,17 +288,17 @@ if ($result = $db->query($sql)) {
 
         function doDeleteFaq(faqId) {
             $.post(
-                '../api/api.php/delete_faq',
+                '../api/api.php/delete',
                 {
-                    faqId: faqId,
+                    tableName: 'faq',
+                    id: faqId,
                 }
             ).done(function (data) {
-                //console.log(data);
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบคำถามที่พบบ่อย - ผิดพลาด',
+                        title: 'ลบ<?= $pageTitle; ?> - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -211,7 +310,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบคำถามที่พบบ่อย - ผิดพลาด',
+                    title: 'ลบ<?= $pageTitle; ?> - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
@@ -222,16 +321,16 @@ if ($result = $db->query($sql)) {
                 });
             });
         }
-
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
     </body>
     </html>
 
 <?php
-$db->close();
+require_once '../include/foot_php.inc';
 ?>

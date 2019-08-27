@@ -263,7 +263,8 @@ if ($result = $db->query($sql)) {
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
                                 <?php
-                                if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                if (($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER))
+                                    || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_MANAGE_COURSE_MASTER))) {
                                     ?>
                                     <button type="button" class="btn btn-success pull-right"
                                             data-toggle="modal" data-target="#addCourseMasterModal">
@@ -318,22 +319,28 @@ if ($result = $db->query($sql)) {
                                                 }
                                                 ?>
                                                 <td style="text-align: center" nowrap>
-                                                    <button type="button" class="btn btn-warning"
-                                                            style="margin-left: 6px; margin-right: 3px"
-                                                            onclick="onClickEdit(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>', <?php echo $courseMasterCategoryId; ?>)">
-                                                        <span class="fa fa-edit"></span>&nbsp;
-                                                        แก้ไข
-                                                    </button>
                                                     <?php
-                                                    if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                                    if (($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER))
+                                                        || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_MANAGE_COURSE_MASTER))
+                                                        || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER))) {
                                                         ?>
-                                                        <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 6px"
-                                                                onclick="onClickDelete(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
+                                                        <button type="button" class="btn btn-warning"
+                                                                style="margin-left: 6px; margin-right: 3px"
+                                                                onclick="onClickEdit(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>', <?php echo $courseMasterCategoryId; ?>)">
+                                                            <span class="fa fa-edit"></span>&nbsp;
+                                                            แก้ไข
                                                         </button>
                                                         <?php
+                                                        if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE) {
+                                                            ?>
+                                                            <button type="button" class="btn btn-danger"
+                                                                    style="margin-left: 3px; margin-right: 6px"
+                                                                    onclick="onClickDelete(this, <?php echo $courseMasterId; ?>, '<?php echo $courseMasterTitle; ?>')">
+                                                                <span class="fa fa-remove"></span>&nbsp;
+                                                                ลบ
+                                                            </button>
+                                                            <?php
+                                                        }
                                                     }
                                                     ?>
                                                 </td>

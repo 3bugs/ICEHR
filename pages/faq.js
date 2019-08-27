@@ -2,11 +2,57 @@ import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
 import Link from 'next/link';
 import './faq.css';
+import fetch from "isomorphic-unfetch";
+import {LIMIT_PER_PAGE} from "../etc/constants";
+import '../pages/pagination.css';
+import ReactPaginate from "react-paginate";
+import {Element, scroller} from "react-scroll/modules";
 
-export default class About extends React.Component {
+class FaqItem extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
+    }
+
+    render() {
+        const {data, index} = this.props;
+
+        return (
+            <React.Fragment>
+                <div className="card">
+                    <div className="card-header" id={'heading' + data.id}>
+                        <h5 className="mb-0">
+                            <button className="btn-link" data-toggle="collapse" data-target={'#collapse' + data.id} aria-expanded="true" aria-controls={'collapse' + data.id}>
+                                <i className="fa" aria-hidden="true"></i>
+                                <a><span className="ask">Q</span>{data.title}</a>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id={'collapse' + data.id} className={'collapse ' + (index === 0 ? 'show' : 'hide')} aria-labelledby={'heading' + data.id} data-parent="#accordion">
+                        <div className="card-body"
+                             dangerouslySetInnerHTML={{__html: data.details}}>
+                        </div>
+                    </div>
+                </div>
+
+                <style jsx>{`
+                    
+                `}</style>
+            </React.Fragment>
+        );
+    }
+}
+
+export default class Faq extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            faqList: null,
+            errorMessage: null,
+            offset: 0,
+            initialPage: 0,
+            firstLoad: true,
+        };
     }
 
     componentDidMount() {
@@ -29,13 +75,72 @@ export default class About extends React.Component {
     ReverseDisplay(d) {
         if (document.getElementById(d).style.display == "none") {
             document.getElementById(d).style.display = "block";
-        }
-        else {
+        } else {
             document.getElementById(d).style.display = "none";
         }
     }
 
+    doGetFaq() {
+        console.log('doGetFaq() - ' + Math.random());
+
+        fetch('/api/get_faq', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                limit: LIMIT_PER_PAGE,
+                offset: this.state.offset,
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        faqList: result.dataList,
+                        pageCount: Math.ceil(result.totalCount / LIMIT_PER_PAGE),
+                        errorMessage: null,
+                    }, () => {
+                        if (!this.state.firstLoad) {
+                            scroller.scrollTo('topOfTable', {
+                                duration: 500,
+                                smooth: true,
+                                offset: -80,
+                            });
+                        } else {
+                            this.setState({
+                                firstLoad: false,
+                            });
+                        }
+                    });
+                } else {
+                    this.setState({
+                        faqList: null,
+                        errorMessage: result['error']['message'],
+                    });
+                }
+            })
+            .catch(error => {
+                //alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+                this.setState({
+                    faqList: null,
+                    errorMessage: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error,
+                });
+            });
+    }
+
+    handlePageClick = data => {
+        let selected = data.selected;
+        let offset = Math.ceil(selected * LIMIT_PER_PAGE);
+
+        this.setState({offset, initialPage: selected}, () => {
+            this.doGetFaq();
+        });
+    };
+
     render() {
+        const {faqList, errorMessage} = this.state;
+
         return (
             <MainLayout>
                 <NextHead>
@@ -46,83 +151,58 @@ export default class About extends React.Component {
                     <div className="container mt-4">
                         <div className="row">
                             <div className="col">
-                                <h4 className="text-black">คำถามที่พบบ่อย</h4></div>
+                                <Element name={'topOfTable'}>
+                                    <h4 className="text-black">คำถามที่พบบ่อย</h4>
+                                </Element>
+                            </div>
                         </div>
+
+                        {!faqList &&
+                        <div style={{textAlign: 'center', color: 'red'}}>
+                            {errorMessage}
+                        </div>
+                        }
+
+                        {faqList && (faqList.length === 0) &&
+                        <div style={{textAlign: 'center', color: 'red'}}>
+                            ไม่มีข้อมูล
+                        </div>
+                        }
+
+                        {faqList && (faqList.length > 0) &&
                         <div className="row">
                             <div className="col">
                                 <div id="accordion">
-                                    <div className="card">
-                                        <div className="card-header" id="headingOne">
-                                            <h5 className="mb-0">
-                                                <button className="btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"><i className="fa"
-                                                                                                                                                                                   aria-hidden="true"></i>
-                                                    <a><span className="ask">Q</span>การขอใช้อีเมล์ของมหาวิทยาลัย</a>
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseOne" className="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                                            <div className="card-body"> นักศึกษา
-                                                <br/> - มหาวิทยาลัยได้มีการกำหนดบัญชื่อผู้ใช้สำหรับทุกท่านตั้งแต่เริ่มเข้าบรรจุเป็นนักศึกษา -
-                                                หากมีปัญหากรุณาติดต่อกับฝ่ายทะเบียนประวัติสำนักงานทะเบียนนักศึกษา มธ. โทร 02-564- 4441-79 ต่อ 1602-1607 เพื่อตรวจสอบสถานะและบญัชีผู้ใช้ก่อน
-                                                <br/>
-                                                <br/> บุคลากร
-                                                <br/> - สำหรับบุคคลากรที่เข้าบรรจุใหม่จะไดร้ับบญัชีผู้ใช้โดยอัตโนมติจากหน่วยงานกองการเจ้าหน้าที่ -
-                                                กรุณาติดต่อกับหน่วยงานทะเบียนประวัติกองทรัพยากรมนุษย์โทร. 02-5644440-79 ต่อ1886,1887
-                                                <br/>
-                                                <br/> กรณีได้รับ User E-mail แล้วทำหายหรือได้ทำการเปลี่ยนรหัสผ่านแล้วลืม ให้ติดต่อที่สำนักงานศูนย์เทคโนโลยีฯ โทร. 1965 หรือ helpdesk
-                                                หรือ line หรือที่ห้องบริการคอมพิวเตอร์ 113 (สทศ.) อาคารวิทยบริการ มธ. (ศูนย์รังสิต) โทร. 1182-1184
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card">
-                                        <div className="card-header" id="headingTwo">
-                                            <h5 className="mb-0">
-                                                <button className="btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo"><i className="fa"
-                                                                                                                                                                                   aria-hidden="true"></i>
-                                                    <a><span className="ask">Q</span>การขอใช้อีเมล์ของมหาวิทยาลัย</a>
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                                            <div className="card-body"> นักศึกษา
-                                                <br/> - มหาวิทยาลัยได้มีการกำหนดบัญชื่อผู้ใช้สำหรับทุกท่านตั้งแต่เริ่มเข้าบรรจุเป็นนักศึกษา -
-                                                หากมีปัญหากรุณาติดต่อกับฝ่ายทะเบียนประวัติสำนักงานทะเบียนนักศึกษา มธ. โทร 02-564- 4441-79 ต่อ 1602-1607 เพื่อตรวจสอบสถานะและบญัชีผู้ใช้ก่อน
-                                                <br/>
-                                                <br/> บุคลากร
-                                                <br/> - สำหรับบุคคลากรที่เข้าบรรจุใหม่จะไดร้ับบญัชีผู้ใช้โดยอัตโนมติจากหน่วยงานกองการเจ้าหน้าที่ -
-                                                กรุณาติดต่อกับหน่วยงานทะเบียนประวัติกองทรัพยากรมนุษย์โทร. 02-5644440-79 ต่อ1886,1887
-                                                <br/>
-                                                <br/> กรณีได้รับ User E-mail แล้วทำหายหรือได้ทำการเปลี่ยนรหัสผ่านแล้วลืม ให้ติดต่อที่สำนักงานศูนย์เทคโนโลยีฯ โทร. 1965 หรือ helpdesk
-                                                หรือ line หรือที่ห้องบริการคอมพิวเตอร์ 113 (สทศ.) อาคารวิทยบริการ มธ. (ศูนย์รังสิต) โทร. 1182-1184
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card">
-                                        <div className="card-header" id="headingThree">
-                                            <h5 className="mb-0">
-                                                <button className="btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree"><i className="fa"
-                                                                                                                                                                                       aria-hidden="true"></i>
-                                                    <a><span className="ask">Q</span>การขอใช้อีเมล์ของมหาวิทยาลัย</a>
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseThree" className="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                                            <div className="card-body"> นักศึกษา
-                                                <br/> - มหาวิทยาลัยได้มีการกำหนดบัญชื่อผู้ใช้สำหรับทุกท่านตั้งแต่เริ่มเข้าบรรจุเป็นนักศึกษา -
-                                                หากมีปัญหากรุณาติดต่อกับฝ่ายทะเบียนประวัติสำนักงานทะเบียนนักศึกษา มธ. โทร 02-564- 4441-79 ต่อ 1602-1607 เพื่อตรวจสอบสถานะและบญัชีผู้ใช้ก่อน
-                                                <br/>
-                                                <br/> บุคลากร
-                                                <br/> - สำหรับบุคคลากรที่เข้าบรรจุใหม่จะไดร้ับบญัชีผู้ใช้โดยอัตโนมติจากหน่วยงานกองการเจ้าหน้าที่ -
-                                                กรุณาติดต่อกับหน่วยงานทะเบียนประวัติกองทรัพยากรมนุษย์โทร. 02-5644440-79 ต่อ1886,1887
-                                                <br/>
-                                                <br/> กรณีได้รับ User E-mail แล้วทำหายหรือได้ทำการเปลี่ยนรหัสผ่านแล้วลืม ให้ติดต่อที่สำนักงานศูนย์เทคโนโลยีฯ โทร. 1965 หรือ helpdesk
-                                                หรือ line หรือที่ห้องบริการคอมพิวเตอร์ 113 (สทศ.) อาคารวิทยบริการ มธ. (ศูนย์รังสิต) โทร. 1182-1184
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {
+                                        faqList.map((entry, index) => (
+                                            <FaqItem
+                                                data={entry}
+                                                index={index}
+                                            />
+                                        ))
+                                    }
                                 </div>
                             </div>
                         </div>
+                        }
+                    </div>
+
+                    <div style={{textAlign: 'center', marginTop: '30px'}}>
+                        <ReactPaginate
+                            initialPage={this.state.initialPage}
+                            previousLabel={'<'}
+                            nextLabel={'>'}
+                            breakLabel={'...'}
+                            breakClassName={'break-me'}
+                            pageCount={this.state.pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={'pagination'}
+                            activeClassName={'pagination-active'}
+                            previousClassName={'pagination-older'}
+                            nextClassName={'pagination-newer'}
+                        />
                     </div>
                 </React.Fragment>
 

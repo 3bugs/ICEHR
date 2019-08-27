@@ -167,11 +167,12 @@ if ($result = $db->query($sql)) {
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="inputPassword">รหัสผ่าน (Password):</label>
+                                                    &nbsp;&nbsp;<a href="javascript:void(0)" onclick="alert($('#inputPassword').val())">แสดงรหัสผ่าน</a>
                                                     <div class="input-group">
                                                         <span class="input-group-addon">
                                                             <i class="fa fa-lock"></i>
                                                         </span>
-                                                        <input type="text" class="form-control"
+                                                        <input type="password" class="form-control"
                                                                id="inputPassword"
                                                                name="password"
                                                                value=""
@@ -514,7 +515,7 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseTrainingManageRegistration" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
-                                                                จัดการสถานะใบสมัคร
+                                                                จัดการใบสมัคร
                                                             </label>
                                                         </div>
                                                     </div>
@@ -524,17 +525,17 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseTrainingManageCourseMaster" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
-                                                                จัดการชื่อหลักสูตร
+                                                                จัดการข้อมูลพื้นฐาน
                                                             </label>
                                                         </div>
-                                                        <div class="col-md-9">
+                                                        <!--<div class="col-md-9">
                                                             <label class="checkbox-inline">
                                                                 <input name="permissionCourseTrainingManageCategory" type="checkbox"
                                                                        data-toggle="toggle"
-                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_CATEGORY) ? 'checked' : '' ?>>
+                                                                    <?/*= userHasPermission($user['permissions'], PERMISSION_COURSE_TRAINING_MANAGE_CATEGORY) ? 'checked' : '' */?>>
                                                                 จัดการหมวดหมู่หลักสูตร
                                                             </label>
-                                                        </div>
+                                                        </div>-->
                                                     </div>
                                                 </div>
                                                 <!-- /.box-body -->
@@ -584,7 +585,7 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseSocialManageRegistration" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
-                                                                จัดการสถานะใบสมัคร
+                                                                จัดการใบสมัคร
                                                             </label>
                                                         </div>
                                                     </div>
@@ -594,7 +595,7 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseSocialManageCourseMaster" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_SOCIAL_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
-                                                                จัดการชื่อหลักสูตร
+                                                                จัดการข้อมูลพื้นฐาน
                                                             </label>
                                                         </div>
                                                     </div>
@@ -646,7 +647,7 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseDrivingLicenseManageRegistration" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION) ? 'checked' : '' ?>>
-                                                                จัดการสถานะใบสมัคร
+                                                                จัดการใบสมัคร
                                                             </label>
                                                         </div>
                                                     </div>
@@ -656,15 +657,43 @@ if ($result = $db->query($sql)) {
                                                                 <input name="permissionCourseDrivingLicenseManageCourseMaster" type="checkbox"
                                                                        data-toggle="toggle"
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER) ? 'checked' : '' ?>>
-                                                                จัดการชื่อหลักสูตร
+                                                                จัดการข้อมูลพื้นฐาน
                                                             </label>
                                                         </div>
-                                                        <div class="col-md-9">
+                                                        <!--<div class="col-md-9">
                                                             <label class="checkbox-inline">
                                                                 <input name="permissionCourseDrivingLicenseManageCategory" type="checkbox"
                                                                        data-toggle="toggle"
-                                                                    <?= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_CATEGORY) ? 'checked' : '' ?>>
+                                                                    <?/*= userHasPermission($user['permissions'], PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_CATEGORY) ? 'checked' : '' */?>>
                                                                 จัดการประเภทหลักสูตร
+                                                            </label>
+                                                        </div>-->
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+
+                                    <!--เนื้อหาเว็บไซต์-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>เนื้อหาเว็บไซต์:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-12">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionManageWebContent" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_MANAGE_WEB_CONTENT) ? 'checked' : '' ?>>
+                                                                จัดการเนื้อหาเว็บไซต์และข้อมูลพื้นฐานอื่นๆ
                                                             </label>
                                                         </div>
                                                     </div>

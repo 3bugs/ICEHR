@@ -183,12 +183,19 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        data-toggle="modal" data-target="#addModal"
-                                        style="margin-right: 5px">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่ม<?= $header; ?>
-                                </button>
+                                <?php
+                                if (($tableName === 'training_course_category' && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER))
+                                    || ($tableName === 'name_title' /*&& currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER)*/)) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            data-toggle="modal" data-target="#addModal"
+                                            style="margin-right: 5px">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่ม<?= $header; ?>
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="table" class="table table-bordered table-striped">
@@ -214,18 +221,25 @@ if ($result = $db->query($sql)) {
                                             <tr style="">
                                                 <td style=""><?= $title; ?></td>
                                                 <td style="text-align: center" nowrap>
-                                                    <button type="button" class="btn btn-warning"
-                                                            style="margin-left: 6px; margin-right: 3px"
-                                                            onclick="onClickEdit(this, <?= $id; ?>, '<?= $title; ?>')">
-                                                        <span class="fa fa-edit"></span>&nbsp;
-                                                        แก้ไข
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger"
-                                                            style="margin-left: 3px; margin-right: 6px"
-                                                            onclick="onClickDelete(this, <?= $id; ?>, '<?= $title; ?>')">
-                                                        <span class="fa fa-remove"></span>&nbsp;
-                                                        ลบ
-                                                    </button>
+                                                    <?php
+                                                    if (($tableName === 'training_course_category' && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER))
+                                                        || ($tableName === 'name_title' /*&& currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER)*/)) {
+                                                        ?>
+                                                        <button type="button" class="btn btn-warning"
+                                                                style="margin-left: 6px; margin-right: 3px"
+                                                                onclick="onClickEdit(this, <?= $id; ?>, '<?= $title; ?>')">
+                                                            <span class="fa fa-edit"></span>&nbsp;
+                                                            แก้ไข
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger"
+                                                                style="margin-left: 3px; margin-right: 6px"
+                                                                onclick="onClickDelete(this, <?= $id; ?>, '<?= $title; ?>')">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
+                                                        </button>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </td>
                                             </tr>
                                             <?php

@@ -291,17 +291,23 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-info pull-right"
-                                        data-toggle="modal" data-target="#sortDepartmentModal">
-                                    <span class="fa fa-sort"></span>&nbsp;
-                                    เรียงลำดับฝ่าย
-                                </button>
-                                <button type="button" class="btn btn-success pull-right"
-                                        data-toggle="modal" data-target="#addDepartmentModal"
-                                        style="margin-right: 5px">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มชื่อฝ่าย
-                                </button>
+                                <?php
+                                if (currentUserHasPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+                                    ?>
+                                    <button type="button" class="btn btn-info pull-right"
+                                            data-toggle="modal" data-target="#sortDepartmentModal">
+                                        <span class="fa fa-sort"></span>&nbsp;
+                                        เรียงลำดับฝ่าย
+                                    </button>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            data-toggle="modal" data-target="#addDepartmentModal"
+                                            style="margin-right: 5px">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มชื่อฝ่าย
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableDepartment" class="table table-bordered table-striped">
@@ -330,24 +336,30 @@ if ($result = $db->query($sql)) {
                                                 <td style=""><?= $departmentName; ?></td>
                                                 <td style="text-align: center"><?= $sortIndex; ?></td>
                                                 <td style="text-align: center" nowrap>
-                                                    <button type="button" class="btn btn-info"
-                                                            style="margin-left: 6px; margin-right: 3px"
-                                                            onclick="onClickSortUsers(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
-                                                        <span class="fa fa-sort"></span>&nbsp;
-                                                        เรียงลำดับผู้ใช้
-                                                    </button>
-                                                    <button type="button" class="btn btn-warning"
-                                                            style="margin-left: 6px; margin-right: 3px"
-                                                            onclick="onClickEdit(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
-                                                        <span class="fa fa-edit"></span>&nbsp;
-                                                        แก้ไข
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger"
-                                                            style="margin-left: 3px; margin-right: 6px"
-                                                            onclick="onClickDelete(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
-                                                        <span class="fa fa-remove"></span>&nbsp;
-                                                        ลบ
-                                                    </button>
+                                                    <?php
+                                                    if (currentUserHasPermission(PERMISSION_USER_DEPARTMENT_MANAGE)) {
+                                                        ?>
+                                                        <button type="button" class="btn btn-info"
+                                                                style="margin-left: 6px; margin-right: 3px"
+                                                                onclick="onClickSortUsers(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
+                                                            <span class="fa fa-sort"></span>&nbsp;
+                                                            เรียงลำดับผู้ใช้
+                                                        </button>
+                                                        <button type="button" class="btn btn-warning"
+                                                                style="margin-left: 6px; margin-right: 3px"
+                                                                onclick="onClickEdit(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
+                                                            <span class="fa fa-edit"></span>&nbsp;
+                                                            แก้ไข
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger"
+                                                                style="margin-left: 3px; margin-right: 6px"
+                                                                onclick="onClickDelete(this, <?= $departmentId; ?>, '<?= $departmentName; ?>')">
+                                                            <span class="fa fa-remove"></span>&nbsp;
+                                                            ลบ
+                                                        </button>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </td>
                                             </tr>
                                             <?php

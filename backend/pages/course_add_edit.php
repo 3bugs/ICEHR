@@ -1,8 +1,8 @@
 <?php
 require_once '../include/head_php.inc';
 
-$courseId = $_GET['course_id'];
-$serviceType = $_GET['service_type'];
+$courseId = $_POST['course_id'];
+$serviceType = $_POST['service_type'];
 
 if (!isset($serviceType)) {
     echo '<div style="color: red">ERROR: ไม่ได้ระบุ service type</div>';

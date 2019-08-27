@@ -118,6 +118,9 @@ switch ($action) {
     case 'update_document_download':
         doUpdateDocumentDownload();
         break;
+    case 'update_document_download_status':
+        doUpdateDocumentDownloadStatus();
+        break;
     case 'delete_document_download':
         doDeleteDocumentDownload();
         break;
@@ -126,6 +129,9 @@ switch ($action) {
         break;
     case 'update_news':
         doUpdateNews();
+        break;
+    case 'update_news_status':
+        doUpdateNewsStatus();
         break;
     case 'delete_news':
         doDeleteNews();
@@ -174,6 +180,9 @@ switch ($action) {
         break;
     case 'update':
         doUpdate();
+        break;
+    case 'update_status':
+        doUpdateStatus();
         break;
     case 'delete':
         doDelete();
@@ -579,8 +588,17 @@ function doAdd()
     $tableName = $db->real_escape_string($_POST['tableName']);
     $title = $db->real_escape_string($_POST['title']);
 
-    $sql = "INSERT INTO $tableName (title) 
+    if (isset($_POST['details'])) {
+        $details = $db->real_escape_string($_POST['details']);
+    }
+
+    if (isset($details)) {
+        $sql = "INSERT INTO $tableName (title, details) 
+            VALUES ('$title', '$details')";
+    } else {
+        $sql = "INSERT INTO $tableName (title) 
             VALUES ('$title')";
+    }
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
@@ -601,8 +619,18 @@ function doUpdate()
     $id = $db->real_escape_string($_POST['id']);
     $title = $db->real_escape_string($_POST['title']);
 
-    $sql = "UPDATE $tableName SET title = '$title' 
+    if (isset($_POST['details'])) {
+        $details = $db->real_escape_string($_POST['details']);
+    }
+
+    if (isset($details)) {
+        $sql = "UPDATE $tableName SET title = '$title', details = '$details' 
             WHERE id = $id";
+    } else {
+        $sql = "UPDATE $tableName SET title = '$title' 
+            WHERE id = $id";
+    }
+
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
@@ -610,6 +638,27 @@ function doUpdate()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateStatus()
+{
+    global $db, $response;
+
+    $tableName = $db->real_escape_string($_POST['tableName']);
+    $id = $db->real_escape_string($_POST['id']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    $sql = "UPDATE $tableName SET status = '$newStatus' WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -744,6 +793,29 @@ function doAddCourse()
     global $db, $response;
 
     $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
+
+    /*ตรวจสอบสิทธิ์*/
+    $sql = "SELECT service_type FROM course_master WHERE id = $courseMasterId";
+    $result = $db->query($sql);
+    $row = $result->fetch_assoc();
+    switch ($row['service_type']) {
+        case 'training':
+            if (!checkPermission(PERMISSION_COURSE_TRAINING_CREATE)) {
+                return;
+            }
+            break;
+        case 'social':
+            if (!checkPermission(PERMISSION_COURSE_SOCIAL_CREATE)) {
+                return;
+            }
+            break;
+        case 'driving_license':
+            if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_CREATE)) {
+                return;
+            }
+            break;
+    }
+
     $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
     $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
     $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
@@ -860,6 +932,31 @@ function doUpdateCourse()
 
     $courseId = $db->real_escape_string($_POST['courseId']);
     $courseMasterId = $db->real_escape_string($_POST['courseMasterId']);
+
+    /*ถ้าจะตรวจสอบสิทธิ์ตรงนี้ ต้องเพิ่มกรณี user นั้นเป็นผู้รับผิดชอบหลักสูตรด้วย*/
+
+    /*ตรวจสอบสิทธิ์*/
+    /*$sql = "SELECT service_type FROM course_master WHERE id = $courseMasterId";
+    $result = $db->query($sql);
+    $row = $result->fetch_assoc();
+    switch ($row['service_type']) {
+        case 'training':
+            if (!checkPermission(PERMISSION_COURSE_TRAINING_UPDATE)) {
+                return;
+            }
+            break;
+        case 'social':
+            if (!checkPermission(PERMISSION_COURSE_SOCIAL_UPDATE)) {
+                return;
+            }
+            break;
+        case 'driving_license':
+            if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_UPDATE)) {
+                return;
+            }
+            break;
+    }*/
+
     $batchNumber = isset($_POST['batchNumber']) ? $db->real_escape_string($_POST['batchNumber']) : 'NULL';
     $applicationFee = isset($_POST['applicationFee']) ? $db->real_escape_string($_POST['applicationFee']) : 'NULL';
     $traineeLimit = $db->real_escape_string($_POST['traineeLimit']);
@@ -1348,6 +1445,28 @@ function getPermissionValuesFromPost()
     $permissions += pow(2, PERMISSION_USER_UPDATE) * (isset($_POST['permissionUserUpdate']) ? 1 : 0);
     $permissions += pow(2, PERMISSION_USER_DELETE) * (isset($_POST['permissionUserDelete']) ? 1 : 0);
     $permissions += pow(2, PERMISSION_USER_DEPARTMENT_MANAGE) * (isset($_POST['permissionUserDepartmentManage']) ? 1 : 0);
+
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_CREATE) * (isset($_POST['permissionCourseTrainingCreate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_UPDATE) * (isset($_POST['permissionCourseTrainingUpdate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_DELETE) * (isset($_POST['permissionCourseTrainingDelete']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION) * (isset($_POST['permissionCourseTrainingManageRegistration']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER) * (isset($_POST['permissionCourseTrainingManageCourseMaster']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_TRAINING_MANAGE_CATEGORY) * (isset($_POST['permissionCourseTrainingManageCategory']) ? 1 : 0);
+
+    $permissions += pow(2, PERMISSION_COURSE_SOCIAL_CREATE) * (isset($_POST['permissionCourseSocialCreate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_SOCIAL_UPDATE) * (isset($_POST['permissionCourseSocialUpdate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_SOCIAL_DELETE) * (isset($_POST['permissionCourseSocialDelete']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION) * (isset($_POST['permissionCourseSocialManageRegistration']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_SOCIAL_MANAGE_COURSE_MASTER) * (isset($_POST['permissionCourseSocialManageCourseMaster']) ? 1 : 0);
+
+    $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_CREATE) * (isset($_POST['permissionCourseDrivingLicenseCreate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_UPDATE) * (isset($_POST['permissionCourseDrivingLicenseUpdate']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_DELETE) * (isset($_POST['permissionCourseDrivingLicenseDelete']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION) * (isset($_POST['permissionCourseDrivingLicenseManageRegistration']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER) * (isset($_POST['permissionCourseDrivingLicenseManageCourseMaster']) ? 1 : 0);
+
+    $permissions += pow(2, PERMISSION_MANAGE_WEB_CONTENT) * (isset($_POST['permissionManageWebContent']) ? 1 : 0);
+
     return $permissions;
 }
 
@@ -1631,6 +1750,34 @@ function doUpdateDocumentDownload()
     }
 }
 
+function doUpdateDocumentDownloadStatus()
+{
+    global $db, $response;
+
+    $documentDownloadId = $db->real_escape_string($_POST['documentDownloadId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    /*if ($newStatus === 'deleted') {
+        if (!checkPermission(PERMISSION_USER_DELETE)) {
+            return;
+        }
+    } else if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }*/
+
+    $sql = "UPDATE document_download SET status = '$newStatus' WHERE id = $documentDownloadId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะเอกสารดาวน์โหลดสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
 function doUpdateNews()
 {
     global $db, $response;
@@ -1695,6 +1842,34 @@ function doUpdateNews()
 
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateNewsStatus()
+{
+    global $db, $response;
+
+    $newsId = $db->real_escape_string($_POST['newsId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    /*if ($newStatus === 'deleted') {
+        if (!checkPermission(PERMISSION_USER_DELETE)) {
+            return;
+        }
+    } else if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }*/
+
+    $sql = "UPDATE news SET status = '$newStatus' WHERE id = $newsId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะข่าวสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

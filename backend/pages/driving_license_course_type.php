@@ -157,12 +157,18 @@ if ($result = $db->query($sql)) {
                                                 <td style=""><?php echo $courseTypeTitle; ?></td>
                                                 <td style="text-align: center"><?php echo $courseTypeFee; ?></td>
                                                 <td style="text-align: center" nowrap>
-                                                    <button type="button" class="btn btn-warning"
-                                                            style="margin-left: 6px; margin-right: 6px"
-                                                            onclick="onClickEdit(this, <?php echo $courseTypeId; ?>, '<?php echo $courseTypeTitle; ?>', <?php echo $courseTypeFee; ?>)">
-                                                        <span class="fa fa-edit"></span>&nbsp;
-                                                        แก้ไข
-                                                    </button>
+                                                    <?php
+                                                    if (currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
+                                                        ?>
+                                                        <button type="button" class="btn btn-warning"
+                                                                style="margin-left: 6px; margin-right: 6px"
+                                                                onclick="onClickEdit(this, <?php echo $courseTypeId; ?>, '<?php echo $courseTypeTitle; ?>', <?php echo $courseTypeFee; ?>)">
+                                                            <span class="fa fa-edit"></span>&nbsp;
+                                                            แก้ไข
+                                                        </button>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </td>
                                             </tr>
                                             <?php

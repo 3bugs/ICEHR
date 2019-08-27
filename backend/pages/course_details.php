@@ -524,7 +524,7 @@ if ($result = $db->query($sql)) {
                             </div>
                             <div class="box-body">
                                 <?php
-                                getCourseRegistrationDataTable($db, $course['service_type'], $courseId);
+                                getCourseRegistrationDataTable($db, $course['service_type'], $courseId, $course['responsible_user_id']);
                                 ?>
                             </div>
                             <!-- /.box-body -->

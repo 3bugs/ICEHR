@@ -18,7 +18,7 @@ $pageTitles['activity'] = 'ภาพกิจกรรม';
 
 $pageTitle = $pageTitles[$newsType];
 
-$sql = "SELECT id, title, details, image_file_name, news_date, created_at 
+$sql = "SELECT id, title, details, image_file_name, news_date, created_at, status
             FROM news
             WHERE news_type = '$newsType'
             ORDER BY created_at DESC ";
@@ -85,6 +85,7 @@ if ($result = $db->query($sql)) {
                                         <th style="text-align: center; width: 20%;">รูปภาพหน้าปก</th>
                                         <th style="text-align: center; width: 22%;">วันที่ข่าว/กิจกรรม</th>
                                         <th style="text-align: center; width: 18%;" nowrap>วันที่สร้าง</th>
+                                        <th style="text-align: center;" nowrap>เผยแพร่</th>
                                         <th style="text-align: center;">จัดการ</th>
                                     </tr>
                                     </thead>
@@ -122,6 +123,16 @@ if ($result = $db->query($sql)) {
                                                 </td>
                                                 <td style="text-align: center"><?= ($newsDateHidden . $displayNewsDate); ?></td>
                                                 <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $news['status'] == 'publish' ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')"
+                                                        <?= $news['status'] == 'publish' ? 'checked' : '' ?>>
+                                                </td>
+
                                                 <td nowrap>
                                                     <form method="get" action="news_add_edit.php" style="display: inline; margin: 0">
                                                         <input type="hidden" name="news_type" value="<?= $newsType; ?>"/>
@@ -201,6 +212,56 @@ if ($result = $db->query($sql)) {
 
         function onClickAdd() {
             window.location.href = 'news_add_edit.php?news_type=<?= $newsType; ?>';
+        }
+
+        function onChangeStatus(element, newsId, title) {
+            let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
+            if (result) {
+                doChangeStatus(newsId, (element.checked ? 'publish' : 'draft'));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
+        function doChangeStatus(newsId, newStatus) {
+            let title = 'แก้ไขสถานะเอกสารดาวน์โหลด';
+
+            $.post(
+                '../api/api.php/update_news_status',
+                {
+                    newsId: newsId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
         }
 
         function onClickDelete(element, id, title) {

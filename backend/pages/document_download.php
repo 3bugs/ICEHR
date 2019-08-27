@@ -24,7 +24,7 @@ $pageTitles['booklet'] = 'จุลสาร/อินโฟกราฟิค';
 
 $pageTitle = $pageTitles[$documentType];
 
-$sql = "SELECT id, title, short_description, image_file_name, file_name, download, created_at 
+$sql = "SELECT id, title, short_description, image_file_name, file_name, download, created_at, status 
             FROM document_download
             WHERE document_type = '$documentType'
             ORDER BY created_at DESC ";
@@ -96,6 +96,7 @@ if ($result = $db->query($sql)) {
                                             <th style="text-align: center; width: 13%;">PDF</th>
                                             <th style="text-align: center; width: 12%;">ดาวน์โหลด</th>
                                             <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
+                                            <th style="text-align: center;" nowrap>เผยแพร่</th>
                                             <th style="text-align: center;">จัดการ</th>
                                             <?php
                                         } else {
@@ -104,6 +105,7 @@ if ($result = $db->query($sql)) {
                                             <th style="text-align: center; width: 15%;">PDF</th>
                                             <th style="text-align: center; width: 15%;">ดาวน์โหลด</th>
                                             <th style="text-align: center; width: 20%;" nowrap>วันที่สร้าง</th>
+                                            <th style="text-align: center;" nowrap>เผยแพร่</th>
                                             <th style="text-align: center;">จัดการ</th>
                                             <?php
                                         }
@@ -151,6 +153,16 @@ if ($result = $db->query($sql)) {
                                                 </td>
                                                 <td align="center"><?= $documentDownload['download']; ?></td>
                                                 <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $documentDownload['status'] == 'publish' ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>')"
+                                                        <?= $documentDownload['status'] == 'publish' ? 'checked' : '' ?>>
+                                                </td>
+
                                                 <td nowrap>
                                                     <form method="get" action="document_download_add_edit.php" style="display: inline; margin: 0">
                                                         <input type="hidden" name="document_type" value="<?= $documentType; ?>"/>
@@ -230,6 +242,56 @@ if ($result = $db->query($sql)) {
 
         function onClickAdd() {
             window.location.href = 'document_download_add_edit.php?document_type=<?= $documentType; ?>';
+        }
+
+        function onChangeStatus(element, documentDownloadId, title) {
+            let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
+            if (result) {
+                doChangeStatus(documentDownloadId, (element.checked ? 'publish' : 'draft'));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
+        function doChangeStatus(documentDownloadId, newStatus) {
+            let title = 'แก้ไขสถานะเอกสารดาวน์โหลด';
+
+            $.post(
+                '../api/api.php/update_document_download_status',
+                {
+                    documentDownloadId: documentDownloadId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
         }
 
         function onClickDelete(element, id, title) {

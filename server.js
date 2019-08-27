@@ -218,6 +218,9 @@ app
                     case 'get_activity':
                         doGetActivity(req, res, db);
                         break;
+                    case 'get_faq':
+                        doGetFaq(req, res, db);
+                        break;
                     case 'get_course_num_trainee_available':
                         doGetCourseNumTraineeAvailable(req, res, db);
                         break;
@@ -1822,10 +1825,10 @@ doGetDocumentDownload = (req, res, db) => {
                     download,
                     hit
              FROM document_download
-             WHERE document_type = ?
+             WHERE document_type = ? AND status = ?
             ORDER BY created_at DESC
         ${limitClause}`,
-        [documentType],
+        [documentType, 'publish'],
         function (err, results, fields) {
             if (err) {
                 res.send({
@@ -1839,6 +1842,52 @@ doGetDocumentDownload = (req, res, db) => {
                          WHERE document_type = ?
                            AND status = ?`,
                     [documentType, 'publish'],
+                    function (err, totalCountResults, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                dataList: results,
+                                totalCount: totalCountResults[0].totalCount,
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
+    //db.end();
+};
+
+doGetFaq = (req, res, db) => {
+    const {offset, limit} = req.body;
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+
+    db.query(
+        `SELECT id,
+                    title,
+                    details
+             FROM faq
+             WHERE status = ?
+             ORDER BY created_at DESC
+        ${limitClause}`,
+        ['publish'],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+                db.query(
+                        `SELECT COUNT(*) AS totalCount
+                         FROM faq 
+                         WHERE status = ?`,
+                    ['publish'],
                     function (err, totalCountResults, fields) {
                         if (err) {
                             res.send({
@@ -1887,10 +1936,10 @@ doGetNewsLatest = (req, res, db) => {
     db.query(
             `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
-             WHERE news_type = ?
+             WHERE news_type = ? AND status = ?
              ORDER BY created_at DESC
              LIMIT 0, 4`,
-        ['training'],
+        ['training', 'publish'],
         function (err, resultsTrainingNews, fields) {
             if (err) {
                 res.send({
@@ -1901,10 +1950,10 @@ doGetNewsLatest = (req, res, db) => {
                 db.query(
                         `SELECT id, title, short_description, details, image_file_name, news_date, news_type
                          FROM news
-                         WHERE news_type = ?
+                         WHERE news_type = ? AND status = ?
                          ORDER BY created_at DESC
                          LIMIT 0, 4`,
-                    ['public-relations'],
+                    ['public-relations', 'publish'],
                     function (err, resultsPublicRelationsNews, fields) {
                         if (err) {
                             res.send({
@@ -1957,7 +2006,7 @@ doGetActivity = (req, res, db) => {
     db.query(
         `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
                     na.file_name
-             FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} ${limitClause}) n
+             FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish' ${limitClause}) n
                  LEFT JOIN news_asset na 
                      ON n.id = na.news_id
              ORDER BY n.created_at DESC`,
