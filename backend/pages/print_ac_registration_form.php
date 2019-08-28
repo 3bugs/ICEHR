@@ -3,19 +3,46 @@ ob_start();
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
-$serviceType = $_GET['service_type'];
-$traineeId = $_GET['trainee_id'];
-$payment = $_GET['payment'];
+//กรณีเรียกมาจาก frontend ตอนสมัครวิชาการสำเร็จ
+$courseRegId = $_GET['ac_course_reg_id'];
+if (isset($courseRegId)) {
+    $serviceType = SERVICE_TYPE_TRAINING;
+    $payment = 1;
 
-if (!in_array($serviceType, array(SERVICE_TYPE_TRAINING, SERVICE_TYPE_SOCIAL))) {
-    echo 'Error: ระบุประเภทบริการไม่ถูกต้อง';
-    $db->close();
-    exit();
-}
-if (!isset($traineeId)) {
-    echo 'Error: ไม่ได้ระบุ ID ใบสมัคร';
-    $db->close();
-    exit();
+    $sql = "SELECT id FROM course_trainee WHERE course_registration_id = $courseRegId";
+    if ($result = $db->query($sql)) {
+        if ($result->num_rows > 0) {
+            $traineeId = '';
+            while ($row = $result->fetch_assoc()) {
+                $traineeId .= "{$row['id']},";
+            }
+            $traineeId = substr($traineeId, 0, -1); //ลบ comma ตัวสุดท้าย
+        } else {
+            echo 'Error: ไม่พบข้อมูลใบสมัคร';
+            $result->close();
+            $db->close();
+            exit();
+        }
+    } else {
+        echo 'Error: เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+        $db->close();
+        exit();
+    }
+} else { // กรณีเรียกจากหลังบ้าน รวมทั้ง frontend ตอนสมัครสังคมสำเร็จ
+    $serviceType = $_GET['service_type'];
+    $traineeId = $_GET['trainee_id'];
+    $payment = $_GET['payment'];
+
+    if (!in_array($serviceType, array(SERVICE_TYPE_TRAINING, SERVICE_TYPE_SOCIAL))) {
+        echo 'Error: ระบุประเภทบริการไม่ถูกต้อง';
+        $db->close();
+        exit();
+    }
+    if (!isset($traineeId)) {
+        echo 'Error: ไม่ได้ระบุ ID ใบสมัคร';
+        $db->close();
+        exit();
+    }
 }
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {

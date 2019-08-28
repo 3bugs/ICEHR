@@ -7,9 +7,11 @@ import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
-import {SERVICE_SOCIAL} from "../etc/constants";
+import {HOST_BACKEND, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
+//import {RegisterSuccessDialog} from './service-training-register';
 import DatePicker from "react-datepicker";
+import {Modal} from "react-bootstrap";
 
 const TOP_OF_FORM = 'topOfForm';
 //const ORGANIZATION_TYPE_OTHER = '9999';
@@ -210,6 +212,36 @@ class RegisterProgress2Step extends React.Component {
                     }
                 `}</style>
             </div>
+        );
+    }
+}
+
+class RegisterSuccessDialog extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+    }
+
+    render() {
+        return (
+            <Modal
+                {...this.props}
+                size="md"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        {this.props.title}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{textAlign: 'center'}}>
+                    {this.props.children}
+                </Modal.Body>
+                <Modal.Footer>
+                    <button className="btn btn-danger" onClick={this.props.onHide}>ปิด</button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
@@ -688,6 +720,11 @@ export default class ServiceSocialRegister extends React.Component {
                 textColor: '#000',
                 onCloseCallback: null,
             },
+            registerSuccessDialog: {
+                show: false,
+                title: null,
+            },
+            endRegisterFlow: false,
         };
     }
 
@@ -792,7 +829,7 @@ export default class ServiceSocialRegister extends React.Component {
     };
 
     handleSubmit = (event) => {
-        event.preventDefault();
+        //event.preventDefault();
         if (this.validateForm()) {
             this.doRegister();
         } else {
@@ -990,14 +1027,36 @@ export default class ServiceSocialRegister extends React.Component {
         })
             .then(result => result.json())
             .then(result => {
-                let msg = result['error']['message'];
+                const msg = result['error']['message'];
                 if (result['error']['code'] === 0) {
+                    const courseRegId = result['courseRegId'];
+
                     alert(msg);
+                    window.open(
+                        `${HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${SERVICE_SOCIAL}&trainee_id=${courseRegId}&payment=1&user=1`,
+                        '_blank'
+                    );
                     Router.back();
 
                     /*this.showDialog(msg, "success", () => {
                         this.dismissDialog();
                         Router.back();
+                    });*/
+
+                    /*const courseRegId = result['courseRegId'];
+                    this.setState({
+                        courseRegId,
+                        endRegisterFlow: true,
+                    });*/
+
+                    /*const courseRegId = result['courseRegId'];
+                    const registerSuccessDialog = {
+                        show: true,
+                        title: 'ลงทะเบียนสำเร็จ'
+                    };
+                    this.setState({
+                        courseRegId,
+                        registerSuccessDialog,
                     });*/
                 } else {
                     alert(msg);
@@ -1115,6 +1174,17 @@ export default class ServiceSocialRegister extends React.Component {
         }
     };
 
+    test = (courseRegId) => {
+        const registerSuccessDialog = {
+            show: true,
+            title: 'ทดสอบ'
+        };
+        this.setState({
+            courseRegId,
+            registerSuccessDialog,
+        });
+    };
+
     render() {
         let {traineeForm, receiptForm, step, dialog} = this.state;
 
@@ -1130,7 +1200,11 @@ export default class ServiceSocialRegister extends React.Component {
                         <div className="row">
                             <div className="col">
                                 <p style={{fontSize: '1.3rem', lineHeight: '30px', textAlign: 'center'}}>โครงการบริการสังคม สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}>แบบฟอร์มลงทะเบียนอบรม</h3></div>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}
+                                    onClick={this.test.bind(this, 24)}>
+                                    แบบฟอร์มลงทะเบียนอบรม
+                                </h3>
+                            </div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -1156,8 +1230,21 @@ export default class ServiceSocialRegister extends React.Component {
                             </div>
                         </div>
 
+                        {this.state.endRegisterFlow &&
+                            <div style={{textAlign: 'center', fontSize: '1.5rem', marginTop: '50px', color: '#008000'}}>
+                                ลงทะเบียนสำเร็จ<br/>
+                                <a className="btn btn-dark"
+                                   style={{marginTop: '10px', marginRight: 0, padding: '5px 20px'}}
+                                   href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${SERVICE_SOCIAL}&trainee_id=${this.state.courseRegId}&payment=1&user=1`}
+                                   target="_blank">
+                                    {this.props.course.applicationFee > 0 ? 'ใบสมัคร/รายละเอียดการชำระเงิน' : 'ใบสมัคร'}
+                                </a>
+                            </div>
+                        }
+
                         <Element name={TOP_OF_FORM}>
                             {this.props.course.applicationFee && (this.props.course.applicationFee > 0) &&
+                            !this.state.endRegisterFlow &&
                             <RegisterProgress
                                 text={[
                                     'ข้อมูลผู้สมัคร', 'ข้อมูลการออกใบเสร็จ', 'ตรวจสอบข้อมูล'
@@ -1166,6 +1253,7 @@ export default class ServiceSocialRegister extends React.Component {
                             />
                             }
                             {(!this.props.course.applicationFee || this.props.course.applicationFee === 0) &&
+                            !this.state.endRegisterFlow &&
                             <RegisterProgress2Step
                                 text={[
                                     'ข้อมูลผู้สมัคร', 'ตรวจสอบข้อมูล'
@@ -1180,6 +1268,7 @@ export default class ServiceSocialRegister extends React.Component {
                         <form id="applicationFormGroup" method="post" noValidate={true} onSubmit={this.handleSubmit}>
                             {/*ขั้นตอน 1 กรอกข้อมูลผู้สมัครอบรม*/}
                             {((step === 1) || (step === 3)) &&
+                            !this.state.endRegisterFlow &&
                             <div style={{marginTop: '15px'}}>
                                 {/*หัวข้อ*/}
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
@@ -1202,6 +1291,7 @@ export default class ServiceSocialRegister extends React.Component {
 
                             {/*ขั้นตอน 2 กรอกข้อมูลการออกใบเสร็จ*/}
                             {((step === 2) || (step === 3 && (this.props.course.applicationFee != null && this.props.course.applicationFee > 0))) &&
+                            !this.state.endRegisterFlow &&
                             <div>
                                 {/*ฟอร์มข้อมูลการออกใบเสร็จ*/}
                                 <div className="row" style={{border: '0 solid red', clear: 'both'}}>
@@ -1337,10 +1427,11 @@ export default class ServiceSocialRegister extends React.Component {
 
                             {/*ปุ่มลงทะเบียน*/}
                             {step === 3 &&
+                            !this.state.endRegisterFlow &&
                             <div className="row mt-3 mb-3">
                                 <div className="col">
                                     <div className="btn-red-submit">
-                                        <button type="submit" value="submit" className="btn btn-danger">
+                                        <button type="button" value="submit" className="btn btn-danger" onClick={this.handleSubmit}>
                                             ยืนยันลงทะเบียนอบรม
                                         </button>
                                     </div>
@@ -1354,6 +1445,7 @@ export default class ServiceSocialRegister extends React.Component {
                                     <div className="col-6 nopad">
                                         <div className="text-left">
                                             {step !== 1 &&
+                                            !this.state.endRegisterFlow &&
                                             <button type="button" className="btn btn-normal" onClick={this.onClickPrevious}>
                                                 <i className="fas fa-arrow-left" style={{fontSize: '0.8rem'}}/>&nbsp;&nbsp;&nbsp;ย้อนกลับ
                                             </button>
@@ -1363,6 +1455,7 @@ export default class ServiceSocialRegister extends React.Component {
                                     <div className="col-6 nopad">
                                         <div className="text-right">
                                             {step !== 3 &&
+                                            !this.state.endRegisterFlow &&
                                             <button type="button" className="btn btn-normal" onClick={this.onClickNext}>
                                                 &nbsp;ถัดไป&nbsp;&nbsp;&nbsp;<i className="fas fa-arrow-right" style={{fontSize: '0.8rem'}}/>&nbsp;
                                             </button>
@@ -1377,6 +1470,7 @@ export default class ServiceSocialRegister extends React.Component {
                             </div>*/}
 
                         </form>
+
                     </div>
                 }
                 {
@@ -1388,6 +1482,27 @@ export default class ServiceSocialRegister extends React.Component {
                         textColor={dialog.textColor}
                         isOpen={dialog.isOpen}
                         onCloseCallback={dialog.onCloseCallback}/>
+
+                <RegisterSuccessDialog
+                    title={this.state.registerSuccessDialog.title}
+                    show={this.state.registerSuccessDialog.show}
+                    onHide={() => {
+                        const registerSuccessDialog = {
+                            show: false,
+                        };
+                        this.setState({registerSuccessDialog}, () => {
+                            Router.back();
+                        });
+                    }}>
+                    <div>
+                        <a className="btn btn-dark"
+                           style={{marginRight: 0, padding: '5px 20px'}}
+                           href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${SERVICE_SOCIAL}&trainee_id=${this.state.courseRegId}&payment=1&user=1`}
+                           target="_blank">
+                            {this.props.course.applicationFee > 0 ? 'ใบสมัคร/รายละเอียดการชำระเงิน' : 'ใบสมัคร'}
+                        </a>
+                    </div>
+                </RegisterSuccessDialog>
 
                 <style jsx>{`
                     

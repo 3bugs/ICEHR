@@ -7,7 +7,7 @@ import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
-import {SERVICE_TRAINING} from "../etc/constants";
+import {HOST_BACKEND, SERVICE_TRAINING} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import DatePicker from "react-datepicker";
 import {Modal, Button} from 'react-bootstrap';
@@ -1744,6 +1744,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                                                 <input value={receiptForm.fields[REGISTER_RECEIPT_TAX_ID] || ''}
                                                                        onChange={this.handleChangeReceipt.bind(this, REGISTER_RECEIPT_TAX_ID)}
                                                                        type="text"
+                                                                       maxLength={13}
                                                                        placeholder="เลขประจำตัวผู้เสียภาษี"
                                                                        className="form-control input-md"
                                                                        disabled={step === 4}/>
@@ -1827,16 +1828,22 @@ export default class ServiceTrainingRegister extends React.Component {
                                 onClick={this.handleDownloadTraineeFormPdf}>
                             Save ใบสมัคร <i className="far fa-save" style={{color: '#aaa'}}></i>
                         </button>*/}
-                        <a className="btn btn-dark"
+                        {/*<a className="btn btn-dark"
                            style={{marginLeft: 0, padding: '5px 20px'}}
                            href={`/api/get_trainee_form_pdf?courseRegId=${this.state.courseRegId}&download=true`}>
                             Save ใบสมัคร<i className="far fa-save" style={{color: '#aaa'}}></i>
-                        </a>
-                        <a className="btn btn-dark"
+                        </a>*/}
+                        {/*<a className="btn btn-dark"
                            style={{marginRight: 0, padding: '5px 20px'}}
                            href={`/api/get_trainee_form_pdf?courseRegId=${this.state.courseRegId}`}
                            target="_blank">
-                            แสดงใบสมัคร{/*<i className="fa fa-print" style={{color: '#aaa'}}></i>*/}
+                            แสดงใบสมัคร/รายละเอียดการชำระเงิน<i className="fa fa-print" style={{color: '#aaa'}}></i>
+                        </a>*/}
+                        <a className="btn btn-dark"
+                           style={{marginRight: 0, padding: '5px 20px'}}
+                           href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${this.state.courseRegId}&user=1`}
+                           target="_blank">
+                            ใบสมัคร/รายละเอียดการชำระเงิน
                         </a>
                     </div>
                 </RegisterSuccessDialog>

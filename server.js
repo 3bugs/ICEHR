@@ -1137,6 +1137,7 @@ doRegisterCourseSocial = (req, res, db) => {
                         } else {
                             res.send({
                                 error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                courseRegId: insertId,
                             });
                             console.log('ลงทะเบียนสำเร็จ');
                         }
