@@ -1233,7 +1233,7 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
     db.query(
             `INSERT INTO course_registration_driving_license
              (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-              province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5, 
+              province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5,
               course_type, license_type)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
@@ -1545,14 +1545,72 @@ doGetTraineeByFormNumber = (req, res, db) => {
                                         }
                                     });
                                 } else {
-                                    res.send({
-                                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
-                                    });
+                                    db.query( // ถ้าหาในบริการวิชาการและใบขับขี่ไม่เจอ ก็ไปหาในสังคม
+                                            `SELECT cm.title           AS courseTitle,
+                                                    c.batch_number     AS courseBatchNumber,
+                                                    c.place            AS coursePlace,
+                                                    c.begin_date       AS courseBeginDate,
+                                                    c.end_date         AS courseEndDate,
+                                                    cr.form_number     AS formNumber,
+                                                    cr.id              AS traineeId,
+                                                    cr.title           AS traineeTitle,
+                                                    cr.first_name      AS traineeFirstName,
+                                                    cr.last_name       AS traineeLastName,
+                                                    cr.register_status AS registerStatus
+                                             FROM course_registration_social cr
+                                                      INNER JOIN course c
+                                                                 ON cr.course_id = c.id
+                                                      INNER JOIN course_master cm
+                                                                 ON c.course_master_id = cm.id
+                                             WHERE cr.form_number = ?`,
+                                        [formNumber],
+                                        function (err, results, fields) {
+                                            if (err) {
+                                                res.send({
+                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                                                });
+                                            } else {
+                                                if (results.length > 0) {
+                                                    const {
+                                                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+                                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
+                                                    } = results[0];
+
+                                                    res.send({
+                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                                        data: {
+                                                            course: {
+                                                                title: courseTitle,
+                                                                batchNumber: courseBatchNumber,
+                                                                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
+                                                                beginDate: courseBeginDate,
+                                                                endDate: courseEndDate,
+                                                                place: coursePlace,
+                                                            },
+                                                            trainee: {
+                                                                id: traineeId,
+                                                                title: traineeTitle,
+                                                                firstName: traineeFirstName,
+                                                                lastName: traineeLastName,
+                                                            },
+                                                            formNumber,
+                                                            registerStatus,
+                                                        }
+                                                    });
+                                                } else {
+                                                    res.send({
+                                                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    );
+                                    db.end();
                                 }
                             }
                         }
                     );
-                    db.end();
+                    //db.end();
                 }
             }
         }
@@ -1896,7 +1954,7 @@ doGetFaq = (req, res, db) => {
             } else {
                 db.query(
                         `SELECT COUNT(*) AS totalCount
-                         FROM faq 
+                         FROM faq
                          WHERE status = ?`,
                     ['publish'],
                     function (err, totalCountResults, fields) {
@@ -1947,7 +2005,8 @@ doGetNewsLatest = (req, res, db) => {
     db.query(
             `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
-             WHERE news_type = ? AND status = ?
+             WHERE news_type = ?
+               AND status = ?
              ORDER BY created_at DESC
              LIMIT 0, 4`,
         ['training', 'publish'],
@@ -1961,7 +2020,8 @@ doGetNewsLatest = (req, res, db) => {
                 db.query(
                         `SELECT id, title, short_description, details, image_file_name, news_date, news_type
                          FROM news
-                         WHERE news_type = ? AND status = ?
+                         WHERE news_type = ?
+                           AND status = ?
                          ORDER BY created_at DESC
                          LIMIT 0, 4`,
                     ['public-relations', 'publish'],
