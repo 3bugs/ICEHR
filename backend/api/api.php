@@ -347,7 +347,7 @@ function createSession($user)
     $_SESSION[KEY_SESSION_USER_FIRST_NAME] = $user['first_name'];
     $_SESSION[KEY_SESSION_USER_LAST_NAME] = $user['last_name'];
     $_SESSION[KEY_SESSION_USER_EMAIL] = $user['email'];
-    //$_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
+    $_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
     $_SESSION[KEY_SESSION_USER_PERMISSION] = (int)$user['permissions'];
 }
 

@@ -475,7 +475,7 @@ if (isset($courseId)) {
                                                     </div>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputBeginDate"
-                                                           name="beginDate"
+                                                           name="beginDate" autocomplete="off"
                                                            placeholder="เลือกวันอบรมวันแรก" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันแรก')"
                                                            oninput="this.setCustomValidity('')">
@@ -491,7 +491,7 @@ if (isset($courseId)) {
                                                     </div>
                                                     <input type="text" class="form-control pull-right"
                                                            id="inputEndDate"
-                                                           name="endDate"
+                                                           name="endDate" autocomplete="off"
                                                            placeholder="เลือกวันอบรมวันสุดท้าย" required
                                                            oninvalid="this.setCustomValidity('เลือกวันอบรมวันสุดท้าย')"
                                                            oninput="this.setCustomValidity('')">

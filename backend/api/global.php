@@ -206,7 +206,7 @@ function userHasPermission($userPermissions, $permissionToCheck) {
 }
 
 function currentUserHasPermission($permissionToCheck) {
-    return userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
+    return $_SESSION[KEY_SESSION_USER_ROLE] === 'super_admin' || userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
 }
 
 function getThaiDate($date) {
@@ -293,4 +293,31 @@ function thaiNumDigit($num)
         array('๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'),
         $num
     );
+}
+
+function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayName, $isCourseFree) {
+    if (!empty($recipientList)) {
+        // Create instance of Swift_Attachment with our PDF file
+        $attachment = new Swift_Attachment($pdfFileContent, $pdfFileName, 'application/pdf');
+
+        $message = new Swift_Message();
+        $message
+            ->setSubject(($isCourseFree ? 'ใบสมัคร: ' : 'ใบสมัครและรายละเอียดการชำระเงิน: ') . $courseDisplayName)
+            ->setFrom(array('no-reply@icehr.tu.ac.th'))
+            ->setTo($recipientList)
+            ->setBody(($isCourseFree ? 'ใบสมัคร: ' : 'ใบสมัครและรายละเอียดการชำระเงิน: ') . $courseDisplayName)
+            ->attach($attachment);
+
+        //$transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl');
+        //$transport->setUsername('email@gmail.com')->setPassword('password');
+
+        $transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'); // port 465 or 587
+        $transport->setUsername('promlert@gmail.com')->setPassword('zfiaqdxtarzxxecl');
+
+        // Create the Mailer using your created Transport
+        $mailer = new Swift_Mailer($transport);
+
+        // Send the created message
+        $mailer->send($message);
+    }
 }

@@ -45,9 +45,6 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/head.inc'); ?>
         <!--Lightbox-->
         <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
-        <!--Bootstrap Toggle-->
-        <link href="../dist/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
-        <script src="../dist/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
 
         <style>
             input[type="file"] {

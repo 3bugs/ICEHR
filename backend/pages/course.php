@@ -110,11 +110,13 @@ if ($result = $db->query($sql)) {
                                     || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_CREATE))
                                     || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_CREATE))) {
                                     ?>
-                                    <button type="button" class="btn btn-success pull-right"
-                                            onclick="onClickAdd(this)">
-                                        <span class="fa fa-plus"></span>&nbsp;
-                                        เพิ่มหลักสูตร
-                                    </button>
+                                    <form method="post" action="course_add_edit.php" style="display: inline">
+                                        <input type="hidden" name="service_type" value="<?= $serviceType; ?>"/>
+                                        <button type="submit" class="btn btn-success pull-right">
+                                            <span class="fa fa-plus"></span>&nbsp;
+                                            เพิ่มหลักสูตร
+                                        </button>
+                                    </form>
                                     <?php
                                 }
                                 ?>
@@ -129,7 +131,7 @@ if ($result = $db->query($sql)) {
                                             <th style="width: 50%; text-align: center">หลักสูตร</th>
                                             <th style="width: 10%; text-align: center">ค่าสมัคร</th>
                                             <th style="width: 20%; text-align: center">วันที่อบรม</th>
-                                            <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
+                                            <th style="width: 20%; text-align: center">สมัคร / รับได้</th>
                                             <th style="text-align: center">จัดการ</th>
                                             <?php
                                         } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
@@ -260,7 +262,7 @@ if ($result = $db->query($sql)) {
         });
 
         function onClickAdd() {
-            window.location.href = 'course_add_edit.php?service_type=<?= $serviceType; ?>';
+            //window.location.href = 'course_add_edit.php?service_type=<?= $serviceType; ?>';
         }
 
         function onClickDelete(element, courseId, courseName) {

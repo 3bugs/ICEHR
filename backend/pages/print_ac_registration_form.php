@@ -6,6 +6,7 @@ require_once '../include/head_php.inc';
 //กรณีเรียกมาจาก frontend ตอนสมัครวิชาการสำเร็จ
 $courseRegId = $_GET['ac_course_reg_id'];
 if (isset($courseRegId)) {
+    //$pdfFileName = "ac-{$courseRegId}.pdf";
     $serviceType = SERVICE_TYPE_TRAINING;
     $payment = 1;
 
@@ -43,6 +44,10 @@ if (isset($courseRegId)) {
         $db->close();
         exit();
     }
+
+    /*if ($serviceType === SERVICE_TYPE_SOCIAL) {
+        $pdfFileName = "so-{$traineeId}.pdf";
+    }*/
 }
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
@@ -175,7 +180,16 @@ $mpdf = new \Mpdf\Mpdf([
 
     <?php
     $i = 0;
+    $isCourseFree = FALSE;
+    $courseDisplayName = '';
+
     foreach ($traineeList as $trainee) {
+        if ($i === 0 && ((int)$trainee['application_fee'] === 0)) {
+            $isCourseFree = TRUE;
+        }
+        if ($i === 0) {
+            $courseDisplayName = "หลักสูตร '{$trainee['course_title']}' รุ่นที่ {$trainee['course_batch_number']}";
+        }
         ?>
         <div <?= ($i++ !== 0) ? 'style="page-break-before: always"' : ''; ?>>
             <table width="650px" align="center" border="0" cellspacing="0" cellpadding="0">
@@ -555,6 +569,66 @@ $html = ob_get_contents();
 ob_end_clean();
 
 $mpdf->WriteHTML($html);
-$mpdf->Output();
+
+if (isset($_GET['email'])) { // ส่ง pdf ไปทางอีเมล
+    if (isset($courseRegId)) { // ส่งเมลใบสมัคร บริการวิชาการ
+        $sql = "SELECT cr.form_number, cr.coordinator_email, ct.email AS trainee_email, m.email AS member_email
+                FROM course_registration cr 
+                    INNER JOIN course_trainee ct 
+                        ON ct.course_registration_id = cr.id 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE cr.id = $courseRegId";
+        if ($result = $db->query($sql)) {
+            $row = $result->fetch_assoc();
+            $pdfFileName = "{$row['form_number']}.pdf";
+            $coordinatorEmail = $row['coordinator_email'];
+            $traineeEmail = $row['trainee_email'];
+            $memberEmail = $row['member_email'];
+            $result->close();
+        } else {
+            // Error query
+            $db->close();
+            exit();
+        }
+    } else { // ส่งเมลใบสมัคร บริการสังคม
+        $sql = "SELECT cr.form_number, cr.email AS trainee_email, m.email AS member_email 
+                FROM course_registration_social cr 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE cr.id = $traineeId";
+        if ($result = $db->query($sql)) {
+            $row = $result->fetch_assoc();
+            $pdfFileName = "{$row['form_number']}.pdf";
+            $coordinatorEmail = NULL;
+            $traineeEmail = $row['trainee_email'];
+            $memberEmail = $row['member_email'];
+            $result->close();
+        } else {
+            // Error query
+            $db->close();
+            exit();
+        }
+    }
+
+    $recipientList = array();
+    if (!is_null($coordinatorEmail)) {
+        array_push($recipientList, $coordinatorEmail);
+    } else if (!is_null($traineeEmail)) {
+        array_push($recipientList, $traineeEmail);
+    }
+    if (!is_null($memberEmail) && !in_array($memberEmail, $recipientList)) {
+        array_push($recipientList, $memberEmail);
+    }
+
+    $pdfFileContent = $mpdf->Output('', 'S');
+    sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayName, $isCourseFree);
+    $db->close();
+} else { // ส่ง pdf กลับไปยังบราวเซอร์
+    $mpdf->Output();
+    $db->close();
+}
 
 require_once '../include/foot_php.inc';
+
+//http://localhost/icehr_backend/pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1

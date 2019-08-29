@@ -11,10 +11,13 @@ if (!isset($traineeId)) {
 }
 $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                cr.sub_district, cr.district, cr.province, cr.phone,
-               cr.course_type, cr.license_type, cr.created_at, c.begin_date AS course_date
+               cr.course_type, cr.license_type, cr.created_at, c.begin_date AS course_date,
+               cm.title AS course_title
         FROM course_registration_driving_license cr 
             INNER JOIN course c 
                 ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON c.course_master_id = cm.id
         WHERE cr.id IN ($traineeId)";
 
 if ($result = $db->query($sql)) {
@@ -82,7 +85,12 @@ $mpdf = new \Mpdf\Mpdf([
     <body>
     <?php
     $i = 0;
+    $courseDisplayName = '';
+
     foreach ($traineeList as $trainee) {
+        if ($i === 0) {
+            $courseDisplayName = "หลักสูตร '{$trainee['course_title']}'";
+        }
         ?>
         <div <?= ($i++ !== 0) ? 'style="page-break-before: always"' : ''; ?>>
             <table width="700px" align="center" border="0" cellspacing="0" cellpadding="0">
@@ -326,6 +334,35 @@ $html = ob_get_contents();
 ob_end_clean();
 
 $mpdf->WriteHTML($html);
-$mpdf->Output();
+
+if (isset($_GET['email'])) { // ส่ง pdf ไปทางอีเมล
+    $sql = "SELECT cr.form_number, m.email AS member_email 
+                FROM course_registration_driving_license cr 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE cr.id = $traineeId";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        $pdfFileName = "{$row['form_number']}.pdf";
+        $memberEmail = $row['member_email'];
+        $result->close();
+    } else {
+        // Error query
+        $db->close();
+        exit();
+    }
+
+    $recipientList = array();
+    if (!is_null($memberEmail)) {
+        array_push($recipientList, $memberEmail);
+    }
+
+    $pdfFileContent = $mpdf->Output('', 'S');
+    sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayName, FALSE);
+    $db->close();
+} else { // ส่ง pdf กลับไปยังบราวเซอร์
+    $mpdf->Output();
+    $db->close();
+}
 
 require_once '../include/foot_php.inc';

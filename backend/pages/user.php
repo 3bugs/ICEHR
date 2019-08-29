@@ -25,12 +25,8 @@ if ($result = $db->query($sql)) {
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
         <!--Lightbox-->
         <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
-        <!--Bootstrap Toggle-->
-        <link href="../dist/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
-        <script src="../dist/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
 
         <style>
-
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
@@ -77,14 +73,6 @@ if ($result = $db->query($sql)) {
                                         <th style="width: 35%; text-align: center">สิทธิ์</th>
                                         <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center">จัดการ</th>
-                                        <?php
-                                        if ($_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin') {
-                                            ?>
-                                            <!--<th style="text-align: center">แก้ไข</th>-->
-                                            <th style="width: 10px; text-align: center">ลบ</th>
-                                            <?php
-                                        }
-                                        ?>
                                     </tr>
                                     </thead>
                                     <tbody>

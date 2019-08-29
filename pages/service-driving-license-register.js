@@ -7,7 +7,7 @@ import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
 import Link from "next/link";
-import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL} from "../etc/constants";
+import {HOST_BACKEND, SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import InputMask from 'react-input-mask';
 import Dropzone from 'react-dropzone';
@@ -1009,10 +1009,19 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             .then(result => {
                 const msg = result['error']['message'];
                 if (result['error']['code'] === 0) {
-                    this.showDialog(msg, 'success', () => {
+                    const courseRegId = result['courseRegId'];
+
+                    alert(msg);
+                    window.open(
+                        `${HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${courseRegId}&payment=1&user=1`,
+                        '_blank'
+                    );
+                    Router.back();
+
+                    /*this.showDialog(msg, 'success', () => {
                         this.dismissDialog();
                         Router.back();
-                    });
+                    });*/
                 } else {
                     alert(msg);
                 }

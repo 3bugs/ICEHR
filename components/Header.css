@@ -36,9 +36,9 @@
 
 .wrap_menu {
     background-color: rgba(255, 255, 255, 0.95);
-    padding: 0px 20%;
+    padding: 0 10px;
     position: relative;
-    z-index: 98;
+    z-index: 0;
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
     -o-transition: all 0.5s ease-in-out;
@@ -46,16 +46,23 @@
     width: 100%;
 }
 
-.wrap_menu.sticky {
+.mainnavbar {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.mainnavbar.sticky {
     position: fixed;
-    z-index: 999;
+    z-index: 15;
     background-color: rgba(255, 255, 255, 0.95);
     right: 0;
     top: 0;
     left: 0;
-    padding: 0 5%;
     border-bottom: 1px solid #eee;
-    height: 80px;
+}
+
+.mainnavbar.sticky .wrap_menu {
+    height: 75px;
 }
 
 .wrap_menu.sticky .logo img {
@@ -145,12 +152,12 @@
 }
 
 .mainnavbar {
-    z-index: 6899;
+    z-index: 99;
     position: relative;
 }
 
 .top_bar {
-    height: 45px;
+    height: 35px;
     text-align: right;
     float: right;
 }
@@ -424,19 +431,19 @@
 
 @media (max-width: 1600px) {
     .wrap_menu {
-        padding: 0px 15%;
+        padding: 0 0;
     }
 }
 
 @media (max-width: 1440px) {
     .wrap_menu {
-        padding: 0px 10%;
+        padding: 0 0;
     }
 }
 
 @media (max-width: 1280px) {
     .wrap_menu {
-        padding: 0px 6%;
+        padding: 0 0;
     }
 }
 
@@ -462,11 +469,16 @@
     }
 
     .wrap_menu {
-        padding: 0px 4%;
+        padding: 0 0;
     }
 }
 
 @media (max-width: 991px) {
+    .mainnavbar {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
     .logo a {
         margin-top: 10px;
     }
@@ -563,7 +575,7 @@
 
 @media (max-width: 767px) {
     .wrap_menu {
-        padding: 0px 4%;
+        padding: 0 0;
     }
 
     .wrap_menu.sticky .btn_menu {

@@ -25,6 +25,8 @@ const app = next({dev});
 const handle = app.getRequestHandler();
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const http = require('http');
+const https = require('https');
 
 app
     .prepare()
@@ -1047,6 +1049,16 @@ doRegisterCourse = (req, res, db) => {
                                         });
                                         console.log(err.stack);
                                     } else {
+                                        // constants.HOST_BACKEND
+                                        // /pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1
+
+                                        const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${insertCourseRegId}&payment=1&user=1&email=1`;
+                                        if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                                            https.get(sendMailUrl);
+                                        } else {
+                                            http.get(sendMailUrl);
+                                        }
+
                                         res.send({
                                             error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
                                             courseRegId: insertCourseRegId,
@@ -1135,6 +1147,13 @@ doRegisterCourseSocial = (req, res, db) => {
                             });
                             console.log(err.stack);
                         } else {
+                            const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${constants.SERVICE_SOCIAL}&trainee_id=${insertId}&payment=1&user=1&email=1`;
+                            if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                                https.get(sendMailUrl);
+                            } else {
+                                http.get(sendMailUrl);
+                            }
+
                             res.send({
                                 error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
                                 courseRegId: insertId,
@@ -1265,8 +1284,16 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
                             });
                             console.log(err.stack);
                         } else {
+                            const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${insertId}&payment=1&user=1&email=1`;
+                            if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                                https.get(sendMailUrl);
+                            } else {
+                                http.get(sendMailUrl);
+                            }
+
                             res.send({
                                 error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                                courseRegId: insertId,
                             });
                         }
                     }

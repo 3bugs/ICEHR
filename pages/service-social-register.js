@@ -576,7 +576,7 @@ class TraineeRegisterForm extends React.Component {
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_ONLINE)}
                                                    type="checkbox" id="news-source-online"
                                                    disabled={isReadOnly}/>
-                                            <label htmlFor="news-source-online">สื่อสังคมออนไลน์</label><br/>
+                                            <label htmlFor="news-source-online">สื่อสังคมออนไลน์ (ไลน์, เฟซบุ๊ค, ฯลฯ)</label><br/>
 
                                             <input checked={traineeForm.fields[REGISTER_TRAINEE_NEWS_SOURCE_MOUTH]}
                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NEWS_SOURCE_MOUTH)}
