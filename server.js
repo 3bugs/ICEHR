@@ -128,6 +128,7 @@ app
 
             let db = mysql.createConnection({
                 host: dbConfig.HOST,
+                port: dbConfig.PORT,
                 user: dbConfig.USER,
                 password: dbConfig.PASSWORD,
                 database: dbConfig.DATABASE,

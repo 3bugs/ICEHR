@@ -1092,7 +1092,7 @@ export default class Index extends React.Component {
                                 <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
                                     <div className="owl-news owl-carousel owl-theme mobilespec">
                                         <div className="item">
-                                            <a href="service-1.php">
+                                            <a href="/service-training">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
                                                         <h4>บริการฝึกอบรม </h4>
@@ -1103,7 +1103,7 @@ export default class Index extends React.Component {
                                             </a>
                                         </div>
                                         <div className="item">
-                                            <a href="service-4.php">
+                                            <a href="/in-house">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
                                                         <h4>IN-HOUSE Training</h4>
@@ -1114,7 +1114,7 @@ export default class Index extends React.Component {
                                             </a>
                                         </div>
                                         <div className="item">
-                                            <a href="service-3.php">
+                                            <a href="/service-social">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
                                                         <h4>บริการสังคม </h4>
@@ -1125,7 +1125,7 @@ export default class Index extends React.Component {
                                             </a>
                                         </div>
                                         <div className="item">
-                                            <a href="service-2.php">
+                                            <a href="/service-driving-license">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
                                                         <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
@@ -1137,7 +1137,7 @@ export default class Index extends React.Component {
                                             </a>
                                         </div>
                                         <div className="item">
-                                            <a href="service-5.php">
+                                            <a href="/academic-paper">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
                                                         <h4>งานวิจัยและวิชาการ</h4>

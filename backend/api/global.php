@@ -36,6 +36,7 @@ define('UPLOAD_DIR_COURSE_ASSETS', '../uploads/course_assets/');
 define('UPLOAD_DIR_DOCUMENT_DOWNLOADS', '../uploads/document_downloads/');
 define('UPLOAD_DIR_NEWS_ASSETS', '../uploads/news_assets/');
 define('UPLOAD_DIR_USER_ASSETS', '../uploads/user_assets/');
+define('UPLOAD_DIR_INTRO_ASSETS', '../uploads/intro_assets/');
 
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');

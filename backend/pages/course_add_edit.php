@@ -380,7 +380,7 @@ if (isset($courseId)) {
                                     <!--ประเภทหลักสูตร-->
                                     <?php
                                     /*if ($serviceType === SERVICE_TYPE_TRAINING) {
-                                        */?><!--
+                                        */ ?><!--
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -395,25 +395,25 @@ if (isset($courseId)) {
                                                                 oninput="this.setCustomValidity('')">
                                                             <option value="" disabled selected>-- เลือกหมวดหมู่หลักสูตร --</option>
                                                             <?php
-/*                                                            foreach ($trainingCourseCategoryList as $trainingCourseCategory) {
-                                                                $selected = '';
-                                                                if (!empty($course) && ($course['category'] === $trainingCourseCategory['id'])) {
-                                                                    $selected = 'selected';
-                                                                }
-                                                                */?>
-                                                                <option value="<?php /*echo $trainingCourseCategory['id']; */?> <?php /*echo $selected; */?>">
-                                                                    <?php /*echo $trainingCourseCategory['title']; */?>
+                                    /*                                                            foreach ($trainingCourseCategoryList as $trainingCourseCategory) {
+                                                                                                    $selected = '';
+                                                                                                    if (!empty($course) && ($course['category'] === $trainingCourseCategory['id'])) {
+                                                                                                        $selected = 'selected';
+                                                                                                    }
+                                                                                                    */ ?>
+                                                                <option value="<?php /*echo $trainingCourseCategory['id']; */ ?> <?php /*echo $selected; */ ?>">
+                                                                    <?php /*echo $trainingCourseCategory['title']; */ ?>
                                                                 </option>
                                                                 <?php
-/*                                                            }
-                                                            */?>
+                                    /*                                                            }
+                                                                                                */ ?>
                                                         </select>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         --><?php
-/*                                    }*/
+                                    /*                                    }*/
                                     ?>
 
                                     <!--ค่าสมัครและวันอบรม-->
@@ -840,7 +840,7 @@ if (isset($courseId)) {
                                                 </ul>
                                                 <input id="image-upload" type="file" accept="image/*" multiple
                                                        name="imageFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
-                                                       <?= !isset($courseId) ? 'required' : '' ?>
+                                                    <?= !isset($courseId) ? 'required' : '' ?>
                                                        oninvalid="this.setCustomValidity('เลือกอย่างน้อย 1 รูปภาพ')"
                                                        oninput="this.setCustomValidity('')"/>
                                                 <div id="image-upload-preview"
@@ -1146,7 +1146,7 @@ if (isset($courseId)) {
 
             const inputApplicationFee = $('#inputApplicationFee');
 
-            inputApplicationFee.keyup(function() {
+            inputApplicationFee.keyup(function () {
                 let fee = parseInt($(this).val());
                 if (fee === 0) {
                     setFeeTableEnabled(false);
@@ -1154,7 +1154,7 @@ if (isset($courseId)) {
                     setFeeTableEnabled(true);
                 }
             });
-            inputApplicationFee.change(function() {
+            inputApplicationFee.change(function () {
                 let fee = parseInt($(this).val());
                 if (fee === 0) {
                     setFeeTableEnabled(false);
@@ -1162,6 +1162,14 @@ if (isset($courseId)) {
                     setFeeTableEnabled(true);
                 }
             });
+
+            <?php
+            if ($course['application_fee'] === 0) {
+            ?>
+            setFeeTableEnabled(false);
+            <?php
+            }
+            ?>
         });
 
         /*function readURL(input) {
@@ -1302,7 +1310,8 @@ if (isset($courseId)) {
                                     <?php
                                     } else {
                                     ?>
-                                    window.location.reload(true);
+                                    window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                    //window.location.reload(true);
                                     <?php
                                     }
                                     ?>

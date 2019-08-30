@@ -33,7 +33,7 @@ if ($db->connect_errno) {
 }
 $db->set_charset("utf8");
 
-sleep(1); //todo: *****************************************************************************************
+usleep(250000); //todo: *****************************************************************************************
 
 switch ($action) {
     case 'test':
@@ -186,6 +186,22 @@ switch ($action) {
         break;
     case 'delete':
         doDelete();
+        break;
+
+    case 'add_intro':
+        doAddIntro();
+        break;
+    case 'update_intro':
+        doUpdateIntro();
+        break;
+    case 'delete_intro':
+        doDeleteIntro();
+        break;
+    case 'update_intro_status':
+        doUpdateIntroStatus();
+        break;
+    case 'sort_intro':
+        doSortIntro();
         break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -683,6 +699,219 @@ function doDelete()
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
+}
+
+function doAddIntro()
+{
+    global $db, $response;
+
+    $type = $db->real_escape_string($_POST['type']);
+    $title = $db->real_escape_string($_POST['title']);
+    $details = $db->real_escape_string($_POST['details']);
+
+    if ($_FILES['image']) {
+        if (!moveUploadedFile('image', UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $sql = "INSERT INTO intro (title, details, image_file_name, type, sort_index) 
+                VALUES ('$title', '$details', '$imageFileName', '$type', 999999)";
+    if ($result = $db->query($sql)) {
+        reArrangeIntroSortIndex($type);
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเพิ่มข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateIntro()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $details = $db->real_escape_string($_POST['details']);
+
+    $imageFileName = NULL;
+
+    if ($_FILES['image']) {
+        if (!moveUploadedFile('image', UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $setUploadFileName = $imageFileName ? "image_file_name = '$imageFileName', " : '';
+
+    $sql = "UPDATE intro 
+            SET $setUploadFileName title = '$title', details = '$details' 
+            WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'แก้ไขข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteIntro()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $sql = "SELECT image_file_name FROM intro WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        if ($result > 0) {
+            $row = $result->fetch_assoc();
+            $fileName = $row['image_file_name'];
+
+            $deleteSql = "DELETE FROM intro WHERE id = $id";
+            if ($deleteResult = $db->query($deleteSql)) {
+                unlink(UPLOAD_DIR_INTRO_ASSETS . $fileName);
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+                $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล: ' . $db->error;
+                $errMessage = $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $deleteSql";
+            }
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'ไม่พบข้อมูล!';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        }
+        $result->close();
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateIntroStatus()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+        return;
+    }
+
+    $id = $db->real_escape_string($_POST['id']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+    $type = $db->real_escape_string($_POST['type']);
+
+    $sql = "UPDATE intro SET status = '$newStatus' WHERE id = $id";
+    if ($result = $db->query($sql)) {
+        if ($newStatus === 'publish') {
+            $sql = "UPDATE intro SET sort_index = 999999 WHERE id = $id";
+            $db->query($sql);
+            reArrangeIntroSortIndex($type);
+
+            /*$sql = "SELECT type FROM intro WHERE id = $id";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+                $result->close();
+                reArrangeIntroSortIndex($row['type']);
+
+                $sql = "SELECT MAX(sort_index) AS max_sort_id FROM intro WHERE type = '{$row['type']}'";
+                if ($result = $db->query($sql)) {
+                    $row = $result->fetch_assoc();
+                    $nextId = (int)$row['max_sort_id'] + 1;
+                    $result->close();
+
+                    $sql = "UPDATE intro SET sort_index = $nextId WHERE id = $id";
+                    $db->query($sql);
+                }
+            }*/
+        } else {
+            $sql = "UPDATE intro SET sort_index = NULL WHERE id = $id";
+            $db->query($sql);
+            reArrangeIntroSortIndex($type);
+        }
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function reArrangeIntroSortIndex($type) {
+    global $db;
+
+    $sql = "SELECT id FROM intro WHERE type = '$type' AND sort_index IS NOT NULL ORDER BY sort_index";
+    if ($result = $db->query($sql)) {
+        $idList = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($idList, $row['id']);
+        }
+        $result->close();
+
+        $i = 1;
+        foreach ($idList as $id) {
+            $sql = "UPDATE intro SET sort_index = $i WHERE id = $id";
+            $db->query($sql);
+            $i++;
+        }
+    }
+}
+
+function doSortIntro()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+        return;
+    }
+
+    $sortValue = $db->real_escape_string($_POST['sortValue']);
+
+    $sortValuePartList = explode(',', $sortValue);
+    foreach ($sortValuePartList as $part) {
+        $p = explode('-', $part);
+        $itemId = $p[0];
+        $sortIndex = $p[1];
+
+        $sql = "UPDATE intro SET sort_index = $sortIndex 
+                WHERE id = $itemId";
+        if ($result = $db->query($sql)) {
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
 }
 
 function doSortUserDepartment()

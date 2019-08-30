@@ -459,11 +459,11 @@ if ($result = $db->query($sql)) {
                     sortValue: sortValue
                 }
             ).done(function (data) {
-                $('#formSortDepartment #buttonSave').prop('disabled', false);
-                $('#formSortDepartment #divLoading').hide();
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
+                    $('#formSortDepartment #buttonSave').prop('disabled', false);
+                    $('#formSortDepartment #divLoading').hide();
                     $('#formSortDepartment #responseText').text(data.error_message);
                 }
             }).fail(function () {
@@ -493,11 +493,11 @@ if ($result = $db->query($sql)) {
                     sortValue: sortValue
                 }
             ).done(function (data) {
-                $('#formSortUser #buttonSave').prop('disabled', false);
-                $('#formSortUser #divLoading').hide();
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
+                    $('#formSortUser #buttonSave').prop('disabled', false);
+                    $('#formSortUser #divLoading').hide();
                     $('#formSortUser #responseText').text(data.error_message);
                 }
             }).fail(function () {

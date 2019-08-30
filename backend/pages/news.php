@@ -225,7 +225,7 @@ if ($result = $db->query($sql)) {
         }
 
         function doChangeStatus(newsId, newStatus) {
-            let title = 'แก้ไขสถานะเอกสารดาวน์โหลด';
+            let title = 'แก้ไขสถานะ';
 
             $.post(
                 '../api/api.php/update_news_status',
@@ -307,7 +307,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบชื่อหลักสูตร - ผิดพลาด',
+                    title: 'ลบ<?= $pageTitle; ?> - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
