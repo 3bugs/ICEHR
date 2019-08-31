@@ -1025,8 +1025,7 @@ export default class Index extends React.Component {
                                             <Link href="/service-training">
                                                 <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
                                                     <h4>บริการฝึกอบรม</h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                    <p>&nbsp;</p>
                                                 </div>
                                             </Link>
                                         </div>
@@ -1036,8 +1035,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
                                                         <h4>IN-HOUSE Training</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -1048,8 +1046,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
                                                         <h4>บริการสังคม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -1061,8 +1058,7 @@ export default class Index extends React.Component {
                                             <Link href="/service-driving-license">
                                                 <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
                                                     <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                    <p>&nbsp;</p>
                                                 </div>
                                             </Link>
                                         </div>
@@ -1072,8 +1068,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
                                                         <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -1082,8 +1077,7 @@ export default class Index extends React.Component {
                                         <div className="col-sm-4 service-index">
                                             <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
                                                 <h4>วารสาร HR Intelligence </h4>
-                                                <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem Ipsum
-                                                    has been of the printing and typesetting industry. </p>
+                                                <p>&nbsp;</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1096,8 +1090,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
                                                         <h4>บริการฝึกอบรม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1107,8 +1100,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
                                                         <h4>IN-HOUSE Training</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1118,8 +1110,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
                                                         <h4>บริการสังคม </h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1130,8 +1121,7 @@ export default class Index extends React.Component {
                                                     <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
                                                         <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
                                                             ขอใบอนุญาตขับขี่</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1141,8 +1131,7 @@ export default class Index extends React.Component {
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
                                                         <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                            Ipsum has been of the printing and typesetting industry. </p>
+                                                        <p>&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1151,8 +1140,7 @@ export default class Index extends React.Component {
                                             <div className="service-index">
                                                 <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
                                                     <h4>วารสาร HR Intelligence </h4>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing typesetting industry. Lorem
-                                                        Ipsum has been of the printing and typesetting industry. </p>
+                                                    <p>&nbsp;</p>
                                                 </div>
                                             </div>
                                         </div>

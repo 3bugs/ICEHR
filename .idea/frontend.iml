@@ -5,10 +5,14 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/doctrine/lexer" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/egulias/email-validator" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/markbaker/complex" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/markbaker/matrix" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/mpdf/mpdf" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/myclabs/deep-copy" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/paragonie/random_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/phpoffice/phpspreadsheet" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/psr/log" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/psr/simple-cache" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/setasign/fpdi" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/swiftmailer/swiftmailer" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/symfony/polyfill-iconv" />

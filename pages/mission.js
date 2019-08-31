@@ -1,13 +1,40 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
 import './mission.css';
+import fetch from "isomorphic-unfetch";
+import {HOST_BACKEND} from '../etc/constants';
 
 export default class About extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {
-        };
+        this.state = {};
     }
+
+    static getInitialProps = async function ({req, query}) {
+        let missionList = null;
+        let errorMessage = null;
+
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const result = await fetch(baseUrl + '/api/get_intro', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'mission',
+            }),
+        });
+        const resultJson = await result.json();
+        if (resultJson['error']['code'] === 0) {
+            missionList = resultJson['dataList'];
+            errorMessage = null;
+        } else {
+            missionList = null;
+            errorMessage = resultJson['error']['message'];
+        }
+
+        return {missionList, errorMessage};
+    };
 
     componentDidMount() {
     }
@@ -59,52 +86,28 @@ export default class About extends React.Component {
                     <div className="container mt-5">
                         <div className="row">
                             <div className="col text-title-top">
-                                <h3>ภารกิจ</h3></div>
-                        </div>
-                        <div className="row mt-3">
-                            <div className="col-md-6"><img src="/static/images/mission1.jpg" className="img-fluid"/></div>
-                            <div className="col-md-6">
-                                <div className="mission-detail">
-                                    <h4>วิจัยและวิชาการ</h4> มีอำนาจหน้าที่ดำเนินการจัดทำข้อเสนอโครงการวิจัยเพื่อของบประมาณจากแหล่งทุนต่างๆ ดำเนินโครงการวิจัยที่ได้รับอนุมัติงบประมาณ หรือได้รับมอบหมาย
-                                    จัดสรรทุนวิจัยจากกองทุนวิจัยของหน่วยงาน การทำสัญญารับทุนวิจัย การติดตามงานวิจัยที่ได้รับทุน การสังเคราะห์องค์ความรู้จากงานวิจัยหรือวิชาการ
-                                    การสัมมนาเผยแพร่ผลงานวิจัยหรือวิชาการ การเห็บรวบรวมผลงานวิจัย การผลิตสื่อสิ่งพิมพ์ทางวิชาการ โครงการวารสาร HR intelligence และปฎิบัติหน้าที่อื่นตามที่ได้รับมอบหมาย
-                                </div>
+                                <h3>ภารกิจ</h3>
                             </div>
                         </div>
-                        <div className="row mt-3">
-                            <div className="col-md-6"><img src="/static/images/mission2.jpg" className="img-fluid"/></div>
-                            <div className="col-md-6">
-                                <div className="mission-detail">
-                                    <h4>พัฒนาคนและองค์กร</h4> มีอำนาจหน้าที่ดำเนินการจัดทำโครงการ การวิเคราะห์หาความต้องการอบรม (Training Need) และการพัฒนาหลักสูตรต่างๆ
-                                    ด้านการบริหารและพัฒนาทรัพยากรมนุษย์ ทั้งหลักสูตรระยะสั้นและระยะยาว การจัดโครงการพัฒนาบุคลากรให้แก่มหาวิทยาลัยธรรมศาสตร์
-                                    รวมทั้งจัดโครงการอบรมให้แก่หน่วยงานภายนอกทั้งภาครัฐและเอกชน (In-house Training)
-                                    จัดโครงการฝึกอบรมด้านการบริหารและการพัฒนาทรัพยากรมนุษย์ให้แก่บุคคลทั่วไปทั้งใน2งานวิเคราะห์และติดตามประเมินผลในลักษณะของโครงการเลี้ยงตัวเอง
-                                    และปฏิบัติหน้าที่อื่นๆตามที่ได้รับมอบหมาย
+                        {
+                            this.props.missionList.map((item, index) => (
+                                <div className="row mt-3">
+                                    <div className="col-md-6">
+                                        <img src={`${HOST_BACKEND}/uploads/intro_assets/${item.image_file_name}`} className="img-fluid"/>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="mission-detail">
+                                            <h4>{item.title}</h4>
+                                            <div dangerouslySetInnerHTML={{__html: item.details}}>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div className="row mt-3">
-                            <div className="col-md-6"><img src="/static/images/mission3.jpg" className="img-fluid"/></div>
-                            <div className="col-md-6">
-                                <div className="mission-detail">
-                                    <h4>บริการสังคมและชุมชน</h4> มีอำนาจหน้าที่ให้บริการความรู้แก่ประชาชนทุกระดับโดยไม่เลือกเพศและวัยเป็นการให้บริการแบบไม่หวังผลกำไร ในลักษณะโครงการฝึกอบรม สัมมนา
-                                    การบรรยายพิเศษ หรือการอภิปราย โดยจัดเองและร่วมมือกับหน่วยงานภายในหรือหน่วยงานภายนอกมหาวิทยาลัย ทั้งภาครัฐและเอกชน หรือเครือข่ายต่างๆ ที่มีข้อตกลงร่วมกับสถาบัน
-                                    การให้บริการความรู้ทางวิชาการผ่านสื่อต่างๆ รวมทั้งการติดตามผลการนำไปใช้ประโยชน์ ในการพัฒนาคุณภาพชีวิตของผู้รับบริการ และปฎิบัติหน้าที่อื่นๆตามที่ได้รับมอบหมาย
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row mt-3">
-                            <div className="col-md-6"><img src="/static/images/mission4.jpg" className="img-fluid"/></div>
-                            <div className="col-md-6">
-                                <div className="mission-detail">
-                                    <h4>การบริหารจัดการ</h4> ดำเนินการด้านงานธุรการและบุคคล ด้านแผนและงบประมาณ ด้านการเงิน บัญชี และพัสดุ ด้านสารสนเทศและการประชาสัมพันธ์
-                                    และปฎิบัติหน้าที่อื่นๆตามที่ได้รับมอบหมาย
-                                </div>
-                            </div>
-                        </div>
+                            ))
+                        }
                     </div>
                 </React.Fragment>
-                
+
                 <style jsx>{`
                 `}</style>
             </MainLayout>

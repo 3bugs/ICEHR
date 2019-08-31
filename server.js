@@ -227,6 +227,9 @@ app
                     case 'get_course_num_trainee_available':
                         doGetCourseNumTraineeAvailable(req, res, db);
                         break;
+                    case 'get_intro':
+                        doGetIntro(req, res, db);
+                        break;
 
                     default:
                         //res.status(404).end();
@@ -2331,6 +2334,31 @@ doGetTraineeFormPdf = (req, res, db) => {
                         }
                     });
                 }
+            }
+        }
+    );
+    db.end();
+};
+
+doGetIntro = (req, res, db) => {
+    const {type} = req.body;
+
+    db.query(
+        `SELECT id, title, details, image_file_name
+             FROM intro
+             WHERE type = ? AND status = ?
+             ORDER BY sort_index`,
+        [type, 'publish'],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList: results,
+                });
             }
         }
     );
