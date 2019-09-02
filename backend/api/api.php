@@ -33,7 +33,7 @@ if ($db->connect_errno) {
 }
 $db->set_charset("utf8");
 
-usleep(250000); //todo: *****************************************************************************************
+usleep(350000); //todo: *****************************************************************************************
 
 switch ($action) {
     case 'test':
@@ -203,6 +203,11 @@ switch ($action) {
     case 'sort_intro':
         doSortIntro();
         break;
+
+    case 'update_service':
+        doUpdateService();
+        break;
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -696,6 +701,28 @@ function doDelete()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateService()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $details = $db->real_escape_string($_POST['details']);
+
+    $sql = "UPDATE service SET title = '$title', details = '$details' WHERE id = $id";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

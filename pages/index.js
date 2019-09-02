@@ -3,7 +3,7 @@ import NextHead from 'next/head';
 import Link from 'next/link';
 //import $ from 'jquery';
 import fetch from 'isomorphic-unfetch';
-import {HOST_BACKEND} from '../etc/constants';
+import {HOST_BACKEND, SERVICE_TRAINING, SERVICE_IN_HOUSE, SERVICE_SOCIAL, SERVICE_DRIVING_LICENSE, SERVICE_ACADEMIC_PAPER, SERVICE_HR_INTELLIGENCE} from '../etc/constants';
 import {getDateFormatFromDateObject, getDateDisplayFromDateObject} from '../etc/utils';
 import './index.css';
 
@@ -629,6 +629,8 @@ export default class Index extends React.Component {
     }
 
     static getInitialProps = async ({req, query}) => {
+        console.log('test');
+
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
 
         const res = await fetch(baseUrl + '/api/get_news_latest', {
@@ -657,16 +659,39 @@ export default class Index extends React.Component {
             const activityResult = await activityRes.json();
             if (activityResult.error.code === 0) {
                 const {activityList} = activityResult;
-                return {
-                    trainingNewsList,
-                    publicRelationsNewsList,
-                    activityList,
-                };
+
+                const serviceRes = await fetch(baseUrl + '/api/get_service', {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}),
+                });
+
+                const serviceResult = await serviceRes.json();
+                if (serviceResult.error.code === 0) {
+                    const {serviceList} = serviceResult;
+
+                    return {
+                        trainingNewsList,
+                        publicRelationsNewsList,
+                        activityList,
+                        serviceList,
+                    };
+                } else {
+                    return {
+                        trainingNewsList: null,
+                        publicRelationsNewsList: null,
+                        activityList: null,
+                        serviceList: null,
+                    };
+                }
             } else {
                 return {
                     trainingNewsList: null,
                     publicRelationsNewsList: null,
                     activityList: null,
+                    serviceList: null,
                 };
             }
         } else {
@@ -674,6 +699,7 @@ export default class Index extends React.Component {
                 trainingNewsList: null,
                 publicRelationsNewsList: null,
                 activityList: null,
+                serviceList: null,
             };
         }
     };
@@ -956,10 +982,24 @@ export default class Index extends React.Component {
             //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
         });
         slideshow();*/
+
+        const {serviceList} = this.props;
+        const services = {};
+        serviceList.map(item => {
+            services[item.slug] = {
+                title: item.title,
+                details: item.details,
+                url: item.url,
+            };
+        });
+        this.setState({
+            services,
+        });
     }
 
     render() {
         const {trainingNewsList, publicRelationsNewsList, activityList} = this.props;
+        const {services} = this.state;
 
         const settings = {
             dots: true
@@ -1024,8 +1064,8 @@ export default class Index extends React.Component {
                                         <div className="col-sm-4">
                                             <Link href="/service-training">
                                                 <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                    <h4>บริการฝึกอบรม</h4>
-                                                    <p>&nbsp;</p>
+                                                    <h4>{services ? services[SERVICE_TRAINING].title : ''}</h4>
+                                                    <p>{services ? services[SERVICE_TRAINING].details : ''}</p>
                                                 </div>
                                             </Link>
                                         </div>
@@ -1034,8 +1074,8 @@ export default class Index extends React.Component {
                                             <Link href="/in-house">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>IN-HOUSE Training</h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_IN_HOUSE].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_IN_HOUSE].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -1045,8 +1085,8 @@ export default class Index extends React.Component {
                                             <Link href="/service-social">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>บริการสังคม </h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_SOCIAL].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_SOCIAL].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -1057,8 +1097,8 @@ export default class Index extends React.Component {
                                         <div className="col-sm-4 ">
                                             <Link href="/service-driving-license">
                                                 <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                    <h4>บริการอบรมภาคทฤษฎีเพื่อ<br/>ขอใบอนุญาตขับขี่</h4>
-                                                    <p>&nbsp;</p>
+                                                    <h4>{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</h4>
+                                                    <p>{services ? services[SERVICE_DRIVING_LICENSE].details : ''}</p>
                                                 </div>
                                             </Link>
                                         </div>
@@ -1067,18 +1107,20 @@ export default class Index extends React.Component {
                                             <Link href="/academic-paper">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_ACADEMIC_PAPER].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </Link>
                                         </div>
                                         {/*วารสาร HR Intelligence*/}
                                         <div className="col-sm-4 service-index">
-                                            <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                <h4>วารสาร HR Intelligence </h4>
-                                                <p>&nbsp;</p>
-                                            </div>
+                                            <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">
+                                                <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
+                                                    <h4>{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</h4>
+                                                    <p>{services ? services[SERVICE_HR_INTELLIGENCE].details : ''}</p>
+                                                </div>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -1089,8 +1131,8 @@ export default class Index extends React.Component {
                                             <a href="/service-training">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                        <h4>บริการฝึกอบรม </h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_TRAINING].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_TRAINING].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1099,8 +1141,8 @@ export default class Index extends React.Component {
                                             <a href="/in-house">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>IN-HOUSE Training</h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_IN_HOUSE].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_IN_HOUSE].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1109,8 +1151,8 @@ export default class Index extends React.Component {
                                             <a href="/service-social">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>บริการสังคม </h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_SOCIAL].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_SOCIAL].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1119,9 +1161,8 @@ export default class Index extends React.Component {
                                             <a href="/service-driving-license">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                        <h4>บริการอบรมภาคทฤษฎีเพื่อ <br/>
-                                                            ขอใบอนุญาตขับขี่</h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_DRIVING_LICENSE].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -1130,19 +1171,21 @@ export default class Index extends React.Component {
                                             <a href="/academic-paper">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>งานวิจัยและวิชาการ</h4>
-                                                        <p>&nbsp;</p>
+                                                        <h4>{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_ACADEMIC_PAPER].details : ''}</p>
                                                     </div>
                                                 </div>
                                             </a>
                                         </div>
                                         <div className="item">
-                                            <div className="service-index">
-                                                <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                    <h4>วารสาร HR Intelligence </h4>
-                                                    <p>&nbsp;</p>
+                                            <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">
+                                                <div className="service-index">
+                                                    <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
+                                                        <h4>{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</h4>
+                                                        <p>{services ? services[SERVICE_HR_INTELLIGENCE].details : ''}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

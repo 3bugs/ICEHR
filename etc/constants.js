@@ -28,6 +28,10 @@ module.exports = Object.freeze({
     SERVICE_TRAINING: 'training',
     SERVICE_SOCIAL: 'social',
     SERVICE_DRIVING_LICENSE: 'driving-license',
+    SERVICE_ACADEMIC_PAPER: 'academic-paper',
+    SERVICE_IN_HOUSE: 'in-house',
+    SERVICE_HR_INTELLIGENCE: 'hr-intelligence',
+
     SERVICE_PREFIX_TRAINING: 'AC',
     SERVICE_PREFIX_SOCIAL: 'SO',
     SERVICE_PREFIX_DRIVING_LICENSE: 'DL',

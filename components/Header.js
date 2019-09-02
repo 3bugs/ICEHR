@@ -8,6 +8,7 @@ import Dialog from "./Dialog";
 import DatePicker from "react-datepicker";
 import {subDays} from "react-datepicker";
 import "../css/react-datepicker.css";
+import {HOST_BACKEND, SERVICE_TRAINING, SERVICE_IN_HOUSE, SERVICE_SOCIAL, SERVICE_DRIVING_LICENSE, SERVICE_ACADEMIC_PAPER, SERVICE_HR_INTELLIGENCE} from '../etc/constants';
 
 import th from 'date-fns/locale/th';
 import {registerLocale, setDefaultLocale} from "react-datepicker";
@@ -1668,6 +1669,8 @@ export default class Header extends React.Component {
     }
 
     render() {
+        const {services} = this.props;
+
         return (
             <div>
                 <div className="mainnavbar">
@@ -1715,22 +1718,22 @@ export default class Header extends React.Component {
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
                                                             <li>
-                                                                <a href="/service-training" target="_parent">บริการฝึกอบรม</a>
+                                                                <a href="/service-training" target="_parent">{services ? services[SERVICE_TRAINING].title : ''}</a>
                                                             </li>
                                                             <li>
-                                                                <a href="/in-house" target="_parent">In-House Training</a>
+                                                                <a href="/in-house" target="_parent">{services ? services[SERVICE_IN_HOUSE].title : ''}</a>
                                                             </li>
                                                             <li>
-                                                                <a href="/service-social" target="_parent">บริการสังคม</a>
+                                                                <a href="/service-social" target="_parent">{services ? services[SERVICE_SOCIAL].title : ''}</a>
                                                             </li>
                                                             <li style={{marginLeft: 0, paddingLeft: 0}}>
-                                                                <a href="/service-driving-license" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</a>
+                                                                <a href="/service-driving-license" target="_parent">{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</a>
                                                             </li>
                                                             <li style={{marginLeft: 0, paddingLeft: 0}}>
-                                                                <a href="/academic-paper" target="_parent">วิจัยและวิชาการ</a>
+                                                                <a href="/academic-paper" target="_parent">{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</a>
                                                             </li>
                                                             <li style={{marginLeft: 0, paddingLeft: 0}}>
-                                                                <a href="#" target="_parent">วารสาร HR Intelligence</a>
+                                                                <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a>
                                                             </li>
                                                         </ul>
                                                     </div>

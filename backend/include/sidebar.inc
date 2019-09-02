@@ -276,6 +276,44 @@
                 <!--*************************************************************************************************************-->
                 <li class="header" style="color: yellow; text-align: center">เนื้อหาเว็บไซต์</li>
 
+                <li>
+                    <a href="service.php">
+                        <i class="fa fa-list-alt"></i> <span>บริการ</span>
+                    </a>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-building-o"></i> <span>แนะนำหน่วยงาน</span>
+                        <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
+                        <li><a href="intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
+                        <li><a href="organizational_structure.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-folder-open"></i> <span>เอกสารดาวน์โหลด</span>
+                        <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="document_download.php?document_type=training"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
+                        <li><a href="document_download.php?document_type=report"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
+                        <li><a href="document_download.php?document_type=km"><i class="fa fa-circle-o"></i> KM</a></li>
+                        <li><a href="document_download.php?document_type=qa"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
+                        <li><a href="document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="faq.php">
+                        <i class="fa fa-question-circle-o"></i> <span>คำถามที่พบบ่อย (FAQ)</span>
+                    </a>
+                </li>
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-newspaper-o"></i> <span>ข่าว</span>
@@ -294,39 +332,6 @@
                     </a>
                 </li>
 
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-folder-open"></i> <span>เอกสารดาวน์โหลด</span>
-                        <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="document_download.php?document_type=training"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
-                        <li><a href="document_download.php?document_type=report"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
-                        <li><a href="document_download.php?document_type=km"><i class="fa fa-circle-o"></i> KM</a></li>
-                        <li><a href="document_download.php?document_type=qa"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
-                        <li><a href="document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
-                    </ul>
-                </li>
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-building-o"></i> <span>แนะนำหน่วยงาน</span>
-                        <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
-                        <li><a href="intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
-                        <li><a href="organizational_structure.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="faq.php">
-                        <i class="fa fa-question-circle-o"></i> <span>คำถามที่พบบ่อย</span>
-                    </a>
-                </li>
                 <li>
                     <a href="banner.php">
                         <i class="fa fa-picture-o"></i> <span>แบนเนอร์</span>

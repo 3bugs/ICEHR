@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import AutoSuggest from "react-autosuggest";
+import {HOST_BACKEND, SERVICE_TRAINING, SERVICE_IN_HOUSE, SERVICE_SOCIAL, SERVICE_DRIVING_LICENSE, SERVICE_ACADEMIC_PAPER, SERVICE_HR_INTELLIGENCE} from '../etc/constants';
 
 export default class Footer extends React.Component {
     constructor(props, context) {
@@ -27,6 +28,8 @@ export default class Footer extends React.Component {
     }
 
     render() {
+        const {services} = this.props;
+
         return (
             <React.Fragment>
                 <div className="footerbg wow fadeInUp">
@@ -73,12 +76,12 @@ export default class Footer extends React.Component {
                                         <div className="footer-menugroup">
                                             <h4 className="title-footer">บริการ</h4>
                                             <ul>
-                                                <li><a href="/service-training" target="_parent">บริการฝึกอบรม</a></li>
-                                                <li><a href="/in-house" target="_parent">IN-HOUSE Training</a></li>
-                                                <li><a href="/service-social" target="_parent">บริการสังคม</a></li>
-                                                <li><a href="/service-driving-license" target="_parent">บริการอบรมภาคทฤษฎีเพื่อขอ<br/>ใบอนุญาตขับขี่</a></li>
-                                                <li><a href="/academic-paper" target="_parent">วิจัยและวิชาการ</a></li>
-                                                <li><a href="javascript:void(0)" target="_parent">วารสาร HR Intelligence</a></li>
+                                                <li><a href="/service-training" target="_parent">{services ? services[SERVICE_TRAINING].title : ''}</a></li>
+                                                <li><a href="/in-house" target="_parent">{services ? services[SERVICE_IN_HOUSE].title : ''}</a></li>
+                                                <li><a href="/service-social" target="_parent">{services ? services[SERVICE_SOCIAL].title : ''}</a></li>
+                                                <li><a href="/service-driving-license" target="_parent">{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</a></li>
+                                                <li><a href="/academic-paper" target="_parent">{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</a></li>
+                                                <li><a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_parent">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a></li>
                                             </ul>
                                         </div>
                                         <div className="footer-menugroup">
