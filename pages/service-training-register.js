@@ -1081,8 +1081,8 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptErrors[REGISTER_RECEIPT_ORGANIZATION_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์หน่วยงาน';
             valid = false;
         }
-        if (!receiptFields[REGISTER_RECEIPT_TAX_ID] || receiptFields[REGISTER_RECEIPT_TAX_ID].trim().length === 0) {
-            receiptErrors[REGISTER_RECEIPT_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี';
+        if (!receiptFields[REGISTER_RECEIPT_TAX_ID] || receiptFields[REGISTER_RECEIPT_TAX_ID].trim().length !== 13) {
+            receiptErrors[REGISTER_RECEIPT_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี 13 หลัก';
             valid = false;
         }
         receiptForm.errors = receiptErrors;

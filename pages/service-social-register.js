@@ -865,16 +865,16 @@ export default class ServiceSocialRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_BIRTH_DATE]) {
-            errors[REGISTER_TRAINEE_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
-            formIsValid = false;
+            //errors[REGISTER_TRAINEE_BIRTH_DATE] = 'กรุณาระบุวันเกิด';
+            //formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_OCCUPATION] || fields[REGISTER_TRAINEE_OCCUPATION].trim().length === 0) {
             errors[REGISTER_TRAINEE_OCCUPATION] = 'กรุณากรอกอาชีพ';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_WORK_PLACE] || fields[REGISTER_TRAINEE_WORK_PLACE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_WORK_PLACE] = 'กรุณากรอกสถานที่ทำงาน';
-            formIsValid = false;
+            //errors[REGISTER_TRAINEE_WORK_PLACE] = 'กรุณากรอกสถานที่ทำงาน';
+            //formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_ADDRESS] || fields[REGISTER_TRAINEE_ADDRESS].trim().length === 0) {
             errors[REGISTER_TRAINEE_ADDRESS] = 'กรุณากรอกบ้านเลขที่ / หมู่ / ซอย / ถนน';
@@ -902,10 +902,14 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_EMAIL] || fields[REGISTER_TRAINEE_EMAIL].trim().length === 0) {
+        /*if (!fields[REGISTER_TRAINEE_EMAIL] || fields[REGISTER_TRAINEE_EMAIL].trim().length === 0) {
             errors[REGISTER_TRAINEE_EMAIL] = 'กรุณากรอกอีเมล';
             formIsValid = false;
         } else if (!isValidEmail(fields[REGISTER_TRAINEE_EMAIL])) {
+            errors[REGISTER_TRAINEE_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
+            formIsValid = false;
+        }*/
+        if (!fields[REGISTER_TRAINEE_EMAIL] && !isValidEmail(fields[REGISTER_TRAINEE_EMAIL])) {
             errors[REGISTER_TRAINEE_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
             formIsValid = false;
         }
@@ -918,8 +922,8 @@ export default class ServiceSocialRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_DISEASE] || fields[REGISTER_TRAINEE_DISEASE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
-            formIsValid = false;
+            //errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
+            //formIsValid = false;
         }
 
         traineeForm.errors = errors;
