@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 31, 2019 at 10:46 AM
+-- Generation Time: Sep 03, 2019 at 04:37 AM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -1350,8 +1350,21 @@ CREATE TABLE `service` (
   `id` int(11) NOT NULL,
   `title` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `details` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL
+  `slug` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `service`
+--
+
+INSERT INTO `service` (`id`, `title`, `details`, `slug`, `url`) VALUES
+(1, 'บริการฝึกอบรม', 'รายละเอียดแบบย่อ บริการฝึกอบรม', 'training', ''),
+(2, 'In-House Training', 'รายละเอียดแบบย่อ In-House Training', 'in-house', ''),
+(3, 'บริการสังคม', 'รายละเอียดแบบย่อ บริการสังคม', 'social', ''),
+(4, 'บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'รายละเอียดแบบย่อ บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'driving-license', ''),
+(5, 'งานวิจัยและวิชาการ', 'รายละเอียดแบบย่อ งานวิจัยและวิชาการ', 'academic-paper', ''),
+(6, 'วารสาร HR Intelligence', 'รายละเอียดแบบย่อ วารสาร HR Intelligence', 'hr-intelligence', 'http://www2.icehr.tu.ac.th/');
 
 -- --------------------------------------------------------
 
@@ -1841,7 +1854,7 @@ ALTER TABLE `research_and_academic`
 -- AUTO_INCREMENT for table `service`
 --
 ALTER TABLE `service`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `training_course_category`
