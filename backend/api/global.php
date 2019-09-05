@@ -204,6 +204,10 @@ $dayShortNames = array(
     'อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'
 );
 
+define('DL_LICENSE_TYPE_CAR', 1);
+define('DL_LICENSE_TYPE_MOTOR_CYCLE', 2);
+define('DL_LICENSE_TYPE_TRICYCLE', 4);
+
 function userHasPermission($userPermissions, $permissionToCheck) {
     return (($userPermissions & (1 << $permissionToCheck)) > 0);
 }

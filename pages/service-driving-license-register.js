@@ -34,6 +34,7 @@ const REGISTER_TRAINEE_SELECTED_COURSE_TYPE = 'traineeSelectedCourseType';
 const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR = 'traineeSelectedLicenseTypeCar';
 const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE = 'traineeSelectedLicenseTypeBicycle';
 const REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE = 'traineeSelectedLicenseTypeTricycle';
+const REGISTER_TRAINEE_NATIONALITY = 'traineeNationality';
 
 class TraineeRegisterForm extends React.Component {
     constructor(props, context) {
@@ -94,155 +95,216 @@ class TraineeRegisterForm extends React.Component {
                     <div className="col">
                         <div className="border-inside" style={{marginTop: '10px'}}>
                             <div className="row">
-                                <div className="col-md-9 offset-md-1">
+                                <div className="col-md-11 offset-md-1">
                                     <div className="required">
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">คำนำหน้าชื่อ</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
-                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
-                                                        className="form-control-2 mt-2">
-                                                    <option value="0" disabled>
-                                                        เลือกคำนำหน้า
-                                                    </option>
-                                                    {
-                                                        this.props.nameTitleList.map((nameTitle, index) =>
-                                                            <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
-                                                        )
-                                                    }
-                                                </select>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_TITLE]}/>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">ชื่อ</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_FIRST_NAME)}
-                                                       type="text"
-                                                       placeholder="กรอกชื่อ"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
+
+                                        {/*เลือกคนไทย/ต่างชาติ*/}
+                                        <div className="row" style={{textAlign: 'center'}}>
+                                            <div className="col-md-12">
+                                                <div className=""
+                                                     onChange={this.handleChange.bind(this, REGISTER_TRAINEE_NATIONALITY)}>
+                                                    <div className="md-radio md-radio-inline radiocheck">
+                                                        <input id="nationality-thai" name="nationality" type="radio"
+                                                               value={1}
+                                                               defaultChecked={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1}/>
+                                                        <label htmlFor="nationality-thai"> คนไทย / Thai Person</label>
+                                                    </div>
+                                                    <div className="md-radio md-radio-inline radiocheck">
+                                                        <input id="nationality-foreigner" name="nationality" type="radio"
+                                                               value={2}
+                                                               defaultChecked={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2}/>
+                                                        <label htmlFor="nationality-foreigner"> ชาวต่างชาติ / Foreigner</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">นามสกุล</label>
+
+                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] &&
+                                        <div>
+                                            {/*คำนำหน้า*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label className="mt-2">
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                            'คำนำหน้าชื่อ (ตามบัตรประชาชน) /' :
+                                                            'คำนำหน้าชื่อ (ตามหนังสือเดินทาง) /'
+                                                        }<br/>
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                            'Name Title (as appear on your ID card)' :
+                                                            'Name Title (as appear on your passport)'
+                                                        }
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
+                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
+                                                            className="form-control-2 mt-4">
+                                                        <option value="0" disabled>
+                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลือกคำนำหน้า' : 'Select name title'}
+                                                        </option>
+                                                        {
+                                                            this.props.nameTitleList.map((nameTitle, index) =>
+                                                                <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
+                                                            )
+                                                        }
+                                                    </select>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_TITLE]}/>
+                                                </div>
                                             </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_LAST_NAME] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_LAST_NAME)}
-                                                       type="text"
-                                                       placeholder="กรอกนามสกุล"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_LAST_NAME]}/>
+
+                                            {/*ชื่อ*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label className="">
+                                                        ชื่อ / First Name
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <input value={traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME] || ''}
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_FIRST_NAME)}
+                                                           type="text"
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกชื่อ' : 'Enter first name'}
+                                                           className="form-control-2 input-md"/>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">เลขประจำตัวประชาชน</label>
+
+                                            {/*นามสกุล*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label className="mt-2">
+                                                        นามสกุล / Last Name
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <input value={traineeForm.fields[REGISTER_TRAINEE_LAST_NAME] || ''}
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_LAST_NAME)}
+                                                           type="text"
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกนามสกุล' : 'Enter last name'}
+                                                           className="form-control-2 input-md mt-2"/>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_LAST_NAME]}/>
+                                                </div>
                                             </div>
-                                            <div className="col-md-9">
-                                                {/*<InputMask mask="9-9999-99999-99-9"
+
+                                            {/*เลขประจำตัวประชาชน*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label
+                                                        className="mt-2">{traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลขประจำตัวประชาชน / ID Card Number' : 'เลขที่หนังสือเดินทาง / Passport Number'}</label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    {/*<InputMask mask="9-9999-99999-99-9"
                                                            value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
                                                            maxLength={13}
                                                            placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก"
                                                            className="form-control-2 input-md mt-2"/>*/}
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
-                                                       type="text"
-                                                       maxLength={13}
-                                                       placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_PID]}/>
+                                                    <input value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
+                                                           type="text"
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเลขประจำตัวประชาชน 13 หลัก' : 'Enter passport number'}
+                                                           className="form-control-2 input-md mt-2"/>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_PID]}/>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">ที่อยู่ตามบัตรประชาชน<br/>(ข้อมูลใดไม่มี ให้กรอก -)</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <div className="row">
-                                                    <div className="col-12 col-md-6">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_ADDRESS] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ADDRESS)}
-                                                               type="text"
-                                                               placeholder="บ้านเลขที่"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_MOO] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_MOO)}
-                                                               type="text"
-                                                               placeholder="หมู่"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_MOO]}/>
-                                                    </div>
-                                                    <div className="w-100"></div>
 
-                                                    <div className="col-12 col-md-6">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_SOI] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SOI)}
-                                                               type="text"
-                                                               placeholder="ซอย"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_SOI]}/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_ROAD] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ROAD)}
-                                                               type="text"
-                                                               placeholder="ถนน"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_ROAD]}/>
-                                                    </div>
-                                                    <div className="w-100"></div>
+                                            {/*ที่อยู่*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label className="mt-2">
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                            'ที่อยู่ตามบัตรประชาชน' :
+                                                            'ที่อยู่ / Address'
+                                                        }<br/>
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                            '(ข้อมูลใดไม่มี ให้กรอก -)' :
+                                                            '(ข้อมูลใดไม่มี ให้กรอก -'
+                                                        }
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                        <br/>
+                                                        }
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 ?
+                                                            'Enter - if not available)' : ''
+                                                        }
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <div className="row">
+                                                        <div className="col-12 col-md-6">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_ADDRESS] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ADDRESS)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'บ้านเลขที่' : 'House number'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
+                                                        </div>
+                                                        <div className="col nopadleft">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_MOO] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_MOO)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'หมู่ที่' : 'Village number'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_MOO]}/>
+                                                        </div>
+                                                        <div className="w-100"></div>
 
-                                                    <div className="col-12 col-md-6">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SUB_DISTRICT)}
-                                                               type="text"
-                                                               placeholder="แขวง / ตำบล"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_SUB_DISTRICT]}/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_DISTRICT] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISTRICT)}
-                                                               type="text"
-                                                               placeholder="เขต / อำเภอ"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_DISTRICT]}/>
-                                                    </div>
-                                                    <div className="w-100"></div>
+                                                        <div className="col-12 col-md-6">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_SOI] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SOI)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ซอย' : 'Lane'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_SOI]}/>
+                                                        </div>
+                                                        <div className="col nopadleft">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_ROAD] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ROAD)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ถนน' : 'Road'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_ROAD]}/>
+                                                        </div>
+                                                        <div className="w-100"></div>
 
-                                                    <div className="col-12 col-md-6">
-                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_PROVINCE] || ''}
-                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PROVINCE)}
-                                                               type="text"
-                                                               placeholder="จังหวัด"
-                                                               className="form-control input-md mt-2"/>
-                                                        <ErrorLabel
-                                                            value={traineeForm.errors[REGISTER_TRAINEE_PROVINCE]}/>
-                                                    </div>
-                                                    <div className="col nopadleft">
-                                                        {/*<input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
+                                                        <div className="col-12 col-md-6">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SUB_DISTRICT)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'แขวง / ตำบล' : 'Sub-district'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_SUB_DISTRICT]}/>
+                                                        </div>
+                                                        <div className="col nopadleft">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_DISTRICT] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISTRICT)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เขต / อำเภอ' : 'District'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_DISTRICT]}/>
+                                                        </div>
+                                                        <div className="w-100"></div>
+
+                                                        <div className="col-12 col-md-6">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_PROVINCE] || ''}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PROVINCE)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'จังหวัด' : 'Province'}
+                                                                   className="form-control input-md mt-2"/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_PROVINCE]}/>
+                                                        </div>
+                                                        <div className="col nopadleft">
+                                                            {/*<input value={traineeForm.fields[REGISTER_TRAINEE_POSTAL_CODE] || ''}
                                                                onChange={this.handleChange.bind(this, REGISTER_TRAINEE_POSTAL_CODE)}
                                                                type="text"
                                                                maxLength={5}
@@ -250,29 +312,32 @@ class TraineeRegisterForm extends React.Component {
                                                                className="form-control input-md mt-2"/>
                                                         <ErrorLabel
                                                             value={traineeForm.errors[REGISTER_TRAINEE_POSTAL_CODE]}/>*/}
-                                                    </div>
-                                                    {/*<div className="w-100"></div>
+                                                        </div>
+                                                        {/*<div className="w-100"></div>
                                                     <div className="col-12 col-md-6">
                                                         <input id="textinput" name="textinput" type="text" placeholder="เบอร์โทรศัพท์" className="form-control input-md"/>
                                                     </div>*/}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">เบอร์โทรศัพท์</label>
+
+                                            {/*เบอร์โทร*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <label className="mt-2">เบอร์โทรศัพท์ / Phone Number</label>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <input value={traineeForm.fields[REGISTER_TRAINEE_PHONE] || ''}
+                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PHONE)}
+                                                           type="text"
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเบอร์โทรศัพท์' : 'Enter phone number'}
+                                                           className="form-control-2 input-md mt-2"/>
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
+                                                </div>
                                             </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_PHONE] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PHONE)}
-                                                       type="text"
-                                                       placeholder="เบอร์โทรศัพท์"
-                                                       className="form-control-2 input-md mt-2"/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
-                                            </div>
-                                        </div>
-                                        {/*<div className="row">
+
+                                            {/*<div className="row">
                                             <div className="col-md-3">
                                                 <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
                                             </div>
@@ -291,111 +356,164 @@ class TraineeRegisterForm extends React.Component {
                                                     value={traineeForm.errors[REGISTER_TRAINEE_IMAGE_FILE_PID]}/>
                                             </div>
                                         </div>*/}
-                                        <div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                {<Dropzone onDrop={this.handleDropFiles}>
-                                                    {({getRootProps, getInputProps}) => (
-                                                        <section>
-                                                            <div {...getRootProps()}
-                                                                 id="fileDocument"
-                                                                 className="form-control mt-2">
-                                                                <input {...getInputProps()}/>
-                                                                <div>{this.state.fileDataUrlList.length === 0 ? 'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่ (ไม่เกิน 5 ไฟล์)' : 'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}</div>
-                                                                {
-                                                                    this.state.fileDataUrlList.map((fileData, index) => (
-                                                                        <div className="preview-container">
-                                                                            <img className="preview-image"
-                                                                                 src={fileData}
-                                                                                 style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
-                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}/>
-                                                                             <div className="middle"
-                                                                                  onClick={this.handleClickFilePreview.bind(this, index)}>
-                                                                                 <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
-                                                                             </div>
-                                                                        </div>
-                                                                    ))
+
+                                            {/*รูปภาพ*/}
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <div className="row">
+                                                        <div className="col-12">
+                                                            <label className="mt-2">
+                                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                                    'หลักฐานที่ต้องใช้ในการสมัคร /' :
+                                                                    'หลักฐานที่ต้องใช้ในการสมัคร /'
+                                                                }<br/>
+                                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                                    'Applied Assemble Foundation' :
+                                                                    'Applied Assemble Foundation'
                                                                 }
-                                                            </div>
-                                                        </section>
-                                                    )}
-                                                </Dropzone>}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-12">
+                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                            <ol>
+                                                                <li>สำเนาบัตรประชาชน</li>
+                                                                <li>สำเนาใบขับขี่เดิม (กรณีต่ออายุใบอนุญาต)</li>
+                                                            </ol>
+                                                            }
+                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                            <ol>
+                                                                <li>สำเนาหนังสือเดินทาง / Copy of passport</li>
+                                                                <li>สำเนาใบอนุญาตทำงาน <u>ซึ่งมีรายละเอียดที่อยู่ครบถ้วน</u> / Copy of work permit <u>with complete detailed address</u></li>
+                                                                <li>กรณีใบอนุญาตทำงานมีรายละเอียดที่อยู่ไม่ครบถ้วน ให้แนบสำเนาเอกสารอื่นๆ ที่มีรายละเอียดที่อยู่ครบถ้วน / In case address on work permit is incomplete, attach copy of another documents that have complete detailed address.</li>
+                                                            </ol>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    {<Dropzone onDrop={this.handleDropFiles}>
+                                                        {({getRootProps, getInputProps}) => (
+                                                            <section>
+                                                                <div {...getRootProps()}
+                                                                     id="fileDocument"
+                                                                     className="form-control mt-2">
+                                                                    <input {...getInputProps()}/>
+                                                                    <div>
+                                                                        {this.state.fileDataUrlList.length === 0 &&
+                                                                        <div>
+                                                                            {'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่ (ไม่เกิน 5 ไฟล์) /'}<br/>
+                                                                            {'Click or drop files here to attach files. (5 files maximum)'}
+                                                                        </div>
+                                                                        }
+                                                                        {this.state.fileDataUrlList.length !== 0 &&
+                                                                            <div>
+                                                                                {'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}<br/>
+                                                                                {'Click image to remove, or drop another files to add more files.'}
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                    {
+                                                                        this.state.fileDataUrlList.map((fileData, index) => (
+                                                                            <div className="preview-container">
+                                                                                <img className="preview-image"
+                                                                                     src={fileData}
+                                                                                     style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                                <div className="middle"
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                    <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </section>
+                                                        )}
+                                                    </Dropzone>}
+                                                    <ErrorLabel
+                                                        value={traineeForm.errors[REGISTER_TRAINEE_IMAGE_FILE_PID]}/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] &&
+                        <div>
+                            <div className="row">
+                                <div className="col">
+                                    <div className="bg-gray">
+                                        <h2>มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้</h2>
+                                        <ErrorLabel
+                                            value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]}/>
+                                        <div className="check-box-2"
+                                             onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_COURSE_TYPE)}>
+                                            <div className="md-radio md-radio-inline radiocheck">
+                                                <input id="course-type-5-hours" name="course-type" type="radio"
+                                                       value={1}
+                                                       defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 1}/>
+                                                <label htmlFor="course-type-5-hours"> {this.props.courseTypeList[0].title}</label>
+                                            </div>
+                                            <br/>
+                                            <div className="md-radio md-radio-inline radiocheck">
+                                                <input id="course-type-2-hours" name="course-type" type="radio"
+                                                       value={2}
+                                                       defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 2}/>
+                                                <label htmlFor="course-type-2-hours"> {this.props.courseTypeList[1].title}</label>
+                                            </div>
+                                            <br/>
+                                            <div className="md-radio md-radio-inline radiocheck">
+                                                <input id="course-type-1-hour" name="course-type" type="radio"
+                                                       value={3}
+                                                       defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 3}/>
+                                                <label htmlFor="course-type-1-hour"> {this.props.courseTypeList[2].title}</label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col">
-                                <div className="bg-gray">
-                                    <h2>มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้</h2>
-                                    <ErrorLabel
-                                        value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]}/>
-                                    <div className="check-box-2"
-                                         onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_COURSE_TYPE)}>
-                                        <div className="md-radio md-radio-inline radiocheck">
-                                            <input id="course-type-5-hours" name="course-type" type="radio"
-                                                   value={1}
-                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 1}/>
-                                            <label htmlFor="course-type-5-hours"> {this.props.courseTypeList[0].title}</label>
-                                        </div>
-                                        <br/>
-                                        <div className="md-radio md-radio-inline radiocheck">
-                                            <input id="course-type-2-hours" name="course-type" type="radio"
-                                                   value={2}
-                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 2}/>
-                                            <label htmlFor="course-type-2-hours"> {this.props.courseTypeList[1].title}</label>
-                                        </div>
-                                        <br/>
-                                        <div className="md-radio md-radio-inline radiocheck">
-                                            <input id="course-type-1-hour" name="course-type" type="radio"
-                                                   value={3}
-                                                   defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 3}/>
-                                            <label htmlFor="course-type-1-hour"> {this.props.courseTypeList[2].title}</label>
+                            <div className="row">
+                                <div className="col">
+                                    <div className="title-sm">
+                                        <h2>ประเภทใบอนุญาตขับรถ</h2>
+                                        <ErrorLabel
+                                            value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}/>
+                                        <div className="row">
+                                            <div className="col-12 col-md-4">
+                                                <input type="checkbox" id="license-type-car"
+                                                       checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}
+                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR)}/>
+                                                <label htmlFor="license-type-car">รถยนต์ส่วนบุคคลชั่วคราว</label>
+                                            </div>
+                                            <div className="col-12 col-md-4">
+                                                <input type="checkbox" id="license-type-bicycle"
+                                                       checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]}
+                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE)}/>
+                                                <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคลชั่วคราว</label>
+                                            </div>
+                                            <div className="col-12 col-md-4">
+                                                <input type="checkbox" id="license-type-tricycle"
+                                                       checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]}
+                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE)}/>
+                                                <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคลชั่วคราว</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <div className="title-sm">
-                                    <h2>ประเภทใบอนุญาตขับรถ</h2>
-                                    <ErrorLabel
-                                        value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}/>
-                                    <div className="row">
-                                        <div className="col-12 col-md-4">
-                                            <input type="checkbox" id="license-type-car"
-                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR)}/>
-                                            <label htmlFor="license-type-car">รถยนต์ส่วนบุคคลชั่วคราว</label>
-                                        </div>
-                                        <div className="col-12 col-md-4">
-                                            <input type="checkbox" id="license-type-bicycle"
-                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE)}/>
-                                            <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคลชั่วคราว</label>
-                                        </div>
-                                        <div className="col-12 col-md-4">
-                                            <input type="checkbox" id="license-type-tricycle"
-                                                   checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]}
-                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE)}/>
-                                            <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคลชั่วคราว</label>
-                                        </div>
-                                    </div>
-                                </div>
+
+                            <div className="border-red"></div>
+
+                            <div className="btn-red-submit mb-4 mt-4" style={{_marginTop: '20px'}}>
+                                <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
                             </div>
                         </div>
-
-                        <div className="border-red"></div>
-
-                        <div className="btn-red-submit mb-4 mt-4" style={{_marginTop: '20px'}}>
-                            <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
-                        </div>
+                        }
                     </div>
                 </div>
 
@@ -778,8 +896,14 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         let {fields} = traineeForm;
         let {target} = e;
 
-        if (field === REGISTER_TRAINEE_PID || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
+        if (field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
+        } else if (field === REGISTER_TRAINEE_PID) {
+            if (fields[REGISTER_TRAINEE_NATIONALITY] === 1) { // คนไทย
+                fields[field] = target.value.trim().substring(0, 13);
+            } else if (fields[REGISTER_TRAINEE_NATIONALITY] === 2) { // ชาวต่างชาติ
+                fields[field] = target.value.trim();
+            }
         } else {
             if (target.type === 'checkbox') {
                 if (target.checked
@@ -794,6 +918,13 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                 }
             } else if (target.type === 'file') {
                 fields[field] = target.files[0];
+            } else if (field === REGISTER_TRAINEE_NATIONALITY) {
+                fields[field] = parseInt(target.value);
+                if (parseInt(target.value) === 1) {
+                    //alert('คนไทย');
+                } else if (parseInt(target.value) === 2) {
+                    //alert('ชาวต่างขาติ');
+                }
             } else {
                 fields[field] = target.value;
             }
@@ -845,50 +976,58 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         let errors = {};
 
         if (!fields[REGISTER_TRAINEE_TITLE]) {
-            errors[REGISTER_TRAINEE_TITLE] = 'กรุณาเลือกคำนำหน้า';
+            errors[REGISTER_TRAINEE_TITLE] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาเลือกคำนำหน้า' : 'เลือกคำนำหน้า / Select name title';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_FIRST_NAME] || fields[REGISTER_TRAINEE_FIRST_NAME].trim().length === 0) {
-            errors[REGISTER_TRAINEE_FIRST_NAME] = 'กรุณากรอกชื่อ';
+            errors[REGISTER_TRAINEE_FIRST_NAME] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกชื่อ' : 'กรอกชื่อ / Enter first name';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_LAST_NAME] || fields[REGISTER_TRAINEE_LAST_NAME].trim().length === 0) {
-            errors[REGISTER_TRAINEE_LAST_NAME] = 'กรุณากรอกนามสกุล';
+            errors[REGISTER_TRAINEE_LAST_NAME] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกนามสกุล' : 'กรอกนามสกุล / Enter last name';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_PID] || fields[REGISTER_TRAINEE_PID].trim().length !== 13) {
-            errors[REGISTER_TRAINEE_PID] = 'กรุณากรอกเลขประจำตัวประชาชน 13 หลัก';
-            formIsValid = false;
-        } else if (!isValidPid(fields[REGISTER_TRAINEE_PID].trim())) {
-            errors[REGISTER_TRAINEE_PID] = 'เลขประจำตัวประชาชนไม่ถูกต้อง';
+
+        if (fields[REGISTER_TRAINEE_NATIONALITY] === 1) {
+            if ((!fields[REGISTER_TRAINEE_PID] || fields[REGISTER_TRAINEE_PID].trim().length !== 13)) {
+                errors[REGISTER_TRAINEE_PID] = 'กรุณากรอกเลขประจำตัวประชาชน 13 หลัก';
+                formIsValid = false;
+            } else if (!isValidPid(fields[REGISTER_TRAINEE_PID].trim())) {
+                errors[REGISTER_TRAINEE_PID] = 'เลขประจำตัวประชาชนไม่ถูกต้อง';
+                formIsValid = false;
+            }
+        }
+        if (!fields[REGISTER_TRAINEE_PID] && (fields[REGISTER_TRAINEE_NATIONALITY] === 2)) {
+            errors[REGISTER_TRAINEE_PID] = 'กรอกเลขที่หนังสือเดินทาง / Enter passport number';
             formIsValid = false;
         }
+
         if (!fields[REGISTER_TRAINEE_ADDRESS] || fields[REGISTER_TRAINEE_ADDRESS].trim().length === 0) {
-            errors[REGISTER_TRAINEE_ADDRESS] = 'กรุณากรอกบ้านเลขที่';
+            errors[REGISTER_TRAINEE_ADDRESS] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกบ้านเลขที่' : 'กรอกบ้านเลขที่ / Enter house number';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_MOO] || fields[REGISTER_TRAINEE_MOO].trim().length === 0) {
-            errors[REGISTER_TRAINEE_MOO] = 'กรุณากรอกหมู่';
+            errors[REGISTER_TRAINEE_MOO] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกหมู่' : 'กรอกหมู่ / Enter village number';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_SOI] || fields[REGISTER_TRAINEE_SOI].trim().length === 0) {
-            errors[REGISTER_TRAINEE_SOI] = 'กรุณากรอกซอย';
+            errors[REGISTER_TRAINEE_SOI] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกซอย' : 'กรอกซอย / Enter lane';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_ROAD] || fields[REGISTER_TRAINEE_ROAD].trim().length === 0) {
-            errors[REGISTER_TRAINEE_ROAD] = 'กรุณากรอกถนน';
+            errors[REGISTER_TRAINEE_ROAD] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกถนน' : 'กรอกถนน / Enter road';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_SUB_DISTRICT] || fields[REGISTER_TRAINEE_SUB_DISTRICT].trim().length === 0) {
-            errors[REGISTER_TRAINEE_SUB_DISTRICT] = 'กรุณากรอกแขวง / ตำบล';
+            errors[REGISTER_TRAINEE_SUB_DISTRICT] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกแขวง/ตำบล' : 'กรอกแขวง/ตำบล / Enter sub-district';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_DISTRICT] || fields[REGISTER_TRAINEE_DISTRICT].trim().length === 0) {
-            errors[REGISTER_TRAINEE_DISTRICT] = 'กรุณากรอกเขต / อำเภอ';
+            errors[REGISTER_TRAINEE_DISTRICT] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกเขต/อำเภอ' : 'กรอกเขต/อำเภอ / Enter district';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_PROVINCE] || fields[REGISTER_TRAINEE_PROVINCE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_PROVINCE] = 'กรุณากรอกจังหวัด';
+            errors[REGISTER_TRAINEE_PROVINCE] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกจังหวัด' : 'กรอกจังหวัด / Enter province';
             formIsValid = false;
         }
         /*if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
@@ -898,7 +1037,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             formIsValid = false;
         }*/
         if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
+            errors[REGISTER_TRAINEE_PHONE] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกเบอร์โทรศัพท์' : 'กรอกเบอร์โทรศัพท์ / Enter phone number';
             formIsValid = false;
         }
         /*if (!fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) {
@@ -906,14 +1045,14 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
             formIsValid = false;
         }*/
         if (!fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]) {
-            errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] = 'กรุณาเลือกประเภทหลักสูตร';
+            errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาเลือกประเภทหลักสูตร' : 'เลือกประเภทหลักสูตร / Select course type';
             formIsValid = false;
         }
 
         /* https://stackoverflow.com/questions/27864951/how-to-access-childs-state-in-react */
         const registerForm = this.RegisterForm.current;
         if (registerForm.state.fileList.length === 0) {
-            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = 'กรุณาใส่รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)';
+            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาแนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร' : 'แนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร / Attach applied assemble foundation';
             formIsValid = false;
         }
 
@@ -922,7 +1061,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         const fieldLicenseTypeTricycle = fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE];
 
         if (!fieldLicenseTypeCar && !fieldLicenseTypeBicycle && !fieldLicenseTypeTricycle) {
-            errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = 'กรุณาเลือกประเภทใบอนุญาตขับรถ';
+            errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาเลือกประเภทใบอนุญาตขับรถ' : 'เลือกประเภทใบอนุญาตขับรถ / Select driving license type';
             formIsValid = false;
         }
         if (fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] && fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] !== '1'

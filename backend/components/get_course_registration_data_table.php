@@ -857,19 +857,19 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeCar" name="licenseTypeCar" value="1">
-                                                        <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคลชั่วคราว
+                                                        <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeBicycle" name="licenseTypeBicycle" value="1">
-                                                        <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคลชั่วคราว
+                                                        <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" id="checkBoxLicenseTypeTricycle" name="licenseTypeTricycle" value="1">
-                                                        <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคลชั่วคราว
+                                                        <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -1035,19 +1035,19 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeCar" name="licenseTypeCar" disabled>
-                                                <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคลชั่วคราว
+                                                <!--<i class="fa fa-car"></i>-->รถยนต์ส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                             </label>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeBicycle" name="licenseTypeBicycle" disabled>
-                                                <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคลชั่วคราว
+                                                <!--<i class="fa fa-motorcycle"></i>-->รถจักรยานยนต์ส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                             </label>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" id="checkBoxLicenseTypeTricycle" name="licenseTypeTricycle" disabled>
-                                                <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคลชั่วคราว
+                                                <!--<img width="20px" src="../images/ic_tuktuk.png">-->รถสามล้อส่วนบุคคล<span class="spanTempWord">ชั่วคราว</span>
                                             </label>
                                         </div>
                                     </div>
@@ -1782,6 +1782,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 rowSubject4.hide();
             }
 
+            if (courseType === 1) {
+                $('.spanTempWord').show();
+            } else {
+                $('.spanTempWord').hide();
+            }
+
             let subject1Name = '';
             switch (courseType) {
                 case 1:
@@ -1881,6 +1887,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#manageDocStatusModal #inputProvince').val(traineeProvince);
 
             $('#manageDocStatusModal input[name=courseType][value=' + courseType + ']').prop('checked', true);
+
+            if (courseType === 1) {
+                $('.spanTempWord').show();
+            } else {
+                $('.spanTempWord').hide();
+            }
 
             $('#manageDocStatusModal #checkBoxLicenseTypeTricycle').prop('checked', (licenseType & 4) === 4);
             $('#manageDocStatusModal #checkBoxLicenseTypeBicycle').prop('checked', (licenseType & 2) === 2);
