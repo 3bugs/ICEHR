@@ -15,6 +15,7 @@ import Dropzone from 'react-dropzone';
 const TOP_OF_FORM = 'topOfForm';
 
 const REGISTER_TRAINEE_TITLE = 'traineeTitle';
+const REGISTER_TRAINEE_TITLE_CUSTOM = 'traineeTitleCustom';
 const REGISTER_TRAINEE_FIRST_NAME = 'traineeFirstName';
 const REGISTER_TRAINEE_LAST_NAME = 'traineeLastName';
 const REGISTER_TRAINEE_PID = 'traineePid';
@@ -43,10 +44,19 @@ class TraineeRegisterForm extends React.Component {
             fileList: [],
             fileDataUrlList: [],
         };
+        this.customTitleInput = React.createRef();
+        //this.handleChange = this.handleChange.bind(this);
     }
 
     handleChange(field, e) {
         this.props.handleChangeCallback(field, e);
+
+        const customTitleInput = this.customTitleInput;
+        if (field === REGISTER_TRAINEE_TITLE && e.target.value === '-1') {
+            setTimeout(function () {
+                customTitleInput.current.focus();
+            }, 200);
+        }
     }
 
     handleDropFiles = acceptedFiles => {
@@ -68,6 +78,7 @@ class TraineeRegisterForm extends React.Component {
             reader.onerror = () => console.log('file reading has failed');
             reader.onload = () => {
                 // Do whatever you want with the file contents
+                //console.log(reader);
                 const fileUrl = reader.result; // Base64 data
                 console.log('URL คือ ' + fileUrl);
 
@@ -79,11 +90,21 @@ class TraineeRegisterForm extends React.Component {
         });
     };
 
+    handleRejectedFiles = rejectedFiles => {
+        let msg = '';
+        rejectedFiles.forEach(file => {
+            msg = msg.concat(`- ${file.name}\n`);
+        });
+
+        alert(`ผิดพลาด: ไฟล์ดังรายชื่อต่อไปนี้มีขนาดใหญ่เกินไป หรือเป็นประเภทไฟล์ที่ไม่รองรับ\n\n${msg}\n*รองรับรูปภาพ, PDF เท่านั้น และขนาดแต่ละไฟล์ต้องไม่เกิน 1 MB`);
+    };
+
     handleClickFilePreview = (index, e) => {
         e.stopPropagation();
-        const {fileDataUrlList} = this.state;
+        const {fileDataUrlList, fileList} = this.state;
         fileDataUrlList.splice(index, 1);
-        this.setState({fileDataUrlList});
+        fileList.splice(index, 1);
+        this.setState({fileDataUrlList, fileList});
     };
 
     render() {
@@ -130,26 +151,48 @@ class TraineeRegisterForm extends React.Component {
                                                             'คำนำหน้าชื่อ (ตามหนังสือเดินทาง) /'
                                                         }<br/>
                                                         {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                            'Name Title (as appear on your ID card)' :
-                                                            'Name Title (as appear on your passport)'
+                                                            'Name Title (as appear on ID card)' :
+                                                            'Name Title (as appear on passport)'
                                                         }
                                                     </label>
                                                 </div>
                                                 <div className="col-md-8">
-                                                    <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
-                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
-                                                            className="form-control-2 mt-4">
-                                                        <option value="0" disabled>
-                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลือกคำนำหน้า' : 'Select name title'}
-                                                        </option>
-                                                        {
-                                                            this.props.nameTitleList.map((nameTitle, index) =>
-                                                                <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
-                                                            )
+                                                    <div className="row">
+                                                        {/*List คำนำหน้า*/}
+                                                        <div className="col-12 col-md-6">
+                                                            <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
+                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
+                                                                    className="form-control mt-3">
+                                                                <option value="0" disabled>
+                                                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลือกคำนำหน้า' : 'เลือกคำนำหน้า / Select name title'}
+                                                                </option>
+                                                                {
+                                                                    this.props.nameTitleList.map((nameTitle, index) =>
+                                                                        <option key={index} value={nameTitle.title}>{nameTitle.title}</option>
+                                                                    )
+                                                                }
+                                                                <option value="-1">
+                                                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'อื่นๆ' : 'อื่นๆ / As specified'}
+                                                                </option>
+                                                            </select>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_TITLE]}/>
+                                                        </div>
+
+                                                        {/*คำนำหน้า กรอกเอง*/}
+                                                        {traineeForm.fields[REGISTER_TRAINEE_TITLE] === '-1' &&
+                                                        <div className="col nopadleft">
+                                                            <input value={traineeForm.fields[REGISTER_TRAINEE_TITLE_CUSTOM] || ''}
+                                                                   ref={this.customTitleInput}
+                                                                   onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE_CUSTOM)}
+                                                                   type="text"
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกคำนำหน้า' : 'กรอกคำนำหน้า / Enter name title'}
+                                                                   className="form-control-2 input-md mt-3" style={{width: '100%'}}/>
+                                                            <ErrorLabel
+                                                                value={traineeForm.errors[REGISTER_TRAINEE_TITLE_CUSTOM]}/>
+                                                        </div>
                                                         }
-                                                    </select>
-                                                    <ErrorLabel
-                                                        value={traineeForm.errors[REGISTER_TRAINEE_TITLE]}/>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -164,7 +207,7 @@ class TraineeRegisterForm extends React.Component {
                                                     <input value={traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_FIRST_NAME)}
                                                            type="text"
-                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกชื่อ' : 'Enter first name'}
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ชื่อ' : 'ชื่อ / First name'}
                                                            className="form-control-2 input-md"/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
@@ -182,7 +225,7 @@ class TraineeRegisterForm extends React.Component {
                                                     <input value={traineeForm.fields[REGISTER_TRAINEE_LAST_NAME] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_LAST_NAME)}
                                                            type="text"
-                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกนามสกุล' : 'Enter last name'}
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'นามสกุล' : 'นามสกุล / Last name'}
                                                            className="form-control-2 input-md mt-2"/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_LAST_NAME]}/>
@@ -205,7 +248,7 @@ class TraineeRegisterForm extends React.Component {
                                                     <input value={traineeForm.fields[REGISTER_TRAINEE_PID] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PID)}
                                                            type="text"
-                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเลขประจำตัวประชาชน 13 หลัก' : 'Enter passport number'}
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลขประจำตัวประชาชน 13 หลัก' : 'เลขที่หนังสือเดินทาง / Passport number'}
                                                            className="form-control-2 input-md mt-2"/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_PID]}/>
@@ -238,7 +281,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_ADDRESS] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ADDRESS)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'บ้านเลขที่' : 'House number'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'บ้านเลขที่' : 'บ้านเลขที่ / House number'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_ADDRESS]}/>
@@ -247,7 +290,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_MOO] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_MOO)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'หมู่ที่' : 'Village number'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'หมู่ที่' : 'หมู่ที่ / Village number'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_MOO]}/>
@@ -258,7 +301,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_SOI] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SOI)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ซอย' : 'Lane'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ซอย' : 'ซอย / Lane'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_SOI]}/>
@@ -267,7 +310,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_ROAD] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_ROAD)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ถนน' : 'Road'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ถนน' : 'ถนน / Road'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_ROAD]}/>
@@ -278,7 +321,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_SUB_DISTRICT] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SUB_DISTRICT)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'แขวง / ตำบล' : 'Sub-district'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'แขวง/ตำบล' : 'แขวง/ตำบล / Sub-district'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_SUB_DISTRICT]}/>
@@ -287,7 +330,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_DISTRICT] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISTRICT)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เขต / อำเภอ' : 'District'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เขต/อำเภอ' : 'เขต/อำเภอ / District'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_DISTRICT]}/>
@@ -298,7 +341,7 @@ class TraineeRegisterForm extends React.Component {
                                                             <input value={traineeForm.fields[REGISTER_TRAINEE_PROVINCE] || ''}
                                                                    onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PROVINCE)}
                                                                    type="text"
-                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'จังหวัด' : 'Province'}
+                                                                   placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'จังหวัด' : 'จังหวัด / Province'}
                                                                    className="form-control input-md mt-2"/>
                                                             <ErrorLabel
                                                                 value={traineeForm.errors[REGISTER_TRAINEE_PROVINCE]}/>
@@ -330,32 +373,20 @@ class TraineeRegisterForm extends React.Component {
                                                     <input value={traineeForm.fields[REGISTER_TRAINEE_PHONE] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PHONE)}
                                                            type="text"
-                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเบอร์โทรศัพท์' : 'Enter phone number'}
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเบอร์โทรศัพท์' : 'เบอร์โทร / Phone number'}
                                                            className="form-control-2 input-md mt-2"/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
                                                 </div>
                                             </div>
 
-                                            {/*<div className="row">
-                                            <div className="col-md-3">
-                                                <label className="mt-2">รูปภาพสำเนาบัตรประชาชน (สำหรับคนไทย) <br/>หรือสำเนาหนังสือเดินทาง (สำหรับชาวต่างชาติ)</label>
-                                            </div>
-                                            <div className="col-md-9">
-                                                <div className="form-group files" style={{margin: 0}}>
-                                                    <input type="file" name="file"
-                                                           accept="image/*"
-                                                           onChange={this.handleChange.bind(this, REGISTER_TRAINEE_IMAGE_FILE_PID)}
-                                                           className="form-control mt-2" multiple=""/>
-                                                    {traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID] &&
-                                                    <img src={traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID] ? URL.createObjectURL(traineeForm.fields[REGISTER_TRAINEE_IMAGE_FILE_PID]) : null}
-                                                         style={{position: 'absolute', width: '100px', top: '20px', left: '20px'}}/>
-                                                    }
+                                            <div className="row">
+                                                <div className="col-md-4">&nbsp;
                                                 </div>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_IMAGE_FILE_PID]}/>
+                                                <div className="col-md-8 mt-2" style={{padding: '0px 20px'}}>
+                                                    <span style={{color: 'orangered'}}>กรุณาแนบไฟล์สำเนาเอกสารทั้งหมดก่อนกดปุ่มลงทะเบียน หลังจากกดลงทะเบียนแล้วจะไม่สามารถส่งเอกสารเพิ่มได้อีก / Please attach all required documents before submitting the form. Once submitted, you won't be able to submit more documents.</span>
+                                                </div>
                                             </div>
-                                        </div>*/}
 
                                             {/*รูปภาพ*/}
                                             <div className="row">
@@ -364,8 +395,8 @@ class TraineeRegisterForm extends React.Component {
                                                         <div className="col-12">
                                                             <label className="mt-2">
                                                                 {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                                    'หลักฐานที่ต้องใช้ในการสมัคร /' :
-                                                                    'หลักฐานที่ต้องใช้ในการสมัคร /'
+                                                                    'เอกสารที่ต้องใช้ในการสมัคร /' :
+                                                                    'เอกสารที่ต้องใช้ในการสมัคร /'
                                                                 }<br/>
                                                                 {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
                                                                     'Required Documents' :
@@ -386,14 +417,21 @@ class TraineeRegisterForm extends React.Component {
                                                             <ol>
                                                                 <li>สำเนาหนังสือเดินทาง / Copy of passport</li>
                                                                 <li>สำเนาใบอนุญาตทำงาน <u>ซึ่งมีรายละเอียดที่อยู่ครบถ้วน</u> / Copy of work permit <u>with complete detailed address</u></li>
-                                                                <li>กรณีใบอนุญาตทำงานมีรายละเอียดที่อยู่ไม่ครบถ้วน ให้แนบสำเนาเอกสารอื่นๆ ที่มีรายละเอียดที่อยู่ครบถ้วน / In case address on work permit is incomplete, attach copy of another documents that have complete detailed address.</li>
+                                                                <li>กรณีใบอนุญาตทำงานมีรายละเอียดที่อยู่ไม่ครบถ้วน ให้แนบสำเนาเอกสารอื่นๆ ที่มีรายละเอียดที่อยู่ครบถ้วนมาด้วย / In case address on work
+                                                                    permit
+                                                                    is incomplete, attach copy of another documents that have complete detailed address.
+                                                                </li>
                                                             </ol>
                                                             }
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-8">
-                                                    {<Dropzone onDrop={this.handleDropFiles}>
+                                                    {<Dropzone onDrop={this.handleDropFiles}
+                                                               onDropRejected={this.handleRejectedFiles}
+                                                               accept="image/jpeg, image/png, application/pdf"
+                                                               minSize={0}
+                                                               maxSize={1048576}>
                                                         {({getRootProps, getInputProps}) => (
                                                             <section>
                                                                 <div {...getRootProps()}
@@ -403,30 +441,55 @@ class TraineeRegisterForm extends React.Component {
                                                                     <div>
                                                                         {this.state.fileDataUrlList.length === 0 &&
                                                                         <div>
-                                                                            {'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่ (ไม่เกิน 5 ไฟล์) /'}<br/>
-                                                                            {'Click or drop files here to attach files. (5 files maximum)'}
+                                                                            {'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่'}<br/>
+                                                                            {'(ไม่เกิน 5 ไฟล์, รองรับรูปภาพและ PDF, ขนาดแต่ละไฟล์ไม่เกิน 1 MB)'}<br/>
+                                                                            {'Click or drop files here to attach files.'}<br/>
+                                                                            {'(5 files maximum, image & PDF supported, 1 MB max size for each)'}
                                                                         </div>
                                                                         }
                                                                         {this.state.fileDataUrlList.length !== 0 &&
-                                                                            <div>
-                                                                                {'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}<br/>
-                                                                                {'Click image to remove, or drop another files to add more files.'}
-                                                                            </div>
+                                                                        <div>
+                                                                            {'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}<br/>
+                                                                            {'Click image to remove, or drop another files to add more files.'}
+                                                                        </div>
                                                                         }
                                                                     </div>
                                                                     {
-                                                                        this.state.fileDataUrlList.map((fileData, index) => (
-                                                                            <div className="preview-container">
-                                                                                <img className="preview-image"
-                                                                                     src={fileData}
-                                                                                     style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
-                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}/>
-                                                                                <div className="middle"
-                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}>
-                                                                                    <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
-                                                                                </div>
-                                                                            </div>
-                                                                        ))
+                                                                        this.state.fileDataUrlList.map((fileData, index) => {
+                                                                            if (fileData.indexOf('data:application/pdf') !== -1) {
+                                                                                return (
+                                                                                    <div>
+                                                                                        <div className="preview-container">
+                                                                                            <img className="preview-image"
+                                                                                                 src="/static/images/pdf.png"
+                                                                                                 style={{width: '80px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                                            <div className="middle"
+                                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                                <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <span>{this.state.fileList[index].name}</span>
+                                                                                    </div>
+                                                                                );
+                                                                            } else {
+                                                                                return (
+                                                                                    <div>
+                                                                                        <div className="preview-container">
+                                                                                            <img className="preview-image"
+                                                                                                 src={fileData}
+                                                                                                 style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                                            <div className="middle"
+                                                                                                 onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                                <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <span>{this.state.fileList[index].name}</span>
+                                                                                    </div>
+                                                                                );
+                                                                            }
+                                                                        })
                                                                     }
                                                                 </div>
                                                             </section>
@@ -896,6 +959,10 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         let {fields} = traineeForm;
         let {target} = e;
 
+        if (field === REGISTER_TRAINEE_TITLE && target.value === "-1") {
+            //alert('ok');
+        }
+
         if (field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
         } else if (field === REGISTER_TRAINEE_PID) {
@@ -977,6 +1044,9 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
 
         if (!fields[REGISTER_TRAINEE_TITLE]) {
             errors[REGISTER_TRAINEE_TITLE] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาเลือกคำนำหน้า' : 'เลือกคำนำหน้า / Select name title';
+            formIsValid = false;
+        } else if (fields[REGISTER_TRAINEE_TITLE] === '-1' && (!fields[REGISTER_TRAINEE_TITLE_CUSTOM] || fields[REGISTER_TRAINEE_TITLE_CUSTOM].trim().length === 0)) {
+            errors[REGISTER_TRAINEE_TITLE_CUSTOM] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณากรอกคำนำหน้า' : 'กรอกคำนำหน้า / Enter name title';
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_FIRST_NAME] || fields[REGISTER_TRAINEE_FIRST_NAME].trim().length === 0) {
@@ -1106,7 +1176,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         const formData = new FormData();
         formData.append('loginToken', loginToken);
         formData.append('courseId', this.props.course.id);
-        formData.append(REGISTER_TRAINEE_TITLE, traineeForm.fields[REGISTER_TRAINEE_TITLE]);
+        formData.append(REGISTER_TRAINEE_TITLE, traineeForm.fields[REGISTER_TRAINEE_TITLE] === '-1' ? traineeForm.fields[REGISTER_TRAINEE_TITLE_CUSTOM] : traineeForm.fields[REGISTER_TRAINEE_TITLE]);
         formData.append(REGISTER_TRAINEE_FIRST_NAME, traineeForm.fields[REGISTER_TRAINEE_FIRST_NAME]);
         formData.append(REGISTER_TRAINEE_LAST_NAME, traineeForm.fields[REGISTER_TRAINEE_LAST_NAME]);
         formData.append(REGISTER_TRAINEE_PID, traineeForm.fields[REGISTER_TRAINEE_PID]);

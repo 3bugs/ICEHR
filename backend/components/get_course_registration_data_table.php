@@ -915,6 +915,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     <div class="box-body">
                                         <div id="docDetails" class="row">
                                             <div class="col" style="text-align: left">
+                                                <p style="text-align: center">
+                                                    <span style="color: orangered">เมื่อคลิก PDF จะแสดงในหน้าจอใหม่</span>
+                                                </p>
                                                 <?php
                                                 $thumbnailSize = 150;
                                                 ?>
@@ -1917,45 +1920,68 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             } else {
                 docDetails.show();
                 noDocAlert.hide();
-                imgPid.attr('src', '../uploads/slip_images/' + pidFileName);
-                imgPid.parent().attr('href', '../uploads/slip_images/' + pidFileName);
+                imgPid.attr('src', getFileExtension(pidFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName);
+                imgPid.parent().attr('href', getFileExtension(pidFileName) === 'pdf' ? '../uploads/slip_images/' + pidFileName : '../uploads/slip_images/' + pidFileName);
+                setAttributes(getFileExtension(pidFileName) === 'pdf', imgPid.parent());
 
                 if (pidFileName2 === '') {
                     imgPid2.parent().attr('href', '../images/ic_no_image.png');
-                    imgPid2.hide()
+                    imgPid2.parent().removeAttr('data-lightbox');
+                    imgPid2.hide();
                 } else {
-                    imgPid2.attr('src', '../uploads/slip_images/' + pidFileName2);
-                    imgPid2.parent().attr('href', '../uploads/slip_images/' + pidFileName2);
-                    imgPid2.show()
+                    imgPid2.attr('src', getFileExtension(pidFileName2) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName2);
+                    imgPid2.parent().attr('href', getFileExtension(pidFileName2) === 'pdf' ? '../uploads/slip_images/' + pidFileName2 : '../uploads/slip_images/' + pidFileName2);
+                    setAttributes(getFileExtension(pidFileName2) === 'pdf', imgPid2.parent());
+                    imgPid2.show();
                 }
                 if (pidFileName3 === '') {
                     imgPid3.parent().attr('href', '../images/ic_no_image.png');
-                    imgPid3.hide()
+                    imgPid3.parent().removeAttr('data-lightbox');
+                    imgPid3.hide();
                 } else {
-                    imgPid3.attr('src', '../uploads/slip_images/' + pidFileName3);
-                    imgPid3.parent().attr('href', '../uploads/slip_images/' + pidFileName3);
-                    imgPid3.show()
+                    imgPid3.attr('src', getFileExtension(pidFileName3) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName3);
+                    imgPid3.parent().attr('href', getFileExtension(pidFileName3) === 'pdf' ? '../uploads/slip_images/' + pidFileName3 : '../uploads/slip_images/' + pidFileName3);
+                    setAttributes(getFileExtension(pidFileName3) === 'pdf', imgPid3.parent());
+                    imgPid3.show();
                 }
                 if (pidFileName4 === '') {
                     imgPid4.parent().attr('href', '../images/ic_no_image.png');
-                    imgPid4.hide()
+                    imgPid4.parent().removeAttr('data-lightbox');
+                    imgPid4.hide();
                 } else {
-                    imgPid4.attr('src', '../uploads/slip_images/' + pidFileName4);
-                    imgPid4.parent().attr('href', '../uploads/slip_images/' + pidFileName4);
-                    imgPid4.show()
+                    imgPid4.attr('src', getFileExtension(pidFileName4) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName4);
+                    imgPid4.parent().attr('href', getFileExtension(pidFileName4) === 'pdf' ? '../uploads/slip_images/' + pidFileName4 : '../uploads/slip_images/' + pidFileName4);
+                    setAttributes(getFileExtension(pidFileName4) === 'pdf', imgPid4.parent());
+                    imgPid4.show();
                 }
                 if (pidFileName5 === '') {
                     imgPid5.parent().attr('href', '../images/ic_no_image.png');
+                    imgPid5.parent().removeAttr('data-lightbox');
                     imgPid5.hide();
                 } else {
-                    imgPid5.attr('src', '../uploads/slip_images/' + pidFileName5);
-                    imgPid5.parent().attr('href', '../uploads/slip_images/' + pidFileName5);
-                    imgPid5.show()
+                    imgPid5.attr('src', getFileExtension(pidFileName5) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName5);
+                    imgPid5.parent().attr('href', getFileExtension(pidFileName5) === 'pdf' ? '../uploads/slip_images/' + pidFileName5 : '../uploads/slip_images/' + pidFileName5);
+                    setAttributes(getFileExtension(pidFileName5) === 'pdf', imgPid5.parent());
+                    imgPid5.show();
                 }
             }
 
             setButtonDocStatusClass(docStatus);
             $('#manageDocStatusModal').modal('show');
+        }
+
+        function getFileExtension(fileName) {
+            const dotIndex = fileName.lastIndexOf('.');
+            return fileName.substring(dotIndex + 1).toLowerCase();
+        }
+
+        function setAttributes(isPdf, anchorElement) {
+            if (isPdf) {
+                anchorElement.removeAttr('data-lightbox');
+                anchorElement.attr('target', '_blank');
+            } else {
+                anchorElement.attr('data-lightbox', 'pidImage');
+            }
         }
 
         function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount, pidFileName) {
