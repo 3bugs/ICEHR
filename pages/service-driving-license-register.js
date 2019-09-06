@@ -488,19 +488,19 @@ class TraineeRegisterForm extends React.Component {
                                                 <input type="checkbox" id="license-type-car"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR)}/>
-                                                <label htmlFor="license-type-car">รถยนต์ส่วนบุคคลชั่วคราว</label>
+                                                <label htmlFor="license-type-car">รถยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
                                             </div>
                                             <div className="col-12 col-md-4">
                                                 <input type="checkbox" id="license-type-bicycle"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE)}/>
-                                                <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคลชั่วคราว</label>
+                                                <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
                                             </div>
                                             <div className="col-12 col-md-4">
                                                 <input type="checkbox" id="license-type-tricycle"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE)}/>
-                                                <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคลชั่วคราว</label>
+                                                <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
                                             </div>
                                         </div>
                                     </div>
