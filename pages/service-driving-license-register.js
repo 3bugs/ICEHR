@@ -368,8 +368,8 @@ class TraineeRegisterForm extends React.Component {
                                                                     'หลักฐานที่ต้องใช้ในการสมัคร /'
                                                                 }<br/>
                                                                 {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                                    'Applied Assemble Foundation' :
-                                                                    'Applied Assemble Foundation'
+                                                                    'Required Documents' :
+                                                                    'Required Documents'
                                                                 }
                                                             </label>
                                                         </div>
