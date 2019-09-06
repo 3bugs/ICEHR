@@ -675,18 +675,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <div class="row">
                                             <!--คำนำหน้าชื่อ-->
                                             <div class="form-group col-md-2">
+                                                <label for="inputTraineeTitle">คำนำหน้าชื่อ:</label>
+                                                <div class="input-group">
+                                                    <!--<span class="input-group-addon">
+                                                        <i class="fa fa-user"></i>
+                                                    </span>-->
+                                                    <input type="text" class="form-control"
+                                                           id="inputTraineeTitle" name="traineeTitle">
+                                                </div>
+                                            </div>
+                                            <!--<div class="form-group col-md-2">
                                                 <label for="selectTraineeTitle">คำนำหน้าชื่อ:</label>
                                                 <select class="form-control" id="selectTraineeTitle" name="traineeTitle">
                                                     <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
                                                     <?php
-                                                    foreach ($nameTitleList as $nameTitle) {
-                                                        ?>
-                                                        <option value="<?php echo $nameTitle['title']; ?>" <?php echo($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); ?>><?php echo $nameTitle['title']; ?></option>
+/*                                                    foreach ($nameTitleList as $nameTitle) {
+                                                        */?>
+                                                        <option value="<?php /*echo $nameTitle['title']; */?>" <?php /*echo($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); */?>><?php /*echo $nameTitle['title']; */?></option>
                                                         <?php
-                                                    }
-                                                    ?>
+/*                                                    }
+                                                    */?>
                                                 </select>
-                                            </div>
+                                            </div>-->
                                             <!--ชื่อ-->
                                             <div class="form-group col-md-5">
                                                 <label for="inputTraineeFirstName">ชื่อ:</label>
@@ -981,18 +991,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                 <div class="row">
                                     <!--คำนำหน้าชื่อ-->
                                     <div class="form-group col-md-2">
+                                        <label for="inputTraineeTitle">คำนำหน้าชื่อ:</label>
+                                        <div class="input-group">
+                                                    <!--<span class="input-group-addon">
+                                                        <i class="fa fa-user"></i>
+                                                    </span>-->
+                                            <input type="text" class="form-control"
+                                                   id="inputTraineeTitle" readonly>
+                                        </div>
+                                    </div>
+                                    <!--<div class="form-group col-md-2">
                                         <label for="selectTraineeTitle">คำนำหน้าชื่อ:</label>
                                         <select class="form-control" id="selectTraineeTitle" readonly>
                                             <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
                                             <?php
-                                            foreach ($nameTitleList as $nameTitle) {
-                                                ?>
-                                                <option value="<?php echo $nameTitle['title']; ?>" disabled><?php echo $nameTitle['title']; ?></option>
+/*                                            foreach ($nameTitleList as $nameTitle) {
+                                                */?>
+                                                <option value="<?php /*echo $nameTitle['title']; */?>" disabled><?php /*echo $nameTitle['title']; */?></option>
                                                 <?php
-                                            }
-                                            ?>
+/*                                            }
+                                            */?>
                                         </select>
-                                    </div>
+                                    </div>-->
                                     <!--ชื่อ-->
                                     <div class="form-group col-md-5">
                                         <label for="inputTraineeFirstName">ชื่อ:</label>
@@ -1815,7 +1835,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             //$('#recordResultModal #inputTraineePid').val(traineePid);
             //$('#recordResultModal #inputPhone').val(traineePhone);
 
-            $('#recordResultModal #selectTraineeTitle').val(traineeTitle);
+            $('#recordResultModal #inputTraineeTitle').val(traineeTitle);
             $('#recordResultModal #inputTraineeFirstName').val(traineeFirstName);
             $('#recordResultModal #inputTraineeLastName').val(traineeLastName);
 
@@ -1878,7 +1898,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#manageDocStatusModal #inputTraineePid').val(traineePid);
             $('#manageDocStatusModal #inputPhone').val(traineePhone);
 
-            $('#manageDocStatusModal #selectTraineeTitle').val(traineeTitle);
+            $('#manageDocStatusModal #inputTraineeTitle').val(traineeTitle);
             $('#manageDocStatusModal #inputTraineeFirstName').val(traineeFirstName);
             $('#manageDocStatusModal #inputTraineeLastName').val(traineeLastName);
             $('#manageDocStatusModal #inputAddress').val(traineeAddress);
