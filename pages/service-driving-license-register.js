@@ -1052,7 +1052,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         /* https://stackoverflow.com/questions/27864951/how-to-access-childs-state-in-react */
         const registerForm = this.RegisterForm.current;
         if (registerForm.state.fileList.length === 0) {
-            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาแนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร' : 'แนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร / Attach applied assemble foundation';
+            errors[REGISTER_TRAINEE_IMAGE_FILE_PID] = fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรุณาแนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร' : 'แนบไฟล์สำเนาหลักฐานที่ต้องใช้ในการสมัคร / Attach required documents';
             formIsValid = false;
         }
 
