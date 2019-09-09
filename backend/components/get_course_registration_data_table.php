@@ -1517,7 +1517,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <?php
-                                if ($courseApplicationFee !== 0) {
+                                if (($serviceType !== SERVICE_TYPE_SOCIAL) || $courseApplicationFee !== 0) {
                                     ?>
                                     <li><a href="javascript:void(0)"
                                            onClick="onClickPrintReceipt(

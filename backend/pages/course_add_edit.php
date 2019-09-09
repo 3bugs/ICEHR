@@ -40,6 +40,8 @@ if (isset($courseId)) {
             $course['begin_date'] = $row['begin_date'];
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
+            $course['trainer_id'] = (int)$row['trainer_id'];
+            $course['show_trainer_signature'] = (int)$row['show_trainer_signature'];
             //$course['service_type'] = $row['service_type'];
         } else {
             echo 'ไม่พบข้อมูลหลักสูตร';
@@ -90,6 +92,22 @@ if ($result = $db->query($sql)) {
     echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
+}
+
+$trainerList = array();
+if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+    $sql = "SELECT * FROM trainer";
+    if ($result = $db->query($sql)) {
+        //$trainerList = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($trainerList, $row);
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
 }
 
 $imageList = array();
@@ -609,6 +627,65 @@ if (isset($courseId)) {
                                         </div>
                                     </div>
 
+                                    <!--วิทยากร-->
+                                    <?php
+                                    if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                                        ?>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="selectTrainer">วิทยากร:</label>
+                                                    <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-user"></i>
+                                                </span>
+                                                        <select id="selectTrainer" class="form-control" required
+                                                                name="trainerId"
+                                                                oninvalid="this.setCustomValidity('เลือกวิทยากร')"
+                                                                oninput="this.setCustomValidity('')">
+                                                            <option value="" disabled selected>-- เลือกวิทยากร --</option>
+                                                            <?php
+                                                            foreach ($trainerList as $trainer) {
+                                                                $trainerId = (int)$trainer['id'];
+                                                                $trainerFirstName = $trainer['first_name'];
+                                                                $trainerLastName = $trainer['last_name'];
+                                                                $trainerPid = formatPid($trainer['pid']);
+                                                                $trainerEmail = $trainer['email'];
+                                                                $trainerPhone = $trainer['phone'];
+
+                                                                $selected = '';
+                                                                if (!empty($course) && ($course['trainer_id'] === $trainerId)) {
+                                                                    $selected = 'selected';
+                                                                }
+                                                                ?>
+                                                                <option value="<?php echo $trainerId; ?>" <?php echo $selected; ?>>
+                                                                    <?php echo "$trainerFirstName $trainerLastName  |  $trainerPid  |  $trainerEmail  |  $trainerPhone"; ?>
+                                                                </option>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <?php
+                                                $check = 'checked';
+                                                if (!empty($course) && $course['show_trainer_signature'] === 0) {
+                                                    $check = '';
+                                                }
+                                                ?>
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox"
+                                                               name="showTrainerSignature"
+                                                               data-toggle="toggle" <?= $check; ?>>
+                                                        แสดงภาพลายเซ็นของวิทยากรในใบบันทึกผลการอบรมและใบรับรองการผ่านการอบรม (ปิดตัวเลือกนี้ หากต้องการให้วิทยากรเซ็นเอง)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
                                 </div>
                                 <!-- /.box-body -->
                             </div>

@@ -269,7 +269,7 @@
                     <ul class="treeview-menu">
                         <li style="margin-left: 20px"><a href="../pages/course_master.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>"><i class="fa fa-font"></i>ชื่อหลักสูตร</a></li>
                         <li style="margin-left: 20px"><a href="../pages/driving_license_course_type.php"><i class="fa fa-bars"></i>ประเภทหลักสูตร</a></li>
-                        <li style="margin-left: 20px"><a href="javascript:void(0)"><i class="fa fa-user-secret"></i>ข้อมูลวิทยากร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/trainer.php"><i class="fa fa-user-secret"></i>ข้อมูลวิทยากร</a></li>
                     </ul>
                 </li>
 

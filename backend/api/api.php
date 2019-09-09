@@ -148,6 +148,15 @@ switch ($action) {
     case 'update_user_status':
         doUpdateUserStatus();
         break;
+    case 'add_trainer':
+        doAddTrainer();
+        break;
+    case 'update_trainer':
+        doUpdateTrainer();
+        break;
+    case 'update_trainer_status':
+        doUpdateTrainerStatus();
+        break;
     case 'add_user_department':
         doAddUserDepartment();
         break;
@@ -1081,10 +1090,23 @@ function doAddCourse()
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
+    $trainerId = null;
+    $showTrainerSignature = 1;
+    if (isset($_POST['trainerId'])) {
+        $trainerId = $db->real_escape_string($_POST['trainerId']);
+        $showTrainerSignature = isset($_POST['showTrainerSignature']) ? 1 : 0;
+    }
+
     $db->query('START TRANSACTION');
 
-    $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id) "
-        . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId)";
+    if ($trainerId == null) {
+        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id) "
+            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId)";
+    } else {
+        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id, trainer_id, show_trainer_signature) "
+            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId, $trainerId, $showTrainerSignature)";
+    }
+
     if ($insertCourseResult = $db->query($sql)) {
         $insertId = $db->insert_id;
 
@@ -1222,6 +1244,13 @@ function doUpdateCourse()
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
+    $trainerId = null;
+    $showTrainerSignature = 1;
+    if (isset($_POST['trainerId'])) {
+        $trainerId = $db->real_escape_string($_POST['trainerId']);
+        $showTrainerSignature = isset($_POST['showTrainerSignature']) ? 1 : 0;
+    }
+
     /*$output = sprintf(
         "File Names: %d\nCourse ID: %s\nCourse Master ID: %s\nBatch Number: %s\nFee: %s\nLimit: %s\nBegin: %s\nEnd: %s\nPlace: %s\nResponsible User ID: %s\nDetails: %s\n",
         sizeof($_FILES['imageFiles']['name']), $courseId, $courseMasterId, $batchNumber, $applicationFee, $traineeLimit, $beginDate, $endDate, $place, $responsibleUserId, $details
@@ -1231,9 +1260,16 @@ function doUpdateCourse()
 
     $db->query('START TRANSACTION');
 
-    $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
-        . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
-        . " WHERE id = $courseId";
+    if ($trainerId == null) {
+        $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
+            . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
+            . " WHERE id = $courseId";
+    } else {
+        $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
+            . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId, trainer_id = $trainerId, show_trainer_signature = $showTrainerSignature "
+            . " WHERE id = $courseId";
+    }
+
     if ($updateCourseResult = $db->query($sql)) {
         $sql = "DELETE FROM course_fee WHERE course_id = $courseId";
         if (!($db->query($sql))) {
@@ -1847,6 +1883,138 @@ function doUpdateUserStatus()
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะผู้ใช้งานสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddTrainer()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
+        return;
+    }
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+
+    $pid = $db->real_escape_string($_POST['pid']);
+    $email = $db->real_escape_string($_POST['email']);
+    $phone = $db->real_escape_string($_POST['phone']);
+
+    $imageFileName = null;
+
+    if ($_FILES['signatureImage']) {
+        if (!moveUploadedFile('signatureImage', UPLOAD_DIR_SIGNATURES, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์รูปภาพ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    $sql = "INSERT INTO trainer (title, first_name, last_name, pid, email, phone, signature_image) 
+                VALUES ('$title', '$firstName', '$lastName', '$pid', '$email', '$phone', '$imageFileName')";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มวิทยากรสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateTrainer()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
+        return;
+    }
+
+    $trainerId = $db->real_escape_string($_POST['trainerId']);
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+
+    $pid = $db->real_escape_string($_POST['pid']);
+    $email = $db->real_escape_string($_POST['email']);
+    $phone = $db->real_escape_string($_POST['phone']);
+
+    $imageFileName = null;
+
+    if ($_FILES['signatureImage']) {
+        if (!moveUploadedFile('signatureImage', UPLOAD_DIR_SIGNATURES, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์รูปภาพ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+
+        $sql = "UPDATE trainer SET title = '$title', first_name = '$firstName', last_name = '$lastName',  
+                pid = '$pid', email = '$email', phone = '$phone', signature_image = '$imageFileName'
+                WHERE id = $trainerId";
+    } else {
+        $sql = "UPDATE trainer SET title = '$title', first_name = '$firstName', last_name = '$lastName',  
+                pid = '$pid', email = '$email', phone = '$phone'
+                WHERE id = $trainerId";
+
+        // อ่านชื่อไฟล์รูปภาพเดิม
+        /*$sql = "SELECT signature_image FROM trainer WHERE id = $trainerId";
+        if ($result = $db->query($sql)) {
+            $row = $result->fetch_assoc();
+            $imageFileName = $row['signature_image'];
+            $result->close();
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1): ' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }*/
+    }
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลวิทยากรสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2): ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateTrainerStatus()
+{
+    global $db, $response;
+
+    $trainerId = $db->real_escape_string($_POST['trainerId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    if ($newStatus === 'deleted') {
+        if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
+            return;
+        }
+    } else if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
+        return;
+    }
+
+    $sql = "UPDATE trainer SET status = '$newStatus' WHERE id = $trainerId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะวิทยากรสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;

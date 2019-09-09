@@ -11,10 +11,14 @@ if (!isset($traineeId)) {
 }
 $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                cr.sub_district, cr.district, cr.province, cr.phone, cr.course_type, cr.license_type, 
-               cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result, c.begin_date AS course_date
+               cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result, c.begin_date AS course_date, 
+               t.title AS trainer_title, t.first_name AS trainer_first_name, t.last_name AS trainer_last_name, t.pid AS trainer_pid, 
+               t.signature_image AS trainer_signature_image, c.show_trainer_signature
         FROM course_registration_driving_license cr 
             INNER JOIN course c 
                 ON c.id = cr.course_id 
+            INNER JOIN trainer t 
+                ON t.id = c.trainer_id
         WHERE cr.id = $traineeId";
 
 $trainee = null;
@@ -84,7 +88,7 @@ $mpdf = new \Mpdf\Mpdf([
     <?php
     $i = 0;
     $licenseTypeList = array(
-            DL_LICENSE_TYPE_CAR, DL_LICENSE_TYPE_MOTOR_CYCLE, DL_LICENSE_TYPE_TRICYCLE
+        DL_LICENSE_TYPE_CAR, DL_LICENSE_TYPE_MOTOR_CYCLE, DL_LICENSE_TYPE_TRICYCLE
     );
 
     foreach ($licenseTypeList as $licenseType) {
@@ -128,17 +132,17 @@ function getPage($licenseType)
                 <td>
                     <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top:5px;">
                         <?php
-                        $separator = '&nbsp;';
+                        /*$separator = '&nbsp;';
                         $formatPid = substr_replace($trainee['pid'], $separator, 1, 0);
                         $formatPid = substr_replace($formatPid, $separator, 5 + strlen($separator), 0);
                         $formatPid = substr_replace($formatPid, $separator, 10 + 2 * strlen($separator), 0);
-                        $formatPid = substr_replace($formatPid, $separator, 12 + 3 * strlen($separator), 0);
+                        $formatPid = substr_replace($formatPid, $separator, 12 + 3 * strlen($separator), 0);*/
                         ?>
                         <tr>
                             <td width="120px">ชื่อผู้เข้ารับการอบรม</td>
                             <td width="210px" class="txtDash"><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></td>
                             <td width="168px" align="right" style="padding-right: 5px">เลขที่บัตรประจำตัวประชาชน</td>
-                            <td class="txtDash" width="152px"><?= thaiNumDigit($formatPid); ?></td>
+                            <td class="txtDash" width="152px"><?= thaiNumDigit(formatPid($trainee['pid'], '&nbsp;')); ?></td>
                         </tr>
                     </table>
                 </td>
@@ -297,8 +301,8 @@ function getPage($licenseType)
                     </td>
                     <td align="center"></td>
                     <td>
-                        <?= 'นายอิสรานุวัฒน์ ศรีคุณ'; ?><br/>
-                        <?= '๑ ๓๑๑๓ ๐๐๐๓๓ ๒๕ ๓'; ?>
+                        <?= "{$trainee['trainer_title']}{$trainee['trainer_first_name']} {$trainee['trainer_last_name']}"; ?><br/>
+                        <?= thaiNumDigit(formatPid($trainee['trainer_pid'], '&nbsp;')); ?>
                     </td>
                 </tr>
                 <?php
@@ -310,12 +314,24 @@ function getPage($licenseType)
             <tr>
                 <td width="350px"></td>
                 <td width="300px" align="center" style="padding-top: 20px; padding-bottom: 10px">
-                    <img height="50px" src="../uploads/signatures/signature_sample.png"/>
+                    <?php
+                    if ((int)$trainee['show_trainer_signature'] === 1) {
+                        ?>
+                        <img height="50px" src="<?= UPLOAD_DIR_SIGNATURES . $trainee['trainer_signature_image']; ?>"/>
+                        <?php
+                    } else {
+                        ?>
+                        <img height="50px" src="<?= UPLOAD_DIR_SIGNATURES . 'signature_blank.png'; ?>"/>
+                        <?php
+                    }
+                    ?>
                 </td>
             </tr>
             <tr>
                 <td></td>
-                <td align="center">( อาจารย์อิสรานุวัฒน์ ศรีคุณ )</td>
+                <td align="center">
+                    ( อาจารย์<?= "{$trainee['trainer_first_name']} {$trainee['trainer_last_name']}"; ?> )
+                </td>
             </tr>
             <tr>
                 <td></td>

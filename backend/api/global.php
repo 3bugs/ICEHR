@@ -37,6 +37,7 @@ define('UPLOAD_DIR_DOCUMENT_DOWNLOADS', '../uploads/document_downloads/');
 define('UPLOAD_DIR_NEWS_ASSETS', '../uploads/news_assets/');
 define('UPLOAD_DIR_USER_ASSETS', '../uploads/user_assets/');
 define('UPLOAD_DIR_INTRO_ASSETS', '../uploads/intro_assets/');
+define('UPLOAD_DIR_SIGNATURES', '../uploads/signatures/');
 
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');
@@ -208,15 +209,18 @@ define('DL_LICENSE_TYPE_CAR', 1);
 define('DL_LICENSE_TYPE_MOTOR_CYCLE', 2);
 define('DL_LICENSE_TYPE_TRICYCLE', 4);
 
-function userHasPermission($userPermissions, $permissionToCheck) {
+function userHasPermission($userPermissions, $permissionToCheck)
+{
     return (($userPermissions & (1 << $permissionToCheck)) > 0);
 }
 
-function currentUserHasPermission($permissionToCheck) {
+function currentUserHasPermission($permissionToCheck)
+{
     return $_SESSION[KEY_SESSION_USER_ROLE] === 'super_admin' || userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
 }
 
-function getThaiDate($date) {
+function getThaiDate($date)
+{
     global $monthNames, $dayNames;
 
     $dayOfWeek = $dayNames[date_format($date, 'w')];
@@ -228,7 +232,8 @@ function getThaiDate($date) {
 }
 
 // ใช้ในหนังสือรับรองการผ่านการอบรม
-function getThaiDate2($date) {
+function getThaiDate2($date)
+{
     global $monthNames, $dayNames;
 
     $dayOfWeek = $dayNames[date_format($date, 'w')];
@@ -239,7 +244,8 @@ function getThaiDate2($date) {
     return "$dayOfMonth เดือน{$month} พ.ศ. $year";
 }
 
-function getThaiShortDate($date) {
+function getThaiShortDate($date)
+{
     global $monthShortNames;
 
     $dayOfMonth = (int)date_format($date, 'd');
@@ -250,7 +256,8 @@ function getThaiShortDate($date) {
     return "$dayOfMonth $month $year";
 }
 
-function getThaiShortDateWithDayName($date) {
+function getThaiShortDateWithDayName($date)
+{
     global $monthShortNames, $dayShortNames;
 
     $dayOfWeek = $dayShortNames[date_format($date, 'w')];
@@ -262,7 +269,8 @@ function getThaiShortDateWithDayName($date) {
     return "$dayOfWeek $dayOfMonth $month $year";
 }
 
-function getThaiIntervalShortDate($beginDate, $endDate) {
+function getThaiIntervalShortDate($beginDate, $endDate)
+{
     global $monthShortNames;
 
     if ((int)date_format($beginDate, 'm') === (int)date_format($endDate, 'm')) {
@@ -281,7 +289,8 @@ function getThaiIntervalShortDate($beginDate, $endDate) {
     return $output;
 }
 
-function getThaiIntervalShortDate2($beginDate, $endDate) {
+function getThaiIntervalShortDate2($beginDate, $endDate)
+{
     if ($beginDate === $endDate) {
         $output = getThaiShortDate($beginDate);
     } else {
@@ -302,7 +311,38 @@ function thaiNumDigit($num)
     );
 }
 
-function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayName, $isCourseFree) {
+function formatPid($pid, $separator = '-')
+{
+    $formattedPid = substr_replace($pid, $separator, 1, 0);
+    $formattedPid = substr_replace($formattedPid, $separator, 5 + strlen($separator), 0);
+    $formattedPid = substr_replace($formattedPid, $separator, 10 + 2 * strlen($separator), 0);
+    $formattedPid = substr_replace($formattedPid, $separator, 12 + 3 * strlen($separator), 0);
+    return $formattedPid;
+}
+
+function isValidPid($pid)
+{
+    $pid = trim($pid);
+
+    if (strlen($pid) !== 13) {
+        return false;
+    }
+    $rev = strrev($pid); // reverse string ขั้นที่ 0 เตรียมตัว
+    $total = 0;
+    for ($i = 1; $i < 13; $i++) { // ขั้นตอนที่ 1 - เอาเลข 12 หลักมา เขียนแยกหลักกันก่อน
+        $mul = $i + 1;
+        $count = $rev[$i] * $mul; // ขั้นตอนที่ 2 - เอาเลข 12 หลักนั้นมา คูณเข้ากับเลขประจำหลักของมัน
+        $total = $total + $count; // ขั้นตอนที่ 3 - เอาผลคูณทั้ง 12 ตัวมา บวกกันทั้งหมด
+    }
+    $mod = $total % 11; //ขั้นตอนที่ 4 - เอาเลขที่ได้จากขั้นตอนที่ 3 มา mod 11 (หารเอาเศษ)
+    $sub = 11 - $mod; //ขั้นตอนที่ 5 - เอา 11 ตั้ง ลบออกด้วย เลขที่ได้จากขั้นตอนที่ 4
+    $check_digit = $sub % 10; //ถ้าเกิด ลบแล้วได้ออกมาเป็นเลข 2 หลัก ให้เอาเลขในหลักหน่วยมาเป็น Check Digit
+
+    return $rev[0] === $check_digit;  // ตรวจสอบ ค่าที่ได้ กับ เลขตัวสุดท้ายของ บัตรประจำตัวประชาชน
+}
+
+function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayName, $isCourseFree)
+{
     if (!empty($recipientList)) {
         // Create instance of Swift_Attachment with our PDF file
         $attachment = new Swift_Attachment($pdfFileContent, $pdfFileName, 'application/pdf');

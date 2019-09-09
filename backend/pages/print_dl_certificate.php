@@ -11,10 +11,14 @@ if (!isset($traineeId)) {
 }
 $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                cr.sub_district, cr.district, cr.province, cr.phone,
-               cr.course_type, cr.license_type, c.begin_date AS course_date
+               cr.course_type, cr.license_type, c.begin_date AS course_date,
+               t.title AS trainer_title, t.first_name AS trainer_first_name, t.last_name AS trainer_last_name, 
+               t.signature_image AS trainer_signature_image, c.show_trainer_signature
         FROM course_registration_driving_license cr 
             INNER JOIN course c 
                 ON c.id = cr.course_id 
+            INNER JOIN trainer t 
+                ON t.id = c.trainer_id
         WHERE cr.id = $traineeId";
 
 $trainee = null;
@@ -243,13 +247,23 @@ function getPage($licenseType)
             <tr>
                 <td></td>
                 <td align="center" style="padding-top: 20px; padding-bottom: 10px">
-                    <img height="50px" src="../uploads/signatures/signature_sample.png"/>
+                    <?php
+                    if ((int)$trainee['show_trainer_signature'] === 1) {
+                        ?>
+                        <img height="50px" src="<?= UPLOAD_DIR_SIGNATURES . $trainee['trainer_signature_image']; ?>"/>
+                        <?php
+                    } else {
+                        ?>
+                        <img height="50px" src="<?= UPLOAD_DIR_SIGNATURES . 'signature_blank.png'; ?>"/>
+                        <?php
+                    }
+                    ?>
                 </td>
             </tr>
             <tr>
                 <td></td>
                 <td align="center">
-                    ( อาจารย์อิสรานุวัฒน์ ศรีคุณ )
+                    ( อาจารย์<?= "{$trainee['trainer_first_name']} {$trainee['trainer_last_name']}"; ?> )
                 </td>
             </tr>
             <tr>
