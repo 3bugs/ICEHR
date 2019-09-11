@@ -182,7 +182,7 @@ if (isset($trainerId)) {
                                                         </span>
                                                     <input type="text" class="form-control"
                                                            id="inputPid"
-                                                           name="pid"
+                                                           name="pid" maxlength="13"
                                                            value="<?php echo(!empty($trainer) ? $trainer['pid'] : ''); ?>"
                                                            placeholder="กรอกเลขประจำตัวประชาชน" required
                                                            oninvalid="this.setCustomValidity('กรอกเลขประจำตัวประชาชน')"
