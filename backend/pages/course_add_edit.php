@@ -590,7 +590,7 @@ if (isset($courseId)) {
 
                                     <!--ผู้รับผิดชอบโครงการ-->
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-9">
                                             <div class="form-group">
                                                 <label for="selectResponsibleUser">ผู้รับผิดชอบโครงการ:</label>
                                                 <div class="input-group">
@@ -632,7 +632,7 @@ if (isset($courseId)) {
                                     if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
                                         ?>
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-9">
                                                 <div class="form-group">
                                                     <label for="selectTrainer">วิทยากร:</label>
                                                     <div class="input-group">
@@ -678,7 +678,7 @@ if (isset($courseId)) {
                                                         <input type="checkbox"
                                                                name="showTrainerSignature"
                                                                data-toggle="toggle" <?= $check; ?>>
-                                                        แสดงภาพลายเซ็นของวิทยากรในใบบันทึกผลการอบรมและใบรับรองการผ่านการอบรม (ปิดตัวเลือกนี้ หากต้องการให้วิทยากรเซ็นเอง)
+                                                        แสดงภาพลายเซ็นในเอกสารที่ print (ปิดตัวเลือกนี้ หากต้องการให้วิทยากรเซ็นเอง)
                                                     </label>
                                                 </div>
                                             </div>

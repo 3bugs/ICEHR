@@ -41,6 +41,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                            cr.pid_file_name, cr.pid_file_name_2, cr.pid_file_name_3, cr.pid_file_name_4, cr.pid_file_name_5, 
                            cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number,
                            cr.license_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
+                           cr.certificate_number,
                            ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
                     FROM course_registration_driving_license cr 
                         INNER JOIN driving_license_course_type ct 
@@ -106,6 +107,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['subject_2_result'] = $row['subject_2_result'];
             $trainee['subject_3_result'] = $row['subject_3_result'];
             $trainee['subject_4_result'] = $row['subject_4_result'];
+            $trainee['certificate_number'] = (int)$row['certificate_number'];
 
             switch ($trainee['driving_license_course_type_id']) {
                 case 1:
@@ -689,12 +691,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 <select class="form-control" id="selectTraineeTitle" name="traineeTitle">
                                                     <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
                                                     <?php
-/*                                                    foreach ($nameTitleList as $nameTitle) {
-                                                        */?>
-                                                        <option value="<?php /*echo $nameTitle['title']; */?>" <?php /*echo($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); */?>><?php /*echo $nameTitle['title']; */?></option>
+                                            /*                                                    foreach ($nameTitleList as $nameTitle) {
+                                                                                                    */ ?>
+                                                        <option value="<?php /*echo $nameTitle['title']; */ ?>" <?php /*echo($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); */ ?>><?php /*echo $nameTitle['title']; */ ?></option>
                                                         <?php
-/*                                                    }
-                                                    */?>
+                                            /*                                                    }
+                                                                                                */ ?>
                                                 </select>
                                             </div>-->
                                             <!--ชื่อ-->
@@ -993,9 +995,9 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     <div class="form-group col-md-2">
                                         <label for="inputTraineeTitle">คำนำหน้าชื่อ:</label>
                                         <div class="input-group">
-                                                    <!--<span class="input-group-addon">
-                                                        <i class="fa fa-user"></i>
-                                                    </span>-->
+                                            <!--<span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                            </span>-->
                                             <input type="text" class="form-control"
                                                    id="inputTraineeTitle" readonly>
                                         </div>
@@ -1005,12 +1007,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         <select class="form-control" id="selectTraineeTitle" readonly>
                                             <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
                                             <?php
-/*                                            foreach ($nameTitleList as $nameTitle) {
-                                                */?>
-                                                <option value="<?php /*echo $nameTitle['title']; */?>" disabled><?php /*echo $nameTitle['title']; */?></option>
+                                    /*                                            foreach ($nameTitleList as $nameTitle) {
+                                                                                    */ ?>
+                                                <option value="<?php /*echo $nameTitle['title']; */ ?>" disabled><?php /*echo $nameTitle['title']; */ ?></option>
                                                 <?php
-/*                                            }
-                                            */?>
+                                    /*                                            }
+                                                                                */ ?>
                                         </select>
                                     </div>-->
                                     <!--ชื่อ-->
@@ -1492,15 +1494,16 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     <?php echo($resultStatus ? 'สมบูรณ์' : 'ไม่สมบูรณ์'); ?>
                                 </button>
 
-                                <?php
-                                if ($certificateStatus) {
-                                    ?>
-                                    <div style="text-align: center; margin-top: 5px">
-                                        <i class="fa fa-check-square-o"></i>
-                                    </div>
+                                <div style="text-align: center; margin-top: 5px">
                                     <?php
-                                }
-                                ?>
+                                    if ($certificateStatus) {
+                                        ?>
+                                        <i class="fa fa-check-square-o"></i>
+                                        <?php
+                                    }
+                                    ?>
+                                    <span><?= $trainee['certificate_number'] > 0 ? $trainee['certificate_number'] : ''; ?></span>
+                                </div>
 
                                 <input id="inputResultStatus<?= $traineeId; ?>" type="hidden" value="<?= ($resultStatus ? '1' : '0'); ?>"/>
                                 <input id="inputCertificateStatus<?= $traineeId; ?>" type="hidden" value="<?= ($certificateStatus ? '1' : '0'); ?>"/>
@@ -1863,7 +1866,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     return;
                 }
             }
-            window.open(`print_dl_registration_form.php?trainee_id=${traineeId}`, '_blank');
+            window.open(`print_dl_registration_form.php?trainee_id=${traineeId}&payment=1`, '_blank');
         }
 
         function onClickPrintResult(formNumber, traineeId) {
@@ -1877,11 +1880,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
         function onClickPrintCertificate(formNumber, traineeId) {
             if (parseInt($('#inputCertificateStatus' + traineeId).val()) === 0) {
-                if (!confirm(`ผลการอบรมสำหรับใบสมัครเลขที่ ${formNumber} ยังไม่ผ่าน หรือยังกรอกผลไม่ครบ!\n\nยืนยันพิมพ์ใบรับรองการผ่านการอบรม?`)) {
+                /*if (!confirm(`ใบรับรองการผ่านการอบรมยังไม่มีเลขที่! เนื่องจากผลการอบรมสำหรับใบสมัคร ${formNumber} ยังไม่ผ่าน หรือยังกรอกผลไม่ครบ\n\nยืนยันพิมพ์ใบรับรองการผ่านการอบรม?`)) {
                     return;
-                }
+                }*/
+                alert('ไม่สามารถพิมพ์ใบรับรองการผ่านการอบรมได้ เนื่องจากผลการอบรมยังผ่านไม่ครบทุกวิชา');
+            } else {
+                window.open(`print_dl_certificate.php?trainee_id=${traineeId}`, '_blank');
             }
-            window.open(`print_dl_certificate.php?trainee_id=${traineeId}`, '_blank');
         }
 
         function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,

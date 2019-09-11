@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 09, 2019 at 05:19 PM
+-- Generation Time: Sep 11, 2019 at 05:01 PM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -497,6 +497,7 @@ CREATE TABLE `course_registration_driving_license` (
   `subject_4_result` int(11) DEFAULT NULL COMMENT 'ผลการอบรม วิชาที่ 4',
   `paid_amount` decimal(13,2) DEFAULT NULL,
   `receipt_number` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'เลขใบเสร็จ, บัญชีต้องกรอกตอนสั่งพิมพ์ใบเสร็จ',
+  `certificate_number` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -504,31 +505,31 @@ CREATE TABLE `course_registration_driving_license` (
 -- Dumping data for table `course_registration_driving_license`
 --
 
-INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `moo`, `soi`, `road`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `pid_file_name`, `pid_file_name_2`, `pid_file_name_3`, `pid_file_name_4`, `pid_file_name_5`, `course_type`, `license_type`, `register_status`, `doc_status`, `subject_1_result`, `subject_2_result`, `subject_3_result`, `subject_4_result`, `paid_amount`, `receipt_number`, `created_at`) VALUES
-(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', '', '', '', 'ส', 'ส', 'ส', '111', '111', '', NULL, NULL, NULL, NULL, 2, 7, 'complete', 0, 0, 0, 0, 0, '1000.00', NULL, '2019-05-30 07:42:15'),
-(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '1', '1', '', NULL, NULL, NULL, NULL, 1, 1, 'complete', 0, 0, 0, 0, 0, NULL, NULL, '2019-05-30 08:58:58'),
-(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '', '', '', '2', '2', '2', '2', '2', '', NULL, NULL, NULL, NULL, 2, 2, 'complete', 0, 0, 0, 0, 0, NULL, '22222', '2019-05-30 09:03:41'),
-(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '', '', '', '5', '5', '5', '5', '5', '', NULL, NULL, NULL, NULL, 3, 7, 'cancel', 0, 0, 0, 0, 0, NULL, NULL, '2019-05-30 09:54:38'),
-(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', '', '', '', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', '', NULL, NULL, NULL, NULL, 1, 1, 'start', 0, 0, 0, 0, 0, NULL, NULL, '2019-05-31 03:09:27'),
-(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '1', '', NULL, NULL, NULL, NULL, 1, 1, 'complete', 0, 0, 0, 0, 0, '490.00', NULL, '2019-06-15 06:01:01'),
-(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '0850581776', '', NULL, NULL, NULL, NULL, 1, 2, 'complete', 0, 1, 1, 1, 1, '500.00', '11111', '2019-06-16 17:20:36'),
-(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '', '', '', '2', '2', '2', '22222', '0850581776', '', NULL, NULL, NULL, NULL, 1, 4, 'complete', 0, 0, 0, 0, 0, '500.00', '987', '2019-06-16 17:26:25'),
-(9, 'DL-2019-0009', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '99999', '', '', '', '99999', '99999', '99999', '99999', '0850581776', '', NULL, NULL, NULL, NULL, 1, 7, 'start', 1, 1, 0, 1, 1, NULL, NULL, '2019-07-11 08:15:52'),
-(10, 'DL-2019-0010', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '88888', '', '', '', '88888', '88888', '88888', '88888', '0850581776', '1562834704481-ทดสอบทดสอบทดสอบ.jpg', NULL, NULL, NULL, NULL, 2, 2, 'start', 1, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-11 08:45:04'),
-(11, 'DL-2019-0011', 99, 13, 'นาย', 'พร้อมเลิศ123', 'หล่อวิจิตร123', '11111', '33333', '44444', '55555', '66666', '88888', '99999', '00000', '77777', '22222', '1562835268812-ทดสอบทดสอบทดสอบ.jpg', NULL, NULL, NULL, NULL, 2, 4, 'complete', 1, 1, NULL, NULL, NULL, '500.00', '987654', '2019-07-11 08:54:28'),
-(12, 'DL-2019-0012', 0, 13, 'Mr.', 'จิตริณีย์', 'หล่อวิจิตร', '3100501848570', '11/13', '-', 'งามวงศ์วาน 59', 'งามวงศ์วาน', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', NULL, '0869991827', '1563963549448-image_slide_04.jpg', NULL, NULL, NULL, NULL, 1, 7, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:19:09'),
-(13, 'DL-2019-0013', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, '0850581776', '1563964020405-ic_tuktuk.png', NULL, NULL, NULL, NULL, 1, 4, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:27:00'),
-(14, 'DL-2019-0014', 0, 13, 'ส.อ.หญิง', 'b', 'b', '3100600317068', 'b', 'b', 'b', 'b', 'b', 'b', 'b', NULL, 'b', '1563964128368-65506329_2284719714945274_1666976343444684800_n.jpg', NULL, NULL, NULL, NULL, 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:28:48'),
-(15, 'DL-2019-0015', 0, 13, 'ส.อ.หญิง', '9', '9', '3100600317068', '9', '9', '9', '9', '9', '9', '9', NULL, '9', '1563964492371-image_slide_04.jpg', NULL, NULL, NULL, NULL, 1, 1, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:34:52'),
-(16, 'DL-2019-0016', 0, 13, 'Mr.', '7', '7', '3100600317068', '7', '7', '7', '7', '7', '7', '7', NULL, '7', '1563964618691-2787830.jpg', NULL, NULL, NULL, NULL, 1, 1, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:36:58'),
-(17, 'DL-2019-0017', 0, 13, 'ร.ต.หญิง', '8', '8', '3100600317068', '8', '8', '8', '8', '8', '8', '8', NULL, '8', '1563964803561-image_slide_02.jpg', NULL, NULL, NULL, NULL, 3, 4, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:40:03'),
-(18, 'DL-2019-0018', 0, 13, 'ส.อ.หญิง', '0', '0', '3100600317068', '0', '0', '0', '0', '0', '0', '0', NULL, '0', '1564025959173-react-node01.jpeg', NULL, NULL, NULL, NULL, 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-25 03:39:19'),
-(19, 'DL-2019-0019', 0, 16, 'นาย', 'พพพ', 'หหห', '3100600317068', '11/13', '-', 'งงง', 'งงง', 'ลลล', 'จจจ', 'กกก', NULL, '0888888888', '1566896685200-react-node04.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-27 09:04:45'),
-(20, 'DL-2019-0020', 0, 16, 'นาย', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1566899385256-tu.jpg', '1566899385263-android.png', '1566899385266-react-node01.jpeg', NULL, NULL, 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-27 09:49:45'),
-(21, 'DL-2019-0021', 113, 14, 'Miss', 'ณัฐปภัสร์', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, '088-888-8888', '1567072993135-superman.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-29 10:03:13'),
-(22, 'DL-2019-0022', 0, 12, 'hahaha', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567750924961-mission2.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-06 06:22:04'),
-(23, 'DL-2019-0023', 0, 12, 'hahaha', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567750970952-mission2.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-06 06:22:50'),
-(24, 'DL-2019-0024', 0, 12, '666', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567760343451-thailand-south.pdf', '1567760343444-mission1.jpg', '1567760343428-mission2.jpg', NULL, NULL, 1, 3, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-06 08:59:03');
+INSERT INTO `course_registration_driving_license` (`id`, `form_number`, `member_id`, `course_id`, `title`, `first_name`, `last_name`, `pid`, `address`, `moo`, `soi`, `road`, `sub_district`, `district`, `province`, `postal_code`, `phone`, `pid_file_name`, `pid_file_name_2`, `pid_file_name_3`, `pid_file_name_4`, `pid_file_name_5`, `course_type`, `license_type`, `register_status`, `doc_status`, `subject_1_result`, `subject_2_result`, `subject_3_result`, `subject_4_result`, `paid_amount`, `receipt_number`, `certificate_number`, `created_at`) VALUES
+(1, 'DL-2019-0001', 0, 14, 'นางสาว', 'ส', 'ส', '3100600317068', 'ส', '', '', '', 'ส', 'ส', 'ส', '111', '111', '', NULL, NULL, NULL, NULL, 2, 7, 'complete', 0, 0, 0, 0, 0, '1000.00', NULL, NULL, '2019-05-30 07:42:15'),
+(2, 'DL-2019-0002', 0, 14, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '1', '1', '', NULL, NULL, NULL, NULL, 1, 1, 'complete', 0, 0, 0, 0, 0, NULL, NULL, NULL, '2019-05-30 08:58:58'),
+(3, 'DL-2019-0003', 0, 14, 'นาง', '2', '2', '3100600317068', '2', '', '', '', '2', '2', '2', '2', '2', '', NULL, NULL, NULL, NULL, 2, 2, 'complete', 0, 0, 0, 0, 0, NULL, '22222', NULL, '2019-05-30 09:03:41'),
+(4, 'DL-2019-0004', 0, 14, 'นางสาว', '5', '5', '3100600317068', '5', '', '', '', '5', '5', '5', '5', '5', '', NULL, NULL, NULL, NULL, 3, 7, 'cancel', 0, 0, 0, 0, 0, NULL, NULL, NULL, '2019-05-30 09:54:38'),
+(5, 'DL-2019-0005', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '11/13 ซ.วัดเทวสุนทร', '', '', '', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', '10900', '0850581776', '', NULL, NULL, NULL, NULL, 1, 1, 'start', 0, 0, 0, 0, 0, NULL, NULL, NULL, '2019-05-31 03:09:27'),
+(6, 'DL-2019-0006', 0, 13, 'นาย', '1', '1', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '1', '', NULL, NULL, NULL, NULL, 1, 1, 'complete', 0, 0, 0, 0, 0, '490.00', NULL, NULL, '2019-06-15 06:01:01'),
+(7, 'DL-2019-0007', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '1', '', '', '', '1', '1', '1', '11111', '0850581776', '', NULL, NULL, NULL, NULL, 1, 2, 'complete', 0, 1, 1, 1, 1, '500.00', '11111', NULL, '2019-06-16 17:20:36'),
+(8, 'DL-2019-0008', 99, 14, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '2', '', '', '', '2', '2', '2', '22222', '0850581776', '', NULL, NULL, NULL, NULL, 1, 4, 'complete', 0, 0, 0, 0, 0, '500.00', '987', NULL, '2019-06-16 17:26:25'),
+(9, 'DL-2019-0009', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '99999', '', '', '', '99999', '99999', '99999', '99999', '0850581776', '', NULL, NULL, NULL, NULL, 1, 7, 'start', 1, 1, 0, 1, 1, NULL, NULL, NULL, '2019-07-11 08:15:52'),
+(10, 'DL-2019-0010', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', '88888', '', '', '', '88888', '88888', '88888', '88888', '0850581776', '1562834704481-ทดสอบทดสอบทดสอบ.jpg', NULL, NULL, NULL, NULL, 2, 2, 'start', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-11 08:45:04'),
+(11, 'DL-2019-0011', 99, 13, 'นาย', 'พร้อมเลิศ123', 'หล่อวิจิตร123', '11111', '33333', '44444', '55555', '66666', '88888', '99999', '00000', '77777', '22222', '1562835268812-ทดสอบทดสอบทดสอบ.jpg', NULL, NULL, NULL, NULL, 2, 4, 'complete', 1, 1, NULL, NULL, NULL, '500.00', '987654', NULL, '2019-07-11 08:54:28'),
+(12, 'DL-2019-0012', 0, 13, 'Mr.', 'จิตริณีย์', 'หล่อวิจิตร', '3100501848570', '11/13', '-', 'งามวงศ์วาน 59', 'งามวงศ์วาน', 'ลาดยาว', 'จตุจักร', 'กรุงเทพฯ', NULL, '0869991827', '1563963549448-image_slide_04.jpg', NULL, NULL, NULL, NULL, 1, 7, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:19:09'),
+(13, 'DL-2019-0013', 99, 13, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, '0850581776', '1563964020405-ic_tuktuk.png', NULL, NULL, NULL, NULL, 1, 4, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:27:00'),
+(14, 'DL-2019-0014', 0, 13, 'ส.อ.หญิง', 'b', 'b', '3100600317068', 'b', 'b', 'b', 'b', 'b', 'b', 'b', NULL, 'b', '1563964128368-65506329_2284719714945274_1666976343444684800_n.jpg', NULL, NULL, NULL, NULL, 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:28:48'),
+(15, 'DL-2019-0015', 0, 13, 'ส.อ.หญิง', '9', '9', '3100600317068', '9', '9', '9', '9', '9', '9', '9', NULL, '9', '1563964492371-image_slide_04.jpg', NULL, NULL, NULL, NULL, 1, 1, 'start', 0, 1, 1, 1, 1, NULL, NULL, 124, '2019-07-24 10:34:52'),
+(16, 'DL-2019-0016', 0, 13, 'Mr.', '7', '7', '3100600317068', '7', '7', '7', '7', '7', '7', '7', NULL, '7', '1563964618691-2787830.jpg', NULL, NULL, NULL, NULL, 1, 5, 'start', 0, 1, 1, 1, 1, NULL, NULL, NULL, '2019-07-24 10:36:58'),
+(17, 'DL-2019-0017', 0, 13, 'ร.ต.หญิง', '8', '8', '3100600317068', '8', '8', '8', '8', '8', '8', '8', NULL, '8', '1563964803561-image_slide_02.jpg', NULL, NULL, NULL, NULL, 3, 4, 'start', 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-24 10:40:03'),
+(18, 'DL-2019-0018', 0, 13, 'ส.อ.หญิง', '0', '0', '3100600317068', '0', '0', '0', '0', '0', '0', '0', NULL, '0', '1564025959173-react-node01.jpeg', NULL, NULL, NULL, NULL, 2, 2, 'start', 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, '2019-07-25 03:39:19'),
+(19, 'DL-2019-0019', 0, 16, 'นาย', 'พพพ', 'หหห', '3100600317068', '11/13', '-', 'งงง', 'งงง', 'ลลล', 'จจจ', 'กกก', NULL, '0888888888', '1566896685200-react-node04.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-27 09:04:45'),
+(20, 'DL-2019-0020', 0, 16, 'นาย', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1566899385256-tu.jpg', '1566899385263-android.png', '1566899385266-react-node01.jpeg', NULL, NULL, 2, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-27 09:49:45'),
+(21, 'DL-2019-0021', 113, 14, 'Miss', 'ณัฐปภัสร์', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, '088-888-8888', '1567072993135-superman.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-08-29 10:03:13'),
+(22, 'DL-2019-0022', 0, 12, 'hahaha', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567750924961-mission2.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-06 06:22:04'),
+(23, 'DL-2019-0023', 0, 12, 'hahaha', 'a', 'a', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567750970952-mission2.jpg', NULL, NULL, NULL, NULL, 1, 2, 'start', 0, 1, 1, 1, 1, NULL, NULL, 126, '2019-09-06 06:22:50'),
+(24, 'DL-2019-0024', 0, 12, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '3100600317068', 'a', 'a', 'a', 'a', 'a', 'a', 'a', NULL, 'a', '1567760343451-thailand-south.pdf', '1567760343444-mission1.jpg', '1567760343428-mission2.jpg', NULL, NULL, 1, 3, 'start', 0, 1, 1, 1, 1, NULL, NULL, 125, '2019-09-06 08:59:03');
 
 -- --------------------------------------------------------
 

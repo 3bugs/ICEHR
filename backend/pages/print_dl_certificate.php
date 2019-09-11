@@ -10,8 +10,8 @@ if (!isset($traineeId)) {
     exit();
 }
 $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
-               cr.sub_district, cr.district, cr.province, cr.phone,
-               cr.course_type, cr.license_type, c.begin_date AS course_date,
+               cr.sub_district, cr.district, cr.province, cr.phone, cr.course_type, cr.license_type, 
+               cr.certificate_number, c.begin_date AS course_date, YEAR(c.begin_date) + 543 AS course_year,
                t.title AS trainer_title, t.first_name AS trainer_first_name, t.last_name AS trainer_last_name, 
                t.signature_image AS trainer_signature_image, c.show_trainer_signature
         FROM course_registration_driving_license cr 
@@ -117,7 +117,7 @@ function getPage($licenseType)
                     <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
                         <tr>
                             <td width="220px" valign="top" style="padding-top: 110px">
-                                ที่ อว ๖๗.๔๙ / ขสต ๒๕๖๒ / ๙๐๘
+                                ที่ อว ๖๗.๔๙ / ขสต <?= thaiNumDigit($trainee['course_year']); ?> / <?= thaiNumDigit($trainee['certificate_number']); ?>
                             </td>
                             <td width="210px" align="center" valign="top" style="padding-top: 10px">
                                 <img width="120px" src="../images/ic_garuda_emblem.png" border="0"/>
@@ -148,16 +148,10 @@ function getPage($licenseType)
                 <tr>
                     <td width="80px"></td>
                     <td width="250px">หนังสือรับรองฉบับนี้ ออกให้เพื่อแสดงว่า</td>
-                    <td width="320px" align="left" style="font-size: 22px"><strong><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></strong></td>
+                    <td width="320px" align="left" style="font-size: 22px"><?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?></td>
                 </tr>
                 <tr>
                     <?php
-                    $separator = '&nbsp;';
-                    $formatPid = substr_replace($trainee['pid'], $separator, 1, 0);
-                    $formatPid = substr_replace($formatPid, $separator, 5 + strlen($separator), 0);
-                    $formatPid = substr_replace($formatPid, $separator, 10 + 2 * strlen($separator), 0);
-                    $formatPid = substr_replace($formatPid, $separator, 12 + 3 * strlen($separator), 0);
-
                     $address = trim($trainee['address']);
                     $address .= ((trim($trainee['moo']) === '-') || (trim($trainee['moo']) === '') || is_null($trainee['moo'])) ? '' : ' หมู่ ' . trim($trainee['moo']);
                     $address .= ((trim($trainee['soi']) === '-') || (trim($trainee['soi']) === '') || is_null($trainee['soi'])) ? '' : ' ซอย' . trim($trainee['soi']);
@@ -168,7 +162,7 @@ function getPage($licenseType)
 
                     ?>
                     <td colspan="3" align="justify">
-                        เลขประจำตัวประชาชน <?= thaiNumDigit($formatPid); ?>&nbsp;&nbsp;&nbsp;
+                        เลขประจำตัวประชาชน <?= thaiNumDigit(formatPid($trainee['pid'], '&nbsp;')); ?>&nbsp;&nbsp;&nbsp;
                         อยู่บ้านเลขที่ <?= thaiNumDigit($address); ?>
                     </td>
                 </tr>

@@ -222,6 +222,49 @@
                 </li>
 
                 <!--*************************************************************************************************************-->
+                <li class="header" style="color: yellow; text-align: center">รายงาน</li>
+                <!--<li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-mortar-board"></i> <span><?php /*echo SERVICE_TYPE_TRAINING_TEXT; */?></span>
+                        <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li style="margin-left: 20px"><a href="../pages/course_master.php?service_type=<?php /*echo SERVICE_TYPE_TRAINING; */?>"><i class="fa fa-font"></i>ชื่อหลักสูตร</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/data_table.php?table_name=training_course_category"><i class="fa fa-reorder"></i>หมวดหมู่หลักสูตร</a></li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-male"></i> <span><?php /*echo SERVICE_TYPE_SOCIAL_TEXT; */?></span>
+                        <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li style="margin-left: 20px"><a href="../pages/course_master.php?service_type=<?php /*echo SERVICE_TYPE_SOCIAL; */?>"><i class="fa fa-font"></i>ชื่อหลักสูตร</a></li>
+                    </ul>
+                </li>-->
+                <!--<li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-car"></i> <span><?php /*echo SERVICE_TYPE_DRIVING_LICENSE_TEXT; */?></span>
+                        <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li style="margin-left: 20px"><a href="../pages/report.php"><i class="fa fa-print"></i>สรุปผู้เข้ารับการอบรม</a></li>
+                    </ul>
+                </li>-->
+
+                <li>
+                    <a href="../pages/report.php">
+                        <i class="fa fa-print"></i>รายงาน
+                    </a>
+                </li>
+
+                <!--*************************************************************************************************************-->
                 <li class="header" style="color: yellow; text-align: center">ข้อมูลพื้นฐาน</li>
                 <li class="treeview">
                     <a href="#">

@@ -5,6 +5,8 @@ define('HOST_FRONTEND', 'http://localhost:3000');
 //define('HOST_FRONTEND', 'http://www2.icehr.tu.ac.th:3000');
 //define('HOST_FRONTEND', 'http://203.131.219.11:3000');
 
+define('MAX_CERT_NUMBER', 123);
+
 define('SECRET_KEY', 'icehr_and_2fellows');
 define('FOLDER_UPLOAD_INFO', '../files/info/');
 define('FOLDER_UPLOAD_PARTY', '../files/party/');
@@ -208,6 +210,9 @@ $dayShortNames = array(
 define('DL_LICENSE_TYPE_CAR', 1);
 define('DL_LICENSE_TYPE_MOTOR_CYCLE', 2);
 define('DL_LICENSE_TYPE_TRICYCLE', 4);
+define('DL_LICENSE_TYPE_CAR_TEXT', 'รถยนต์ส่วนบุคคล');
+define('DL_LICENSE_TYPE_MOTOR_CYCLE_TEXT', 'รถจักรยานยนต์ส่วนบุคคล');
+define('DL_LICENSE_TYPE_TRICYCLE_TEXT', 'รถสามล้อส่วนบุคคล');
 
 function userHasPermission($userPermissions, $permissionToCheck)
 {

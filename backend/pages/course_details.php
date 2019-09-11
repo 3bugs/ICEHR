@@ -7,7 +7,7 @@ $course = array();
 if (isset($courseId)) {
     $courseId = $db->real_escape_string($courseId);
     $sql = "SELECT c.course_master_id, c.batch_number, c.details, c.trainee_limit, c.application_fee, 
-                   c.place, c.begin_date, c.end_date, c.responsible_user_id, cm.service_type
+                   c.place, c.begin_date, c.end_date, c.responsible_user_id, c.trainer_id, cm.service_type
             FROM course c 
                 INNER JOIN course_master cm 
                     ON c.course_master_id = cm.id 
@@ -25,6 +25,7 @@ if (isset($courseId)) {
             $course['begin_date'] = $row['begin_date'];
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
+            $course['trainer_id'] = (int)$row['trainer_id'];
             $course['service_type'] = $row['service_type'];
         }
         $result->close();
@@ -74,6 +75,22 @@ if ($result = $db->query($sql)) {
     echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
     $db->close();
     exit();
+}
+
+$trainerList = array();
+if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
+    $sql = "SELECT * FROM trainer";
+    if ($result = $db->query($sql)) {
+        //$trainerList = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($trainerList, $row);
+        }
+        $result->close();
+    } else {
+        echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+        $db->close();
+        exit();
+    }
 }
 
 /*$sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, ct.created_at, ct.register_status, ct.course_registration_id,
@@ -448,7 +465,7 @@ if ($result = $db->query($sql)) {
 
                                 <!--สถานที่อบรม-->
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-9">
                                         <div class="form-group">
                                             <label for="inputPlace">สถานที่อบรม:</label>
                                             <div class="input-group">
@@ -469,7 +486,7 @@ if ($result = $db->query($sql)) {
 
                                 <!--ผู้รับผิดชอบโครงการ-->
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-9">
                                         <div class="form-group">
                                             <label for="selectResponsibleUser">ผู้รับผิดชอบโครงการ:</label>
                                             <div class="input-group">
@@ -506,6 +523,51 @@ if ($result = $db->query($sql)) {
                                     </div>
                                 </div>
 
+                                <!--วิทยากร-->
+                                <?php
+                                if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
+                                    ?>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="selectTrainer">วิทยากร:</label>
+                                                <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-user"></i>
+                                                </span>
+                                                    <select id="selectTrainer" class="form-control" required
+                                                            name="trainerId" disabled
+                                                            oninvalid="this.setCustomValidity('เลือกวิทยากร')"
+                                                            oninput="this.setCustomValidity('')">
+                                                        <option value="" disabled selected>-- เลือกวิทยากร --</option>
+                                                        <?php
+                                                        foreach ($trainerList as $trainer) {
+                                                            $trainerId = (int)$trainer['id'];
+                                                            $trainerFirstName = $trainer['first_name'];
+                                                            $trainerLastName = $trainer['last_name'];
+                                                            $trainerPid = formatPid($trainer['pid']);
+                                                            $trainerEmail = $trainer['email'];
+                                                            $trainerPhone = $trainer['phone'];
+
+                                                            $selected = '';
+                                                            if (!empty($course) && ($course['trainer_id'] === $trainerId)) {
+                                                                $selected = 'selected';
+                                                            }
+                                                            ?>
+                                                            <option value="<?php echo $trainerId; ?>" <?php echo $selected; ?>>
+                                                                <?php echo "$trainerFirstName $trainerLastName  |  $trainerPid  |  $trainerEmail  |  $trainerPhone"; ?>
+                                                            </option>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <!-- /.box-body -->
                         </div>

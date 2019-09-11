@@ -897,7 +897,8 @@ function doUpdateIntroStatus()
     }
 }
 
-function reArrangeIntroSortIndex($type) {
+function reArrangeIntroSortIndex($type)
+{
     global $db;
 
     $sql = "SELECT id FROM intro WHERE type = '$type' AND sort_index IS NOT NULL ORDER BY sort_index";
@@ -1016,7 +1017,8 @@ function doSortUser()
     $response[KEY_ERROR_MESSAGE_MORE] = '';
 }
 
-function doGetUserByDepartment() {
+function doGetUserByDepartment()
+{
     global $db, $response;
 
     $departmentId = $db->real_escape_string($_POST['departmentId']);
@@ -2505,14 +2507,85 @@ function doSaveDrivingLicenseCourseResult()
             WHERE id = $traineeId ";
 
     if ($result = $db->query($sql)) {
-        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        /*$response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ';
-        $response[KEY_ERROR_MESSAGE_MORE] = '';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';*/
+
+        generateCertificateNumber($traineeId);
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกผลการอบรม';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function generateCertificateNumber($traineeId)
+{
+    global $db, $response;
+
+    $sql = "SELECT cr.course_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
+                   cr.certificate_number, YEAR(c.begin_date) AS course_year
+            FROM course_registration_driving_license cr 
+                INNER JOIN course c 
+                    ON c.id = cr.course_id
+            WHERE cr.id = $traineeId";
+    if ($result = $db->query($sql)) {
+        $row = $result->fetch_assoc();
+        $result->close();
+
+        $courseType = (int)$row['course_type'];
+        $courseYear = $row['course_year'];
+        $certNumber = $row['certificate_number'];
+        $pass = false;
+        switch ($courseType) {
+            case 1:
+                $pass = $row['subject_1_result'] && $row['subject_2_result'] && $row['subject_3_result'] && $row['subject_4_result'];
+                break;
+            case 2:
+            case 3:
+                $pass = $row['subject_1_result'];
+                break;
+        }
+
+        if ($pass && ($certNumber == null)) {
+            $sql = "SELECT MAX(cr.certificate_number) AS max_certificate_number
+                    FROM course_registration_driving_license cr 
+                        INNER JOIN course c 
+                            ON c.id = cr.course_id
+                    WHERE YEAR(c.begin_date) = $courseYear";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+                $maxCertNumber = $row['max_certificate_number'];
+                $result->close();
+
+                $nextCertNumber = $maxCertNumber == null ? MAX_CERT_NUMBER + 1 : $maxCertNumber + 1;
+                $sql = "UPDATE course_registration_driving_license 
+                        SET certificate_number = $nextCertNumber 
+                        WHERE id = $traineeId";
+                if ($db->query($sql)) {
+                    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+                    $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ';
+                    $response[KEY_ERROR_MESSAGE_MORE] = '';
+                } else {
+                    $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                    $response[KEY_ERROR_MESSAGE] = ' แต่เกิดข้อผิดพลาดในการออกเลขที่หนังสือรับรองการผ่านการอบรม (3): ' . $db->error;
+                    $response[KEY_ERROR_MESSAGE_MORE] = '';
+                }
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $response[KEY_ERROR_MESSAGE] = ' แต่เกิดข้อผิดพลาดในการออกเลขที่หนังสือรับรองการผ่านการอบรม (2): ' . $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+            }
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ แต่เกิดข้อผิดพลาดในการออกเลขที่หนังสือรับรองการผ่านการอบรม (1): '. $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
     }
 }
 
