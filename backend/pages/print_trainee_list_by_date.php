@@ -29,7 +29,7 @@ if ($result = $db->query($sql)) {
         }
         $result->close();
     } else {
-        echo 'Error: ไม่มีข้อมูลผู้เข้ารับการอบรมในช่วงเวลาที่เลือก';
+        echo 'ไม่มีข้อมูลผู้เข้ารับการอบรมในช่วงเวลาที่เลือก';
         $result->close();
         $db->close();
         exit();

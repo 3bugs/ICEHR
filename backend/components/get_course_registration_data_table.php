@@ -531,8 +531,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                 </div>
                                                 <!--วัน/เวลาที่แจ้ง-->
                                                 <div class="form-group col-md-6">
-                                                    <label for="inputNotificationDateTime">แจ้งเมื่อ: <span
-                                                                style="color: orangered; font-weight: normal">(วันเวลาที่แจ้ง ไม่ใช่วันเวลาที่โอน)</span></label>
+                                                    <label for="inputNotificationDateTime">วันเวลาที่ส่งหลักฐาน:
+                                                        <span style="color: orangered; font-weight: normal; display: none">
+                                                            (วันเวลาที่แจ้ง ไม่ใช่วันเวลาที่โอน)
+                                                        </span>
+                                                    </label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-clock-o"></i>
@@ -581,7 +584,25 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                                             <div class="row" style="margin-top: 10px">
                                                 <div class="col-md-12" style="text-align: center">
-                                                    <img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>
+                                                    <!--<img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>-->
+
+                                                    <p style="text-align: center">
+                                                        <span style="color: orangered">เมื่อคลิก PDF จะแสดงในหน้าจอใหม่</span>
+                                                    </p>
+                                                    <?php
+                                                    $thumbnailSize = 150;
+                                                    ?>
+                                                    <a href="#" data-lightbox="slipImage" data-title="">
+                                                        <img id="imgPaymentSlip" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/>
+                                                    </a>&nbsp;
+                                                    <a href="#" data-lightbox="slipImage" data-title="">
+                                                        <img id="imgPaymentSlip2" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                    <a href="#" data-lightbox="slipImage" data-title="">
+                                                        <img id="imgPaymentSlip3" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                    <a href="#" data-lightbox="slipImage" data-title="">
+                                                        <img id="imgPaymentSlip4" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
+                                                    <a href="#" data-lightbox="slipImage" data-title="">
+                                                        <img id="imgPaymentSlip5" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -1947,7 +1968,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 noDocAlert.hide();
                 imgPid.attr('src', getFileExtension(pidFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName);
                 imgPid.parent().attr('href', getFileExtension(pidFileName) === 'pdf' ? '../uploads/slip_images/' + pidFileName : '../uploads/slip_images/' + pidFileName);
-                setAttributes(getFileExtension(pidFileName) === 'pdf', imgPid.parent());
+                setAttributes(getFileExtension(pidFileName) === 'pdf', imgPid.parent(), 'pidImage');
 
                 if (pidFileName2 === '') {
                     imgPid2.parent().attr('href', '../images/ic_no_image.png');
@@ -1956,7 +1977,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 } else {
                     imgPid2.attr('src', getFileExtension(pidFileName2) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName2);
                     imgPid2.parent().attr('href', getFileExtension(pidFileName2) === 'pdf' ? '../uploads/slip_images/' + pidFileName2 : '../uploads/slip_images/' + pidFileName2);
-                    setAttributes(getFileExtension(pidFileName2) === 'pdf', imgPid2.parent());
+                    setAttributes(getFileExtension(pidFileName2) === 'pdf', imgPid2.parent(), 'pidImage');
                     imgPid2.show();
                 }
                 if (pidFileName3 === '') {
@@ -1966,7 +1987,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 } else {
                     imgPid3.attr('src', getFileExtension(pidFileName3) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName3);
                     imgPid3.parent().attr('href', getFileExtension(pidFileName3) === 'pdf' ? '../uploads/slip_images/' + pidFileName3 : '../uploads/slip_images/' + pidFileName3);
-                    setAttributes(getFileExtension(pidFileName3) === 'pdf', imgPid3.parent());
+                    setAttributes(getFileExtension(pidFileName3) === 'pdf', imgPid3.parent(), 'pidImage');
                     imgPid3.show();
                 }
                 if (pidFileName4 === '') {
@@ -1976,7 +1997,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 } else {
                     imgPid4.attr('src', getFileExtension(pidFileName4) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName4);
                     imgPid4.parent().attr('href', getFileExtension(pidFileName4) === 'pdf' ? '../uploads/slip_images/' + pidFileName4 : '../uploads/slip_images/' + pidFileName4);
-                    setAttributes(getFileExtension(pidFileName4) === 'pdf', imgPid4.parent());
+                    setAttributes(getFileExtension(pidFileName4) === 'pdf', imgPid4.parent(), 'pidImage');
                     imgPid4.show();
                 }
                 if (pidFileName5 === '') {
@@ -1986,7 +2007,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 } else {
                     imgPid5.attr('src', getFileExtension(pidFileName5) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName5);
                     imgPid5.parent().attr('href', getFileExtension(pidFileName5) === 'pdf' ? '../uploads/slip_images/' + pidFileName5 : '../uploads/slip_images/' + pidFileName5);
-                    setAttributes(getFileExtension(pidFileName5) === 'pdf', imgPid5.parent());
+                    setAttributes(getFileExtension(pidFileName5) === 'pdf', imgPid5.parent(), 'pidImage');
                     imgPid5.show();
                 }
             }
@@ -2000,12 +2021,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             return fileName.substring(dotIndex + 1).toLowerCase();
         }
 
-        function setAttributes(isPdf, anchorElement) {
+        function setAttributes(isPdf, anchorElement, lightBoxTag) {
             if (isPdf) {
                 anchorElement.removeAttr('data-lightbox');
                 anchorElement.attr('target', '_blank');
             } else {
-                anchorElement.attr('data-lightbox', 'pidImage');
+                anchorElement.attr('data-lightbox', lightBoxTag);
             }
         }
 
@@ -2402,7 +2423,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         const inputMemberPhone = $('#manageRegisterStatusModal #inputMemberPhone');
                         const inputMemberEmail = $('#manageRegisterStatusModal #inputMemberEmail');
                         const inputAmount = $('#manageRegisterStatusModal #inputAmount');
-                        const imgPaymentSlip = $('#imgPaymentSlip');
+                        const imgPaymentSlip = $('#manageRegisterStatusModal #imgPaymentSlip');
+                        const imgPaymentSlip2 = $('#manageRegisterStatusModal #imgPaymentSlip2');
+                        const imgPaymentSlip3 = $('#manageRegisterStatusModal #imgPaymentSlip3');
+                        const imgPaymentSlip4 = $('#manageRegisterStatusModal #imgPaymentSlip4');
+                        const imgPaymentSlip5 = $('#manageRegisterStatusModal #imgPaymentSlip5');
 
                         if (member.id === 0) { // user ไม่ได้ login
                             inputMemberName.val('ผู้ใช้ไม่ได้ login');
@@ -2417,7 +2442,63 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                         inputNotificationDateTime.val(`${notification_date_format}  •  ${notification_time_format}`);
                         inputAmount.val(amount);
-                        imgPaymentSlip.attr('src', '../uploads/slip_images/' + slip_file_name);
+
+                        imgPaymentSlip.parent().attr('href', '../images/ic_no_image.png');
+                        imgPaymentSlip.parent().removeAttr('data-lightbox');
+                        imgPaymentSlip.hide();
+                        imgPaymentSlip2.parent().attr('href', '../images/ic_no_image.png');
+                        imgPaymentSlip2.parent().removeAttr('data-lightbox');
+                        imgPaymentSlip2.hide();
+                        imgPaymentSlip3.parent().attr('href', '../images/ic_no_image.png');
+                        imgPaymentSlip3.parent().removeAttr('data-lightbox');
+                        imgPaymentSlip3.hide();
+                        imgPaymentSlip4.parent().attr('href', '../images/ic_no_image.png');
+                        imgPaymentSlip4.parent().removeAttr('data-lightbox');
+                        imgPaymentSlip4.hide();
+                        imgPaymentSlip5.parent().attr('href', '../images/ic_no_image.png');
+                        imgPaymentSlip5.parent().removeAttr('data-lightbox');
+                        imgPaymentSlip5.hide();
+
+                        for (let i = 0; i < data.data_list.length; i++) {
+                            const slipFileName = data.data_list[i].slip_file_name;
+
+                            switch (i) {
+                                case 0:
+                                    /*imgPaymentSlip.attr('src', '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip.show();*/
+
+                                    imgPaymentSlip.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+                                    setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip.parent(), 'slipImage');
+                                    imgPaymentSlip.show();
+                                    break;
+                                case 1:
+                                    imgPaymentSlip2.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip2.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+                                    setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip2.parent(), 'slipImage');
+                                    imgPaymentSlip2.show();
+                                    break;
+                                case 2:
+                                    imgPaymentSlip3.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip3.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+                                    setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip3.parent(), 'slipImage');
+                                    imgPaymentSlip3.show();
+                                    break;
+                                case 3:
+                                    imgPaymentSlip4.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip4.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+                                    setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip4.parent(), 'slipImage');
+                                    imgPaymentSlip4.show();
+                                    break;
+                                case 4:
+                                    imgPaymentSlip5.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+                                    imgPaymentSlip5.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+                                    setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip5.parent(), 'slipImage');
+                                    imgPaymentSlip5.show();
+                                    break;
+                            }
+                        }
+                        //imgPaymentSlip.attr('src', '../uploads/slip_images/' + slip_file_name);
 
                         paymentNotificationDetails.show();
                     } else {

@@ -128,10 +128,11 @@ require_once '../include/head_php.inc';
                                                             oninput="this.setCustomValidity('')">
                                                         <option value="" disabled selected>-- เลือกปี --</option>
                                                         <?php
-                                                        for ($i = 2019; $i < 2030; $i++) {
+                                                        $currentYear = (int)date("Y");
+                                                        for ($i = $currentYear - 5; $i <= $currentYear; $i++) {
                                                             $beYear = $i + 543;
                                                             ?>
-                                                            <option value="<?= $i; ?>"><?= $i . "&nbsp;&nbsp;(พ.ศ. $beYear)"; ?></option>
+                                                            <option value="<?= $i; ?>" <?= $i === $currentYear ? 'selected' : ''; ?>><?= $i . "&nbsp;&nbsp;(พ.ศ. $beYear)"; ?></option>
                                                             <?php
                                                         }
                                                         ?>

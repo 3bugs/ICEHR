@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import ErrorLabel from '../components/ErrorLabel';
 import {scroller} from "react-scroll/modules";
 import Dialog from "../components/Dialog";
+import Dropzone from 'react-dropzone';
 
 export default class UploadSlip extends React.Component {
     constructor(props, context) {
@@ -16,8 +17,11 @@ export default class UploadSlip extends React.Component {
             inputFormNumber: '',
             traineeFormData: null,
             errorMessage: null,
-            fields: {},
+            fields: {
+            },
             errors: {},
+            fileList: [],
+            fileDataUrlList: [],
             dialog: {
                 isOpen: false,
                 message: '',
@@ -100,7 +104,7 @@ export default class UploadSlip extends React.Component {
 
     validateForm = () => {
         let formIsValid = true;
-        const {fields} = this.state;
+        const {fields, fileList} = this.state;
         const errors = {};
 
         if (!fields.amount) {
@@ -114,8 +118,12 @@ export default class UploadSlip extends React.Component {
             errors.transferDate = 'กรุณาระบุวันที่โอนเงิน';
             formIsValid = false;
         }
-        if (!fields.selectedFile) {
+        /*if (!fields.selectedFile) {
             errors.selectedFile = 'กรุณาเลือกไฟล์รูปภาพ Slip';
+            formIsValid = false;
+        }*/
+        if (fileList.length === 0) {
+            errors.uploadFile = 'กรุณาแนบสลิปหลักฐานการโอนเงินอย่างน้อย 1 ไฟล์';
             formIsValid = false;
         }
 
@@ -125,14 +133,17 @@ export default class UploadSlip extends React.Component {
 
     doSubmitTransferNotification = e => {
         const user = getLoginUser();
-        const {fields, traineeFormData} = this.state;
+        const {fields, traineeFormData, fileList} = this.state;
         const formData = new FormData();
         formData.append('formNumber', traineeFormData.formNumber); //ส่ง form number เพื่อไปแยกประเภท service
         formData.append('memberId', user ? user.id : 0);
         formData.append('traineeId', traineeFormData.trainee.id);
         formData.append('amount', fields.amount);
         formData.append('transferDate', getDateFormatFromDateObject(fields.transferDate));
-        formData.append('file', fields.selectedFile);
+        //formData.append('file', fields.selectedFile);
+        for (let i = 0; i < fileList.length; i++) {
+            formData.append('file', fileList[i]);
+        }
 
         fetch('/api/add_transfer_notification', {
             method: 'post',
@@ -150,6 +161,8 @@ export default class UploadSlip extends React.Component {
                             errorMessage: null,
                             fields: {},
                             errors: {},
+                            fileList: [],
+                            fileDataUrlList: [],
                         });
                     });
                 } else {
@@ -188,8 +201,56 @@ export default class UploadSlip extends React.Component {
         this.setState({dialog});
     };
 
+    handleDropFiles = acceptedFiles => {
+        console.log(acceptedFiles);
+
+        const count = this.state.fileDataUrlList.length + acceptedFiles.length;
+        if (count > 5) {
+            alert('เลือกไฟล์ได้สูงสุดไม่เกิน 5 ไฟล์');
+            return;
+        }
+
+        acceptedFiles.forEach(file => {
+            const {fileList} = this.state;
+            fileList.push(file);
+            this.setState({fileList});
+
+            const reader = new FileReader();
+            reader.onabort = () => console.log('file reading was aborted');
+            reader.onerror = () => console.log('file reading has failed');
+            reader.onload = () => {
+                // Do whatever you want with the file contents
+                //console.log(reader);
+                const fileUrl = reader.result; // Base64 data
+                console.log('URL คือ ' + fileUrl);
+
+                const {fileDataUrlList} = this.state;
+                fileDataUrlList.push(fileUrl);
+                this.setState({fileDataUrlList});
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    handleRejectedFiles = rejectedFiles => {
+        let msg = '';
+        rejectedFiles.forEach(file => {
+            msg = msg.concat(`- ${file.name}\n`);
+        });
+
+        alert(`ผิดพลาด: ไฟล์ดังรายชื่อต่อไปนี้มีขนาดใหญ่เกินไป หรือเป็นประเภทไฟล์ที่ไม่รองรับ\n\n${msg}\n*รองรับรูปภาพ, PDF เท่านั้น และขนาดแต่ละไฟล์ต้องไม่เกิน 1 MB`);
+    };
+
+    handleClickFilePreview = (index, e) => {
+        e.stopPropagation();
+        const {fileDataUrlList, fileList} = this.state;
+        fileDataUrlList.splice(index, 1);
+        fileList.splice(index, 1);
+        this.setState({fileDataUrlList, fileList});
+    };
+
     render() {
-        const {traineeFormData, errorMessage, fields, errors, dialog} = this.state;
+        const {traineeFormData, errorMessage, fields, errors, dialog, fileList, fileDataUrlList} = this.state;
 
         return (
             <MainLayout>
@@ -312,37 +373,98 @@ export default class UploadSlip extends React.Component {
                                 </div>
                                 <div className="row text-default mt-2">
                                     <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                        รูปภาพใบสลิปโอนเงิน<br/><span className="smsize">* ขนาดไฟล์ไม่เกิน 5 MB</span>
+                                        ใบสลิปหลักฐานการโอนเงิน<br/><span className="smsize">* ขนาดแต่ละไฟล์ไม่เกิน 1 MB</span>
                                     </div>
                                     <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                        <div>
-                                            {/*<label htmlFor="file-upload" className="custom-file-upload">
-                                                <i className="fa fa-upload"></i>&nbsp;&nbsp;เลือกไฟล์
-                                            </label>
-                                            <input id="file-upload" type="file"/>
-                                            <div style={{marginTop: '10px'}}>
-                                                <img src="../images/image-test.png" style={{width: '200px', margin: '0 0 10px 10px'}}/>
-                                            </div>*/}
 
-                                            <div className="row">
-                                                <div className="col-md-9">
-                                                    {/*<form method="post" action="#" id="#">*/}
-                                                        <div className="form-group files" style={{margin: 0}}>
-                                                            <input type="file" name="file"
-                                                                   accept="image/*"
-                                                                   onChange={this.handleInputFileChange}
-                                                                   className="form-control" multiple=""/>
-                                                            {fields.selectedFile &&
-                                                            <img src={fields.selectedFile ? URL.createObjectURL(fields.selectedFile) : null}
-                                                                 style={{position: 'absolute', width: '100px', top: '20px', left: '20px'}}/>
+                                        {<Dropzone onDrop={this.handleDropFiles}
+                                                   onDropRejected={this.handleRejectedFiles}
+                                                   accept="image/jpeg, image/png, application/pdf"
+                                                   minSize={0}
+                                                   maxSize={1048576}>
+                                            {({getRootProps, getInputProps}) => (
+                                                <section>
+                                                    <div {...getRootProps()}
+                                                         id="fileDocument"
+                                                         className="form-control">
+                                                        <input {...getInputProps()}/>
+                                                        <div>
+                                                            {fileDataUrlList.length === 0 &&
+                                                            <div>
+                                                                {'กดเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยที่นี่'}<br/>
+                                                                {'(ไม่เกิน 5 ไฟล์, รองรับรูปภาพและ PDF, ขนาดแต่ละไฟล์ไม่เกิน 1 MB)'}<br/>
+                                                            </div>
+                                                            }
+                                                            {fileDataUrlList.length !== 0 &&
+                                                            <div>
+                                                                {'กดที่รูปเพื่อลบ หรือกดที่พื้นที่ว่างหรือลากไฟล์มาปล่อยเพื่อเพิ่มไฟล์'}<br/>
+                                                                {'Click image to remove, or drop another files to add more files.'}
+                                                            </div>
                                                             }
                                                         </div>
-                                                        <ErrorLabel
-                                                            value={errors.selectedFile}/>
-                                                    {/*</form>*/}
+                                                        {
+                                                            fileDataUrlList.map((fileData, index) => {
+                                                                if (fileData.indexOf('data:application/pdf') !== -1) {
+                                                                    return (
+                                                                        <div>
+                                                                            <div className="preview-container">
+                                                                                <img className="preview-image"
+                                                                                     src="/static/images/pdf.png"
+                                                                                     style={{width: '80px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                                <div className="middle"
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                    <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <span>{fileList[index].name}</span>
+                                                                        </div>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <div>
+                                                                            <div className="preview-container">
+                                                                                <img className="preview-image"
+                                                                                     src={fileData}
+                                                                                     style={{width: '150px', margin: '5px', padding: '3px', border: '1px solid #ccc'}}
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}/>
+                                                                                <div className="middle"
+                                                                                     onClick={this.handleClickFilePreview.bind(this, index)}>
+                                                                                    <i className="fa fa-times-circle" style={{color: '#3c0000'}}/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <span>{fileList[index].name}</span>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            })
+                                                        }
+                                                    </div>
+                                                </section>
+                                            )}
+                                        </Dropzone>}
+                                        <ErrorLabel
+                                            value={errors.uploadFile}/>
+
+                                        {/*<div>
+                                            <div className="row">
+                                                <div className="col-md-9">
+                                                    <div className="form-group files" style={{margin: 0}}>
+                                                        <input type="file" name="file"
+                                                               accept="image/*"
+                                                               onChange={this.handleInputFileChange}
+                                                               className="form-control" multiple=""/>
+                                                        {fields.selectedFile &&
+                                                        <img src={fields.selectedFile ? URL.createObjectURL(fields.selectedFile) : null}
+                                                             style={{position: 'absolute', width: '100px', top: '20px', left: '20px'}}/>
+                                                        }
+                                                    </div>
+                                                    <ErrorLabel
+                                                        value={errors.selectedFile}/>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>*/}
+
                                     </div>
                                 </div>
 
@@ -373,6 +495,59 @@ export default class UploadSlip extends React.Component {
                         onCloseCallback={dialog.onCloseCallback}/>
 
                 <style jsx>{`
+                    .preview-container {
+                        position: relative;
+                        display: inline;
+                    }
+                    .preview-container img {
+                        opacity: 1;
+                        transition: .3s ease;
+                    }
+                    .preview-container:hover img {
+                        opacity: 0.3;
+                        transition: .3s ease;
+                    }
+                    .middle {
+                        transition: .3s ease;
+                        opacity: 0;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        -ms-transform: translate(-50%, -50%);
+                        text-align: center;
+                    }
+                    .preview-container:hover .middle {
+                        opacity: 1;
+                        transition: .3s ease;
+                    }
+                    #fileDocument  {
+                        outline: 2px dashed #92b0b3;
+                        outline-offset: -10px;
+                        -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                        padding: 100px 0 30px;
+                        text-align: center !important;
+                        margin: 0;
+                        width: 100% !important;
+                        cursor: pointer;
+                    }
+                    #fileDocument:after {  
+                        pointer-events: none;
+                        position: absolute;
+                        top: 40px;
+                        left: 0;
+                        width: 50px;
+                        right: 0;
+                        height: 56px;
+                        content: "";
+                        background-image: url(https://image.flaticon.com/icons/png/128/109/109612.png);
+                        display: block;
+                        margin: 0 auto;
+                        background-size: 100%;
+                        background-repeat: no-repeat;
+                    }
+
                     .files input {
                         outline: 2px dashed #92b0b3;
                         outline-offset: -10px;

@@ -1661,7 +1661,7 @@ const slipImageStorage = multer.diskStorage({
     }
 });
 
-const uploadSlipImage = multer({storage: slipImageStorage}).single('file');
+const uploadSlipImage = multer({storage: slipImageStorage}).array('file', 5);
 
 doAddTransferNotification = (req, res, db) => {
     uploadSlipImage(req, res, function (err) {
@@ -1708,12 +1708,30 @@ doAddTransferNotification = (req, res, db) => {
             : (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE // DL
                 ? constants.SERVICE_DRIVING_LICENSE
                 : null);*/
-        const {filename} = req.file;
+
+        //const {filename} = req.file;
+
+        let valuePlaceHolders = '';
+        const valueList = [];
+        for (let i = 0; i < req.files.length; i++) {
+            if (i !== 0) {
+                valuePlaceHolders += ',';
+            }
+            valuePlaceHolders += '(?, ?, ?, ?, ?, ?)';
+
+            valueList.push(memberId);
+            valueList.push(traineeId);
+            valueList.push(serviceType);
+            valueList.push(amount);
+            valueList.push(transferDate);
+            valueList.push(req.files[i].filename);
+        }
+
         db.query(
                 `INSERT INTO payment_notification
                      (member_id, trainee_id, service_type, amount, transfer_date, slip_file_name)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-            [memberId, traineeId, serviceType, amount, transferDate, filename],
+                 VALUES ${valuePlaceHolders}`,
+            valueList,
             function (err, results, fields) {
                 if (err) {
                     res.send({
@@ -1732,7 +1750,7 @@ doAddTransferNotification = (req, res, db) => {
                             } else {
                                 res.send({
                                     error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
-                                    debug: `ชื่อไฟล์ ${filename}, ยอดโอน ${amount} บาท, โอนเมื่อ ${transferDate}`,
+                                    //debug: `ชื่อไฟล์ ${filename}, ยอดโอน ${amount} บาท, โอนเมื่อ ${transferDate}`,
                                 });
                             }
                         }
