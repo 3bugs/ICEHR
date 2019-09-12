@@ -81,8 +81,14 @@ switch ($action) {
     case 'get_payment_notification':
         doGetPaymentNotification();
         break;
+    case 'update_in_house':
+        doUpdateInHouse();
+        break;
     case 'update_in_house_status':
         doUpdateInHouseStatus();
+        break;
+    case 'delete_in_house':
+        doDeleteInHouse();
         break;
     case 'add_academic_paper':
         doAddAcademicPaper();
@@ -1552,6 +1558,42 @@ function doGetPaymentNotification()
     }
 }
 
+function doUpdateInHouse()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    $email = $db->real_escape_string($_POST['email']);
+    $organizationName = $db->real_escape_string($_POST['organizationName']);
+    $course = $db->real_escape_string($_POST['course']);
+    $numDay = $db->real_escape_string($_POST['numDay']);
+    $numTrainee = $db->real_escape_string($_POST['numTrainee']);
+    $place = $db->real_escape_string($_POST['place']);
+    $remark = $db->real_escape_string($_POST['remark']);
+
+    $sql = "UPDATE in_house 
+                SET title = '$title', first_name = '$firstName', last_name = '$lastName', 
+                    phone = '$phone', email = '$email', organization_name = '$organizationName', 
+                    course = '$course', num_day = $numDay, num_trainee = $numTrainee, 
+                    place = '$place', remark = '$remark'
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
 function doUpdateInHouseStatus()
 {
     global $db, $response;
@@ -1570,6 +1612,26 @@ function doUpdateInHouseStatus()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะ';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteInHouse()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $sql = "DELETE FROM in_house WHERE id = $id";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
