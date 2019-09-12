@@ -1,4 +1,5 @@
 <?php
+require_once '../vendor/autoload.php';
 
 define('HOST_FRONTEND', 'http://localhost:3000');
 //define('HOST_FRONTEND', 'http://202.6.26.3:3000');
@@ -366,6 +367,27 @@ function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayN
 
         //$transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl');
         //$transport->setUsername('email@gmail.com')->setPassword('password');
+
+        $transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'); // port 465 or 587
+        $transport->setUsername('promlert@gmail.com')->setPassword('zfiaqdxtarzxxecl');
+
+        // Create the Mailer using your created Transport
+        $mailer = new Swift_Mailer($transport);
+
+        // Send the created message
+        $mailer->send($message);
+    }
+}
+
+function sendMailNoAttachment($recipientList, $subject, $body)
+{
+    if (!empty($recipientList)) {
+        $message = new Swift_Message();
+        $message
+            ->setSubject($subject)
+            ->setFrom(array('no-reply@icehr.tu.ac.th'))
+            ->setTo($recipientList)
+            ->setBody($body);
 
         $transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'); // port 465 or 587
         $transport->setUsername('promlert@gmail.com')->setPassword('zfiaqdxtarzxxecl');

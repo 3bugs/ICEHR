@@ -1441,6 +1441,10 @@ function doUpdateRegisterStatus()
     }
 
     if ($result = $db->query($sql)) {
+        if ($newRegisterStatus === 'complete') {
+            sendPaymentConfirmEmail($serviceType, $traineeId);
+        }
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะการลงทะเบียนสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
@@ -1450,6 +1454,187 @@ function doUpdateRegisterStatus()
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
+}
+
+function sendPaymentConfirmEmail($serviceType, $traineeId)
+{
+    global $db;
+
+    $recipientList = array();
+    $displayName = null;
+    $formNumber = null;
+    $displayCourseName = null;
+    $displayCourseDate = null;
+    $place = null;
+
+    switch ($serviceType) {
+        case SERVICE_TYPE_TRAINING:
+            $sql = "SELECT cr.id AS reg_id, ct.form_number, cr.coordinator_email, ct.email AS trainee_email, m.email AS member_email, ct.first_name, ct.last_name
+                FROM course_registration cr 
+                    INNER JOIN course_trainee ct 
+                        ON ct.course_registration_id = cr.id 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE ct.id = $traineeId";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+
+                $coordinatorEmail = $row['coordinator_email'];
+                $traineeEmail = $row['trainee_email'];
+                $memberEmail = $row['member_email'];
+                $displayName = "{$row['first_name']} {$row['last_name']}";
+                $formNumber = $row['form_number'];
+                $regId = $row['reg_id'];
+
+                $result->close();
+
+                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                        FROM course c 
+                            INNER JOIN course_master cm 
+                                ON cm.id = c.course_master_id 
+                            INNER JOIN course_registration cr 
+                                ON c.id = cr.course_id 
+                        WHERE cr.id = $regId";
+                if ($result = $db->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $displayCourseName = "{$row['title']} รุ่นที่ {$row['batch_number']}";
+                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $place = $row['place'];
+                        $result->close();
+                    } else {
+                        $result->close();
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                // Error query
+               return;
+            }
+
+            if (!is_null($coordinatorEmail)) {
+                array_push($recipientList, $coordinatorEmail);
+            } else if (!is_null($traineeEmail)) {
+                array_push($recipientList, $traineeEmail);
+            }
+            if (!is_null($memberEmail) && !in_array($memberEmail, $recipientList)) {
+                array_push($recipientList, $memberEmail);
+            }
+            break;
+
+        case SERVICE_TYPE_SOCIAL:
+            $sql = "SELECT cr.id AS reg_id, cr.form_number, cr.email AS trainee_email, m.email AS member_email, cr.first_name, cr.last_name
+                FROM course_registration_social cr 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE cr.id = $traineeId";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+
+                $coordinatorEmail = NULL;
+                $traineeEmail = $row['trainee_email'];
+                $memberEmail = $row['member_email'];
+                $displayName = "{$row['first_name']} {$row['last_name']}";
+                $formNumber = $row['form_number'];
+                $regId = $row['reg_id'];
+
+                $result->close();
+
+                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                        FROM course c 
+                            INNER JOIN course_master cm 
+                                ON cm.id = c.course_master_id 
+                            INNER JOIN course_registration_social cr 
+                                ON c.id = cr.course_id 
+                        WHERE cr.id = $regId";
+                if ($result = $db->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $displayCourseName = "{$row['title']} รุ่นที่ {$row['batch_number']}";
+                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $place = $row['place'];
+                        $result->close();
+                    } else {
+                        $result->close();
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                // Error query
+                return;
+            }
+
+            if (!is_null($coordinatorEmail)) {
+                array_push($recipientList, $coordinatorEmail);
+            } else if (!is_null($traineeEmail)) {
+                array_push($recipientList, $traineeEmail);
+            }
+            if (!is_null($memberEmail) && !in_array($memberEmail, $recipientList)) {
+                array_push($recipientList, $memberEmail);
+            }
+            break;
+
+        case SERVICE_TYPE_DRIVING_LICENSE:
+            $sql = "SELECT cr.id AS reg_id, cr.form_number, m.email AS member_email, cr.first_name, cr.last_name 
+                FROM course_registration_driving_license cr 
+                    LEFT JOIN member m 
+                        ON cr.member_id = m.id 
+                WHERE cr.id = $traineeId";
+            if ($result = $db->query($sql)) {
+                $row = $result->fetch_assoc();
+
+                $memberEmail = $row['member_email'];
+                $displayName = "{$row['first_name']} {$row['last_name']}";
+                $formNumber = $row['form_number'];
+                $regId = $row['reg_id'];
+
+                $result->close();
+
+                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                        FROM course c 
+                            INNER JOIN course_master cm 
+                                ON cm.id = c.course_master_id 
+                            INNER JOIN course_registration_driving_license cr 
+                                ON c.id = cr.course_id 
+                        WHERE cr.id = $regId";
+                if ($result = $db->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $displayCourseName = "{$row['title']}";
+                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $place = $row['place'];
+                        $result->close();
+                    } else {
+                        $result->close();
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                // Error query
+                return;
+            }
+
+            if (!is_null($memberEmail)) {
+                array_push($recipientList, $memberEmail);
+            }
+            break;
+    }
+
+    $message = "สถาบันฯ ได้รับค่าสมัครอบรมของใบสม้ครเลขที่ $formNumber เรียบร้อยแล้ว\n";
+    $message .= "---------------------------------\n";
+    $message .= "ชื่อผู้สมัคร: $displayName\n";
+    $message .= "หลักสูตรที่สมัคร: $displayCourseName\n";
+    $message .= "วันที่อบรม: $displayCourseDate\n";
+    $message .= "สถานที่อบรม: $place\n";
+    $message .= "\n\nสถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์\n";
+    $message .= "http://www.icehr.tu.ac.th/\n";
+    sendMailNoAttachment($recipientList, 'สถานะการลงทะเบียนสมบูรณ์', $message);
 }
 
 function doUpdateDrivingLicenseDocStatus()
