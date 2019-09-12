@@ -132,6 +132,8 @@ if ($result = $db->query($sql)) {
             <section class="content">
                 <div class="row">
                     <div class="col-xs-12">
+
+                        <!--ตารางงานวิจัยและวิชาการ-->
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
@@ -223,6 +225,33 @@ if ($result = $db->query($sql)) {
                             <!-- /.box-body -->
                         </div>
                         <!-- /.box -->
+
+                        <!--Export-->
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Export</h3>
+
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                            data-toggle="tooltip" title="ย่อ">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <!-- /.box-tools -->
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <div class="margin">
+                                    <div class="btn-group" style="margin-right: 6px">
+                                        <a target="_blank" href="excel_academic_papers_download_history.php"
+                                           class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;ประวัติการดาวน์โหลด</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+
                     </div>
                     <!-- /.col -->
                 </div>
@@ -290,6 +319,10 @@ if ($result = $db->query($sql)) {
 
         function onClickAdd() {
             window.location.href = 'academic_papers_add_edit.php';
+        }
+
+        function onClickExportExcel() {
+            window.open('excel_academic_papers_download_history.php', '_blank');
         }
 
         function onClickAbstract(element, abstractText) {

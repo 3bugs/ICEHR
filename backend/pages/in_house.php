@@ -58,6 +58,7 @@ if ($result = $db->query($sql)) {
             <section class="content">
                 <div class="row">
                     <div class="col-xs-12">
+                        <!--ตารางรายชื่อผู้ติดต่อ-->
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
@@ -141,6 +142,32 @@ if ($result = $db->query($sql)) {
                                     ?>
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+
+                        <!--Export-->
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Export</h3>
+
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                            data-toggle="tooltip" title="ย่อ">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <!-- /.box-tools -->
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <div class="margin">
+                                    <div class="btn-group" style="margin-right: 6px">
+                                        <a target="_blank" href="excel_in_house.php"
+                                           class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;รายชื่อผู้ติดต่อ</a>
+                                    </div>
+                                </div>
                             </div>
                             <!-- /.box-body -->
                         </div>

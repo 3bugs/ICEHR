@@ -145,16 +145,17 @@ class TraineeRegisterForm extends React.Component {
                                             {/*คำนำหน้า*/}
                                             <div className="row">
                                                 <div className="col-md-4">
-                                                    <label className="mt-2">
-                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                            'คำนำหน้าชื่อ (ตามบัตรประชาชน) /' :
-                                                            'คำนำหน้าชื่อ (ตามหนังสือเดินทาง) /'
-                                                        }<br/>
-                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                            'Name Title (as appear on ID card)' :
-                                                            'Name Title (as appear on passport)'
-                                                        }
+                                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                    <label className="mt-3">
+                                                        คำนำหน้าชื่อ (ตามบัตรประชาชน)
                                                     </label>
+                                                    }
+                                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                    <label className="mt-2">
+                                                        คำนำหน้าชื่อ (ตามหนังสือเดินทาง) /<br/>
+                                                        Name Title (as appear on passport)
+                                                    </label>
+                                                    }
                                                 </div>
                                                 <div className="col-md-8">
                                                     <div className="row">
@@ -199,8 +200,8 @@ class TraineeRegisterForm extends React.Component {
                                             {/*ชื่อ*/}
                                             <div className="row">
                                                 <div className="col-md-4">
-                                                    <label className="">
-                                                        ชื่อ / First Name
+                                                    <label className={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'mt-2' : ''}>
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ชื่อ' : 'ชื่อ / First name'}
                                                     </label>
                                                 </div>
                                                 <div className="col-md-8">
@@ -208,7 +209,7 @@ class TraineeRegisterForm extends React.Component {
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_FIRST_NAME)}
                                                            type="text"
                                                            placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ชื่อ' : 'ชื่อ / First name'}
-                                                           className="form-control-2 input-md"/>
+                                                           className={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'form-control-2 input-md mt-2' : 'form-control-2 input-md'}/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_FIRST_NAME]}/>
                                                 </div>
@@ -218,7 +219,7 @@ class TraineeRegisterForm extends React.Component {
                                             <div className="row">
                                                 <div className="col-md-4">
                                                     <label className="mt-2">
-                                                        นามสกุล / Last Name
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'นามสกุล' : 'นามสกุล / Last name'}
                                                     </label>
                                                 </div>
                                                 <div className="col-md-8">
@@ -236,7 +237,7 @@ class TraineeRegisterForm extends React.Component {
                                             <div className="row">
                                                 <div className="col-md-4">
                                                     <label
-                                                        className="mt-2">{traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลขประจำตัวประชาชน / ID Card Number' : 'เลขที่หนังสือเดินทาง / Passport Number'}</label>
+                                                        className="mt-2">{traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลขประจำตัวประชาชน' : 'เลขที่หนังสือเดินทาง / Passport Number'}</label>
                                                 </div>
                                                 <div className="col-md-8">
                                                     {/*<InputMask mask="9-9999-99999-99-9"
@@ -367,13 +368,15 @@ class TraineeRegisterForm extends React.Component {
                                             {/*เบอร์โทร*/}
                                             <div className="row">
                                                 <div className="col-md-4">
-                                                    <label className="mt-2">เบอร์โทรศัพท์ / Phone Number</label>
+                                                    <label className="mt-2">
+                                                        {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เบอร์โทรศัพท์' : 'เบอร์โทร / Phone number'}
+                                                    </label>
                                                 </div>
                                                 <div className="col-md-8">
                                                     <input value={traineeForm.fields[REGISTER_TRAINEE_PHONE] || ''}
                                                            onChange={this.handleChange.bind(this, REGISTER_TRAINEE_PHONE)}
                                                            type="text"
-                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'กรอกเบอร์โทรศัพท์' : 'เบอร์โทร / Phone number'}
+                                                           placeholder={traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เบอร์โทรศัพท์' : 'เบอร์โทร / Phone number'}
                                                            className="form-control-2 input-md mt-2"/>
                                                     <ErrorLabel
                                                         value={traineeForm.errors[REGISTER_TRAINEE_PHONE]}/>
@@ -393,16 +396,17 @@ class TraineeRegisterForm extends React.Component {
                                                 <div className="col-md-4">
                                                     <div className="row">
                                                         <div className="col-12">
+                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
                                                             <label className="mt-2">
-                                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                                    'เอกสารที่ต้องใช้ในการสมัคร /' :
-                                                                    'เอกสารที่ต้องใช้ในการสมัคร /'
-                                                                }<br/>
-                                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
-                                                                    'Required Documents' :
-                                                                    'Required Documents'
-                                                                }
+                                                                เอกสารที่ต้องใช้ในการสมัคร
                                                             </label>
+                                                            }
+                                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                            <label className="mt-2">
+                                                                เอกสารที่ต้องใช้ในการสมัคร<br/>
+                                                                Required Documents
+                                                            </label>
+                                                            }
                                                         </div>
                                                     </div>
                                                     <div className="row">
