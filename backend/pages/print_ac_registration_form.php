@@ -239,7 +239,11 @@ $mpdf = new \Mpdf\Mpdf([
                                 <td width="60px">โทรมือถือ</td>
                                 <td width="265px" class="txtDash"><strong><?= $trainee['phone']; ?></strong></td>
                                 <td width="55px" align="right" style="padding-right: 8px">อีเมล</td>
-                                <td width="270px" class="txtDash"><strong><?= $trainee['email']; ?></strong></td>
+                                <td width="270px" class="txtDash">
+                                    <strong>
+                                        <?= (is_null($trainee['email']) || $trainee['email'] === '') ? '-' : $trainee['email']; ?>
+                                    </strong>
+                                </td>
                             </tr>
                         </table>
                     </td>

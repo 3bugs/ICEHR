@@ -276,6 +276,11 @@ class TraineeRegisterForm extends React.Component {
                                 <div className="col-md-9 offset-md-1">
                                     <div className="required">
                                         <div className="row">
+                                            <div className="offset-md-3 col-md-9" style={{color: 'red'}}>
+                                                {isReadOnly ? '* กรุณาตรวจสอบความถูกต้องของข้อมูลที่ท่านกรอก หากต้องการแก้ไขให้กดปุ่ม \'ย้อนกลับ\' ด้านล่าง' : 'ช่องที่มี * คือต้องกรอกข้อมูล'}
+                                            </div>
+                                        </div>
+                                        <div className="row">
                                             <div className="col-md-3">
                                                 <label className="mt-2">คำนำหน้าชื่อ</label>
                                             </div>
@@ -330,7 +335,7 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">วันเกิด</label>
+                                                <label className="not-required mt-2">วันเกิด</label>
                                             </div>
                                             <div className="col-md-9">
                                                 <div style={{width: '48.5%'}} className="mt-2">
@@ -345,7 +350,7 @@ class TraineeRegisterForm extends React.Component {
                                                         showMonthDropdown
                                                         showYearDropdown
                                                         dropdownMode="select"
-                                                        placeholderText="ระบุวันเกิด"
+                                                        placeholderText={isReadOnly ? '' : "ระบุวันเกิด"}
                                                         dateFormat="dd/MM/yyyy"
                                                         minDate={this.setDatePickerMinDate()}
                                                         maxDate={new Date()}
@@ -380,13 +385,13 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">สถานที่ทำงาน (ถ้ามี)</label>
+                                                <label className="not-required mt-2">สถานที่ทำงาน (ถ้ามี)</label>
                                             </div>
                                             <div className="col-md-9">
                                                 <input value={traineeForm.fields[REGISTER_TRAINEE_WORK_PLACE] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_WORK_PLACE)}
                                                        type="text"
-                                                       placeholder="กรอกสถานทีทำงาน"
+                                                       placeholder={isReadOnly ? '' : "กรอกสถานทีทำงาน"}
                                                        className="form-control-2 input-md mt-2"
                                                        disabled={isReadOnly}/>
                                                 <ErrorLabel
@@ -486,7 +491,7 @@ class TraineeRegisterForm extends React.Component {
                                         </div>
                                         <div className="row">
                                             <div className="col-md-3">
-                                                <label className="mt-2">อีเมล</label>
+                                                <label className="not-required mt-2">อีเมล</label>
                                             </div>
                                             <div className="col-md-9">
                                                 <input value={traineeForm.fields[REGISTER_TRAINEE_EMAIL] || ''}
@@ -497,7 +502,7 @@ class TraineeRegisterForm extends React.Component {
                                                                e.preventDefault();
                                                            }
                                                        }}
-                                                       placeholder="อีเมล"
+                                                       placeholder={isReadOnly ? '' : "อีเมล"}
                                                        className="form-control-2 input-md mt-2"
                                                        disabled={isReadOnly}/>
                                                 <ErrorLabel
@@ -807,6 +812,14 @@ export default class ServiceSocialRegister extends React.Component {
             fields[field] = e;
         } else if (field === REGISTER_TRAINEE_EMAIL || field === REGISTER_TRAINEE_PROVINCE || field === REGISTER_TRAINEE_POSTAL_CODE) {
             fields[field] = target.value.trim();
+            if (field === REGISTER_TRAINEE_EMAIL && fields[field] === '') {
+                fields[field] = undefined;
+            }
+        } else if (field === REGISTER_TRAINEE_WORK_PLACE) {
+            fields[field] = target.value;
+            if (target.value.trim() === '') {
+                fields[field] = undefined;
+            }
         } else {
             fields[field] = target.type === 'checkbox' ? target.checked : target.value;
         }
@@ -849,6 +862,7 @@ export default class ServiceSocialRegister extends React.Component {
         let formIsValid = true;
 
         let {traineeForm} = this.state;
+
         let {fields} = traineeForm;
         let errors = {};
 
@@ -909,7 +923,7 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
             formIsValid = false;
         }*/
-        if (!fields[REGISTER_TRAINEE_EMAIL] && !isValidEmail(fields[REGISTER_TRAINEE_EMAIL])) {
+        if (fields[REGISTER_TRAINEE_EMAIL] && !isValidEmail(fields[REGISTER_TRAINEE_EMAIL])) {
             errors[REGISTER_TRAINEE_EMAIL] = 'รูปแบบอีเมลไม่ถูกต้อง';
             formIsValid = false;
         }
@@ -1015,7 +1029,9 @@ export default class ServiceSocialRegister extends React.Component {
         const traineeData = traineeForm.fields;
         const receipt = receiptForm.fields;
 
-        traineeData[REGISTER_TRAINEE_BIRTH_DATE] = getDateFormatFromDateObject(traineeData[REGISTER_TRAINEE_BIRTH_DATE]);
+        if (traineeData[REGISTER_TRAINEE_BIRTH_DATE]) {
+            traineeData[REGISTER_TRAINEE_BIRTH_DATE] = getDateFormatFromDateObject(traineeData[REGISTER_TRAINEE_BIRTH_DATE]);
+        }
 
         fetch('/api/register_course_social', {
             method: 'post',
@@ -1313,6 +1329,13 @@ export default class ServiceSocialRegister extends React.Component {
                                             <div className="regisfo">
                                                 <div className="row">
                                                     <div className="col-md-12">
+
+                                                        <div className="row">
+                                                            <div className="col-12 offset-md-2 col-md-9" style={{color: 'red'}}>
+                                                                {step === 2 ? 'ต้องกรอกข้อมูลทุกช่อง' : '* กรุณาตรวจสอบความถูกต้องของข้อมูลที่ท่านกรอก หากต้องการแก้ไขให้กดปุ่ม \'ย้อนกลับ\' ด้านล่าง'}
+                                                            </div>
+                                                        </div>
+
                                                         <div className="row">
                                                             <div className="col-12 col-md-2" style={{paddingRight: 0}}>
                                                                 <label className="label required-label">ชื่อ</label>

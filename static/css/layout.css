@@ -532,6 +532,12 @@ a:hover {
 	display: inline;
 }
 
+.required label.not-required:after {
+	color: red;
+	content: '';
+	display: inline;
+}
+
 .label {
 	text-align: right;
 	vertical-align: middle;
