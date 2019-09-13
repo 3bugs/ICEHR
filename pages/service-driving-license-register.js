@@ -142,16 +142,22 @@ class TraineeRegisterForm extends React.Component {
 
                                         {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] &&
                                         <div>
+                                            <div className="row mt-3">
+                                                <div className="offset-md-4 col-md-8" style={{color: 'red'}}>
+                                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'ต้องกรอกข้อมูลทุกช่อง' : 'ต้องกรอกข้อมูลทุกช่อง / All fields are required.'}
+                                                </div>
+                                            </div>
+
                                             {/*คำนำหน้า*/}
                                             <div className="row">
                                                 <div className="col-md-4">
                                                     {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
-                                                    <label className="mt-3">
+                                                    <label className="mt-2">
                                                         คำนำหน้าชื่อ (ตามบัตรประชาชน)
                                                     </label>
                                                     }
                                                     {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
-                                                    <label className="mt-2">
+                                                    <label className="">
                                                         คำนำหน้าชื่อ (ตามหนังสือเดินทาง) /<br/>
                                                         Name Title (as appear on passport)
                                                     </label>
@@ -163,7 +169,7 @@ class TraineeRegisterForm extends React.Component {
                                                         <div className="col-12 col-md-6">
                                                             <select value={traineeForm.fields[REGISTER_TRAINEE_TITLE] || '0'}
                                                                     onChange={this.handleChange.bind(this, REGISTER_TRAINEE_TITLE)}
-                                                                    className="form-control mt-3">
+                                                                    className="form-control mt-2">
                                                                 <option value="0" disabled>
                                                                     {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ? 'เลือกคำนำหน้า' : 'เลือกคำนำหน้า / Select name title'}
                                                                 </option>

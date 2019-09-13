@@ -30,8 +30,9 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment; filename="รายชื่อผู้ติดต่อ In-House Training.xlsx"');
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment; filename="in_house_training.xls"');
+header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
@@ -100,12 +101,10 @@ foreach ($inHouseList as $inHouse) {
     $row++;
 }
 
-$writer = new Xlsx($spreadsheet);
+//$writer = new Xlsx($spreadsheet);
+$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
 
 //$writer->save('hello world.xlsx');
 $writer->save("php://output");
-?>
 
-<?php
 require_once '../include/foot_php.inc';
-?>

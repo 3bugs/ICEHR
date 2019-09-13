@@ -33,8 +33,9 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment; filename="ประวัติการดาวน์โหลดเอกสารงานวิจัยและวิชาการ.xlsx"');
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment; filename="academic_paper.xls"');
+header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
@@ -91,12 +92,10 @@ foreach ($paperDownloadList as $paperDownload) {
     $row++;
 }
 
-$writer = new Xlsx($spreadsheet);
+//$writer = new Xlsx($spreadsheet);
+$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
 
 //$writer->save('hello world.xlsx');
 $writer->save("php://output");
-?>
 
-<?php
 require_once '../include/foot_php.inc';
-?>

@@ -256,6 +256,12 @@ class TraineeRegisterForm extends React.Component {
                                             <div className="col">
                                                 <div className="regisfo">
 
+                                                    <div className="row">
+                                                        <div className="offset-md-2 col-md-10" style={{color: 'red'}}>
+                                                            {isReadOnly ? '* กรุณาตรวจสอบความถูกต้องของข้อมูลที่ท่านกรอก หากต้องการแก้ไขให้กดปุ่ม \'ย้อนกลับ\' ด้านล่าง' : 'ต้องกรอกข้อมูลทุกช่อง'}
+                                                        </div>
+                                                    </div>
+
                                                     {/*คำนำหน้า*/}
                                                     <div className="row">
                                                         <div className="col-md-6">
@@ -1363,7 +1369,7 @@ export default class ServiceTrainingRegister extends React.Component {
                                             onChange={this.handleChangeSelectCoordinator}
                                             className="form-control"
                                             style={{marginBottom: 0}}>
-                                            <option disabled selected>เลือกผู้ประสานงานจากรายชื่อผู้สมัครอบรม หรือกรอกข้อมูลผู้ประสานงาน</option>
+                                            <option disabled selected>เลือกผู้ประสานงานจากรายชื่อผู้สมัครอบรม (ถ้าไม่เลือก, สามารถกรอกข้อมูลผู้ประสานงานเองได้)</option>
                                             {
                                                 this.state.traineeForms.map(traineeForm => {
                                                     let {fields} = traineeForm;
@@ -1383,6 +1389,12 @@ export default class ServiceTrainingRegister extends React.Component {
                                     <div className="row">
                                         <div className="col">
                                             <div className="regisfo">
+
+                                                <div className="row">
+                                                    <div className="offset-md-2 col-md-10" style={{color: 'red'}}>
+                                                        {step === 2 ? 'ต้องกรอกข้อมูลทุกช่อง หรือเลือกจากรายชื่อผู้สมัครในช่องด้านบน' : '* กรุณาตรวจสอบความถูกต้องของข้อมูลที่ท่านกรอก หากต้องการแก้ไขให้กดปุ่ม \'ย้อนกลับ\' ด้านล่าง'}
+                                                    </div>
+                                                </div>
 
                                                 {/*คำนำหน้า*/}
                                                 <div className="row">
@@ -1645,6 +1657,12 @@ export default class ServiceTrainingRegister extends React.Component {
                                             <div className="regisfo">
                                                 <div className="row">
                                                     <div className="col-md-12">
+                                                        <div className="row">
+                                                            <div className="col-12 offset-md-2 col-md-9" style={{color: 'red'}}>
+                                                                {step === 3 ? 'ต้องกรอกข้อมูลทุกช่อง' : '* กรุณาตรวจสอบความถูกต้องของข้อมูลที่ท่านกรอก หากต้องการแก้ไขให้กดปุ่ม \'ย้อนกลับ\' ด้านล่าง'}
+                                                            </div>
+                                                        </div>
+
                                                         <div className="row">
                                                             <div className="col-12 col-md-2" style={{paddingRight: 0}}>
                                                                 <label className="label required-label">ชื่อหน่วยงาน</label>
