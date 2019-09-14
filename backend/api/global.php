@@ -279,6 +279,50 @@ function getThaiShortDateWithDayName($date)
     return "$dayOfWeek $dayOfMonth $month $year";
 }
 
+function getThaiIntervalDate($beginDate, $endDate)
+{
+    global $monthNames;
+
+    $beginDay = (int)date_format($beginDate, 'd');
+    $beginMonth = (int)date_format($beginDate, 'm');
+    $endDay = (int)date_format($endDate, 'd');
+    $endMonth = (int)date_format($endDate, 'm');
+
+    if ($beginDay === $endDay && $beginMonth === $endMonth) {
+        $month = $monthNames[$beginMonth - 1];
+        $year = strval((int)date_format($beginDate, 'Y') + 543);
+        $output = "$beginDay $month $year";
+
+    } else if ($beginMonth === $endMonth) {
+        $month = $monthNames[$beginMonth - 1];
+        $year = strval((int)date_format($beginDate, 'Y') + 543);
+        $output = "$beginDay-$endDay $month $year";
+
+    } else {
+        $beginMonthName = $monthNames[$beginMonth - 1];
+        $endMonthName = $monthNames[$endMonth - 1];
+        $year = strval((int)date_format($beginDate, 'Y') + 543);
+        $output = "$beginDay $beginMonthName - $endDay $endMonthName $year";
+    }
+
+    return $output;
+}
+
+function getThaiDateForCertificate($inputDate, $numSpace)
+{
+    global $monthNames;
+
+    $day = (int)date_format($inputDate, 'd');
+    $month = $monthNames[(int)date_format($inputDate, 'm') - 1];
+    $year = strval((int)date_format($inputDate, 'Y') + 543);
+
+    $spaces = str_repeat(' ', $numSpace);
+
+    $output = "{$day}{$spaces}{$month}{$spaces}พุทธศักราช{$spaces}{$year}";
+
+    return $output;
+}
+
 function getThaiIntervalShortDate($beginDate, $endDate)
 {
     global $monthShortNames;

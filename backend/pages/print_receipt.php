@@ -158,13 +158,43 @@ $pdf->Cell(50, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
 $pdf->SetXY(60, 34);
 //$pdf->SetXY(60,30);
 
-$address = '';
+$displayAddress = ($serviceType === SERVICE_TYPE_TRAINING ? (' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']) . ', ที่อยู่ ') : '');
+
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
-    $address = "{$trainee['receipt_address']} แขวง/ตำบล{$trainee['receipt_sub_district']} เขต/อำเภอ{$trainee['receipt_district']} จังหวัด{$trainee['receipt_province']}";
+    $address = trim($trainee['receipt_address']);
+    $subDistrict = trim($trainee['receipt_sub_district']);
+    $district = trim($trainee['receipt_district']);
+    $province = trim($trainee['receipt_province']);
+    $postalCode = $trainee['receipt_postal_code'];
+
+    $isBangkok = false;
+    if (substr($province, 0, 4) === 'กรุง' || substr($province, 0, 2) === 'กท') {
+        $isBangkok = true;
+    }
+
+    if ($isBangkok) {
+        $displayAddress .= "{$address} แขวง{$subDistrict} เขต{$district} กรุงเทพมหานคร {$postalCode}";
+    } else {
+        $displayAddress .= "{$address} ตำบล{$subDistrict} อำเภอ{$district} จังหวัด{$province} {$postalCode}";
+    }
+
+    //$displayAddress = '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซอยงามวงศ์วาน 59 (วัดเทวสุนทร) แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900';
+
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
-    $address = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง/ตำบล{$trainee['sub_district']} เขต/อำเภอ{$trainee['district']} จังหวัด{$trainee['province']}";
+    $province = trim($trainee['province']);
+
+    $isBangkok = false;
+    if (substr($province, 0, 4) === 'กรุง' || substr($province, 0, 3) === 'กทม') {
+        $isBangkok = true;
+    }
+
+    if ($isBangkok) {
+        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพมหานคร";
+    } else {
+        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
+    }
 }
-$pdf->MultiCell(300, 5, $address, 0, 'L');
+$pdf->MultiCell(300, 5, $displayAddress, 0, 'L');
 $pdf->SetXY(34, 55);
 //$pdf->SetXY(40,53);
 $pdf->Cell(13, 6, '', 0, 0, 'C', 0);

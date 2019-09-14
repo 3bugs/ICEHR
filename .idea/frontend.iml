@@ -10,7 +10,10 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/mpdf/mpdf" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/myclabs/deep-copy" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/paragonie/random_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/pclzip/pclzip" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/phpoffice/common" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/phpoffice/phpspreadsheet" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/phpoffice/phpword" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/psr/log" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/psr/simple-cache" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/setasign/fpdi" />
@@ -19,6 +22,7 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/symfony/polyfill-intl-idn" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/symfony/polyfill-php72" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/vendor/zendframework/zend-escaper" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

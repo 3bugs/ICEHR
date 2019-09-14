@@ -19,6 +19,10 @@
       <path value="$PROJECT_DIR$/backend/vendor/markbaker/complex" />
       <path value="$PROJECT_DIR$/backend/vendor/phpoffice/phpspreadsheet" />
       <path value="$PROJECT_DIR$/backend/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/backend/vendor/phpoffice/phpword" />
+      <path value="$PROJECT_DIR$/backend/vendor/phpoffice/common" />
+      <path value="$PROJECT_DIR$/backend/vendor/zendframework/zend-escaper" />
+      <path value="$PROJECT_DIR$/backend/vendor/pclzip/pclzip" />
     </include_path>
   </component>
 </project>

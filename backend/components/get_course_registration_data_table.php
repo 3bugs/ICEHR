@@ -1578,7 +1578,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                     if ($paramCourseId != null) {
                                         ?>
                                         <li><a href="javascript:void(0)"
-                                               onClick="alert('feature นี้ยังไม่เสร็จครับ ;-)')">
+                                               onClick="onClickPrintAcCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
                                                 <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
                                             </a>
                                         </li>
@@ -1908,6 +1908,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             } else {
                 window.open(`print_dl_certificate.php?trainee_id=${traineeId}`, '_blank');
             }
+        }
+
+        function onClickPrintAcCertificate(formNumber, traineeId) {
+            window.open(`word_ac_certificate.php?trainee_id=${traineeId}&service_type=<?= $serviceType; ?>`, '_blank');
         }
 
         function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,
