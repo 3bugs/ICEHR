@@ -34,11 +34,18 @@ class DayCell extends React.Component {
                     {course != null &&
                     <div style={{cursor: 'pointer'}} onClick={() => onClickCourseCallback(course.id)}>
                         <div className="event d-block book_detail">
+                            {course.isCourseFull &&
+                            <i className="fas fa-minus-circle" style={{color: '#ddd'}}/>
+                            }
+                            {!course.isCourseFull &&
                             <i className="far fa-check-circle"/>
-                            {/*<i className="fas fa-minus-circle" style={{color: '#ddd'}}/>*/}
+                            }
                             <p>{course.name}</p>
                         </div>
-                        <div href="javascript:void(0)" className="book-btn">รายละเอียด/สมัคร</div>
+                        <div href="javascript:void(0)" className="book-btn">{course.isCourseFull ? 'รายละเอียด' : 'รายละเอียด/สมัคร'}</div>
+                        {course.isCourseFull &&
+                        <div style={{textAlign: 'center', color: 'red'}}>เต็มแล้ว</div>
+                        }
                     </div>
                     }
                     {/*<p className="d-sm-none"></p>*/}

@@ -126,7 +126,12 @@ export default class CourseList extends React.Component {
                                                         <td>{course.name}</td>
                                                         <td style={{textAlign: 'center'}}>{(course.applicationFee == null || course.applicationFee === 0) ? 'ฟรี' : numberWithCommas(course.applicationFee)}</td>
                                                         <td>{course.place}</td>
-                                                        <td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>
+                                                        {course.isCourseFull &&
+                                                        <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
+                                                        }
+                                                        {!course.isCourseFull &&
+                                                        <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
+                                                        }
                                                     </tr>
                                                 </Link>
                                             );

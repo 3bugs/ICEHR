@@ -88,12 +88,16 @@ export default class CourseDetails extends React.Component {
                         <div className="col-md-3">
                             <div className="row">
                                 <div className="col">
+                                    {course.isCourseFull &&
+                                    <a className="btn btn-regis" style={{color: 'white'}} onClick={() => alert('ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว')}>เต็มแล้ว <i className="fa fa-times"></i></a>
+                                    }
+                                    {!course.isCourseFull &&
                                     <Link
                                         as={`/service-${course.serviceType}-register/${course.id}`}
-                                        href={`/service-${course.serviceType}-register?courseId=${course.id}`}
-                                    >
+                                        href={`/service-${course.serviceType}-register?courseId=${course.id}`}>
                                         <a className="btn btn-regis">ลงทะเบียน <i className="far fa-edit"></i></a>
                                     </Link>
+                                    }
                                 </div>
                             </div>
                             <div className="row">

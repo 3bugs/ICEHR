@@ -570,26 +570,28 @@ doGetCourse = (req, res, db) => {
                 * */
 
                 const dataList = [];
-                results.forEach(row => {
-                    const length = dataList.push({
-                        id: row.id,
-                        serviceType: row.service_type,
-                        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number : ''),
-                        details: row.details,
-                        applicationFee: row.application_fee,
-                        place: row.place,
-                        beginDate: row.begin_date,
-                        endDate: row.end_date,
-                        traineeLimit: row.trainee_limit,
-                        responsibleUser: {
-                            firstName: row.first_name,
-                            lastName: row.last_name,
-                            phoneOffice: row.phone_office,
-                            email: row.email,
-                        },
-                        createdAt: row.created_at,
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////////
+                if (inputCourseId == null) { // course list
+                    results.forEach(row => {
+                        checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
+                            pushCourseIntoDataList(dataList, row, isCourseFull, regCount);
+                        });
                     });
-                });
+                } else { // course details
+                    results.forEach(row => {
+                        pushCourseIntoDataList(dataList, row, null, null);
+                    });
+                }
+                /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                /*if (dataList.length === 0) {
+                    res.send({
+                        error: new Error(1, 'dataList.length === 0 !!!!!', null),
+                    });
+                    db.end();
+                    return;
+                }*/
 
                 /*ถ้าเป็นหน้า course details จะ query ตารางราคา, assets ด้วย*/
                 if (dataList.length > 0 && inputCourseId != null) {
@@ -632,6 +634,8 @@ doGetCourse = (req, res, db) => {
                                             res.send({
                                                 error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
                                             });
+                                            db.end();
+
                                         } else {
                                             const feeList = [];
                                             results.forEach(row => {
@@ -644,16 +648,22 @@ doGetCourse = (req, res, db) => {
 
                                             dataList[0].fees = feeList;
 
-                                            res.send({
-                                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                                sql,
-                                                monthYearString,
-                                                dataList
+                                            checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
+                                                dataList[0].isCourseFull = isCourseFull;
+                                                dataList[0].regCount = regCount;
+
+                                                res.send({
+                                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                                    //sql,
+                                                    monthYearString,
+                                                    dataList
+                                                });
+                                                db.end();
                                             });
                                         }
                                     }
                                 );
-                                db.end();
+                                //db.end();
                             }
                         }
                     );
@@ -681,6 +691,81 @@ doGetCourse = (req, res, db) => {
                         }
                     );
                     db.end();
+                }
+            }
+        }
+    );
+};
+
+pushCourseIntoDataList = (dataList, row, isCourseFull, regCount) => {
+    dataList.push({
+        id: row.id,
+        serviceType: row.service_type,
+        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number : ''),
+        details: row.details,
+        applicationFee: row.application_fee,
+        place: row.place,
+        beginDate: row.begin_date,
+        endDate: row.end_date,
+        traineeLimit: row.trainee_limit,
+        responsibleUser: {
+            firstName: row.first_name,
+            lastName: row.last_name,
+            phoneOffice: row.phone_office,
+            email: row.email,
+        },
+        createdAt: row.created_at,
+        isCourseFull: isCourseFull,
+        regCount: regCount,
+    });
+};
+
+checkIfCourseFull = (db, courseId, serviceType, callback) => {
+    let sql = null;
+
+    switch (serviceType) {
+        case constants.SERVICE_TRAINING:
+            sql = `SELECT c.trainee_limit
+                   FROM course c
+                            INNER JOIN course_registration cr
+                                       ON c.id = cr.course_id
+                            INNER JOIN course_trainee ct
+                                       ON cr.id = ct.course_registration_id
+                   WHERE c.id = ?`;
+            break;
+        case constants.SERVICE_SOCIAL:
+            sql = `SELECT c.trainee_limit
+                   FROM course c
+                            INNER JOIN course_registration_social cr
+                                       ON c.id = cr.course_id
+                   WHERE c.id = ?`;
+            break;
+        case constants.SERVICE_DRIVING_LICENSE:
+            sql = `SELECT c.trainee_limit
+                   FROM course c
+                            INNER JOIN course_registration_driving_license cr
+                                       ON c.id = cr.course_id
+                   WHERE c.id = ?`;
+            break;
+    }
+
+    db.query(
+        sql,
+        [courseId],
+        function (err, results, fields) {
+            if (err) {
+                callback(false, null); // ถ้าเกิด error ให้ return ว่า course ยังไม่เต็มไปก่อน
+            } else {
+                if (results.length > 0) {
+                    const traineeLimit = results[0].trainee_limit;
+                    const regCount = results.length;
+                    if (regCount >= traineeLimit) {
+                        callback(true, regCount); // เต็มแล้ว
+                    } else {
+                        callback(false, regCount); // ยังไม่เต็ม
+                    }
+                } else {
+                    callback(false, 0); // ถ้า query แล้วไม่ได้ result เลย แสดงว่ายังไม่มีคนสมัครคอร์สนั้น
                 }
             }
         }
@@ -1728,7 +1813,7 @@ doAddTransferNotification = (req, res, db) => {
         }
 
         db.query(
-                `INSERT INTO payment_notification
+            `INSERT INTO payment_notification
                      (member_id, trainee_id, service_type, amount, transfer_date, slip_file_name)
                  VALUES ${valuePlaceHolders}`,
             valueList,
@@ -2365,9 +2450,10 @@ doGetIntro = (req, res, db) => {
     const {type} = req.body;
 
     db.query(
-        `SELECT id, title, details, image_file_name
+            `SELECT id, title, details, image_file_name
              FROM intro
-             WHERE type = ? AND status = ?
+             WHERE type = ?
+               AND status = ?
              ORDER BY sort_index`,
         [type, 'publish'],
         function (err, results, fields) {
@@ -2388,7 +2474,7 @@ doGetIntro = (req, res, db) => {
 
 doGetService = (req, res, db) => {
     db.query(
-        `SELECT id, title, details, slug, url
+            `SELECT id, title, details, slug, url
              FROM service`,
         [],
         function (err, results, fields) {
