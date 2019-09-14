@@ -12,7 +12,8 @@ if (!isset($serviceType)) {
     exit();
 }
 
-$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.application_fee, c.place, c.trainee_limit, c.responsible_user_id, cm.title 
+$sql = "SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.application_fee, 
+               c.place, c.trainee_limit, c.responsible_user_id, c.status, cm.title 
         FROM course c 
             INNER JOIN course_master cm 
                 ON c.course_master_id = cm.id 
@@ -34,6 +35,7 @@ if ($result = $db->query($sql)) {
         $course['end_date'] = $row['end_date'];
         $course['trainee_limit'] = (int)$row['trainee_limit'];
         $course['responsible_user_id'] = (int)$row['responsible_user_id'];
+        $course['status'] = $row['status'];
 
         switch ($serviceType) {
             case SERVICE_TYPE_TRAINING:
@@ -132,6 +134,7 @@ if ($result = $db->query($sql)) {
                                             <th style="width: 10%; text-align: center">ค่าสมัคร</th>
                                             <th style="width: 20%; text-align: center">วันที่อบรม</th>
                                             <th style="width: 20%; text-align: center">สมัคร / รับได้</th>
+                                            <th style="text-align: center">สถานะ</th>
                                             <th style="text-align: center">จัดการ</th>
                                             <?php
                                         } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
@@ -139,6 +142,7 @@ if ($result = $db->query($sql)) {
                                             <th style="width: 60%; text-align: center">หลักสูตร</th>
                                             <th style="width: 20%; text-align: center">วันที่อบรม</th>
                                             <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
+                                            <th style="text-align: center">สถานะ</th>
                                             <th style="text-align: center">จัดการ</th>
                                             <?php
                                         }
@@ -165,6 +169,12 @@ if ($result = $db->query($sql)) {
                                             $traineeCount = $course['trainee_count'];
                                             $traineeLimit = $course['trainee_limit'];
                                             $responsibleUserId = $course['responsible_user_id'];
+                                            $status = $course['status'];
+
+                                            $userHasPermission = $responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID] // ถ้าเป็นผู้รับผิดชอบหลักสูตร ให้แสดงปุ่มแก้ไข
+                                                || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_UPDATE))
+                                                || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_UPDATE))
+                                                || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_UPDATE));
                                             ?>
 
                                             <tr style="">
@@ -182,16 +192,23 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: top; text-align: center"><?= $courseDateHidden . $courseDate; ?></td>
                                                 <td style="vertical-align: top; text-align: center"><?= "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
 
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $status === 'normal' ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(this, <?= $userHasPermission ? 'true' : 'false'; ?>, <?= $courseId; ?>, '<?= htmlentities($courseName); ?>')"
+                                                        <?= $status === 'normal' ? 'checked' : '' ?>>
+                                                </td>
+
                                                 <td style="text-align: right" nowrap>
                                                     <form method="post" action="course_add_edit.php" style="display: inline">
                                                         <input type="hidden" name="course_id" value="<?= $courseId; ?>"/>
                                                         <input type="hidden" name="service_type" value="<?= $serviceType; ?>"/>
 
                                                         <?php
-                                                        if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID] // ถ้าเป็นผู้รับผิดชอบหลักสูตร ให้แสดงปุ่มแก้ไข
-                                                            || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_UPDATE))
-                                                            || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_UPDATE))
-                                                            || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_UPDATE))) {
+                                                        if ($userHasPermission) {
                                                             ?>
                                                             <button type="submit" class="btn btn-warning" style="margin-right: 3px">
                                                                 <span class="fa fa-pencil"></span>&nbsp;
@@ -263,6 +280,61 @@ if ($result = $db->query($sql)) {
 
         function onClickAdd() {
             //window.location.href = 'course_add_edit.php?service_type=<?= $serviceType; ?>';
+        }
+
+        function onChangeStatus(element, userHasPermission, courseId, courseName) {
+            if (userHasPermission) {
+                let result = confirm("ยืนยัน" + (element.checked ? 'เปิดหลักสูตร' : 'ยกเลิกหลักสูตร') + "\n\n'" + courseName + "' ?");
+                if (result) {
+                    doChangeStatus(courseId, (element.checked ? 'normal' : 'canceled'));
+                } else {
+                    /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                    location.reload(true);
+                }
+            } else {
+                alert("คุณไม่มีสิทธิ์แก้ไขสถานะหลักสูตรนี้\n\n'" + courseName + "'");
+                location.reload(true);
+            }
+        }
+
+        function doChangeStatus(courseId, newStatus) {
+            let title = 'แก้ไขสถานะหลักสูตร';
+
+            $.post(
+                '../api/api.php/update_course_status',
+                {
+                    courseId: courseId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
         }
 
         function onClickDelete(element, courseId, courseName) {

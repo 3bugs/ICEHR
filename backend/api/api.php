@@ -72,6 +72,9 @@ switch ($action) {
     case 'update_course':
         doUpdateCourse();
         break;
+    case 'update_course_status':
+        doUpdateCourseStatus();
+        break;
     case 'delete_course_asset':
         doDeleteCourseAsset();
         break;
@@ -1370,6 +1373,50 @@ function doUpdateCourse()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateCourseStatus()
+{
+    global $db, $response;
+
+    $courseId = $db->real_escape_string($_POST['courseId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    /*ถ้าจะตรวจสอบสิทธิ์ตรงนี้ ต้องเพิ่มกรณี user นั้นเป็นผู้รับผิดชอบหลักสูตรด้วย*/
+
+    /*ตรวจสอบสิทธิ์*/
+    /*$sql = "SELECT service_type FROM course_master WHERE id = $courseMasterId";
+    $result = $db->query($sql);
+    $row = $result->fetch_assoc();
+    switch ($row['service_type']) {
+        case 'training':
+            if (!checkPermission(PERMISSION_COURSE_TRAINING_UPDATE)) {
+                return;
+            }
+            break;
+        case 'social':
+            if (!checkPermission(PERMISSION_COURSE_SOCIAL_UPDATE)) {
+                return;
+            }
+            break;
+        case 'driving_license':
+            if (!checkPermission(PERMISSION_COURSE_DRIVING_LICENSE_UPDATE)) {
+                return;
+            }
+            break;
+    }*/
+
+    $sql = "UPDATE course SET status = '$newStatus' WHERE id = $courseId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะหลักสูตรสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

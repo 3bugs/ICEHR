@@ -528,7 +528,7 @@ doGetCourse = (req, res, db) => {
                                               ON c.course_master_id = cm.id
                                    INNER JOIN user u
                                               ON c.responsible_user_id = u.id`;
-    let whereClause = ' WHERE cm.service_type = ? ';
+    let whereClause = " WHERE c.status = 'normal' AND cm.service_type = ? ";
 
     if (inputCourseId == null) {
         if ((inputMonth == null || inputYear == null)) {
@@ -827,36 +827,45 @@ doSearchCourse = (req, res, db) => {
              FROM course c
                       INNER JOIN course_master cm
                                  ON c.course_master_id = cm.id
-            WHERE ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
+            WHERE c.status = 'normal' AND ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
         searchValueArray,
         function (err, results, fields) {
             if (err) {
                 res.send({
                     error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
                 });
+                db.end();
             } else {
                 const dataList = [];
-                results.forEach(row => {
-                    dataList.push({
-                        id: row.id,
-                        name: `${row.title} รุ่นที่ ${row.batch_number}`,
-                        details: row.details,
-                        applicationFee: row.application_fee,
-                        place: row.place,
-                        beginDate: row.begin_date,
-                        endDate: row.end_date,
-                        createdAt: row.created_at,
-                    });
-                });
+                let count = 0;
+                results.forEach((row, index) => {
+                    checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
+                        dataList.push({
+                            id: row.id,
+                            name: `${row.title} รุ่นที่ ${row.batch_number}`,
+                            details: row.details,
+                            applicationFee: row.application_fee,
+                            place: row.place,
+                            beginDate: row.begin_date,
+                            endDate: row.end_date,
+                            createdAt: row.created_at,
+                            isCourseFull: isCourseFull,
+                            regCount: regCount,
+                        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList,
+                        if (++count === results.length) {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                dataList,
+                            });
+                            db.end();
+                        }
+                    });
                 });
             }
         }
     );
-    db.end();
+    //db.end();
 };
 
 doGetCourseNumTraineeAvailable = (req, res, db) => {
