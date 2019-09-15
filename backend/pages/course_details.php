@@ -597,7 +597,7 @@ if ($result = $db->query($sql)) {
                         <!--รายงาน-->
                         <div class="box box-success">
                             <div class="box-header with-border">
-                                <h3 class="box-title">พิมพ์</h3>
+                                <h3 class="box-title">รายงาน/พิมพ์</h3>
 
                                 <div class="box-tools pull-right">
                                     <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -663,6 +663,18 @@ if ($result = $db->query($sql)) {
                                         <a target="_blank" href="print_trainee_list.php?course_id=<?= $courseId; ?>"
                                            class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ทำเนียบผู้เข้ารับการอบรม</a>
                                     </div>
+
+                                    <?php
+                                    if ($course['service_type'] === SERVICE_TYPE_TRAINING) {
+                                        ?>
+                                        <!--สรุปผู้เข้ารับการอบรม-->
+                                        <div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="excel_trainee_list.php?course_id=<?= $courseId; ?>"
+                                               class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;สรุปผู้เข้ารับการอบรม</a>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
 
                                     <!--<div class="btn-group">
                                         <button type="button" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;ทำเนียบผู้เข้ารับการอบรม</button>

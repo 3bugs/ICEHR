@@ -1513,10 +1513,12 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
     $displayCourseName = null;
     $displayCourseDate = null;
     $place = null;
+    $paidAmount = null;
+    $courseId = null;
 
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
-            $sql = "SELECT cr.id AS reg_id, ct.form_number, cr.coordinator_email, ct.email AS trainee_email, m.email AS member_email, ct.first_name, ct.last_name
+            $sql = "SELECT cr.id AS reg_id, ct.form_number, cr.coordinator_email, ct.email AS trainee_email, m.email AS member_email, ct.first_name, ct.last_name, ct.paid_amount
                 FROM course_registration cr 
                     INNER JOIN course_trainee ct 
                         ON ct.course_registration_id = cr.id 
@@ -1532,10 +1534,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 $displayName = "{$row['first_name']} {$row['last_name']}";
                 $formNumber = $row['form_number'];
                 $regId = $row['reg_id'];
+                $paidAmount = number_format($row['paid_amount']);
 
                 $result->close();
 
-                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                $sql = "SELECT c.id, cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
                         FROM course c 
                             INNER JOIN course_master cm 
                                 ON cm.id = c.course_master_id 
@@ -1545,9 +1548,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 if ($result = $db->query($sql)) {
                     if ($result->num_rows > 0) {
                         $row = $result->fetch_assoc();
+                        $courseId = $row['id'];
                         $displayCourseName = "{$row['title']} รุ่นที่ {$row['batch_number']}";
-                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $displayCourseDate = getThaiIntervalDate(date_create($row['begin_date']), date_create($row['end_date']));
                         $place = $row['place'];
+
                         $result->close();
                     } else {
                         $result->close();
@@ -1572,7 +1577,7 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
             break;
 
         case SERVICE_TYPE_SOCIAL:
-            $sql = "SELECT cr.id AS reg_id, cr.form_number, cr.email AS trainee_email, m.email AS member_email, cr.first_name, cr.last_name
+            $sql = "SELECT cr.id AS reg_id, cr.form_number, cr.email AS trainee_email, m.email AS member_email, cr.first_name, cr.last_name, cr.paid_amount
                 FROM course_registration_social cr 
                     LEFT JOIN member m 
                         ON cr.member_id = m.id 
@@ -1586,10 +1591,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 $displayName = "{$row['first_name']} {$row['last_name']}";
                 $formNumber = $row['form_number'];
                 $regId = $row['reg_id'];
+                $paidAmount = number_format($row['paid_amount']);
 
                 $result->close();
 
-                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                $sql = "SELECT c.id, cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
                         FROM course c 
                             INNER JOIN course_master cm 
                                 ON cm.id = c.course_master_id 
@@ -1599,9 +1605,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 if ($result = $db->query($sql)) {
                     if ($result->num_rows > 0) {
                         $row = $result->fetch_assoc();
+                        $courseId = $row['id'];
                         $displayCourseName = "{$row['title']} รุ่นที่ {$row['batch_number']}";
-                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $displayCourseDate = getThaiIntervalDate(date_create($row['begin_date']), date_create($row['end_date']));
                         $place = $row['place'];
+
                         $result->close();
                     } else {
                         $result->close();
@@ -1626,7 +1634,7 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
             break;
 
         case SERVICE_TYPE_DRIVING_LICENSE:
-            $sql = "SELECT cr.id AS reg_id, cr.form_number, m.email AS member_email, cr.first_name, cr.last_name 
+            $sql = "SELECT cr.id AS reg_id, cr.form_number, m.email AS member_email, cr.first_name, cr.last_name, cr.paid_amount
                 FROM course_registration_driving_license cr 
                     LEFT JOIN member m 
                         ON cr.member_id = m.id 
@@ -1638,10 +1646,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 $displayName = "{$row['first_name']} {$row['last_name']}";
                 $formNumber = $row['form_number'];
                 $regId = $row['reg_id'];
+                $paidAmount = number_format($row['paid_amount']);
 
                 $result->close();
 
-                $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
+                $sql = "SELECT c.id, cm.title, c.batch_number, c.begin_date, c.end_date, c.place 
                         FROM course c 
                             INNER JOIN course_master cm 
                                 ON cm.id = c.course_master_id 
@@ -1651,9 +1660,11 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 if ($result = $db->query($sql)) {
                     if ($result->num_rows > 0) {
                         $row = $result->fetch_assoc();
+                        $courseId = $row['id'];
                         $displayCourseName = "{$row['title']}";
-                        $displayCourseDate = getThaiIntervalShortDate(date_create($row['begin_date']), date_create($row['end_date']));
+                        $displayCourseDate = getThaiIntervalDate(date_create($row['begin_date']), date_create($row['end_date']));
                         $place = $row['place'];
+
                         $result->close();
                     } else {
                         $result->close();
@@ -1673,14 +1684,19 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
             break;
     }
 
-    $message = "สถาบันฯ ได้รับค่าสมัครอบรมของใบสม้ครเลขที่ $formNumber เรียบร้อยแล้ว\n";
-    $message .= "---------------------------------\n";
+    $hostFrontEnd = HOST_FRONTEND;
+
+    $message = "สถาบันฯ ได้รับค่าสมัครอบรมของใบสม้ครเลขที่ $formNumber จำนวน $paidAmount บาท เรียบร้อยแล้ว\n\n";
+    $message .= "----------\n";
     $message .= "ชื่อผู้สมัคร: $displayName\n";
     $message .= "หลักสูตรที่สมัคร: $displayCourseName\n";
     $message .= "วันที่อบรม: $displayCourseDate\n";
     $message .= "สถานที่อบรม: $place\n";
+    $message .= "หน้าเว็บของหลักสูตร: {$hostFrontEnd}/service-{$serviceType}/{$courseId}\n";
+    $message .= "----------\n";
     $message .= "\n\nสถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์\n";
     $message .= "http://www.icehr.tu.ac.th/\n";
+    $message .= "โทร. 02-613-3820-3\n";
     sendMailNoAttachment($recipientList, 'สถานะการลงทะเบียนสมบูรณ์', $message);
 }
 

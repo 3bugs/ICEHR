@@ -49,7 +49,8 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
                     ON cr.course_id = c.id 
                 INNER JOIN course_trainee ct 
                     ON ct.course_registration_id = cr.id 
-            WHERE c.id = $courseId AND ct.register_status = 'complete'";
+            WHERE c.id = $courseId AND ct.register_status = 'complete' 
+            ORDER BY ct.first_name, ct.last_name";
 
 } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
     $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.occupation AS job_position, cr.phone, cr.email, 
@@ -57,7 +58,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
             FROM course c 
                 INNER JOIN course_registration_social cr 
                     ON cr.course_id = c.id  
-            WHERE c.id = $courseId AND " . ($courseApplicationFee === 0 ? "cr.register_status <> 'cancel'" : "cr.register_status = 'complete'");
+            WHERE c.id = $courseId AND " . ($courseApplicationFee === 0 ? "cr.register_status <> 'cancel'" : "cr.register_status = 'complete'") . " ORDER BY cr.first_name, cr.last_name";
 
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
     $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.phone, 
@@ -65,7 +66,8 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
             FROM course c 
                 INNER JOIN course_registration_driving_license cr 
                     ON cr.course_id = c.id  
-            WHERE c.id = $courseId AND cr.register_status = 'complete'";
+            WHERE c.id = $courseId AND cr.register_status = 'complete' 
+            ORDER BY cr.first_name, cr.last_name";
 }
 
 if ($result = $db->query($sql)) {
@@ -77,7 +79,7 @@ if ($result = $db->query($sql)) {
         }
         $result->close();
     } else {
-        echo 'Error: ไม่มีข้อมูลผู้เข้ารับการอบรมในหลักสูตรนี้';
+        echo 'ไม่มีข้อมูลผู้เข้ารับการอบรมที่สถานะการลงทะเบียนสมบูรณ์ในหลักสูตรนี้';
         $result->close();
         $db->close();
         exit();

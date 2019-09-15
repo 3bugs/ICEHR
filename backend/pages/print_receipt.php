@@ -168,7 +168,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
     $postalCode = $trainee['receipt_postal_code'];
 
     $isBangkok = false;
-    if (substr($province, 0, 4) === 'กรุง' || substr($province, 0, 2) === 'กท') {
+    if (mb_substr($province, 0, 4) == 'กรุง' || substr($province, 0, 2) == 'กท') {
         $isBangkok = true;
     }
 
