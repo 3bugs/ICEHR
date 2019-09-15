@@ -67,7 +67,9 @@ $section = $phpWord->addSection([
     'pageSizeW' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(25.5)
 ]);
 
-$tuText = $section->addText('มหาวิทยาลัยธรรมศาสตร์');
+$phpWord->addParagraphStyle('centerStyle', array('align' => 'center', 'spaceAfter' => 0));
+
+$tuText = $section->addText('มหาวิทยาลัยธรรมศาสตร์', null, 'centerStyle');
 $fontStyle = new \PhpOffice\PhpWord\Style\Font();
 $fontStyle->setBold(true);
 $fontStyle->setSize(57 - 5);
@@ -102,7 +104,7 @@ $dateText = $section->addText(($trainee['begin_date'] === $trainee['end_date'] ?
     thaiNumDigit(getThaiIntervalDate(date_create($trainee['begin_date']), date_create($trainee['end_date']))));
 $fontStyle = new \PhpOffice\PhpWord\Style\Font();
 $fontStyle->setBold(false);
-$fontStyle->setSize(18 - 5);
+$fontStyle->setSize(20 - 5);
 $dateText->setFontStyle($fontStyle);
 
 $blessText = $section->addText('ขอให้มีความสุข ความเจริญ และบำเพ็ญตนให้เป็นประโยชน์แก่สังคมสืบไป');
@@ -112,6 +114,48 @@ define('NUM_SPACES', 3);
 $spaces = str_repeat(' ', NUM_SPACES);
 $giveDateText = $section->addText("ให้ไว้{$spaces}ณ{$spaces}วันที่{$spaces}" . thaiNumDigit(getThaiDateForCertificate(date_create($trainee['end_date']), NUM_SPACES)));
 $giveDateText->setFontStyle($fontStyle);
+
+$section->addText("\n");
+
+//$section->addImage('../uploads/signatures/signature001.jpg');
+//$section->addImage('../uploads/signatures/signature002.png');
+
+$table = $section->addTable();
+$row = $table->addRow(-1);
+$leftCell = $row->addCell(5000);
+$row->addCell(1100);
+$rightCell = $row->addCell(5700);
+
+$leftSignatureHtml = <<<EOT
+<table style="width: 100%">
+<tr>
+    <td style="text-align: center"><img src="../uploads/signatures/signature001.jpg" height="40"/></td>
+</tr>
+</table>
+EOT;
+$rightSignatureHtml = <<<EOT
+<table style="width: 100%">
+<tr>
+    <td style="text-align: center"><img src="../uploads/signatures/signature002.png" height="50"/></td>
+</tr>
+</table>
+EOT;
+
+\PhpOffice\PhpWord\Shared\Html::addHtml($leftCell, $leftSignatureHtml);
+\PhpOffice\PhpWord\Shared\Html::addHtml($rightCell, $rightSignatureHtml);
+
+$row = $table->addRow(-1);
+$leftCell = $row->addCell(5000);
+$leftCellText = $leftCell->addText("(รองศาสตราจารย์เกศินี วิฑูรชาติ)\nอธิการบดีมหาวิทยาลัยธรรมศาสตร์");
+$row->addCell(1100);
+$rightCell = $row->addCell(5700);
+$rightCellText = $rightCell->addText("(ผู้ช่วยศาสตราจารย์ ดร.ศุภชัย ศรีสุชาติ)\nผู้อำนวยการสถาบันเสริมศึกษาและทรัพยากรมนุษย์");
+
+$fontStyle = new \PhpOffice\PhpWord\Style\Font();
+$fontStyle->setBold(true);
+$fontStyle->setSize(18 - 5);
+$leftCellText->setFontStyle($fontStyle);
+$rightCellText->setFontStyle($fontStyle);
 
 $writer = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
 
