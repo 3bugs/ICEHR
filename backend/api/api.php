@@ -50,6 +50,9 @@ switch ($action) {
     case 'update_member':
         doUpdateMember();
         break;
+    case 'delete_member':
+        doDeleteMember();
+        break;
     case 'get_name_title':
         doGetNameTitle();
         break;
@@ -456,6 +459,25 @@ function doUpdateMember()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: '. $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteMember()
+{
+    global $db, $response;
+
+    $memberId = $db->real_escape_string($_POST['member_id']);
+    $sql = "DELETE FROM member WHERE id = $memberId";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบสมาชิกเว็บไซต์สำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -5279,7 +5301,6 @@ function doDeleteDocument()
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
-
 }
 
 function doDeleteMp4()
