@@ -80,9 +80,9 @@ if ($result = $db->query($sql)) {
                                     <span class="input-group-addon">
                                         <i class="fa fa-link"></i>
                                     </span>
-                                    <input type="url" class="form-control"
+                                    <input type="text" class="form-control"
                                            id="inputUrl" maxlength="500"
-                                           placeholder="กรอก Link"
+                                           placeholder="กรอก Link" required
                                            oninvalid="this.setCustomValidity('กรอก Link')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
@@ -168,7 +168,7 @@ if ($result = $db->query($sql)) {
                                             <tr style="">
                                                 <td style=""><?= $serviceTitle; ?></td>
                                                 <td style=""><?= $serviceDetails; ?></td>
-                                                <td style="text-align: center"><?= $serviceSlug === 'hr-intelligence' ? '<a target="_blank" href="' . $serviceUrl . '" title="' . $serviceUrl . '"><i class="fa fa-link"></i></a>' : '&nbsp;'; ?></td>
+                                                <td style="text-align: center"><a target="_blank" href="<?= $serviceUrl; ?>" title="<?= $serviceUrl; ?>"><i class="fa fa-link"></i></a></td>
                                                 <td style="text-align: right" nowrap>
                                                     <?php
                                                     if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
@@ -253,14 +253,15 @@ if ($result = $db->query($sql)) {
             $('#formEdit #inputId').val(id);
             $('#formEdit #inputTitle').val(title);
             $('#formEdit #inputDetails').val(details);
+            $('#formEdit #inputUrl').val(url);
 
-            const divUrl = $('#formEdit #divUrl');
+            /*const divUrl = $('#formEdit #divUrl');
             if (showUrl) {
                 $('#formEdit #inputUrl').val(url);
                 divUrl.show();
             } else {
                 divUrl.hide();
-            }
+            }*/
 
             $('#editModal').modal('show');
         }
@@ -285,6 +286,7 @@ if ($result = $db->query($sql)) {
                     id: $('#formEdit #inputId').val(),
                     title: $('#formEdit #inputTitle').val().trim(),
                     details: $('#formEdit #inputDetails').val(),
+                    url: $('#formEdit #inputUrl').val(),
                 }
             ).done(function (data) {
                 if (data.error_code === 0) {

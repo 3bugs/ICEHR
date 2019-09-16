@@ -731,8 +731,9 @@ function doUpdateService()
     $id = $db->real_escape_string($_POST['id']);
     $title = $db->real_escape_string($_POST['title']);
     $details = $db->real_escape_string($_POST['details']);
+    $url = $db->real_escape_string($_POST['url']);
 
-    $sql = "UPDATE service SET title = '$title', details = '$details' WHERE id = $id";
+    $sql = "UPDATE service SET title = '$title', details = '$details', url = '$url' WHERE id = $id";
 
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
