@@ -1,9 +1,9 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT m.id, m.title, m.first_name, m.last_name, m.birth_date, TIMESTAMPDIFF(YEAR, m.birth_date, CURDATE()) AS age, m.phone, m.email, 
+$sql = "SELECT m.id, m.member_type, m.title, m.first_name, m.last_name, m.birth_date, TIMESTAMPDIFF(YEAR, m.birth_date, CURDATE()) AS age, m.phone, m.email, 
                m.job_position, m.organization_name, m.organization_type, ot.name AS organization_type_name, m.organization_type_custom, m.organization_phone, 
-               m.address, m.sub_district, m.district, m.province, m.postal_code, m.tax_id
+               m.address, m.sub_district, m.district, m.province, m.postal_code, m.tax_id, m.created_at
         FROM member m
             LEFT JOIN organization_type ot
                 ON m.organization_type = ot.id 
@@ -15,6 +15,7 @@ if ($result = $db->query($sql)) {
         $member = array();
         $member['id'] = (int)$row['id'];
         $member['title'] = $row['title'];
+        $member['member_type'] = $row['member_type'];
         $member['first_name'] = $row['first_name'];
         $member['last_name'] = $row['last_name'];
         $member['birth_date'] = $row['birth_date'];
@@ -33,6 +34,7 @@ if ($result = $db->query($sql)) {
         $member['postal_code'] = $row['postal_code'];
         $member['organization_phone'] = $row['organization_phone'];
         $member['tax_id'] = $row['tax_id'];
+        $member['created_at'] = $row['created_at'];
 
         array_push($memberList, $member);
     }
@@ -43,13 +45,26 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-define('MEMBER_TYPE_ORGANIZATION', 'tableMemberOrganization');
-define('MEMBER_TYPE_PERSON', 'tableMemberPerson');
+$sql = "SELECT id, name FROM organization_type ORDER BY id";
+if ($result = $db->query($sql)) {
+    $organizationTypeList = array();
+    while ($row = $result->fetch_assoc()) {
+        array_push($organizationTypeList, $row);
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล';
+    $db->close();
+    exit();
+}
+
+//define('MEMBER_TYPE_ORGANIZATION', 'tableMemberOrganization');
+//define('MEMBER_TYPE_PERSON', 'tableMemberPerson');
 
 $organizationMemberList = array();
 $personMemberList = array();
 foreach ($memberList as $member) {
-    if (is_null($member['address'])) {
+    if ($member['member_type'] === MEMBER_TYPE_PERSON) {
         array_push($personMemberList, $member);
     } else {
         array_push($organizationMemberList, $member);
@@ -68,6 +83,310 @@ foreach ($memberList as $member) {
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
+
+    <!-- Edit modal -->
+    <div class="modal fade" id="editModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;
+                    </button>-->
+                    <h4 class="modal-title">
+                        ข้อมูลสมาชิกเว็บไซต์
+                        <div class="pull-right">
+                            <small>สมัครสมาชิกเมื่อ <span id="spanCreatedAt"></span></small>
+                        </div>
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>
+                    <div id="alertSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
+                    </div>
+                    <div id="alertError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                    </div>
+
+                    <form id="formEdit" role="form"
+                          action="../api/api.php/update_member"
+                          method="post"
+                          autocomplete="off"
+                          style="margin-top: 0; margin-bottom: 0">
+
+                        <div class="box-body">
+                            <input type="hidden" id="inputId" name="id">
+
+                            <!--คำนำหน้า-ชื่อ-นามสกุล-->
+                            <div class="row">
+                                <!--คำนำหน้าชื่อ-->
+                                <div class="form-group col-md-2">
+                                    <label for="inputTitle">คำนำหน้าชื่อ:</label>
+                                    <div class="input-group">
+                                        <!--<span class="input-group-addon">
+                                            <i class="fa fa-user"></i>
+                                        </span>-->
+                                        <input type="text" class="form-control" required
+                                               id="inputTitle" name="title"
+                                               oninvalid="this.setCustomValidity('กรอกคำนำหน้าชื่อ')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+
+                                <!--ชื่อ-->
+                                <div class="form-group col-md-5">
+                                    <label for="inputFirstName">ชื่อ:</label>
+                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user-o"></i>
+                                                    </span>
+                                        <input type="text" class="form-control" required
+                                               id="inputFirstName" name="firstName"
+                                               oninvalid="this.setCustomValidity('กรอกชื่อ')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                                <!--นามสกุล-->
+                                <div class="form-group col-md-5">
+                                    <label for="inputLastName">นามสกุล:</label>
+                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-user-o"></i>
+                                                            </span>
+                                        <input type="text" class="form-control" required
+                                               id="inputLastName" name="lastName"
+                                               oninvalid="this.setCustomValidity('กรอกนามสกุล')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--เบอร์โทร อีเมล-->
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="inputPhone">เบอร์โทร:</label>
+                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-phone"></i>
+                                                    </span>
+                                        <input type="text" class="form-control" required
+                                               id="inputPhone" name="phone"
+                                               oninvalid="this.setCustomValidity('กรอกเบอร์โทร')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputEmail">อีเมล:</label>
+                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                        <input type="email" class="form-control" disabled
+                                               id="inputEmail" name="email"
+                                               oninvalid="this.setCustomValidity('กรอกอีเมลที่มีรูปแบบถูกต้อง')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputJobPosition">ตำแหน่งงาน:</label>
+                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-tag"></i>
+                                                    </span>
+                                        <input type="text" class="form-control"
+                                               id="inputJobPosition" name="jobPosition">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label style="display: block; text-align: center; margin-top: 10px">ข้อมูลหน่วยงาน</label>
+                            <div style="padding: 15px 15px 5px 15px; border: 0px solid grey; background: #f4f4f4">
+                                <!--ชื่อหน่วยงาน-->
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label for="inputOrganizationName">ชื่อหน่วยงาน:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-font"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputOrganizationName" name="organizationName">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ประเภทหน่วยงาน-->
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="inputOrganizationType">ประเภทหน่วยงาน:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-navicon"></i>
+                                                    </span>
+                                            <select id="selectOrganizationType" class="form-control"
+                                                    name="organizationType"
+                                                    oninvalid="this.setCustomValidity('เลือกประเภทหน่วยงาน')"
+                                                    oninput="this.setCustomValidity('')">
+                                                <option value="0" disabled selected>-- เลือกประเภทหน่วยงาน --</option>
+                                                <?php
+                                                foreach ($organizationTypeList as $organizationType) {
+                                                    ?>
+                                                    <option value="<?= $organizationType['id']; ?>">
+                                                        <?= $organizationType['name']; ?>
+                                                    </option>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <option value="9999">อื่นๆ (กรอกเอง)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="inputOrganizationTypeCustom">ประเภทหน่วยงาน (กรอกเอง):</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputOrganizationTypeCustom" name="organizationTypeCustom">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ที่อยู่-->
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label for="inputAddress">ที่อยู่:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputAddress" name="address">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--แขวง, เขต-->
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="inputSubDistrict">แขวง/ตำบล:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputSubDistrict" name="subDistrict">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="inputDistrict">เขต/อำเภอ:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputDistrict" name="district">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--จังหวัด, รหัสไปรษณีย์-->
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="inputProvince">จังหวัด:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputProvince" name="province">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="inputPostalCode">รหัสไปรษณีย์:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputPostalCode" name="postalCode">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--เบอร์โทรหน่วยงาน-->
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="inputOrganizationPhone">เบอร์โทรหน่วยงาน:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-phone-square"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   id="inputOrganizationPhone" name="organizationPhone">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="inputTaxId">เลขประจำตัวผู้เสียภาษี:</label>
+                                        <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-slack"></i>
+                                                    </span>
+                                            <input type="text" class="form-control"
+                                                   maxlength="13"
+                                                   id="inputTaxId" name="taxId">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="spanLoading" style="text-align: center; margin-top: 15px">
+                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                            </div>
+                            <div id="alertSuccess" class="alert alert-success alert-dismissible" style="margin-top: 15px">
+                                <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                                <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
+                            </div>
+                            <div id="alertError" class="alert alert-danger alert-dismissible" style="margin-top: 15px">
+                                <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                                <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                            </div>
+
+                            <div style="margin-top: 15px; text-align: center">
+                                <?php
+                                if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+                                    ?>
+                                    <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
+                                        <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
+                                    </button>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <button type="button" class="btn btn-block btn-danger" style="display: inline; width: 240px;">
+                                        <i class="fa fa-save"></i>&nbsp;&nbsp;คุณไม่มีสิทธิ์บันทึกการแก้ไข
+                                    </button>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
@@ -77,7 +396,7 @@ foreach ($memberList as $member) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    สมาชิกเว็บไซท์
+                    สมาชิกเว็บไซต์
                 </h1>
             </section>
 
@@ -153,8 +472,10 @@ foreach ($memberList as $member) {
     <!-- ./wrapper -->
 
     <script>
+        let shouldReload = false;
+
         $(document).ready(function () {
-            $('#tableMemberOrganization').DataTable({
+            $('#<?= MEMBER_TYPE_ORGANIZATION; ?>').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
                 order: [[0, 'desc']],
@@ -178,7 +499,7 @@ foreach ($memberList as $member) {
                 }
             });
 
-            $('#tableMemberPerson').DataTable({
+            $('#<?= MEMBER_TYPE_PERSON; ?>').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
                 order: [[0, 'desc']],
@@ -201,6 +522,71 @@ foreach ($memberList as $member) {
                     },
                 }
             });
+
+            $('#selectOrganizationType').change(function () {
+                //alert(this.value);
+                $("#inputOrganizationTypeCustom").prop("disabled", parseInt(this.value) !== 9999);
+                if (parseInt(this.value) === 9999) {
+                    $("#inputOrganizationTypeCustom").focus();
+                }
+            });
+
+            $('#editModal').on('hidden.bs.modal', () => {
+                if (shouldReload) {
+                    location.reload(true);
+                }
+            });
+
+            $('#formEdit').on('submit', (event) => {
+                event.preventDefault();
+                if (validateForm()) {
+                    if (confirm("ยืนยันแก้ไขข้อมูล?")) {
+                        doUpdate();
+                    }
+                }
+            });
+        });
+
+        /*$(document).ready(function() {
+            if (location.hash) {
+                $("a[href='" + location.hash + "']").tab("show");
+            }
+            $(document.body).on("click", "a[data-toggle='tab']", function(event) {
+                location.hash = this.getAttribute("href");
+            });
+        });
+        $(window).on("popstate", function() {
+            var anchor = location.hash || $("a[data-toggle='tab']").first().attr("href");
+            $("a[href='" + anchor + "']").tab("show");
+        });*/
+
+        $(document).ready(function () {
+            if (location.hash) {
+                $('a[href=\'' + location.hash + '\']').tab('show');
+            }
+            var activeTab = localStorage.getItem('activeTab');
+            if (activeTab) {
+                $('a[href="' + activeTab + '"]').tab('show');
+            }
+        });
+        
+        $('body').on('click', 'a[data-toggle=\'tab\']', function (e) {
+            e.preventDefault();
+            var tab_name = this.getAttribute('href');
+            if (history.pushState) {
+                history.pushState(null, null, tab_name);
+            } else {
+                location.hash = tab_name;
+            }
+            localStorage.setItem('activeTab', tab_name);
+
+            $(this).tab('show');
+            return false;
+        });
+        $(window).on('popstate', function () {
+            var anchor = location.hash ||
+                $('a[data-toggle=\'tab\']').first().attr('href');
+            $('a[href=\'' + anchor + '\']').tab('show');
         });
 
         function doDeleteMember(memberId) {
@@ -259,12 +645,96 @@ foreach ($memberList as $member) {
                 ]
             });
         }
+
+        function onClickEdit(id, title, firstName, lastName, birthDate, phone, email, jobPosition,
+                             organizationName, organizationType, organizationTypeText, organizationTypeCustom,
+                             address, subDistrict, district, province, postalCode, organizationPhone, taxId,
+                             displayCreatedDate, displayCreatedTime) {
+            $('#editModal #alertSuccess').hide();
+            $('#editModal #alertError').hide();
+            $('#editModal #spanLoading').hide();
+
+            $('#formEdit #inputId').val(id);
+            $('#formEdit #inputTitle').val(title);
+            $('#formEdit #inputFirstName').val(firstName);
+            $('#formEdit #inputLastName').val(lastName);
+            $('#formEdit #inputPhone').val(phone);
+            $('#formEdit #inputEmail').val(email);
+            $('#formEdit #inputJobPosition').val(jobPosition);
+
+            $('#formEdit #inputOrganizationName').val(organizationName);
+            $('#formEdit #selectOrganizationType').val(organizationType);
+            $('#formEdit #inputOrganizationTypeCustom').val('');
+            if (organizationType === 9999) {
+                $('#formEdit #inputOrganizationTypeCustom').val(organizationTypeCustom);
+            }
+            $("#inputOrganizationTypeCustom").prop("disabled", organizationType !== 9999);
+
+            $('#formEdit #inputAddress').val(address);
+            $('#formEdit #inputSubDistrict').val(subDistrict);
+            $('#formEdit #inputDistrict').val(district);
+            $('#formEdit #inputProvince').val(province);
+            $('#formEdit #inputPostalCode').val(postalCode);
+            $('#formEdit #inputOrganizationPhone').val(organizationPhone);
+            $('#formEdit #inputTaxId').val(taxId);
+
+            $('#editModal #spanCreatedAt').text(displayCreatedDate + ', ' + displayCreatedTime);
+
+            $('#editModal').modal('show');
+        }
+
+        function validateForm() {
+            let valid = true;
+
+            const selectOrganizationType = $('#selectOrganizationType');
+            const inputOrganizationTypeCustom = $('#inputOrganizationTypeCustom');
+
+            if (parseInt(selectOrganizationType.val()) === 9999 && inputOrganizationTypeCustom.val().trim() === '') {
+                alert('กรอกประเภทหน่วยงาน');
+                inputOrganizationTypeCustom.focus();
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        function doUpdate() {
+            const loadingIcon = $('#editModal #spanLoading');
+
+            loadingIcon.show();
+            $('#editModal #alertSuccess').hide();
+            $('#editModal #alertError').hide();
+
+            $('#formEdit').ajaxSubmit({
+                dataType: 'json',
+                success: (data, statusText) => {
+                    loadingIcon.hide();
+
+                    if (data.error_code === 0) {
+                        $('#editModal #alertSuccessText').text(data.error_message);
+                        $('#editModal #alertSuccess').show();
+
+                        shouldReload = true;
+                    } else {
+                        $('#editModal #alertErrorText').text(data.error_message);
+                        $('#editModal #alertError').show();
+                    }
+                },
+                error: () => {
+                    loadingIcon.hide();
+                    $('#editModal #alertErrorText').val('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                    $('#editModal #alertError').show();
+                }
+            });
+        }
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--jQuery Form Plugin-->
+    <script src="../dist/js/jquery.form.js"></script>
     </body>
     </html>
 
@@ -289,6 +759,7 @@ function generateTable($memberList, $memberType)
                 <?php
             }
             ?>
+            <th style="text-align: center">วัน/เวลาที่สมัคร</th>
             <?php
             if (TRUE /*$_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin'*/) {
                 ?>
@@ -320,7 +791,7 @@ function generateTable($memberList, $memberType)
 
                 $memberBirthDate = $member['birth_date'];
                 $displayBirthDate = getThaiShortDate(date_create($memberBirthDate));
-                $dateHidden = "<span style=\"display: none\">$memberBirthDate</span></span>";
+                $birthDateHidden = "<span style=\"display: none\">$memberBirthDate</span></span>";
                 $memberAge = $member['age'];
 
                 $memberPhone = $member['phone'];
@@ -338,17 +809,25 @@ function generateTable($memberList, $memberType)
                     $member['province'], $member['postal_code'], $member['organization_phone']
                 );
 
+                $createdAt = $member['created_at'];
+                $dateTimePart = explode(' ', $createdAt);
+                $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                $timePart = explode(':', $dateTimePart[1]);
+                $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                $displayDateTime = "$displayDate<br>$displayTime";
+                $createdDateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
+
                 ?>
                 <tr style="">
                     <td style="vertical-align: top">
                         <span style="display: none;"><?= "$memberFirstName $memberLastName"; ?></span>
                         <?= "$memberTitle<br/>$memberFirstName $memberLastName"; ?>
                     </td>
-                    <td style="vertical-align: top"><?= "$dateHidden $displayBirthDate<br/>($memberAge ปี)"; ?></td>
+                    <td style="vertical-align: top"><?= "$birthDateHidden $displayBirthDate<br/>($memberAge ปี)"; ?></td>
                     <td style="vertical-align: top"><?= "$memberPhone<br/><a href=\"mailto:$memberEmail\">$memberEmail</a>"; ?></td>
                     <td style="vertical-align: top">
                         <?= $memberJobPosition . '<br/><strong>' . $memberOrganizationName . '</strong><br/>'
-                            . ($memberOrganizationType === 9999 ? "($memberOrganizationTypeCustom)" : "($memberOrganizationTypeText)");
+                        . ($memberOrganizationType === 9999 ? "($memberOrganizationTypeCustom)" : "($memberOrganizationTypeText)");
                         ?>
                     </td>
                     <?php
@@ -359,24 +838,52 @@ function generateTable($memberList, $memberType)
                         <?php
                     }
                     ?>
-                    <?php
-                    if (TRUE /*$_SESSION[KEY_SESSION_USER_ROLE] == 'super_admin'*/) {
-                        ?>
-                        <td style="text-align: left" nowrap>
-                            <!--<button type="button" class="btn btn-info" style="margin-right: 3px">
-                                <span class="fa fa-info"></span>&nbsp;
-                                รายละเอียด
-                            </button>-->
+                    <td style="vertical-align: top; text-align: center" nowrap><?= "{$createdDateHidden}{$displayDateTime}"; ?></td>
+                    <td style="text-align: left" nowrap>
+                        <button type="button" class="btn btn-info"
+                                style="margin-right: 3px"
+                                onclick="onClickEdit(
+                                <?= $memberId; ?>,
+                                        '<?= htmlentities($memberTitle); ?>',
+                                        '<?= htmlentities($memberFirstName); ?>',
+                                        '<?= htmlentities($memberLastName); ?>',
+                                        '<?= $memberBirthDate; ?>',
+                                        '<?= $memberPhone; ?>',
+                                        '<?= $memberEmail; ?>',
+                                        '<?= htmlentities($memberJobPosition); ?>',
+                                        '<?= htmlentities($memberOrganizationName); ?>',
+                                <?= $memberOrganizationType == null ? 0 : $memberOrganizationType; ?>,
+                                        '<?= $memberOrganizationTypeText; ?>',
+                                        '<?= htmlentities($memberOrganizationTypeCustom); ?>',
+                                        '<?= htmlentities($member['address']); ?>',
+                                        '<?= $member['sub_district']; ?>',
+                                        '<?= $member['district']; ?>',
+                                        '<?= $member['province']; ?>',
+                                        '<?= $member['postal_code']; ?>',
+                                        '<?= $member['organization_phone']; ?>',
+                                        '<?= $member['tax_id']; ?>',
+                                        '<?= $displayDate; ?>',
+                                        '<?= $displayTime; ?>',
+                                        )">
+                            <span class="fa fa-info"></span>&nbsp;
+                            รายละเอียด
+                        </button>
+                        <?php
+                        if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+                            ?>
                             <button type="button" class="btn btn-danger"
-                                    onclick="onClickDelete(this, <?= $memberId; ?>,
-                                            '<?= "$memberTitle $memberFirstName $memberLastName"; ?>')">
+                                    onclick="onClickDelete(
+                                            this,
+                                    <?= $memberId; ?>,
+                                            '<?= "$memberTitle $memberFirstName $memberLastName"; ?>'
+                                            )">
                                 <span class="fa fa-remove"></span>&nbsp;
                                 ลบ
                             </button>
-                        </td>
-                        <?php
-                    }
-                    ?>
+                            <?php
+                        }
+                        ?>
+                    </td>
                 </tr>
                 <?php
             }

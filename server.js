@@ -422,6 +422,7 @@ doLoginMember = (req, res, db) => {
 
 /*register สมาชิก*/
 doRegisterMember = (req, res, db) => {
+    let inputMemberType = req.body.memberType;
     let inputTitle = req.body.title;
     let inputFirstName = req.body.firstName;
     let inputLastName = req.body.lastName;
@@ -472,10 +473,10 @@ doRegisterMember = (req, res, db) => {
                 let taxId = inputTaxId == null ? null : inputTaxId.trim();
 
                 db.query(
-                        `INSERT INTO member(title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
+                        `INSERT INTO member(member_type, title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
                                             address, sub_district, district, province, postal_code, organization_phone, tax_id)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, jobPosition, organizationName, inputOrganizationType, organizationTypeCustom,
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [inputMemberType, inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, jobPosition, organizationName, inputOrganizationType, organizationTypeCustom,
                         inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode, organizationPhone, taxId],
 
                     function (err, results, fields) {

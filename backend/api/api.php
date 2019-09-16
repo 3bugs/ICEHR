@@ -47,6 +47,9 @@ switch ($action) {
     case 'logout_user':
         doLogoutUser();
         break;
+    case 'update_member':
+        doUpdateMember();
+        break;
     case 'get_name_title':
         doGetNameTitle();
         break;
@@ -402,6 +405,59 @@ function doLogoutUser()
         $response[KEY_ERROR_CODE] = ERROR_CODE_LOGOUT_FAILED;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการออกจากระบบ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
+    }
+}
+
+function doUpdateMember()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    //$email = $db->real_escape_string($_POST['email']);
+
+    $jobPosition = isset($_POST['jobPosition']) ? trim($_POST['jobPosition']) : null;
+    $organizationName = isset($_POST['organizationName']) ? trim($_POST['organizationName']) : null;
+    $organizationType = ((int)$_POST['organizationType']) === 0 ? null : $_POST['organizationType'];
+    $organizationTypeCustom = isset($_POST['organizationTypeCustom']) ? trim($_POST['organizationTypeCustom']) : null;
+    $address = isset($_POST['address']) ? trim($_POST['address']) : null;
+    $subDistrict = isset($_POST['subDistrict']) ? trim($_POST['subDistrict']) : null;
+    $district = isset($_POST['district']) ? trim($_POST['district']) : null;
+    $province = isset($_POST['province']) ? trim($_POST['province']) : null;
+    $postalCode = isset($_POST['postalCode']) ? trim($_POST['postalCode']) : null;
+    $organizationPhone = isset($_POST['organizationPhone']) ? trim($_POST['organizationPhone']) : null;
+    $taxId = isset($_POST['taxId']) ? trim($_POST['taxId']) : null;
+
+    $fieldSet = '';
+    $fieldSet .= $jobPosition ? ", job_position = '$jobPosition'" : ', job_position = NULL';
+    $fieldSet .= $organizationName ? ", organization_name = '$organizationName'" : ', organization_name = NULL';
+    $fieldSet .= $organizationType ? ", organization_type = $organizationType" : ', organization_type = NULL';
+    $fieldSet .= $organizationTypeCustom ? ", organization_type_custom = '$organizationTypeCustom'" : ', organization_type_custom = NULL';
+    $fieldSet .= $address ? ", address = '$address'" : ', address = NULL';
+    $fieldSet .= $subDistrict ? ", sub_district = '$subDistrict'" : ', sub_district = NULL';
+    $fieldSet .= $district ? ", district = '$district'" : ', district = NULL';
+    $fieldSet .= $province ? ", province = '$province'" : ', province = NULL';
+    $fieldSet .= $postalCode ? ", postal_code = '$postalCode'" : ', postal_code = NULL';
+    $fieldSet .= $organizationPhone ? ", organization_phone = '$organizationPhone'" : ', organization_phone = NULL';
+    $fieldSet .= $taxId ? ", tax_id = '$taxId'" : ', tax_id = NULL';
+
+    $sql = "UPDATE member 
+                SET title = '$title', first_name = '$firstName', last_name = '$lastName', 
+                    phone = '$phone' $fieldSet
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: '. $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
 }
 

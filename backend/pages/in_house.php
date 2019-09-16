@@ -132,7 +132,7 @@ if ($result = $db->query($sql)) {
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-envelope-o"></i>
                                                     </span>
-                                        <input type="text" class="form-control"
+                                        <input type="email" class="form-control"
                                                id="inputEmail" name="email">
                                     </div>
                                 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 15, 2019 at 11:35 AM
+-- Generation Time: Sep 16, 2019 at 10:09 PM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.2.12
 
@@ -1042,6 +1042,7 @@ INSERT INTO `media` (`id`, `model_id`, `model_type`, `collection_name`, `name`, 
 
 CREATE TABLE `member` (
   `id` int(11) NOT NULL,
+  `member_type` enum('person','organization','','') COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `first_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1068,22 +1069,25 @@ CREATE TABLE `member` (
 -- Dumping data for table `member`
 --
 
-INSERT INTO `member` (`id`, `title`, `first_name`, `last_name`, `birth_date`, `job_position`, `organization_name`, `organization_type`, `organization_type_custom`, `address`, `sub_district`, `district`, `province`, `postal_code`, `organization_phone`, `tax_id`, `phone`, `email`, `password`, `login_token`, `created_at`) VALUES
-(22, 'นาง', 'มานี', 'มีนา', '1980-01-01', 'พนักงานบริษัทเอกชน', '3bugs', 1, '', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '123', '123', '123', 'manee@gmail.com', 'abc123', NULL, '2019-05-08 09:46:14'),
-(99, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0850581776', 'promlert@gmail.com', 'abc123', NULL, '2019-05-02 10:10:21'),
-(100, 'นางสาว', 'Lily', 'A', '1980-01-01', 'sa', 'sa', 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0988888888', 'sudaporn.hen@gmail.com', '123456', NULL, '2019-05-14 05:02:24'),
-(101, 'นางสาว', 'เอมอร', 'สมรศรี', '1980-01-01', 'SA', 'Co coperation', 3, '', '14 ซอย 2 ถนน กาญจนวานิช', 'จอมพล', 'จตุจัก', 'กรุงเทพมหานคร', '10400', '023345334', '118893245333', '0978878889', 'Co@hotmail.com', '123456', NULL, '2019-05-14 05:22:03'),
-(102, 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1980-01-01', 'IT', '2fellows', 3, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '012345678', 'promlert123@gmail.com', '123456', NULL, '2019-05-17 03:14:30'),
-(103, 'นาย', 'a', 'b', '1980-01-01', 'c', 'd', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2', 'd@e.com', 'aaaaaa', NULL, '2019-05-27 05:46:03'),
-(105, 'นาย', 'aaa', 'bbb', '1980-01-01', 'ccc', 'ddd', 9999, 'สำนักพิมพ์', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '222', 'fff@ggg.com', 'hhhhhh', NULL, '2019-05-27 05:58:12'),
-(106, 'นาง', 'กกก', 'ขขข', '1980-01-01', 'คคค', 'งงง', 9999, 'ร้านค้า', '1', '1', '1', '1', '1', '1', '1', '1', 'mail@mail.com', '111111', NULL, '2019-05-27 06:01:54'),
-(107, 'นาย', 'a', 'a', '2019-07-02', 'a', 'a', 9999, 'ส่วนตัว', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'a', 'a@a.com', 'aaaaaa', NULL, '2019-05-27 08:57:45'),
-(108, 'นาย', 'Promlert', 'Lovichit', '1974-11-21', 'System Analyst', '3bugs', 9999, 'Enterprise Company', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0850581776', 'promlert@3bugs.com', 'abc123', NULL, '2019-05-31 09:41:28'),
-(109, 'นาย', 'Banlop', 'Lovichit', '2010-01-07', 'Student', 'KUS', 5, NULL, '11/13 Varawan Park Condominium', 'Ladyao', 'Jatujak', 'Bangkok', '10900', '0812345678', '999', '0898765432', 'tonyod@gmail.com', '123456', NULL, '2019-05-31 09:54:31'),
-(110, 'นาย', 'เมษา', 'อัครสกุล', '2001-04-19', 'CEO', 'Predis', 9999, 'สถานบันเทิง', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0876656677', 'Mesa@gmail.com', '123456', NULL, '2019-06-19 05:49:21'),
-(111, 'นางสาว', 'จันทร์เจ้า', 'อัครสกุล', '1996-05-26', 'CIO', 'Predis', 9999, 'สถานบันเทิง', '3 ถนน วิภาวดี', 'จอมพล', 'จตุจ้กร', 'กรุงเทพ', '10400', '0943345567', '112298877661323', '0865543377', 'Janjao@gmail.com', '123456', NULL, '2019-06-19 05:57:29'),
-(112, 'นาย', 'สมชาย', 'สบายดี', '2019-06-20', 'ส', 'ส', 1, NULL, '1', '1', '1', '1', '11111', '11', '1', '1', 'somchai@gmail.com', 'abc123', NULL, '2019-06-20 09:17:09'),
-(113, 'Miss', 'ณัฐปภัสร์', 'หล่อวิจิตร', '2004-10-18', 'นักเรียน', 'โรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '088-888-8888', 'nooknet2004@gmail.com', '123456', NULL, '2019-08-29 08:29:50');
+INSERT INTO `member` (`id`, `member_type`, `title`, `first_name`, `last_name`, `birth_date`, `job_position`, `organization_name`, `organization_type`, `organization_type_custom`, `address`, `sub_district`, `district`, `province`, `postal_code`, `organization_phone`, `tax_id`, `phone`, `email`, `password`, `login_token`, `created_at`) VALUES
+(22, 'organization', 'นาง', 'มานี', 'มีนา', '1980-01-01', 'พนักงานบริษัทเอกชน', '3bugs', 1, '', '11/13', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '123', '123', '123', 'manee@gmail.com', 'abc123', NULL, '2019-05-08 09:46:14'),
+(99, 'person', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1974-11-21', 'System Analyst', '2fellows', 3, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0850581776', 'promlert@gmail.com', 'abc123', NULL, '2019-05-02 10:10:21'),
+(100, 'person', 'นางสาว', 'Lily', 'A', '1980-01-01', 'sa', 'sa', 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0988888888', 'sudaporn.hen@gmail.com', '123456', NULL, '2019-05-14 05:02:24'),
+(101, 'organization', 'นางสาว', 'เอมอร', 'สมรศรี', '1980-01-01', 'SA', 'Co coperation', 3, '', '14 ซอย 2 ถนน กาญจนวานิช', 'จอมพล', 'จตุจัก', 'กรุงเทพมหานคร', '10400', '023345334', '118893245333', '0978878889', 'Co@hotmail.com', '123456', NULL, '2019-05-14 05:22:03'),
+(102, 'person', 'นาย', 'พร้อมเลิศ', 'หล่อวิจิตร', '1980-01-01', 'IT', '2fellows', 3, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '012345678', 'promlert123@gmail.com', '123456', NULL, '2019-05-17 03:14:30'),
+(103, 'person', 'นาย', 'a', 'b', '1980-01-01', 'c', 'd', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2', 'd@e.com', 'aaaaaa', NULL, '2019-05-27 05:46:03'),
+(105, 'person', 'นาย', 'aaa', 'bbb', '1980-01-01', 'ccc', 'ddd', 9999, 'สำนักพิมพ์', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '222', 'fff@ggg.com', 'hhhhhh', NULL, '2019-05-27 05:58:12'),
+(106, 'person', 'a', 'a', 'a', '1980-01-01', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'a', 'mail@mail.com', '111111', NULL, '2019-05-27 06:01:54'),
+(107, 'person', 'นาย', 'a', 'a', '2019-07-02', 'a', 'a', 9999, 'ส่วนตัว', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'a', 'a@a.com', 'aaaaaa', NULL, '2019-05-27 08:57:45'),
+(108, 'person', 'นาย', 'Promlert', 'Lovichit', '1974-11-21', 'System Analyst', '3bugs', 9999, 'Enterprise Company', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0850581776', 'promlert@3bugs.com', 'abc123', NULL, '2019-05-31 09:41:28'),
+(109, 'organization', 'นาย', 'Banlop', 'Lovichit', '2010-01-07', 'Student', 'KUS', 5, NULL, '11/13 Varawan Park Condominium', 'Ladyao', 'Jatujak', 'Bangkok', '10900', '0812345678', '999', '0898765432', 'tonyod@gmail.com', '123456', NULL, '2019-05-31 09:54:31'),
+(110, 'person', 'นาย', 'เมษา', 'อัครสกุล', '2001-04-19', 'CEO', 'Predis', 9999, 'สถานบันเทิง', '11/13, วรวรรณ พาร์ค คอนโดมิเนียม', 'ลาดยาว', 'จตุจักร', 'กรุงเทพมหานคร', '10900', '0812345678', NULL, '0876656677', 'Mesa@gmail.com', '123456', NULL, '2019-06-19 05:49:21'),
+(111, 'organization', 'นางสาว', 'จันทร์เจ้า', 'อัครสกุล', '1996-05-26', 'CIO', 'Predis', 9999, 'สถานบันเทิง', '3 ถนน วิภาวดี', 'จอมพล', 'จตุจ้กร', 'กรุงเทพ', '10400', '0943345567', '112298877661323', '0865543377', 'Janjao@gmail.com', '123456', NULL, '2019-06-19 05:57:29'),
+(112, 'organization', 'นาย', 'สมชาย', 'สบายดี', '2019-06-20', 'ส', 'ส', 1, NULL, '1', '1', '1', '1', '11111', '11', '1', '1', 'somchai@gmail.com', 'abc123', NULL, '2019-06-20 09:17:09'),
+(113, 'person', 'Miss', 'ณัฐปภัสร์', 'หล่อวิจิตร', '2004-10-18', 'นักเรียน', 'โรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '088-888-8888', 'nooknet2004@gmail.com', '123456', NULL, '2019-08-29 08:29:50'),
+(114, 'person', 'นาย123', 'aaa123', 'aaa123', '2019-09-15', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'aaa123', 'aaa@aaa.com', 'abc123', NULL, '2019-09-15 07:51:02'),
+(115, 'person', 'นาย', 'a', 'a', '2019-09-01', 'a', 'a', 1, NULL, 'a', NULL, NULL, NULL, NULL, NULL, NULL, 'a', 'aaa@a.com', 'abc123', NULL, '2019-09-16 14:00:44'),
+(116, 'organization', 'นาง', 'b', 'b', '2019-09-02', 'b', 'b', 2, NULL, 'b', 'b', 'b', 'b', '22222', 'b', '2222222222222', 'b', 'bbb@b.com', 'abc123', NULL, '2019-09-16 14:04:14');
 
 -- --------------------------------------------------------
 
@@ -1384,12 +1388,12 @@ CREATE TABLE `service` (
 --
 
 INSERT INTO `service` (`id`, `title`, `details`, `slug`, `url`) VALUES
-(1, 'บริการฝึกอบรม 123', 'รายละเอียดแบบย่อ บริการฝึกอบรม 456', 'training', ''),
-(2, 'In-House Training', 'รายละเอียดแบบย่อ In-House Training', 'in-house', ''),
-(3, 'บริการสังคม', 'รายละเอียดแบบย่อ บริการสังคม', 'social', ''),
-(4, 'บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'รายละเอียดแบบย่อ บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'driving-license', ''),
-(5, 'งานวิจัยและวิชาการ', 'รายละเอียดแบบย่อ งานวิจัยและวิชาการ', 'academic-paper', ''),
-(6, 'วารสาร HR Intelligence', 'รายละเอียดแบบย่อ วารสาร HR Intelligence', 'hr-intelligence', 'http://www2.icehr.tu.ac.th/');
+(1, 'บริการฝึกอบรม', 'รายละเอียดแบบย่อ บริการฝึกอบรม', 'training', '/service-training'),
+(2, 'In-House Training', 'รายละเอียดแบบย่อ In-House Training', 'in-house', '/in-house'),
+(3, 'บริการสังคม', 'รายละเอียดแบบย่อ บริการสังคม', 'social', '/service-social'),
+(4, 'บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'รายละเอียดแบบย่อ บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่', 'driving-license', '/service-driving-license'),
+(5, 'งานวิจัยและวิชาการ', 'รายละเอียดแบบย่อ งานวิจัยและวิชาการ', 'academic-paper', '/academic-paper'),
+(6, 'วารสาร HR Intelligence', 'รายละเอียดแบบย่อ วารสาร HR Intelligence', 'hr-intelligence', 'http://www2.icehr.tu.ac.th/123');
 
 -- --------------------------------------------------------
 
@@ -1854,7 +1858,7 @@ ALTER TABLE `media`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
 
 --
 -- AUTO_INCREMENT for table `menus`

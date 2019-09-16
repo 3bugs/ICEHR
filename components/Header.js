@@ -417,6 +417,7 @@ class LoginForm extends React.Component {
         let params = {};
         switch (registerType) {
             case REGISTER_TYPE_PERSON:
+                params['memberType'] = 'person';
                 params['title'] = fields[REGISTER_PERSON_TITLE];
                 params['firstName'] = fields[REGISTER_PERSON_FIRST_NAME];
                 params['lastName'] = fields[REGISTER_PERSON_LAST_NAME];
@@ -430,6 +431,7 @@ class LoginForm extends React.Component {
                 params['password'] = fields[REGISTER_PERSON_PASSWORD];
                 break;
             case REGISTER_TYPE_ORGANIZATION:
+                params['memberType'] = 'organization';
                 params['title'] = fields[REGISTER_ORGANIZATION_TITLE];
                 params['firstName'] = fields[REGISTER_ORGANIZATION_FIRST_NAME];
                 params['lastName'] = fields[REGISTER_ORGANIZATION_LAST_NAME];
@@ -1204,7 +1206,7 @@ class LoginForm extends React.Component {
                                                                                         <input
                                                                                             value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE] || ''}
                                                                                             onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_POSTAL_CODE, false)}
-                                                                                            type="number"
+                                                                                            type="text"
                                                                                             maxLength={5}
                                                                                             placeholder="รหัสไปรษณีย์"
                                                                                             className="form-control input-md"/>
@@ -1246,7 +1248,8 @@ class LoginForm extends React.Component {
                                                                                 <input
                                                                                     value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] || ''}
                                                                                     onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID, true)}
-                                                                                    type="tel"
+                                                                                    type="text"
+                                                                                    maxLength={13}
                                                                                     placeholder="เลขประจำตัวผู้เสียภาษี"
                                                                                     className="form-control input-md"/>
                                                                                 <ErrorLabel

@@ -34,6 +34,9 @@ define('KEY_ERROR_MESSAGE_MORE', 'error_message_more');
 define('KEY_DATA_LIST', 'data_list');
 //define('KEY_LOGIN_SUCCESS', 'login_success');
 
+define('MEMBER_TYPE_ORGANIZATION', 'organization');
+define('MEMBER_TYPE_PERSON', 'person');
+
 define('UPLOAD_DIR_ACADEMIC_PAPERS', '../uploads/academic_papers/');
 define('UPLOAD_DIR_COURSE_ASSETS', '../uploads/course_assets/');
 define('UPLOAD_DIR_DOCUMENT_DOWNLOADS', '../uploads/document_downloads/');

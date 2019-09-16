@@ -16,13 +16,16 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 - เบอร์โทรหน่วยงาน (มีเฉพาะสมาชิกแบบองค์กร/บริษัท)
  */
 
+$memberTypeOrganization = MEMBER_TYPE_ORGANIZATION;
+$memberTypePerson = MEMBER_TYPE_PERSON;
+
 $sql = "SELECT m.title, m.first_name, m.last_name, m.phone, m.email, m.job_position, 
                m.organization_type_custom, ot.name AS organization_type_name, m.organization_name,
                m.address, m.sub_district, m.district, m.province, m.postal_code, m.organization_phone
         FROM member m 
             LEFT JOIN organization_type ot 
                 ON ot.id = m.organization_type 
-        WHERE m.address IS NOT NULL
+        WHERE m.member_type = '$memberTypeOrganization'
         ORDER BY m.id";
 
 $organizationMemberList = array();
@@ -43,7 +46,7 @@ $sql = "SELECT m.title, m.first_name, m.last_name, m.phone, m.email, m.job_posit
         FROM member m 
             LEFT JOIN organization_type ot 
                 ON ot.id = m.organization_type 
-        WHERE m.address IS NULL
+        WHERE m.member_type = '$memberTypePerson'
         ORDER BY m.id";
 
 $personMemberList = array();
