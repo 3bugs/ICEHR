@@ -1338,7 +1338,7 @@ export default class ServiceSocialRegister extends React.Component {
 
                                                         <div className="row">
                                                             <div className="col-12 col-md-2" style={{paddingRight: 0}}>
-                                                                <label className="label required-label">ชื่อ</label>
+                                                                <label className="label required-label">ชื่อสำหรับออกใบเสร็จ</label>
                                                             </div>
                                                             <div className="col-12 col-md-9">
                                                                 <input value={receiptForm.fields[REGISTER_RECEIPT_NAME] || ''}

@@ -223,7 +223,7 @@ foreach ($memberList as $member) {
                                 <!--ประเภทหน่วยงาน-->
                                 <div class="row">
                                     <div class="form-group col-md-6">
-                                        <label for="inputOrganizationType">ประเภทหน่วยงาน:</label>
+                                        <label for="selectOrganizationType">ประเภทหน่วยงาน:</label>
                                         <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-navicon"></i>

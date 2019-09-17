@@ -90,6 +90,9 @@ switch ($action) {
     case 'get_payment_notification':
         doGetPaymentNotification();
         break;
+    case 'update_trainee_training':
+        doUpdateTraineeTraining();
+        break;
     case 'update_in_house':
         doUpdateInHouse();
         break;
@@ -1577,6 +1580,80 @@ function doUpdateRegisterStatus()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทสถานะการลงทะเบียน';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateTraineeTraining() {
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    $email = $db->real_escape_string($_POST['email']);
+    $jobPosition = $db->real_escape_string($_POST['jobPosition']);
+    $organizationName = $db->real_escape_string($_POST['organizationName']);
+    $organizationType = $db->real_escape_string($_POST['organizationType']);
+    $organizationTypeCustom = isset($_POST['organizationTypeCustom']) ? trim($_POST['organizationTypeCustom']) : '';
+
+    $sql = "UPDATE course_trainee 
+                SET title = '$title', first_name = '$firstName', last_name = '$lastName', 
+                    phone = '$phone', email = '$email', job_position = '$jobPosition',
+                    organization_name = '$organizationName', organization_type = $organizationType, 
+                    organization_type_custom = '$organizationTypeCustom'
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $courseRegId = $db->real_escape_string($_POST['courseRegId']);
+
+        $coordinatorSet = '';
+        if (isset($_POST['coordinatorTitle'])) {
+            $title = $db->real_escape_string($_POST['coordinatorTitle']);
+            $firstName = $db->real_escape_string($_POST['coordinatorFirstName']);
+            $lastName = $db->real_escape_string($_POST['coordinatorLastName']);
+            $phone = $db->real_escape_string($_POST['coordinatorPhone']);
+            $email = $db->real_escape_string($_POST['coordinatorEmail']);
+            $jobPosition = $db->real_escape_string($_POST['coordinatorJobPosition']);
+            $organizationName = $db->real_escape_string($_POST['coordinatorOrganizationName']);
+            $organizationType = $db->real_escape_string($_POST['coordinatorOrganizationType']);
+            $organizationTypeCustom = isset($_POST['coordinatorOrganizationTypeCustom']) ? trim($_POST['coordinatorOrganizationTypeCustom']) : '';
+
+            $coordinatorSet = ", coordinator_title = '$title', coordinator_first_name = '$firstName', coordinator_last_name = '$lastName'";
+            $coordinatorSet .= ", coordinator_phone = '$phone', coordinator_email = '$email', coordinator_job_position = '$jobPosition'";
+            $coordinatorSet .= ", coordinator_organization_name = '$organizationName', coordinator_organization_type = '$organizationType', coordinator_organization_type_custom = '$organizationTypeCustom' ";
+        }
+
+        $receiptName = $db->real_escape_string($_POST['receiptName']);
+        $receiptAddress = $db->real_escape_string($_POST['receiptAddress']);
+        $receiptSubDistrict = $db->real_escape_string($_POST['receiptSubDistrict']);
+        $receiptDistrict = $db->real_escape_string($_POST['receiptDistrict']);
+        $receiptProvince = $db->real_escape_string($_POST['receiptProvince']);
+        $receiptPostalCode = $db->real_escape_string($_POST['receiptPostalCode']);
+        $receiptOrganizationPhone = $db->real_escape_string($_POST['receiptOrganizationPhone']);
+        $receiptTaxId = $db->real_escape_string($_POST['receiptTaxId']);
+
+        $sql = "UPDATE course_registration 
+                SET receipt_name = '$receiptName', receipt_address = '$receiptAddress', receipt_sub_district = '$receiptSubDistrict', receipt_district = '$receiptDistrict',
+                    receipt_province = '$receiptProvince', receipt_postal_code = '$receiptPostalCode', receipt_organization_phone = '$receiptOrganizationPhone', receipt_tax_id = '$receiptTaxId'
+                    $coordinatorSet
+                WHERE id = $courseRegId ";
+
+        if ($result = $db->query($sql)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลใบสมัครสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (2): '. $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+        }
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (1): '. $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
