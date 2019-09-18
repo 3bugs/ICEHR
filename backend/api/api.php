@@ -93,6 +93,9 @@ switch ($action) {
     case 'update_trainee_training':
         doUpdateTraineeTraining();
         break;
+    case 'update_trainee_social':
+        doUpdateTraineeSocial();
+        break;
     case 'update_in_house':
         doUpdateInHouse();
         break;
@@ -1654,6 +1657,61 @@ function doUpdateTraineeTraining() {
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (1): '. $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateTraineeSocial() {
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+    $phone = $db->real_escape_string($_POST['phone']);
+    $email = $db->real_escape_string($_POST['email']);
+    $occupation = $db->real_escape_string($_POST['occupation']);
+    $workPlace = $db->real_escape_string($_POST['workPlace']);
+
+    $disease = $db->real_escape_string($_POST['disease']);
+    $contactName = $db->real_escape_string($_POST['contactName']);
+    $contactPhone = $db->real_escape_string($_POST['contactPhone']);
+
+    $address = $db->real_escape_string($_POST['address']);
+    $subDistrict = $db->real_escape_string($_POST['subDistrict']);
+    $district = $db->real_escape_string($_POST['district']);
+    $province = $db->real_escape_string($_POST['province']);
+    $postalCode = $db->real_escape_string($_POST['postalCode']);
+
+    $receiptSet = '';
+    if (isset($_POST['receiptName']) && $_POST['receiptName'] !== '') {
+        $receiptName = $db->real_escape_string($_POST['receiptName']);
+        $receiptAddress = $db->real_escape_string($_POST['receiptAddress']);
+        $receiptSubDistrict = $db->real_escape_string($_POST['receiptSubDistrict']);
+        $receiptDistrict = $db->real_escape_string($_POST['receiptDistrict']);
+        $receiptProvince = $db->real_escape_string($_POST['receiptProvince']);
+        $receiptPostalCode = $db->real_escape_string($_POST['receiptPostalCode']);
+
+        $receiptSet = ", receipt_name = '$receiptName', receipt_address = '$receiptAddress', receipt_sub_district = '$receiptSubDistrict'";
+        $receiptSet .= ", receipt_district = '$receiptDistrict', receipt_province = '$receiptProvince', receipt_postal_code = '$receiptPostalCode' ";
+    }
+
+    $sql = "UPDATE course_registration_social 
+                SET title = '$title', first_name = '$firstName', last_name = '$lastName', phone = '$phone', email = '$email', 
+                    occupation = '$occupation', work_place = '$workPlace', disease = '$disease', contact_name = '$contactName', contact_phone = '$contactPhone', 
+                    address = '$address', sub_district = '$subDistrict', district = '$district', province = '$province', postal_code = '$postalCode'
+                    $receiptSet
+                WHERE id = $id ";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลใบสมัครสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: '. $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

@@ -31,7 +31,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             break;
 
         case SERVICE_TYPE_SOCIAL:
-            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.email, cr.contact_name, cr.contact_phone, 
+            $sql = "SELECT cr.id, cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.email, 
+                           cr.occupation, cr.work_place, cr.address, cr.sub_district, cr.district, cr.province, cr.postal_code,
+                           cr.contact_name, cr.contact_phone, cr.disease,
+                           cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code,
                            cr.register_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number
                     FROM course_registration_social cr  
                     WHERE $whereClause
@@ -82,6 +85,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['sub_district'] = $row['sub_district'];
             $trainee['district'] = $row['district'];
             $trainee['province'] = $row['province'];
+            $trainee['postal_code'] = $row['postal_code']; // สำหรับสังคม
 
             $trainee['phone'] = $row['phone'];
             $trainee['email'] = $row['email'];
@@ -113,8 +117,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['course_id'] = (int)$row['course_id'];
 
             /*สำหรับบริการสังคม*/
+            $trainee['occupation'] = $row['occupation'];
+            $trainee['work_place'] = $row['work_place'];
             $trainee['contact_name'] = $row['contact_name'];
             $trainee['contact_phone'] = $row['contact_phone'];
+            $trainee['disease'] = $row['disease'];
 
             /*สำหรับบริการใบขับขี่*/
             $trainee['pid'] = $row['pid'];
@@ -672,7 +679,405 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div style="margin-top: 15px; text-align: center">
                                 <?php
                                 if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
-                                    || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION))) {
+                                    || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_UPDATE))) {
+                                    ?>
+                                    <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
+                                        <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
+                                    </button>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <button type="button" class="btn btn-block btn-danger" style="display: inline; width: 240px;">
+                                        <i class="fa fa-save"></i>&nbsp;&nbsp;คุณไม่มีสิทธิ์บันทึกการแก้ไข
+                                    </button>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doc social modal -->
+    <div class="modal fade" id="editDocSocialModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;
+                    </button>-->
+                    <h4 class="modal-title">
+                        ข้อมูลใบสมัครเลขที่ <span id="spanFormNumber"></span>
+                        <div class="pull-right">
+                            <small>กรอกใบสมัครเมื่อ <span id="spanCreatedAt"></span></small>
+                        </div>
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <div id="spanLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>
+                    <div id="alertSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
+                    </div>
+                    <div id="alertError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                    </div>
+
+                    <form id="formEditDocSocial" role="form"
+                          action="../api/api.php/update_trainee_social"
+                          method="post"
+                          autocomplete="off"
+                          style="margin-top: 0; margin-bottom: 0">
+
+                        <div class="box-body">
+                            <input type="hidden" id="inputId" name="id">
+
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tabTraineeSocial" data-toggle="tab">ข้อมูลผู้สมัคร</a></li>
+                                    <li id="tabHeadReceipt"><a href="#tabReceiptSocial" data-toggle="tab">ข้อมูลการออกใบเสร็จ</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="tabTraineeSocial">
+                                        <!--คำนำหน้า-ชื่อ-นามสกุล-->
+                                        <div class="row">
+                                            <!--คำนำหน้าชื่อ-->
+                                            <div class="form-group col-md-2">
+                                                <label for="inputTitle">คำนำหน้าชื่อ:</label>
+                                                <div class="input-group">
+                                                    <!--<span class="input-group-addon">
+                                                        <i class="fa fa-user"></i>
+                                                    </span>-->
+                                                    <input type="text" class="form-control" required
+                                                           id="inputTitle" name="title"
+                                                           oninvalid="this.setCustomValidity('กรอกคำนำหน้าชื่อ')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+
+                                            <!--ชื่อ-->
+                                            <div class="form-group col-md-5">
+                                                <label for="inputFirstName">ชื่อ:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user-o"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" required
+                                                           id="inputFirstName" name="firstName"
+                                                           oninvalid="this.setCustomValidity('กรอกชื่อ')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                            <!--นามสกุล-->
+                                            <div class="form-group col-md-5">
+                                                <label for="inputLastName">นามสกุล:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-user-o"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control" required
+                                                           id="inputLastName" name="lastName"
+                                                           oninvalid="this.setCustomValidity('กรอกนามสกุล')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--เบอร์โทร อีเมล-->
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPhone">เบอร์โทร:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-phone"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" required
+                                                           id="inputPhone" name="phone"
+                                                           oninvalid="this.setCustomValidity('กรอกเบอร์โทร')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail">อีเมล:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </span>
+                                                    <input type="email" class="form-control" required
+                                                           id="inputEmail" name="email"
+                                                           oninvalid="this.setCustomValidity('กรอกอีเมลที่มีรูปแบบถูกต้อง')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--อาชีพ สถานที่ทำงาน-->
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputOccupation">อาชีพ:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-tag"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" required
+                                                           id="inputOccupation" name="occupation">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputWorkPlace">สถานที่ทำงาน:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-home"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputWorkPlace" name="workPlace">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <label style="display: block; text-align: center; margin-top: 5px">กรณีฉุกเฉิน</label>
+                                        <div style="padding: 15px 15px 5px 15px; border: 0px solid grey; background: #FFD9E0">
+                                            <!--โรคประจำตัว-->
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <label for="inputDisease">โรคประจำตัว:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-frown-o"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control" required
+                                                               id="inputDisease" name="disease">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--ชื่อและเบอร์โทรผู้ติดต่อ กรณีฉุกเฉิน-->
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputContactName">ชื่อผู้ติดต่อกรณีฉุกเฉิน:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user-circle"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control" required
+                                                               id="inputContactName" name="contactName">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputContactPhone">เบอร์โทรผู้ติดต่อกรณีฉุกเฉิน:</label>
+                                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-phone-square"></i>
+                                                    </span>
+                                                        <input type="text" class="form-control" required
+                                                               id="inputContactPhone" name="contactPhone">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <label style="display: block; text-align: center; margin-top: 15px">ที่อยู่</label>
+                                        <div style="padding: 15px 15px 5px 15px; border: 0px solid grey; background: #f4f4f4">
+                                            <!--ที่อยู่-->
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <label for="inputAddress">ที่อยู่:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputAddress" name="address"
+                                                               oninvalid="this.setCustomValidity('กรอกที่อยู่')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--แขวง, เขต-->
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputSubDistrict">แขวง/ตำบล:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputSubDistrict" name="subDistrict"
+                                                               oninvalid="this.setCustomValidity('กรอกแขวง/ตำบล')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputDistrict">เขต/อำเภอ:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputDistrict" name="district"
+                                                               oninvalid="this.setCustomValidity('กรอกเขต/อำเภอ')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--จังหวัด, รหัสไปรษณีย์-->
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputProvince">จังหวัด:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputProvince" name="province"
+                                                               oninvalid="this.setCustomValidity('กรอกจังหวัด')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputPostalCode">รหัสไปรษณีย์:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control"
+                                                               maxlength="5"
+                                                               id="inputPostalCode" name="postalCode"
+                                                               oninvalid="this.setCustomValidity('กรอกรหัสไปรษณีย์')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.tab-pane -->
+
+                                    <div class="tab-pane" id="tabReceiptSocial">
+                                        <!--ชื่อสำหรับออกใบเสร็จ-->
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label for="inputReceiptName">ชื่อสำหรับออกใบเสร็จ:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-font"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputReceiptName" name="receiptName"
+                                                           oninvalid="this.setCustomValidity('กรอกชื่อสำหรับออกใบเสร็จ')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--ที่อยู่-->
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label for="inputReceiptAddress">ที่อยู่:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputReceiptAddress" name="receiptAddress"
+                                                           oninvalid="this.setCustomValidity('กรอกที่อยู่')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--แขวง, เขต-->
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputReceiptSubDistrict">แขวง/ตำบล:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputReceiptSubDistrict" name="receiptSubDistrict"
+                                                           oninvalid="this.setCustomValidity('กรอกแขวง/ตำบล')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputReceiptDistrict">เขต/อำเภอ:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputReceiptDistrict" name="receiptDistrict"
+                                                           oninvalid="this.setCustomValidity('กรอกเขต/อำเภอ')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--จังหวัด, รหัสไปรษณีย์-->
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputReceiptProvince">จังหวัด:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           id="inputReceiptProvince" name="receiptProvince"
+                                                           oninvalid="this.setCustomValidity('กรอกจังหวัด')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputReceiptPostalCode">รหัสไปรษณีย์:</label>
+                                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                    <input type="text" class="form-control"
+                                                           maxlength="5"
+                                                           id="inputReceiptPostalCode" name="receiptPostalCode"
+                                                           oninvalid="this.setCustomValidity('กรอกรหัสไปรษณีย์')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.tab-pane -->
+                                </div>
+                                <!-- /.tab-content -->
+                            </div>
+                            <!-- nav-tabs-custom -->
+
+                            <div id="spanLoading" style="text-align: center; margin-top: 15px">
+                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                            </div>
+                            <div id="alertSuccess" class="alert alert-success alert-dismissible" style="margin-top: 15px">
+                                <button type="button" class="close" aria-hidden="true" onClick="$('#alertSuccess').hide()">&times;</button>
+                                <i class="icon fa fa-check"></i><span id="alertSuccessText"></span>
+                            </div>
+                            <div id="alertError" class="alert alert-danger alert-dismissible" style="margin-top: 15px">
+                                <button type="button" class="close" aria-hidden="true" onClick="$('#alertError').hide()">&times;</button>
+                                <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
+                            </div>
+
+                            <div style="margin-top: 15px; text-align: center">
+                                <?php
+                                if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                                    || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_UPDATE))) {
                                     ?>
                                     <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
                                         <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
@@ -1304,7 +1709,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             </div>
                                         </div>
 
-                                        <label for="inputMoo" style="display: block; text-align: center;">ที่อยู่ตามบัตรประชาชน</label>
+                                        <label style="display: block; text-align: center;">ที่อยู่ตามบัตรประชาชน</label>
                                         <div style="padding: 15px 15px 5px 15px; border: 0px solid grey; background: #f4f4f4">
                                             <!--บ้านเลขที่-หมู่-->
                                             <div class="row">
@@ -1894,7 +2299,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         <?php
                         if ($paramCourseId == NULL) {
                             ?>
-                            <td style="vertical-align: top"><?php echo $courseDetails; ?></td>
+                            <td style="vertical-align: top">
+                                <?php echo $courseDetails; ?>
+                                <div><strong>฿</strong> <?= $courseApplicationFee === 0 ? 'ฟรี' : (number_format($courseApplicationFee) . ' บาท'); ?>
+                            </td>
                             <?php
                         }
                     } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
@@ -2118,12 +2526,34 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         onClick="onClickDocSocial(
                                                 '<?= $formNumber; ?>',
                                         <?= $traineeId; ?>,
+                                        <?= $courseApplicationFee; ?>,
                                                 '<?= $trainee['title']; ?>',
                                                 '<?= htmlentities($trainee['first_name']); ?>',
                                                 '<?= htmlentities($trainee['last_name']); ?>',
                                                 '<?= $trainee['phone']; ?>',
                                                 '<?= $trainee['email']; ?>',
-                                                '<?= $trainee['job_position']; ?>',
+                                                '<?= htmlentities($trainee['occupation']); ?>',
+                                                '<?= htmlentities($trainee['work_place']); ?>',
+
+                                                '<?= htmlentities($trainee['address']); ?>',
+                                                '<?= htmlentities($trainee['sub_district']); ?>',
+                                                '<?= htmlentities($trainee['district']); ?>',
+                                                '<?= htmlentities($trainee['province']); ?>',
+                                                '<?= $trainee['postal_code']; ?>',
+
+                                                '<?= htmlentities($trainee['contact_name']); ?>',
+                                                '<?= htmlentities($trainee['contact_phone']); ?>',
+                                                '<?= htmlentities($trainee['disease']); ?>',
+
+                                                '<?= htmlentities($trainee['receipt']['name']); ?>',
+                                                '<?= htmlentities($trainee['receipt']['address']); ?>',
+                                                '<?= htmlentities($trainee['receipt']['sub_district']); ?>',
+                                                '<?= htmlentities($trainee['receipt']['district']); ?>',
+                                                '<?= htmlentities($trainee['receipt']['province']); ?>',
+                                                '<?= $trainee['receipt']['postal_code']; ?>',
+
+                                                '<?= $displayDate; ?>',
+                                                '<?= $displayTime; ?>'
                                                 )">
                                     ใบสมัคร
                                 </button>
@@ -2303,6 +2733,21 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         doUpdateDocTraining();
                     }
                 }
+            });
+
+            $('#editDocSocialModal').on('hidden.bs.modal', () => {
+                if (shouldReload) {
+                    location.reload(true);
+                }
+            });
+
+            $('#formEditDocSocial').on('submit', (event) => {
+                event.preventDefault();
+                //if (validateDocSocialForm()) {
+                if (confirm("ยืนยันแก้ไขข้อมูลใบสมัคร?")) {
+                    doUpdateDocSocial();
+                }
+                //}
             });
 
             $('#selectOrganizationType').change(function () {
@@ -2714,6 +3159,111 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     $('#editDocTrainingModal #alertError').show();
                 }
             });
+        }
+
+        function doUpdateDocSocial() {
+            const loadingIcon = $('#editDocSocialModal #spanLoading');
+
+            loadingIcon.show();
+            $('#editDocSocialModal #alertSuccess').hide();
+            $('#editDocSocialModal #alertError').hide();
+
+            $('#formEditDocSocial').ajaxSubmit({
+                dataType: 'json',
+                success: (data, statusText) => {
+                    loadingIcon.hide();
+
+                    if (data.error_code === 0) {
+                        $('#editDocSocialModal #alertSuccessText').text(data.error_message);
+                        $('#editDocSocialModal #alertSuccess').show();
+
+                        shouldReload = true;
+                    } else {
+                        $('#editDocSocialModal #alertErrorText').text(data.error_message);
+                        $('#editDocSocialModal #alertError').show();
+                    }
+                },
+                error: () => {
+                    loadingIcon.hide();
+                    $('#editDocSocialModal #alertErrorText').val('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                    $('#editDocSocialModal #alertError').show();
+                }
+            });
+        }
+
+        function onClickDocSocial(formNumber, id, courseApplicationFee, title, firstName, lastName, phone, email, occupation, workPlace,
+                                  address, subDistrict, district, province, postalCode, contactName, contactPhone, disease,
+                                  receiptName, receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince, receiptPostalCode,
+                                  displayCreatedDate, displayCreatedTime) {
+            /*ข้อมูลผู้สมัคร*/
+            $('#editDocSocialModal #alertSuccess').hide();
+            $('#editDocSocialModal #alertError').hide();
+            $('#editDocSocialModal #spanLoading').hide();
+
+            $('#editDocSocialModal #spanFormNumber').text(formNumber);
+            $('#formEditDocSocial #inputId').val(id);
+
+            $('#formEditDocSocial #inputTitle').val(title);
+            $('#formEditDocSocial #inputFirstName').val(firstName);
+            $('#formEditDocSocial #inputLastName').val(lastName);
+            $('#formEditDocSocial #inputPhone').val(phone);
+            $('#formEditDocSocial #inputEmail').val(email);
+            $('#formEditDocSocial #inputOccupation').val(occupation);
+            $('#formEditDocSocial #inputWorkPlace').val(workPlace);
+
+            $('#formEditDocSocial #inputContactName').val(contactName);
+            $('#formEditDocSocial #inputContactPhone').val(contactPhone);
+            $('#formEditDocSocial #inputDisease').val(disease);
+
+            $('#formEditDocSocial #inputAddress').val(address);
+            $('#formEditDocSocial #inputSubDistrict').val(subDistrict);
+            $('#formEditDocSocial #inputDistrict').val(district);
+            $('#formEditDocSocial #inputProvince').val(province);
+            $('#formEditDocSocial #inputPostalCode').val(postalCode);
+
+            /*ข้อมูลการออกใบเสร็จ*/
+            const inputReceiptName = $('#formEditDocSocial #inputReceiptName');
+            const inputReceiptAddress = $('#formEditDocSocial #inputReceiptAddress');
+            const inputReceiptSubDistrict = $('#formEditDocSocial #inputReceiptSubDistrict');
+            const inputReceiptDistrict = $('#formEditDocSocial #inputReceiptDistrict');
+            const inputReceiptProvince = $('#formEditDocSocial #inputReceiptProvince');
+            const inputReceiptPostalCode = $('#formEditDocSocial #inputReceiptPostalCode');
+
+            const inputFieldList = [];
+            inputFieldList.push(inputReceiptName);
+            inputFieldList.push(inputReceiptAddress);
+            inputFieldList.push(inputReceiptSubDistrict);
+            inputFieldList.push(inputReceiptDistrict);
+            inputFieldList.push(inputReceiptProvince);
+            inputFieldList.push(inputReceiptPostalCode);
+
+            if (courseApplicationFee === 0) { // คอร์สฟรี
+                setRequiredFields(inputFieldList, false);
+
+                inputReceiptName.val('');
+                inputReceiptAddress.val('');
+                inputReceiptSubDistrict.val('');
+                inputReceiptDistrict.val('');
+                inputReceiptProvince.val('');
+                inputReceiptPostalCode.val('');
+
+                $('#formEditDocSocial #tabHeadReceipt').hide();
+            } else { // คอร์สเสียเงิน
+                setRequiredFields(inputFieldList, true);
+
+                inputReceiptName.val(receiptName);
+                inputReceiptAddress.val(receiptAddress);
+                inputReceiptSubDistrict.val(receiptSubDistrict);
+                inputReceiptDistrict.val(receiptDistrict);
+                inputReceiptProvince.val(receiptProvince);
+                inputReceiptPostalCode.val(receiptPostalCode);
+
+                $('#formEditDocSocial #tabHeadReceipt').show();
+            }
+
+            $('#editDocSocialModal #spanCreatedAt').text(displayCreatedDate + ', ' + displayCreatedTime);
+
+            $('#editDocSocialModal').modal('show');
         }
 
         function onClickDoc(formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, traineePid,
