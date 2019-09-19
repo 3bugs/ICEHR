@@ -13,7 +13,32 @@ if (!isset($courseId)) {
     exit();
 }
 
-$sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
+$getCourseTypeSql = "SELECT cm.service_type 
+                     FROM course c 
+                         INNER JOIN course_master cm 
+                             ON cm.id = c.course_master_id 
+                     WHERE c.id = $courseId";
+if ($result = $db->query($getCourseTypeSql)) {
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $serviceType = $row['service_type'];
+        $result->close();
+    } else {
+        header('Content-Type: text/html');
+        echo 'Error: ไม่พบข้อมูลหลักสูตร !!!';
+        $result->close();
+        $db->close();
+        exit();
+    }
+} else {
+    header('Content-Type: text/html');
+    echo 'Error: เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล - ' . $db->error;
+    $db->close();
+    exit();
+}
+
+if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
                cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_job_position, 
                cr.coordinator_organization_name, cr.coordinator_phone, cr.coordinator_email,
                ct.form_number, ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email, ct.paid_amount
@@ -26,6 +51,27 @@ $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begi
                 ON cm.id = c.course_master_id
         WHERE c.id = $courseId AND ct.register_status = 'complete'
         ORDER BY ct.id";
+} else if ($serviceType === SERVICE_TYPE_SOCIAL) {
+    $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
+               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.occupation, cr.work_place, cr.phone, cr.email, cr.paid_amount
+        FROM course_registration_social cr  
+            INNER JOIN course c 
+                ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON cm.id = c.course_master_id
+        WHERE c.id = $courseId AND cr.register_status = 'complete'
+        ORDER BY cr.id";
+} else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+    $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
+               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.paid_amount
+        FROM course_registration_driving_license cr  
+            INNER JOIN course c 
+                ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON cm.id = c.course_master_id
+        WHERE c.id = $courseId AND cr.register_status = 'complete'
+        ORDER BY cr.id";
+}
 
 $traineeList = array();
 if ($result = $db->query($sql)) {
@@ -53,9 +99,16 @@ header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->mergeCells("A1:F1");
-$sheet->mergeCells("B2:C2");
-$sheet->mergeCells("D2:E2");
+
+if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $sheet->mergeCells("A1:F1");
+    $sheet->mergeCells("B2:C2");
+    $sheet->mergeCells("D2:E2");
+} else {
+    $sheet->mergeCells("A1:D1");
+    $sheet->mergeCells("B2:C2");
+}
+
 $sheet->freezePane('A3');
 
 $sheet->setTitle(date("d-m-Y"));
@@ -66,8 +119,10 @@ $sheet->getColumnDimension('A')->setAutoSize(true);
 $sheet->getColumnDimension('B')->setAutoSize(true);
 $sheet->getColumnDimension('C')->setAutoSize(true);
 $sheet->getColumnDimension('D')->setAutoSize(true);
-$sheet->getColumnDimension('E')->setAutoSize(true);
-$sheet->getColumnDimension('F')->setAutoSize(true);
+if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $sheet->getColumnDimension('E')->setAutoSize(true);
+    $sheet->getColumnDimension('F')->setAutoSize(true);
+}
 
 $trainee = $traineeList[0];
 $serviceType = $trainee['service_type'];
@@ -89,9 +144,14 @@ $row = 2;
 $sheet->setCellValueByColumnAndRow(1, $row, 'ลำดับ')->getStyleByColumnAndRow(1, $row)->getAlignment()->setHorizontal('center');;
 $sheet->setCellValueByColumnAndRow(2, $row, 'ผู้เข้ารับการอบรม')->getStyleByColumnAndRow(2, $row)->getAlignment()->setHorizontal('center');
 //$sheet->setCellValueByColumnAndRow(3, $row, 'ผู้เข้ารับการอบรม');
-$sheet->setCellValueByColumnAndRow(4, $row, 'ผู้ประสานงาน')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
-//$sheet->setCellValueByColumnAndRow(5, $row, 'ผู้ประสานงาน');
-$sheet->setCellValueByColumnAndRow(6, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
+
+if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $sheet->setCellValueByColumnAndRow(4, $row, 'ผู้ประสานงาน')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(6, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
+} else {
+    $sheet->setCellValueByColumnAndRow(4, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
+}
+
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
 define('START_ROW', 3);
@@ -100,29 +160,33 @@ $income = 0;
 foreach ($traineeList as $trainee) {
     $sheet->setCellValueByColumnAndRow(1, $row, ($row - START_ROW) + 1)->getStyleByColumnAndRow(1, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
-    $displayName = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}\n{$trainee['job_position']}\n{$trainee['organization_name']}";
+    $displayName = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}";
     $sheet->setCellValueByColumnAndRow(2, $row, $displayName)->getStyleByColumnAndRow(2, $row)->getAlignment()->setVertical('top');
-    $displayContact = "โทร: {$trainee['phone']}\nเมล: {$trainee['email']}";
+    $displayContact = "โทร: {$trainee['phone']}";
     $sheet->setCellValueByColumnAndRow(3, $row, $displayContact)->getStyleByColumnAndRow(3, $row)->getAlignment()->setVertical('top');
 
-    $displayCoordinatorName = "{$trainee['coordinator_title']}{$trainee['coordinator_first_name']} {$trainee['coordinator_last_name']}\n{$trainee['coordinator_job_position']}\n{$trainee['coordinator_organization_name']}";
-    $sheet->setCellValueByColumnAndRow(4, $row, $displayCoordinatorName)->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top');
-    $displayCoordinatorContact = "โทร: {$trainee['coordinator_phone']}\nเมล: {$trainee['coordinator_email']}";
-    $sheet->setCellValueByColumnAndRow(5, $row, $displayCoordinatorContact)->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top');
-
     $paidAmount = floatval($trainee['paid_amount']);
-    $sheet->setCellValueByColumnAndRow(6, $row, $paidAmount)->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
-    $sheet->getStyleByColumnAndRow(6, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
     $income += $paidAmount;
+
+    if ($serviceType === SERVICE_TYPE_TRAINING) {
+        $displayCoordinatorName = "{$trainee['coordinator_title']}{$trainee['coordinator_first_name']} {$trainee['coordinator_last_name']}";
+        $sheet->setCellValueByColumnAndRow(4, $row, $displayCoordinatorName)->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top');
+        $displayCoordinatorContact = "โทร: {$trainee['coordinator_phone']}";
+        $sheet->setCellValueByColumnAndRow(5, $row, $displayCoordinatorContact)->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top');
+    }
+
+    $sheet->setCellValueByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row, $paidAmount)->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+    $sheet->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
     $row++;
 }
 
 $row++;
-$sheet->setCellValueByColumnAndRow(5, $row, 'รวม (บาท)')->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
-$sheet->setCellValueByColumnAndRow(6, $row, $income)->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
-$sheet->getStyleByColumnAndRow(6, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+
+$sheet->setCellValueByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 5 : 3, $row, 'รวม (บาท)')->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 5 : 3, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+$sheet->setCellValueByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row, $income)->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+$sheet->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
 //$writer = new Xlsx($spreadsheet);
 $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');

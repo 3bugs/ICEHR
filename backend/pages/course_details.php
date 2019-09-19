@@ -230,7 +230,7 @@ if ($result = $db->query($sql)) {
                             <span class="info-box-icon bg-aqua"><i class="fa fa-pencil-square-o"></i></span>
 
                             <div class="info-box-content">
-                                <span class="info-box-text"><?=(($course['service_type'] === SERVICE_TYPE_SOCIAL && $course['application_fee'] === 0) ? 'สมัคร' : 'ยังไม่ได้ชำระเงิน'); ?></span>
+                                <span class="info-box-text"><?= (($course['service_type'] === SERVICE_TYPE_SOCIAL && $course['application_fee'] === 0) ? 'สมัคร' : 'ยังไม่ได้ชำระเงิน'); ?></span>
                                 <span id="spanStart" class="info-box-number"><?= $registerStatusStart; ?></span>
                             </div>
                             <!-- /.info-box-content -->
@@ -353,7 +353,7 @@ if ($result = $db->query($sql)) {
                                                     </span>
                                                     <input type="number" class="form-control"
                                                            id="inputBatchNumber"
-                                                           value="<?=(!empty($course) ? $course['batch_number'] : ''); ?>"
+                                                           value="<?= (!empty($course) ? $course['batch_number'] : ''); ?>"
                                                            placeholder="กรอกเลขรุ่น" required
                                                            oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
                                                            oninput="this.setCustomValidity('')"
@@ -377,7 +377,7 @@ if ($result = $db->query($sql)) {
                                             </span>
                                                 <input type="number" class="form-control"
                                                        id="inputTraineeLimit"
-                                                       value="<?=(!empty($course) ? $course['trainee_limit'] : ''); ?>"
+                                                       value="<?= (!empty($course) ? $course['trainee_limit'] : ''); ?>"
                                                        placeholder="กรอกจำนวนผู้เข้าอบรมที่รับได้" required
                                                        oninvalid="this.setCustomValidity('กรอกจำนวนผู้เข้าอบรมที่รับได้')"
                                                        oninput="this.setCustomValidity('')"
@@ -398,7 +398,7 @@ if ($result = $db->query($sql)) {
                                                     <!--แสดงผลอย่างเดียว ไม่ได้ให้กรอก ดังนั้นกำหนด type เป็น text แทนที่จะเป็น number จะได้แสดง comma ได้-->
                                                     <input type="text" class="form-control"
                                                            id="inputApplicationFee"
-                                                           value="<?=(!empty($course) ? number_format($course['application_fee']) : ''); ?>"
+                                                           value="<?= (!empty($course) ? number_format($course['application_fee']) : ''); ?>"
                                                            placeholder="กรอกค่าสมัคร" required
                                                            oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
                                                            oninput="this.setCustomValidity('')"
@@ -427,7 +427,7 @@ if ($result = $db->query($sql)) {
                                                 ?>
                                                 <input type="text" class="form-control pull-right"
                                                        id="inputBeginDate"
-                                                       value="<?=(!empty($course) ? $beginDate : ''); ?>"
+                                                       value="<?= (!empty($course) ? $beginDate : ''); ?>"
                                                        placeholder="เลือกวันอบรมวันแรก" required
                                                        oninvalid="this.setCustomValidity('เลือกวันอบรมวันแรก')"
                                                        oninput="this.setCustomValidity('')"
@@ -453,7 +453,7 @@ if ($result = $db->query($sql)) {
                                                 ?>
                                                 <input type="text" class="form-control pull-right"
                                                        id="inputEndDate"
-                                                       value="<?=(!empty($course) ? $endDate : ''); ?>"
+                                                       value="<?= (!empty($course) ? $endDate : ''); ?>"
                                                        placeholder="เลือกวันอบรมวันสุดท้าย" required
                                                        oninvalid="this.setCustomValidity('เลือกวันอบรมวันสุดท้าย')"
                                                        oninput="this.setCustomValidity('')"
@@ -474,7 +474,7 @@ if ($result = $db->query($sql)) {
                                             </span>
                                                 <input type="text" class="form-control"
                                                        id="inputPlace"
-                                                       value="<?=(!empty($course) ? $course['place'] : ''); ?>"
+                                                       value="<?= (!empty($course) ? $course['place'] : ''); ?>"
                                                        placeholder="กรอกสถานที่อบรม" required
                                                        oninvalid="this.setCustomValidity('กรอกสถานที่อบรม')"
                                                        oninput="this.setCustomValidity('')"
@@ -616,7 +616,7 @@ if ($result = $db->query($sql)) {
                                         ?>
                                         <!--ใบสมัครทั้งหมด-->
                                         <!--<div class="btn-group" style="margin-right: 6px">
-                                            <a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $course['service_type']; */?>&course_id=<?php /*echo $courseId; */?>"
+                                            <a target="_blank" href="print_registration_form.php?service_type=<?php /*echo $course['service_type']; */ ?>&course_id=<?php /*echo $courseId; */ ?>"
                                                class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
                                         </div>-->
                                         <?php
@@ -672,7 +672,14 @@ if ($result = $db->query($sql)) {
                                             <a target="_blank" href="excel_trainee_list.php?course_id=<?= $courseId; ?>"
                                                class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;สรุปผู้เข้ารับการอบรม</a>
                                         </div>
-                                        <!--สรุปผู้เข้ารับการอบรม-->
+                                        <?php
+                                    }
+                                    ?>
+
+                                    <?php
+                                    if (!($course['service_type'] === SERVICE_TYPE_SOCIAL && $course['application_fee'] === 0)) {
+                                        ?>
+                                        <!--สรุปยอดเงินหลักสูตร-->
                                         <div class="btn-group" style="margin-right: 6px">
                                             <a target="_blank" href="excel_course_summary.php?course_id=<?= $courseId; ?>"
                                                class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;สรุปยอดเงินหลักสูตร</a>
@@ -688,7 +695,7 @@ if ($result = $db->query($sql)) {
                                             <span class="sr-only">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a target="_blank" href="print_trainee_list.php?service_type=<?/*= $course['service_type']; */?>&course_id=<?/*= $courseId; */?>"><i class="fa fa-print"></i> Print</a></li>
+                                            <li><a target="_blank" href="print_trainee_list.php?service_type=<? /*= $course['service_type']; */ ?>&course_id=<? /*= $courseId; */ ?>"><i class="fa fa-print"></i> Print</a></li>
                                             <li><a href="#"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
                                             <li><a href="#"><i class="fa fa-file-excel-o"></i> Excel</a></li>
                                             <li><a href="#"><i class="fa fa-file-word-o"></i> Word</a></li>
