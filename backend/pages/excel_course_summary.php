@@ -16,7 +16,7 @@ if (!isset($courseId)) {
 $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
                cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_job_position, 
                cr.coordinator_organization_name, cr.coordinator_phone, cr.coordinator_email,
-               ct.form_number, ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email
+               ct.form_number, ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email, ct.paid_amount
         FROM course_trainee ct 
             INNER JOIN course_registration cr 
                 ON cr.id = ct.course_registration_id 
@@ -48,12 +48,12 @@ if ($result = $db->query($sql)) {
 }
 
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment; filename="course_trainee.xls"');
+header('Content-Disposition: attachment; filename="course_summary.xls"');
 header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->mergeCells("A1:E1");
+$sheet->mergeCells("A1:F1");
 $sheet->mergeCells("B2:C2");
 $sheet->mergeCells("D2:E2");
 $sheet->freezePane('A3');
@@ -67,6 +67,7 @@ $sheet->getColumnDimension('B')->setAutoSize(true);
 $sheet->getColumnDimension('C')->setAutoSize(true);
 $sheet->getColumnDimension('D')->setAutoSize(true);
 $sheet->getColumnDimension('E')->setAutoSize(true);
+$sheet->getColumnDimension('F')->setAutoSize(true);
 
 $trainee = $traineeList[0];
 $serviceType = $trainee['service_type'];
@@ -90,10 +91,12 @@ $sheet->setCellValueByColumnAndRow(2, $row, 'ผู้เข้ารับก�
 //$sheet->setCellValueByColumnAndRow(3, $row, 'ผู้เข้ารับการอบรม');
 $sheet->setCellValueByColumnAndRow(4, $row, 'ผู้ประสานงาน')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
 //$sheet->setCellValueByColumnAndRow(5, $row, 'ผู้ประสานงาน');
+$sheet->setCellValueByColumnAndRow(6, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
 define('START_ROW', 3);
 $row = START_ROW;
+$income = 0;
 foreach ($traineeList as $trainee) {
     $sheet->setCellValueByColumnAndRow(1, $row, ($row - START_ROW) + 1)->getStyleByColumnAndRow(1, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
@@ -107,9 +110,19 @@ foreach ($traineeList as $trainee) {
     $displayCoordinatorContact = "โทร: {$trainee['coordinator_phone']}\nเมล: {$trainee['coordinator_email']}";
     $sheet->setCellValueByColumnAndRow(5, $row, $displayCoordinatorContact)->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top');
 
+    $paidAmount = floatval($trainee['paid_amount']);
+    $sheet->setCellValueByColumnAndRow(6, $row, $paidAmount)->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+    $sheet->getStyleByColumnAndRow(6, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+    $income += $paidAmount;
+
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
     $row++;
 }
+
+$row++;
+$sheet->setCellValueByColumnAndRow(5, $row, 'รวม (บาท)')->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+$sheet->setCellValueByColumnAndRow(6, $row, $income)->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
+$sheet->getStyleByColumnAndRow(6, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
 //$writer = new Xlsx($spreadsheet);
 $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');

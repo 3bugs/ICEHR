@@ -672,6 +672,11 @@ if ($result = $db->query($sql)) {
                                             <a target="_blank" href="excel_trainee_list.php?course_id=<?= $courseId; ?>"
                                                class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;สรุปผู้เข้ารับการอบรม</a>
                                         </div>
+                                        <!--สรุปผู้เข้ารับการอบรม-->
+                                        <div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="excel_course_summary.php?course_id=<?= $courseId; ?>"
+                                               class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;สรุปยอดเงินหลักสูตร</a>
+                                        </div>
                                         <?php
                                     }
                                     ?>
