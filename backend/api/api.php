@@ -154,6 +154,9 @@ switch ($action) {
     case 'update_news_status':
         doUpdateNewsStatus();
         break;
+    case 'update_news_pin':
+        doUpdateNewsPin();
+        break;
     case 'delete_news':
         doDeleteNews();
         break;
@@ -2864,6 +2867,34 @@ function doUpdateNewsStatus()
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะข่าวสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateNewsPin()
+{
+    global $db, $response;
+
+    $newsId = $db->real_escape_string($_POST['newsId']);
+    $pin = $db->real_escape_string($_POST['pin']);
+
+    /*if ($newStatus === 'deleted') {
+        if (!checkPermission(PERMISSION_USER_DELETE)) {
+            return;
+        }
+    } else if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }*/
+
+    $sql = "UPDATE news SET pinned = $pin WHERE id = $newsId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะปักหมุดข่าวสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;

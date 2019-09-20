@@ -2154,7 +2154,7 @@ doGetNewsLatest = (req, res, db) => {
              FROM news
              WHERE news_type = ?
                AND status = ?
-             ORDER BY created_at DESC
+             ORDER BY pinned DESC, created_at DESC
              LIMIT 0, 4`,
         ['training', 'publish'],
         function (err, resultsTrainingNews, fields) {
@@ -2169,7 +2169,7 @@ doGetNewsLatest = (req, res, db) => {
                          FROM news
                          WHERE news_type = ?
                            AND status = ?
-                         ORDER BY created_at DESC
+                         ORDER BY pinned DESC, created_at DESC
                          LIMIT 0, 4`,
                     ['public-relations', 'publish'],
                     function (err, resultsPublicRelationsNews, fields) {

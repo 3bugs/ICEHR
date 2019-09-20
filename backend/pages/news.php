@@ -18,7 +18,7 @@ $pageTitles['activity'] = 'ภาพกิจกรรม';
 
 $pageTitle = $pageTitles[$newsType];
 
-$sql = "SELECT id, title, details, image_file_name, news_date, created_at, status
+$sql = "SELECT id, title, details, image_file_name, news_date, created_at, status, pinned
             FROM news
             WHERE news_type = '$newsType'
             ORDER BY created_at DESC ";
@@ -86,6 +86,7 @@ if ($result = $db->query($sql)) {
                                         <th style="text-align: center; width: 22%;">วันที่ข่าว/กิจกรรม</th>
                                         <th style="text-align: center; width: 18%;" nowrap>วันที่สร้าง</th>
                                         <th style="text-align: center;" nowrap>เผยแพร่</th>
+                                        <th style="text-align: center;" nowrap>ปักหมุด</th>
                                         <th style="text-align: center;">จัดการ</th>
                                     </tr>
                                     </thead>
@@ -123,6 +124,8 @@ if ($result = $db->query($sql)) {
                                                 </td>
                                                 <td style="text-align: center"><?= ($newsDateHidden . $displayNewsDate); ?></td>
                                                 <td style="text-align: center"><?= ($dateHidden . $displayDateTime); ?></td>
+
+                                                <!--เผยแพร่-->
                                                 <td style="text-align: center; vertical-align: top">
                                                     <span style="display: none">
                                                         <?= $news['status'] == 'publish' ? 'on' : 'off' ?>>
@@ -131,6 +134,17 @@ if ($result = $db->query($sql)) {
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')"
                                                         <?= $news['status'] == 'publish' ? 'checked' : '' ?>>
+                                                </td>
+
+                                                <!--ปักหมุด-->
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= (int)$news['pinned'] === 1 ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangePin(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')"
+                                                        <?= (int)$news['pinned'] === 1 ? 'checked' : '' ?>>
                                                 </td>
 
                                                 <td nowrap>
@@ -214,6 +228,16 @@ if ($result = $db->query($sql)) {
             window.location.href = 'news_add_edit.php?news_type=<?= $newsType; ?>';
         }
 
+        function onChangePin(element, newsId, title) {
+            let result = confirm("ยืนยัน" + (element.checked ? 'ปักหมุด' : 'ยกเลิกการปักหมุด') + " '" + title + "' ?");
+            if (result) {
+                doChangePin(newsId, (element.checked ? 1 : 0));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
         function onChangeStatus(element, newsId, title) {
             let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
             if (result) {
@@ -222,6 +246,46 @@ if ($result = $db->query($sql)) {
                 /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
                 location.reload(true);
             }
+        }
+
+        function doChangePin(newsId, pin) {
+            let title = 'แก้ไขสถานะปักหมุด';
+
+            $.post(
+                '../api/api.php/update_news_pin',
+                {
+                    newsId: newsId,
+                    pin: pin
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
         }
 
         function doChangeStatus(newsId, newStatus) {
