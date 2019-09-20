@@ -35,13 +35,14 @@ if ($result = $db->query($sql)) {
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;
                     </button>
-                    <h4 class="modal-title">แก้ไขข้อมูลบริการ</h4>
+                    <h4 class="modal-title" id="title">เพิ่ม/แก้ไขบริการ</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="formEdit" role="form"
+                    <form id="formEdit" role="form" method="post"
+                          action="../api/api.php/add_update_service"
                           style="margin-top: 0; margin-bottom: 0">
                         <div class="box-body">
-                            <input type="hidden" id="inputId">
+                            <input type="hidden" id="inputId" name="id">
 
                             <!--ชื่อบริการ-->
                             <div class="form-group">
@@ -51,7 +52,7 @@ if ($result = $db->query($sql)) {
                                         <i class="fa fa-pencil"></i>
                                     </span>
                                     <input type="text" class="form-control"
-                                           id="inputTitle"
+                                           id="inputTitle" name="title"
                                            placeholder="กรอกชื่อบริการ" required
                                            oninvalid="this.setCustomValidity('กรอกชื่อบริการ')"
                                            oninput="this.setCustomValidity('')">
@@ -66,7 +67,7 @@ if ($result = $db->query($sql)) {
                                         <i class="fa fa-tag"></i>
                                     </span>
                                     <input type="text" class="form-control"
-                                           id="inputDetails" maxlength="100"
+                                           id="inputDetails" name="details" maxlength="100"
                                            placeholder="กรอกรายละเอียดแบบย่อ (ไม่เกิน 100 ตัวอักษร)" required
                                            oninvalid="this.setCustomValidity('กรอกรายละเอียดแบบย่อ (ไม่เกิน 100 ตัวอักษร)')"
                                            oninput="this.setCustomValidity('')">
@@ -81,10 +82,22 @@ if ($result = $db->query($sql)) {
                                         <i class="fa fa-link"></i>
                                     </span>
                                     <input type="text" class="form-control"
-                                           id="inputUrl" maxlength="500"
+                                           id="inputUrl" name="url" maxlength="500"
                                            placeholder="กรอก Link" required
                                            oninvalid="this.setCustomValidity('กรอก Link')"
                                            oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+
+                            <!--Icon-->
+                            <div class="form-group">
+                                <label for="inputIcon">Icon:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="padding: 5px; border: 1px solid lightgrey">
+                                        <img id="imgPreview" width="28px" height="28px">
+                                    </span>
+                                    <input id="inputIcon" name="icon"
+                                           type="file" accept="image/*"/>
                                 </div>
                             </div>
 
@@ -133,11 +146,12 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <!--<button type="button" class="btn btn-success pull-right"
-                                        data-toggle="modal" data-target="#addCourseMasterModal">
+                                <button type="button" class="btn btn-success pull-right"
+                                        onclick="onClickAdd(this)"
+                                        data-toggle_x="modal" data-target_x="#addCourseMasterModal">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มชื่อหลักสูตร
-                                </button>-->
+                                    เพิ่มบริการ
+                                </button>
                             </div>
                             <div class="box-body">
                                 <table id="tableService" class="table table-bordered table-striped">
@@ -145,7 +159,9 @@ if ($result = $db->query($sql)) {
                                     <tr>
                                         <th style="text-align: center; width: 25%;">ชื่อบริการ</th>
                                         <th style="text-align: center; width: 75%;">รายละเอียดแบบย่อ</th>
-                                        <th style="text-align: center;" nowrap>Link</th>
+                                        <!--<th style="text-align: center;" nowrap>Link</th>-->
+                                        <th style="text-align: center;" nowrap>Icon</th>
+                                        <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center;" nowrap>จัดการ</th>
                                     </tr>
                                     </thead>
@@ -163,12 +179,31 @@ if ($result = $db->query($sql)) {
                                             $serviceTitle = $service['title'];
                                             $serviceDetails = $service['details'];
                                             $serviceUrl = $service['url'];
+                                            $serviceIconFileName = $service['icon_file_name'];
+                                            $serviceStatus = (int)$service['status'] === 1;
                                             $serviceSlug = $service['slug'];
                                             ?>
                                             <tr style="">
                                                 <td style=""><?= $serviceTitle; ?></td>
                                                 <td style=""><?= $serviceDetails; ?></td>
-                                                <td style="text-align: center"><a target="_blank" href="<?= $serviceUrl; ?>" title="<?= $serviceUrl; ?>"><i class="fa fa-link"></i></a></td>
+                                                <!--<td style="text-align: center"><a target="_blank" href="<?/*= $serviceUrl; */?>" title="<?/*= $serviceUrl; */?>"><i class="fa fa-link"></i></a></td>-->
+                                                <td style="text-align: center"><img src="<?= UPLOAD_DIR_SERVICE_ICONS . $serviceIconFileName ?>" width="28px" height="28px"></td>
+
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $serviceStatus ? 'on' : 'off' ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeStatus(
+                                                                   this,
+                                                           <?= currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT) ? 'true' : 'false'; ?>,
+                                                           <?= $serviceId; ?>,
+                                                                   '<?= htmlentities($serviceTitle); ?>'
+                                                                   )"
+                                                        <?= $serviceStatus ? 'checked' : '' ?>>
+                                                </td>
+
                                                 <td style="text-align: right" nowrap>
                                                     <?php
                                                     if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
@@ -181,6 +216,7 @@ if ($result = $db->query($sql)) {
                                                                         '<?= $serviceTitle; ?>',
                                                                         '<?= $serviceDetails; ?>',
                                                                         '<?= $serviceUrl; ?>',
+                                                                        '<?= $serviceIconFileName; ?>',
                                                                 <?= $serviceSlug === 'hr-intelligence' ? 'true' : 'false'; ?>)">
                                                             <span class="fa fa-edit"></span>&nbsp;
                                                             แก้ไข
@@ -249,11 +285,55 @@ if ($result = $db->query($sql)) {
             });
         });
 
-        function onClickEdit(element, id, title, details, url, showUrl) {
+        $(function () {
+            const setIconPreview = function (input, placeToInsertImagePreview) {
+                //$(placeToInsertImagePreview).empty();
+                //$(placeToInsertImagePreview).hide();
+
+                if (input.files) {
+                    let fileCount = 1; //input.files.length;
+
+                    for (let i = 0; i < fileCount; i++) {
+                        //$(placeToInsertImagePreview).show();
+                        let reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            //$($.parseHTML('<img style="width: auto; height: 120px; margin: 3px">')).attr('src', event.target.result).appendTo(placeToInsertImagePreview);
+                            $('#imgPreview').attr('src', event.target.result);
+                        };
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+            };
+
+            $('#inputIcon').on('change', function () {
+                setIconPreview(this, 'div#cover-image-upload-preview');
+            });
+        });
+
+        function onClickAdd(element) {
+            $('#editModal #title').text('เพิ่มบริการ');
+            $('#formEdit #inputIcon').attr('required', 'true');
+
+            $('#formEdit #inputId').val('0');
+            $('#formEdit #inputTitle').val('');
+            $('#formEdit #inputDetails').val('');
+            $('#formEdit #inputUrl').val('');
+            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_SERVICE_ICONS; ?>' + 'blank.png');
+
+            $('#formEdit #responseText').text('');
+            $('#editModal').modal('show');
+        }
+
+        function onClickEdit(element, id, title, details, url, iconFileName, showUrl) {
+            $('#editModal #title').text('แก้ไขบริการ');
+            $('#formEdit #inputIcon').removeAttr('required');
+
             $('#formEdit #inputId').val(id);
             $('#formEdit #inputTitle').val(title);
             $('#formEdit #inputDetails').val(details);
             $('#formEdit #inputUrl').val(url);
+            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_SERVICE_ICONS; ?>' + iconFileName);
 
             /*const divUrl = $('#formEdit #divUrl');
             if (showUrl) {
@@ -263,6 +343,7 @@ if ($result = $db->query($sql)) {
                 divUrl.hide();
             }*/
 
+            $('#formEdit #responseText').text('');
             $('#editModal').modal('show');
         }
 
@@ -277,7 +358,7 @@ if ($result = $db->query($sql)) {
             return valid;
         }
 
-        function doUpdateService() {
+        /*function doUpdateService_old() {
             $('#formEdit #buttonSave').prop('disabled', true);
             $('#formEdit #divLoading').show();
             $.post(
@@ -300,6 +381,84 @@ if ($result = $db->query($sql)) {
                 $('#formEdit #buttonSave').prop('disabled', false);
                 $('#formEdit #divLoading').hide();
                 $('#formEdit #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+            });
+        }*/
+
+        function doUpdateService() {
+            $('#formEdit #buttonSave').prop('disabled', true);
+            $('#formEdit #divLoading').show();
+
+            $('#formEdit').ajaxSubmit({
+                dataType: 'json',
+                success: (data, statusText) => {
+                    if (data.error_code === 0) {
+                        location.reload(true);
+                    } else {
+                        $('#formEdit #buttonSave').prop('disabled', false);
+                        $('#formEdit #divLoading').hide();
+                        $('#formEdit #responseText').text(data.error_message);
+                    }
+                },
+                error: () => {
+                    $('#formEdit #buttonSave').prop('disabled', false);
+                    $('#formEdit #divLoading').hide();
+                    $('#formEdit #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+                }
+            });
+        }
+
+        function onChangeStatus(element, userHasPermission, serviceId, serviceTitle) {
+            if (userHasPermission) {
+                let result = confirm("ยืนยัน" + (element.checked ? 'เปิดการแสดงผล' : 'ปิดการแสดงผล') + " '" + serviceTitle + "' ?");
+                if (result) {
+                    doChangeStatus(serviceId, (element.checked ? 1 : 0));
+                } else {
+                    /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                    location.reload(true);
+                }
+            } else {
+                alert("คุณไม่มีสิทธิ์แก้ไขสถานะของบริการ\n\n'" + serviceTitle + "'");
+                location.reload(true);
+            }
+        }
+
+        function doChangeStatus(serviceId, newStatus) {
+            let title = 'แก้ไขสถานะบริการ';
+
+            $.post(
+                '../api/api.php/update_service_status',
+                {
+                    serviceId: serviceId,
+                    newStatus: newStatus
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
             });
         }
 
@@ -363,6 +522,8 @@ if ($result = $db->query($sql)) {
     <!-- DataTables -->
     <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <!--jQuery Form Plugin-->
+    <script src="../dist/js/jquery.form.js"></script>
     </body>
     </html>
 

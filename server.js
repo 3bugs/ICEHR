@@ -2484,8 +2484,9 @@ doGetIntro = (req, res, db) => {
 
 doGetService = (req, res, db) => {
     db.query(
-            `SELECT id, title, details, slug, url
-             FROM service`,
+            `SELECT id, title, details, slug, url, icon_file_name
+             FROM service 
+             WHERE status = 1`,
         [],
         function (err, results, fields) {
             if (err) {

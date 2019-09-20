@@ -234,8 +234,11 @@ switch ($action) {
         doSortIntro();
         break;
 
-    case 'update_service':
-        doUpdateService();
+    case 'add_update_service':
+        doAddUpdateService();
+        break;
+    case 'update_service_status':
+        doUpdateServiceStatus();
         break;
 
 
@@ -808,24 +811,69 @@ function doDelete()
     }
 }
 
-function doUpdateService()
+function doAddUpdateService()
 {
     global $db, $response;
 
-    $id = $db->real_escape_string($_POST['id']);
+    $id = (int)$db->real_escape_string($_POST['id']);
     $title = $db->real_escape_string($_POST['title']);
     $details = $db->real_escape_string($_POST['details']);
     $url = $db->real_escape_string($_POST['url']);
 
-    $sql = "UPDATE service SET title = '$title', details = '$details', url = '$url' WHERE id = $id";
+    $createNew = $id === 0;
+
+    $iconFileName = null;
+    if (isset($_FILES['icon'])) {
+        if (!moveUploadedFile('icon', UPLOAD_DIR_SERVICE_ICONS, $iconFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    if ($createNew) {
+        $sql = "INSERT INTO service (title, details, url, icon_file_name) 
+                VALUES ('$title', '$details', '$url', '$iconFileName')";
+    } else {
+        if ($iconFileName == null) {
+            $sql = "UPDATE service 
+            SET title = '$title', details = '$details', url = '$url' 
+            WHERE id = $id";
+        } else {
+            $sql = "UPDATE service 
+            SET title = '$title', details = '$details', url = '$url', icon_file_name = '$iconFileName' 
+            WHERE id = $id";
+        }
+    }
 
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
-        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateServiceStatus()
+{
+    global $db, $response;
+
+    $serviceId = $db->real_escape_string($_POST['serviceId']);
+    $newStatus = $db->real_escape_string($_POST['newStatus']);
+
+    $sql = "UPDATE service SET status = '$newStatus' WHERE id = $serviceId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะบริการสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

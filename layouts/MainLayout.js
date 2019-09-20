@@ -36,10 +36,12 @@ export default class MainLayout extends React.Component {
                         };
                     });
                     this.setState({
+                        serviceList,
                         services,
                     });
                 } else {
                     this.setState({
+                        serviceList: null,
                         services: null,
                     });
                 }
@@ -47,15 +49,17 @@ export default class MainLayout extends React.Component {
     }
 
     render() {
-        const {services} = this.state;
+        const {services, serviceList} = this.state;
 
         return (
             <div style={layoutStyle}>
                 <Head/>
                 <Header
+                    serviceList={serviceList}
                     services={services}/>
                 {this.props.children}
                 <Footer
+                    serviceList={serviceList}
                     services={services}/>
             </div>
         );

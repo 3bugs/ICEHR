@@ -993,17 +993,45 @@ export default class Index extends React.Component {
             };
         });
         this.setState({
+            serviceList,
             services,
         });
     }
 
     render() {
         const {trainingNewsList, publicRelationsNewsList, activityList} = this.props;
-        const {services} = this.state;
+        const {services, serviceList} = this.state;
 
         const settings = {
             dots: true
         };
+
+        let serviceRows = [];
+        let row = [];
+        if (serviceList) {
+            for (let i = 0; i < serviceList.length; i++) {
+                if (i % 3 === 0) {
+                    row = [];
+                    row.push(serviceList[i]);
+
+                    if (i === serviceList.length - 1) {
+                        row.push(null);
+                        row.push(null);
+                        serviceRows.push(row);
+                    }
+                } else if (i % 3 === 1) {
+                    row.push(serviceList[i]);
+
+                    if (i === serviceList.length - 1) {
+                        row.push(null);
+                        serviceRows.push(row);
+                    }
+                } else {
+                    row.push(serviceList[i]);
+                    serviceRows.push(row);
+                }
+            }
+        }
 
         return (
             <MainLayout>
@@ -1059,9 +1087,36 @@ export default class Index extends React.Component {
                             </div>
                             <div className="col-sm-9 wow fadeInRight">
                                 <div className="service-crop d-none d-sm-block d-md-none d-lg-block d-xl-block">
-                                    <div className="row border-bottom mt-3">
-                                        {/*บริการฝึกอบรม*/}
-                                        <div className="col-sm-4">
+
+                                    {serviceList &&
+                                    serviceRows.map(row => (
+                                        <div className="row border-bottom mt-3">
+                                            {
+                                                row.map(service => {
+                                                    return (
+                                                        <div className="col-sm-4 service-index">
+                                                            {service != null &&
+                                                            <a href={service.url} target="_parent">
+                                                                <div className="service-index"><img src={HOST_BACKEND + '/uploads/service_icons/' + service.icon_file_name} className="icon-dm-big"/>
+                                                                    <h4>{service.title}</h4>
+                                                                    <p>{service.details}</p>
+                                                                </div>
+                                                            </a>
+                                                            }
+                                                            {service == null &&
+                                                            <div/>
+                                                            }
+                                                        </div>
+                                                    );
+                                                })
+                                            }
+                                        </div>
+                                    ))
+                                    }
+
+                                    {/*<div className="row border-bottom mt-3">
+                                        บริการฝึกอบรม
+                                        <div className="col-sm-4 service-index">
                                             <Link href="/service-training">
                                                 <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
                                                     <h4>{services ? services[SERVICE_TRAINING].title : ''}</h4>
@@ -1069,8 +1124,8 @@ export default class Index extends React.Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                        {/*In-house Training*/}
-                                        <div className="col-sm-4">
+                                        In-house Training
+                                        <div className="col-sm-4 service-index">
                                             <Link href="/in-house">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
@@ -1080,7 +1135,7 @@ export default class Index extends React.Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                        {/*บริการสังคม*/}
+                                        บริการสังคม
                                         <div className="col-sm-4 service-index">
                                             <Link href="/service-social">
                                                 <div className="service-index">
@@ -1091,10 +1146,11 @@ export default class Index extends React.Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                        {/*อบรมสอบใบขับขี่*/}
-                                        <div className="col-sm-4 ">
+                                    </div>*/}
+
+                                    {/*<div className="row mt-3">
+                                        อบรมสอบใบขับขี่
+                                        <div className="col-sm-4 service-index">
                                             <Link href="/service-driving-license">
                                                 <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
                                                     <h4>{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</h4>
@@ -1102,8 +1158,8 @@ export default class Index extends React.Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                        {/*งานวิจัยและวิชาการ*/}
-                                        <div className="col-sm-4">
+                                        งานวิจัยและวิชาการ
+                                        <div className="col-sm-4 service-index">
                                             <Link href="/academic-paper">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
@@ -1113,7 +1169,7 @@ export default class Index extends React.Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                        {/*วารสาร HR Intelligence*/}
+                                        วารสาร HR Intelligence
                                         <div className="col-sm-4 service-index">
                                             <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">
                                                 <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
@@ -1122,12 +1178,29 @@ export default class Index extends React.Component {
                                                 </div>
                                             </a>
                                         </div>
-                                    </div>
+                                    </div>*/}
+
                                 </div>
 
                                 <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
                                     <div className="owl-news owl-carousel owl-theme mobilespec">
-                                        <div className="item">
+                                        {serviceList
+                                        && serviceList.map(service => {
+                                            return (
+                                                <div className="item">
+                                                    <a href={service.url}>
+                                                        <div className="service-index">
+                                                            <div className="border-right-service"><img src={HOST_BACKEND + '/uploads/service_icons/' + service.icon_file_name} className="icon-dm-big"/>
+                                                                <h4>{service.title}</h4>
+                                                                <p>{service.details}</p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            );
+                                        })
+                                        }
+                                       {/* <div className="item">
                                             <a href="/service-training">
                                                 <div className="service-index">
                                                     <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
@@ -1186,9 +1259,10 @@ export default class Index extends React.Component {
                                                     </div>
                                                 </div>
                                             </a>
-                                        </div>
+                                        </div>*/}
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 

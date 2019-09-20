@@ -44,6 +44,7 @@ define('UPLOAD_DIR_NEWS_ASSETS', '../uploads/news_assets/');
 define('UPLOAD_DIR_USER_ASSETS', '../uploads/user_assets/');
 define('UPLOAD_DIR_INTRO_ASSETS', '../uploads/intro_assets/');
 define('UPLOAD_DIR_SIGNATURES', '../uploads/signatures/');
+define('UPLOAD_DIR_SERVICE_ICONS', '../uploads/service_icons/');
 
 define('KEY_SESSION_USER_ID', 'session_user_id');
 define('KEY_SESSION_USER_USERNAME', 'session_user_username');

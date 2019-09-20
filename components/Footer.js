@@ -28,7 +28,7 @@ export default class Footer extends React.Component {
     }
 
     render() {
-        const {services} = this.props;
+        const {services, serviceList} = this.props;
 
         return (
             <React.Fragment>
@@ -76,12 +76,19 @@ export default class Footer extends React.Component {
                                         <div className="footer-menugroup">
                                             <h4 className="title-footer">บริการ</h4>
                                             <ul>
-                                                <li><a href="/service-training" target="_parent">{services ? services[SERVICE_TRAINING].title : ''}</a></li>
+                                                {serviceList
+                                                && serviceList.map(service => {
+                                                    return (
+                                                        <li><a href={service.url} target="_parent">{service.title}</a></li>
+                                                    );
+                                                })
+                                                }
+                                                {/*<li><a href="/service-training" target="_parent">{services ? services[SERVICE_TRAINING].title : ''}</a></li>
                                                 <li><a href="/in-house" target="_parent">{services ? services[SERVICE_IN_HOUSE].title : ''}</a></li>
                                                 <li><a href="/service-social" target="_parent">{services ? services[SERVICE_SOCIAL].title : ''}</a></li>
                                                 <li><a href="/service-driving-license" target="_parent">{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</a></li>
                                                 <li><a href="/academic-paper" target="_parent">{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</a></li>
-                                                <li><a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_parent">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a></li>
+                                                <li><a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_parent">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a></li>*/}
                                             </ul>
                                         </div>
                                         <div className="footer-menugroup">

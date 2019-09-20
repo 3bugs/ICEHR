@@ -1672,7 +1672,7 @@ export default class Header extends React.Component {
     }
 
     render() {
-        const {services} = this.props;
+        const {services, serviceList} = this.props;
 
         return (
             <div>
@@ -1720,7 +1720,37 @@ export default class Header extends React.Component {
                                                     </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li>
+                                                            {serviceList && serviceList.map((service, index) => {
+                                                                /*let url;
+                                                                switch (service.slug) {
+                                                                    case 'training':
+                                                                        url = '/service-training';
+                                                                        break;
+                                                                    case 'in-house':
+                                                                        url = '/in-house';
+                                                                        break;
+                                                                    case 'social':
+                                                                        url = '/service-social';
+                                                                        break;
+                                                                    case 'driving-license':
+                                                                        url = '/driving-license';
+                                                                        break;
+                                                                    case 'academic-paper':
+                                                                        url = '/academic-paper';
+                                                                        break;
+                                                                    case 'hr-intelligence':
+                                                                        url = service.url;
+                                                                        break;
+                                                                }*/
+                                                                return (
+                                                                    <li style={index > 2 ? {marginLeft: 0, paddingLeft: 0} : {}}>
+                                                                        <a href={service.url} target="_parent">{service.title}</a>
+                                                                    </li>
+                                                                );
+                                                            })
+                                                            }
+
+                                                            {/*<li>
                                                                 <a href="/service-training" target="_parent">{services ? services[SERVICE_TRAINING].title : ''}</a>
                                                             </li>
                                                             <li>
@@ -1736,8 +1766,9 @@ export default class Header extends React.Component {
                                                                 <a href="/academic-paper" target="_parent">{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</a>
                                                             </li>
                                                             <li style={{marginLeft: 0, paddingLeft: 0}}>
-                                                                <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a>
-                                                            </li>
+                                                                <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''}
+                                                                   target="_blank">{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</a>
+                                                            </li>*/}
                                                         </ul>
                                                     </div>
                                                     <div className="col-xs-12 col-sm-3 submenu_right"><img
