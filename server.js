@@ -209,6 +209,9 @@ app
                     case 'update_document_download_count':
                         doUpdateDocumentDownloadCount(req, res, db);
                         break;
+                    case 'get_news':
+                        doGetNews(req, res, db);
+                        break;
                     case 'get_news_latest':
                         doGetNewsLatest(req, res, db);
                         break;
@@ -2148,6 +2151,51 @@ doUpdateDocumentDownloadCount = (req, res, db) => {
     db.end();
 };
 
+doGetNews = (req, res, db) => {
+    const {newsType, offset, limit} = req.body;
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+
+    db.query(
+        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+             FROM news
+             WHERE news_type = ?
+               AND status = ?
+             ORDER BY pinned DESC, created_at DESC
+             ${limitClause}`,
+        [newsType, 'publish'],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+                db.query(
+                    `SELECT COUNT(*) AS totalCount
+                         FROM news
+                         WHERE news_type = ?
+                           AND status = ?`,
+                    [newsType, 'publish'],
+                    function (err, totalCountResults, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                dataList: results,
+                                totalCount: totalCountResults[0].totalCount,
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
+};
+
 doGetNewsLatest = (req, res, db) => {
     db.query(
             `SELECT id, title, short_description, details, image_file_name, news_date, news_type
@@ -2485,7 +2533,7 @@ doGetIntro = (req, res, db) => {
 doGetService = (req, res, db) => {
     db.query(
             `SELECT id, title, details, slug, url, icon_file_name
-             FROM service 
+             FROM service
              WHERE status = 1`,
         [],
         function (err, results, fields) {

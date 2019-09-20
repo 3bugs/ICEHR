@@ -7,7 +7,7 @@ import {HOST_BACKEND, SERVICE_TRAINING, SERVICE_IN_HOUSE, SERVICE_SOCIAL, SERVIC
 import {getDateFormatFromDateObject, getDateDisplayFromDateObject} from '../etc/utils';
 import './index.css';
 
-class NewsItem extends React.Component {
+export class NewsItem extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -1000,13 +1000,13 @@ export default class Index extends React.Component {
 
     render() {
         const {trainingNewsList, publicRelationsNewsList, activityList} = this.props;
-        const {services, serviceList} = this.state;
+        const {services, serviceList, activeNewsTab} = this.state;
 
         const settings = {
             dots: true
         };
 
-        let serviceRows = [];
+        const serviceRows = [];
         let row = [];
         if (serviceList) {
             for (let i = 0; i < serviceList.length; i++) {
@@ -1271,19 +1271,19 @@ export default class Index extends React.Component {
                             <div className="col">
                                 <div className="tab">
                                     <ul className="tabs">
-                                        <li className={this.state.activeNewsTab === 0 ? 'after-text current' : 'after-text'}>
+                                        <li className={activeNewsTab === 0 ? 'after-text current' : 'after-text'}>
                                             <a href="javascript:void(0)"
                                                onClick={this.handleClickNewsHeader.bind(this, 0)}>
                                                 ข่าวการฝึกอบรม
                                             </a>
                                         </li>
-                                        <li className={this.state.activeNewsTab === 1 ? 'current' : ''}>
+                                        <li className={activeNewsTab === 1 ? 'current' : ''}>
                                             <a href="javascript:void(0)"
                                                onClick={this.handleClickNewsHeader.bind(this, 1)}>
                                                 ข่าวประชาสัมพันธ์
                                             </a>
                                         </li>
-                                        <a href="javascript:void(0)" className="readmore-text">
+                                        <a href={activeNewsTab === 0 ? '/news/training' : '/news/public-relations'} className="readmore-text">
                                             อ่านทั้งหมด <i className="fas fa-plus"></i>
                                         </a>
                                     </ul>
