@@ -44,8 +44,9 @@ if (isset($newsId)) {
 }
 
 $imageList = array();
+$pdfList = array();
 if (isset($newsId)) {
-    $sql = "SELECT id, title, file_name, created_at 
+    $sql = "SELECT id, title, file_name, type, created_at 
             FROM news_asset 
             WHERE news_id = $newsId";
     if ($result = $db->query($sql)) {
@@ -54,6 +55,7 @@ if (isset($newsId)) {
             $asset['id'] = (int)$row['id'];
             $asset['title'] = $row['title'];
             $asset['file_name'] = $row['file_name'];
+            $asset['type'] = $row['type'];
             $asset['created_at'] = $row['created_at'];
 
             $prefixPosition = strpos($row['file_name'], '-');
@@ -63,7 +65,12 @@ if (isset($newsId)) {
                 $prefixPosition + 1,
                 $extensionPosition - ($prefixPosition + 1)
             );
-            array_push($imageList, $asset);
+            
+            if ($row['type'] === 'image') {
+                array_push($imageList, $asset);
+            } else if ($row['type'] === 'pdf') {
+                array_push($pdfList, $asset);
+            }
         }
         $result->close();
     } else {
@@ -408,7 +415,7 @@ if (isset($newsId)) {
                                                                 <td>
                                                                     <button type="button" class="btn btn-danger"
                                                                             style="margin-left: 6px; margin-right: 6px"
-                                                                            onClick="onClickDeleteAsset(this, <?php echo $image['id']; ?>)">
+                                                                            onClick="onClickDeleteAsset(this, <?php echo $image['id']; ?>, 'รูปภาพ')">
                                                                         <span class="fa fa-remove"></span>&nbsp;
                                                                         ลบ
                                                                     </button>
@@ -439,6 +446,129 @@ if (isset($newsId)) {
                                         </div>
                                     </div>
 
+                                </div>
+                            </div>
+                            <!-- /.box -->
+
+                            <!--ไฟล์ดาวน์โหลด-->
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">ไฟล์สำหรับดาวน์โหลด
+                                        <!--<small></small>-->
+                                    </h3>
+
+                                    <!-- tools box -->
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /. tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body pad" style="background: #f8f8f8">
+                                    <!--<label for="file-upload" class="custom-file-upload">
+                                        <i class="fa fa-upload"></i>&nbsp;&nbsp;อัพโหลด PDF
+                                    </label>-->
+
+                                    <!-- Custom Tabs -->
+                                    <div class="nav-tabs-custom">
+                                        <ul class="nav nav-tabs">
+                                            <?php
+                                            if (isset($newsId)) {
+                                                ?>
+                                                <li class="active"><a href="#pdf_tab_1" data-toggle="tab">ไฟล์ปัจจุบัน <strong>(<?php echo sizeof($pdfList); ?>)</strong></a></li>
+                                                <?php
+                                            }
+                                            ?>
+                                            <li <?php echo(!isset($newsId) ? 'class="active"' : ''); ?>><a href="#pdf_tab_2" data-toggle="tab">เพิ่มไฟล์</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <?php
+                                            if (isset($newsId)) {
+                                                ?>
+                                                <!--ตาราง PDF-->
+                                                <div class="tab-pane active" id="pdf_tab_1">
+                                                    <?php
+                                                    if (sizeof($pdfList) === 0) {
+                                                        ?>
+                                                        <div class="callout callout-danger" style="margin-top: 10px">
+                                                            <p>ยังไม่มีเอกสารดาวน์โหลด!</p>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                    <table id="tablePdf" class="table table-bordered table-striped">
+                                                        <thead>
+                                                        <tr>
+                                                            <!--<th style="text-align: center; width: 40%;">ชื่อ</th>-->
+                                                            <th style="text-align: center; width: 50%;">ชื่อ</th>
+                                                            <th style="text-align: center; width: 30%;">Link ไฟล์</th>
+                                                            <th style="text-align: center; width: 20%;">อัพโหลดเมื่อ</th>
+                                                            <th style="text-align: center;">จัดการ</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <?php
+                                                        foreach ($pdfList as $pdf) {
+                                                            /*$fileName = $pdf['file_name'];
+                                                            $prefixPosition = strpos($fileName, '-');
+                                                            $extensionPosition = strpos($fileName, '.');
+                                                            $title = substr($fileName, $prefixPosition + 1, $extensionPosition - ($prefixPosition + 1));*/
+
+                                                            $createdAt = $pdf['created_at'];
+                                                            $dateTimePart = explode(' ', $createdAt);
+                                                            $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                                                            $timePart = explode(':', $dateTimePart[1]);
+                                                            $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                                                            $displayDateTime = "$displayDate<br>$displayTime";
+                                                            $dateHidden = '<span style="display: none">' . $createdAt . '</span></span>';
+                                                            ?>
+                                                            <tr>
+                                                                <!--<td><?php /*echo $image['title']; */ ?></td>-->
+                                                                <td>
+                                                                    <?php echo $pdf['title']; ?>
+                                                                </td>
+                                                                <td style="text-align: center; cursor: pointer"
+                                                                    onClick="window.open('<?php echo(UPLOAD_DIR_NEWS_ASSETS . $pdf['file_name']); ?>', '_blank')">
+                                                                    <a href="javascript:void(0)">
+                                                                        <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
+                                                                    </a>
+                                                                </td>
+                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-danger"
+                                                                            style="margin-left: 6px; margin-right: 6px"
+                                                                            onClick="onClickDeleteAsset(this, <?php echo $pdf['id']; ?>, 'ไฟล์ดาวน์โหลด')">
+                                                                        <span class="fa fa-remove"></span>&nbsp;
+                                                                        ลบ
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                            <!--เพิ่มไฟล์ดาวน์โหลดใหม่-->
+                                            <div class="tab-pane <?php echo(!isset($newsId) ? 'active' : ''); ?>" id="pdf_tab_2">
+                                                <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                    <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
+                                                    <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
+                                                    <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
+                                                </ul>
+                                                <input id="pdf-upload" type="file" accept="application/pdf" multiple
+                                                       name="pdfFiles[]" style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <ul id="pdf-upload-preview"
+                                                    style="background: #efffd1; padding-top: 10px; padding-bottom: 10px"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /.box -->
@@ -510,6 +640,30 @@ if (isset($newsId)) {
                 stateSave: false,
                 //stateDuration: -1, // sessionStorage
                 order: [[1, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
+
+            $('#tablePdf').DataTable({
+                stateSave: false,
+                //stateDuration: -1, // sessionStorage
+                order: [[2, 'desc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -602,6 +756,28 @@ if (isset($newsId)) {
             });
         });
 
+        $(function () {
+            $('#pdf-upload-preview').hide();
+
+            const pdfPreview = function (input, placeToInsertPdfPreview) {
+                $(placeToInsertPdfPreview).empty();
+                $(placeToInsertPdfPreview).hide();
+
+                if (input.files) {
+                    let fileCount = input.files.length;
+
+                    for (let i = 0; i < fileCount; i++) {
+                        $(placeToInsertPdfPreview).show();
+                        $($.parseHTML('<li style="">' + input.files[i].name + '</li>')).appendTo(placeToInsertPdfPreview);
+                    }
+                }
+            };
+
+            $('#pdf-upload').on('change', function () {
+                pdfPreview(this, 'ul#pdf-upload-preview');
+            });
+        });
+
         function doAddEditNews() {
             // อัพเดท content ของ ckeditor ไปยัง textarea
             CKEDITOR.instances.editor.updateElement();
@@ -669,14 +845,14 @@ if (isset($newsId)) {
             });
         }
 
-        function onClickDeleteAsset(element, assetId) {
+        function onClickDeleteAsset(element, assetId, assetType) {
             BootstrapDialog.show({
-                title: 'ลบรูปภาพ',
-                message: `การลบรูปภาพจะมีผลกับฐานข้อมูลทันที!\n\nยืนยันลบรูปภาพนี้?`,
+                title: 'ลบ' + assetType,
+                message: `การลบ${assetType}จะมีผลกับฐานข้อมูลทันที!\n\nยืนยันลบ${assetType}นี้?`,
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
-                        doDeleteAsset(assetId);
+                        doDeleteAsset(assetId, assetType);
                         self.close();
                     },
                     cssClass: 'btn-primary'
@@ -689,7 +865,7 @@ if (isset($newsId)) {
             });
         }
 
-        function doDeleteAsset(assetId) {
+        function doDeleteAsset(assetId, assetType) {
             $.post(
                 '../api/api.php/delete_news_asset',
                 {
@@ -700,7 +876,7 @@ if (isset($newsId)) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบรูปภาพ - ผิดพลาด',
+                        title: 'ลบ' + assetType + ' - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -712,7 +888,7 @@ if (isset($newsId)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบรูปภาพ - ผิดพลาด',
+                    title: 'ลบ' + assetType + ' - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',

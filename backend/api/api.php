@@ -2638,8 +2638,8 @@ function doAddNews()
                 return;
             }
 
-            $sql = "INSERT INTO news_asset (news_id, title, file_name) 
-                    VALUES ($insertId, null, '$fileName')";
+            $sql = "INSERT INTO news_asset (news_id, title, file_name, type) 
+                    VALUES ($insertId, null, '$fileName', 'image')";
             if (!($insertCourseAssetResult = $db->query($sql))) {
                 $db->query('ROLLBACK');
 
@@ -2648,13 +2648,38 @@ function doAddNews()
                 $response[KEY_ERROR_MESSAGE_MORE] = '';
                 return;
             }
-
-            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
-            $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
-            $response[KEY_ERROR_MESSAGE_MORE] = '';
-
-            $db->query('COMMIT');
         }
+
+        for ($i = 0; $i < sizeof($_FILES[KEY_PDF_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_PDF_FILES, UPLOAD_DIR_NEWS_ASSETS, $fileName, $i)) {
+                $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_PDF_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+
+            $sql = "INSERT INTO news_asset (news_id, title, file_name, type) 
+                    VALUES ($insertId, null, '$fileName', 'pdf')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลไฟล์ดาวน์โหลด: ' . $db->error;
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+        }
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เพิ่มข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+        $db->query('COMMIT');
     } else {
         $db->query('ROLLBACK');
 
@@ -2812,23 +2837,48 @@ function doUpdateNews()
             $fileName = null;
 
             if (!moveUploadedFile(KEY_IMAGE_FILES, UPLOAD_DIR_NEWS_ASSETS, $fileName, $i)) {
+                $db->query('ROLLBACK');
+
                 $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
                 $errorValue = $_FILES[KEY_IMAGE_FILES]['error'][$i];
                 $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
                 $response[KEY_ERROR_MESSAGE_MORE] = '';
-
-                $db->query('ROLLBACK');
                 return;
             }
 
-            $sql = "INSERT INTO news_asset (news_id, title, file_name) 
-                    VALUES ($id, null, '$fileName')";
+            $sql = "INSERT INTO news_asset (news_id, title, file_name, type) 
+                    VALUES ($id, null, '$fileName', 'image')";
             if (!($insertCourseAssetResult = $db->query($sql))) {
+                $db->query('ROLLBACK');
+
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
                 $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ';
                 $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+        }
 
+        for ($i = 0; $i < sizeof($_FILES[KEY_PDF_FILES]['name']); $i++) {
+            $fileName = null;
+
+            if (!moveUploadedFile(KEY_PDF_FILES, UPLOAD_DIR_NEWS_ASSETS, $fileName, $i)) {
                 $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $errorValue = $_FILES[KEY_PDF_FILES]['error'][$i];
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ [Error: $errorValue]";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+
+            $sql = "INSERT INTO news_asset (news_id, title, file_name, type) 
+                    VALUES ($id, null, '$fileName', 'pdf')";
+            if (!($insertCourseAssetResult = $db->query($sql))) {
+                $db->query('ROLLBACK');
+
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูลไฟล์ดาวน์โหลด';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
                 return;
             }
         }

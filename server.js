@@ -2331,7 +2331,8 @@ doGetNewsById = (req, res, db) => {
                     n.image_file_name,
                     n.news_date,
                     n.news_type,
-                    na.file_name
+                    na.file_name,
+                    na.type AS asset_type
              FROM news n
                       LEFT JOIN news_asset na
                                 ON n.id = na.news_id
@@ -2352,13 +2353,29 @@ doGetNewsById = (req, res, db) => {
                         newsType: results[0].news_type,
                     };
 
-                    let imageList = [];
+                    const imageList = [];
+                    const pdfList = [];
                     results.forEach(row => {
                         if (row.file_name != null) {
-                            imageList.push(row.file_name);
+                            if (row.asset_type === 'image') {
+                                imageList.push(row.file_name);
+                            } else {
+                                const fileName = row.file_name;
+                                let prefixPosition = fileName.indexOf('-');
+                                let extensionPosition = fileName.lastIndexOf('.');
+                                let title = fileName.substring(prefixPosition + 1, extensionPosition);
+
+                                pdfList.push({
+                                    title: title, //row.title
+                                    fileName: fileName,
+                                    //type: row.asset_type,
+                                    createdAt: row.created_at,
+                                });
+                            }
                         }
                     });
                     news['imageList'] = imageList;
+                    news['pdfList'] = pdfList;
 
                     res.send({
                         error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),

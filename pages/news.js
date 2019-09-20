@@ -293,6 +293,25 @@ export default class News extends React.Component {
                                         ))
                                     }
                                 </Carousel>
+
+                                {/*เอกสารดาวน์โหลด*/}
+                                <div className="title-download-inside mt-3">
+                                    <h3>เอกสารดาวน์โหลด</h3>
+                                    {
+                                        news.pdfList.map(asset => (
+                                            <div>
+                                                <a href={`${HOST_BACKEND}/uploads/news_assets/${asset.fileName}`}
+                                                   target="_blank">
+                                                    <img src="/static/images/pdf-icon.svg"/>&nbsp;&nbsp;{asset.title}
+                                                </a>
+                                            </div>
+                                        ))
+                                    }
+                                    {
+                                        news.pdfList.length === 0 &&
+                                        <div>ไม่มีเอกสาร</div>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
