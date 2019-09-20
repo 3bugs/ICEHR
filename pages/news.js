@@ -26,6 +26,7 @@ export default class News extends React.Component {
             newsList: null,
             offset: 0,
             initialPage: 0,
+            firstLoad: true,
         };
     }
 
@@ -79,6 +80,18 @@ export default class News extends React.Component {
                         newsList: result.dataList,
                         pageCount: Math.ceil(result.totalCount / NEWS_LIMIT_PER_PAGE),
                         errorMessage: null,
+                    }, () => {
+                        if (!this.state.firstLoad) {
+                            scroller.scrollTo('topOfTable', {
+                                duration: 500,
+                                smooth: true,
+                                offset: -100,
+                            });
+                        } else {
+                            this.setState({
+                                firstLoad: false,
+                            });
+                        }
                     });
                 } else {
                     // todo: handle error
@@ -169,47 +182,49 @@ export default class News extends React.Component {
                 {/*ลิสต์ข่าว*/
                     newsListType &&
                     <React.Fragment>
-                        <div className="container">
-                            {newsList &&
-                            newsRows.map(row => (
-                                <React.Fragment>
-                                    <div className="row mt-4">
-                                        {
-                                            row.map(newsItem => {
-                                                if (newsItem) {
-                                                    return (
-                                                        <NewsItem data={newsItem}/>
-                                                    );
-                                                } else {
-                                                    return (
-                                                        <div/>
-                                                    );
-                                                }
-                                            })
-                                        }
-                                    </div>
-                                    <div className="border-bott"/>
-                                </React.Fragment>
-                            ))
-                            }
-                        </div>
-                        <div style={{textAlign: 'center', marginTop: '30px'}}>
-                            <ReactPaginate
-                                initialPage={this.state.initialPage}
-                                previousLabel={'<'}
-                                nextLabel={'>'}
-                                breakLabel={'...'}
-                                breakClassName={'break-me'}
-                                pageCount={this.state.pageCount}
-                                marginPagesDisplayed={2}
-                                pageRangeDisplayed={5}
-                                onPageChange={this.handlePageClick}
-                                containerClassName={'pagination'}
-                                activeClassName={'pagination-active'}
-                                previousClassName={'pagination-older'}
-                                nextClassName={'pagination-newer'}
-                            />
-                        </div>
+                        <Element name={'topOfTable'}>
+                            <div className="container">
+                                {newsList &&
+                                newsRows.map(row => (
+                                    <React.Fragment>
+                                        <div className="row mt-4">
+                                            {
+                                                row.map(newsItem => {
+                                                    if (newsItem) {
+                                                        return (
+                                                            <NewsItem data={newsItem}/>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <div/>
+                                                        );
+                                                    }
+                                                })
+                                            }
+                                        </div>
+                                        <div className="border-bott"/>
+                                    </React.Fragment>
+                                ))
+                                }
+                            </div>
+                            <div style={{textAlign: 'center', marginTop: '30px'}}>
+                                <ReactPaginate
+                                    initialPage={this.state.initialPage}
+                                    previousLabel={'<'}
+                                    nextLabel={'>'}
+                                    breakLabel={'...'}
+                                    breakClassName={'break-me'}
+                                    pageCount={this.state.pageCount}
+                                    marginPagesDisplayed={2}
+                                    pageRangeDisplayed={5}
+                                    onPageChange={this.handlePageClick}
+                                    containerClassName={'pagination'}
+                                    activeClassName={'pagination-active'}
+                                    previousClassName={'pagination-older'}
+                                    nextClassName={'pagination-newer'}
+                                />
+                            </div>
+                        </Element>
                     </React.Fragment>
                 }
 
