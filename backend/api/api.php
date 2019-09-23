@@ -243,7 +243,12 @@ switch ($action) {
     case 'update_service_status':
         doUpdateServiceStatus();
         break;
-
+    case 'add_update_committee':
+        doAddUpdateCommittee();
+        break;
+    case 'delete_committee':
+        doDeleteCommittee();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -857,6 +862,74 @@ function doAddUpdateService()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddUpdateCommittee()
+{
+    global $db, $response;
+
+    $id = (int)$db->real_escape_string($_POST['id']);
+    $title = $db->real_escape_string($_POST['title']);
+    $firstName = $db->real_escape_string($_POST['firstName']);
+    $lastName = $db->real_escape_string($_POST['lastName']);
+    $position = $db->real_escape_string($_POST['position']);
+
+    $createNew = $id === 0;
+
+    $imageFileName = null;
+    if (isset($_FILES['image'])) {
+        if (!moveUploadedFile('image', UPLOAD_DIR_USER_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    if ($createNew) {
+        $sql = "INSERT INTO committee (title, first_name, last_name, position, image_file_name) 
+                VALUES ('$title', '$firstName', '$lastName', '$position', '$imageFileName')";
+    } else {
+        if ($imageFileName == null) {
+            $sql = "UPDATE committee 
+            SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position' 
+            WHERE id = $id";
+        } else {
+            $sql = "UPDATE committee
+            SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', image_file_name = '$imageFileName' 
+            WHERE id = $id";
+        }
+    }
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doDeleteCommittee()
+{
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $sql = "DELETE FROM committee WHERE id = $id";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'ลบคณะกรรมการสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

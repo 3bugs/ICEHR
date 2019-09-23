@@ -236,6 +236,9 @@ app
                     case 'get_service':
                         doGetService(req, res, db);
                         break;
+                    case 'get_user':
+                        doGetUser(req, res, db);
+                        break;
 
                     default:
                         //res.status(404).end();
@@ -2562,6 +2565,48 @@ doGetService = (req, res, db) => {
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
                     serviceList: results,
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetUser = (req, res, db) => {
+    db.query(
+        `SELECT ud.id AS department_id, u.id AS user_id, ud.name AS department_name, u.title, u.first_name, u.last_name, u.position, u.details, u.show_details, u.image_file_name, u.phone_extension
+         FROM user_department ud 
+             INNER JOIN user u 
+                 ON ud.id = u.department_id
+         ORDER BY ud.sort_index, u.sort_index`,
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                const departmentList = [];
+                let currentDepartment = null;
+                let previousDepartmentId = null;
+                results.forEach(row => {
+                    if (previousDepartmentId !== row.department_id) {
+                        previousDepartmentId = row.department_id;
+
+                        currentDepartment = {
+                            departmentName: row.department_name,
+                            departmentId: row.department_id,
+                            userList: [row],
+                        };
+                        departmentList.push(currentDepartment);
+                    } else {
+                        currentDepartment.userList.push(row);
+                    }
+                });
+
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList: departmentList,
                 });
             }
         }

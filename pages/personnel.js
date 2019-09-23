@@ -1,12 +1,41 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
 import Link from 'next/link';
+import fetch from "isomorphic-unfetch";
+import {HOST_BACKEND} from '../etc/constants';
+import {Element, scroller} from "react-scroll";
 
-export default class About extends React.Component {
+export default class Personnel extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
     }
+
+    static getInitialProps = async function ({req, query}) {
+        let departmentList = null;
+        let errorMessage = null;
+
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const result = await fetch(baseUrl + '/api/get_user', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'about',
+            }),
+        });
+        const resultJson = await result.json();
+        if (resultJson['error']['code'] === 0) {
+            departmentList = resultJson['dataList'];
+            errorMessage = null;
+        } else {
+            aboutList = null;
+            errorMessage = resultJson['error']['message'];
+        }
+
+        return {departmentList, errorMessage};
+    };
 
     componentDidMount() {
         var WFw = $(".wrap_wb_fixed").width();
@@ -44,6 +73,7 @@ export default class About extends React.Component {
             $(this).data("isopen", !open);
         });
 
+        /*
         $('a[href^="#"]').on('click', function(e) {
             e.preventDefault();
 
@@ -57,8 +87,9 @@ export default class About extends React.Component {
             });
             //sidebar-menu
         });
+        */
 
-        $(window).scroll(function() {
+        /*$(window).scroll(function() {
             var scroll = $(window).scrollTop();
 
             var sec2 = $('.content1').offset().top - 80;
@@ -89,8 +120,16 @@ export default class About extends React.Component {
             } else {
                 $('.link').removeClass('active');
             }
-        });
+        });*/
     }
+
+    scrollToDepartment = departmentId => {
+        scroller.scrollTo('department' + departmentId, {
+            duration: 500,
+            smooth: true,
+            offset: -90,
+        });
+    };
 
     render() {
         return (
@@ -111,6 +150,7 @@ export default class About extends React.Component {
                                         <li><a href="/mission">ภารกิจ </a></li>
                                         <li><a href="/organization">โครงสร้างองค์กร </a></li>
                                         <li><a href="/personnel" className="active-menu">ผู้บริหารและบุคลากร </a></li>
+                                        <li><a href="/committee">คณะกรรมการ </a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -132,6 +172,9 @@ export default class About extends React.Component {
                                             <li className="menu-item">
                                                 <a href="/personnel"> ผู้บริหารและบุคลากร </a>
                                             </li>
+                                            <li className="menu-item">
+                                                <a href="/committee"> คณะกรรมการ </a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -143,40 +186,71 @@ export default class About extends React.Component {
                             <div className="col-md-5 col-lg-4 wrap_wb_fixed d-none d-sm-block d-md-block d-lg-block d-xl-block">
                                 <div className="sidebar-menu wb_fixed" style={{overflow: 'hidden'}}>
                                     <ul>
-                                        <li>
-                                            <a className="link" href="#content1"><img src="/static/images/chat-icon.svg"/> ผู้บริหาร</a>
-                                        </li>
-                                        <li>
-                                            <a className="link" href="#content2"><img src="/static/images/chat-icon.svg"/> หัวหน้างาน</a>
-                                        </li>
-                                        <li>
-                                            <a className="link" href="#content3"><img src="/static/images/chat-icon.svg"/> งานวิจัยและวิชาการ</a>
-                                        </li>
-                                        <li>
-                                            <a className="link" href="#content4"><img src="/static/images/chat-icon.svg"/> งานพัฒนาคนและองค์กร</a>
-                                        </li>
-                                        <li>
-                                            <a className="link" href="#content5"><img src="/static/images/chat-icon.svg"/> งานบริการสังคมและชุมชน</a>
-                                        </li>
-                                        <li>
-                                            <a className="link" href="#content6"><img src="/static/images/chat-icon.svg"/> งานบริหารสำนักงาน</a>
-                                        </li>
+                                        {
+                                            this.props.departmentList.map((department, index) => (
+                                                <li>
+                                                    <a className="link"
+                                                       href={'#department' + department.departmentId}
+                                                       onClick={() => {
+                                                           this.scrollToDepartment(department.departmentId)
+                                                       }}>
+                                                        <img src="/static/images/chat-icon.svg"/> {department.departmentName}
+                                                    </a>
+                                                </li>
+                                            ))
+                                        }
                                     </ul>
                                 </div>
                             </div>
                             <div className="col-12 mb-3 d-block d-sm-none d-md-none d-lg-none d-xl-none">
                                 <select id="selectbasic" name="selectbasic" className="form-control">
-                                    <option value="#content1">ผู้บริหาร</option>
-                                    <option value="#content2">หัวหน้างาน</option>
-                                    <option value="#content3">งานวิจัยและวิชาการ</option>
-                                    <option value="#content4">งานพัฒนาคนและองค์กร</option>
-                                    <option value="#content5">งานบริการสังคมและ</option>
-                                    <option value="#content6">งานบริหารสำนักงาน</option>
+                                    {
+                                        this.props.departmentList.map((department, index) => (
+                                            <option value={'#department' + department.departmentId}>{department.departmentName}</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
                             <div className="col-md-7 col-lg-8">
                                 <div className="vision-text">
-                                    <section id="content1" className="content1">
+                                    {
+                                        this.props.departmentList.map((department, index) => (
+                                            <Element name={'department' + department.departmentId}>
+                                                <section id={'#department' + department.departmentId}
+                                                         className={'#department' + department.departmentId}>
+                                                    <h5>{department.departmentName}</h5>
+                                                    <div className="row">
+                                                        {
+                                                            department.userList.map((user, index) => (
+                                                                <div className="col-6 col-sm-4 executive-detail">
+                                                                    <div className="pic-executive">
+                                                                        <img src={`${HOST_BACKEND}/uploads/user_assets/${user.image_file_name}`}
+                                                                             className="img-fluid"
+                                                                             style={{borderRadius: '50%'}}/>
+                                                                    </div>
+                                                                    <h6>{`${user.title}${user.first_name} ${user.last_name}`}</h6>
+                                                                    <p>{user.department_name}</p>
+
+                                                                    {user.show_details === 1 &&
+                                                                    <div className="moredetail"><a href={'#user' + user.user_id} className="btn btn-outline-primary inline">รายละเอียด</a>
+                                                                        <div style={{display: 'none'}}>
+                                                                            <div id={'user' + user.user_id} className="detail-inside-box">
+                                                                                <h4>ผลงานที่ผ่านมา </h4>
+                                                                                <div dangerouslySetInnerHTML={{__html: user.details}}/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    }
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </section>
+                                            </Element>
+                                        ))
+                                    }
+
+                                    {/*<section id="content1" className="content1">
                                         <h5>ผู้บริหาร</h5>
                                         <div className="row">
                                             <div className="col-6 col-sm-4 executive-detail">
@@ -572,7 +646,7 @@ export default class About extends React.Component {
                                                     <br/> <span className="tel-inside">เบอร์ภายใน 121</span></p>
                                             </div>
                                         </div>
-                                    </section>
+                                    </section>*/}
                                 </div>
                             </div>
                         </div>

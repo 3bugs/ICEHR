@@ -335,6 +335,7 @@
                         <li><a href="intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
                         <li><a href="intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
                         <li><a href="organizational_structure.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
+                        <li><a href="committee.php"><i class="fa fa-circle-o"></i> คณะกรรมการ</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

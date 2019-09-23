@@ -4,7 +4,7 @@ import './mission.css';
 import fetch from "isomorphic-unfetch";
 import {HOST_BACKEND} from '../etc/constants';
 
-export default class About extends React.Component {
+export default class Mission extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -56,6 +56,7 @@ export default class About extends React.Component {
                                         <li><a href="/mission" className="active-menu">ภารกิจ </a></li>
                                         <li><a href="/organization">โครงสร้างองค์กร </a></li>
                                         <li><a href="/personnel">ผู้บริหารและบุคลากร </a></li>
+                                        <li><a href="/committee">คณะกรรมการ </a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -76,6 +77,9 @@ export default class About extends React.Component {
                                             </li>
                                             <li className="menu-item">
                                                 <a href="/personnel"> ผู้บริหารและบุคลากร </a>
+                                            </li>
+                                            <li className="menu-item">
+                                                <a href="/committee"> คณะกรรมการ </a>
                                             </li>
                                         </ul>
                                     </div>

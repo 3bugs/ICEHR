@@ -18,7 +18,7 @@ export default class Organization extends React.Component {
                 </NextHead>
 
                 <React.Fragment>
-                    <div className="banner-structure-top"/>
+                    <div className="banner-vision-top"/>
                     <div className="bgnav-abt">
                         <div className="container d-none d-sm-block d-md-block d-lg-block d-xl-block">
                             <div className="row">
@@ -26,9 +26,9 @@ export default class Organization extends React.Component {
                                     <ul className="aboutmenu">
                                         <li><a href="/about">เกี่ยวกับองค์กร </a></li>
                                         <li><a href="/mission">ภารกิจ </a></li>
-                                        <li><a href="/organization" className="active-menu">โครงสร้างองค์กร </a></li>
+                                        <li><a href="/organization">โครงสร้างองค์กร </a></li>
                                         <li><a href="/personnel">ผู้บริหารและบุคลากร </a></li>
-                                        <li><a href="/committee">คณะกรรมการ </a></li>
+                                        <li><a href="/committee" className="active-menu">คณะกรรมการ </a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@ export default class Organization extends React.Component {
                                 <div className="col">
                                     <div className="menu-wrapper">
                                         <ul className="menu">
-                                            <li className="menu-item active">
+                                            <li className="menu-item">
                                                 <a href="/about">เกี่ยวกับองค์กร </a>
                                             </li>
                                             <li className="menu-item">
@@ -50,7 +50,7 @@ export default class Organization extends React.Component {
                                             <li className="menu-item">
                                                 <a href="/personnel"> ผู้บริหารและบุคลากร </a>
                                             </li>
-                                            <li className="menu-item">
+                                            <li className="menu-item active">
                                                 <a href="/committee"> คณะกรรมการ </a>
                                             </li>
                                         </ul>

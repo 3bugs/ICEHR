@@ -1,11 +1,11 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT * FROM service";
+$sql = "SELECT * FROM committee";
 if ($result = $db->query($sql)) {
-    $serviceList = array();
+    $committeeList = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($serviceList, $row);
+        array_push($committeeList, $row);
     }
     $result->close();
 } else {
@@ -21,6 +21,8 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/head.inc'); ?>
         <!-- DataTables -->
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <!--Lightbox-->
+        <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
         <style>
 
         </style>
@@ -29,74 +31,90 @@ if ($result = $db->query($sql)) {
 
     <!-- Edit Modal -->
     <div class="modal fade" id="editModal" role="dialog">
-        <div class="modal-dialog modal-md">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;
                     </button>
-                    <h4 class="modal-title" id="title">เพิ่ม/แก้ไขบริการ</h4>
+                    <h4 class="modal-title" id="title">เพิ่ม/แก้ไขคณะกรรมการ</h4>
                 </div>
                 <div class="modal-body">
                     <form id="formEdit" role="form" method="post"
-                          action="../api/api.php/add_update_service"
+                          action="../api/api.php/add_update_committee"
                           style="margin-top: 0; margin-bottom: 0">
                         <div class="box-body">
                             <input type="hidden" id="inputId" name="id">
 
-                            <!--ชื่อบริการ-->
+                            <!--คำนำหน้า-ชื่อ-นามสกุล-->
+                            <div class="row">
+                                <!--คำนำหน้าชื่อ-->
+                                <div class="form-group col-md-2">
+                                    <label for="inputTitle">คำนำหน้าชื่อ:</label>
+                                    <div class="input-group">
+                                        <!--<span class="input-group-addon">
+                                            <i class="fa fa-user"></i>
+                                        </span>-->
+                                        <input type="text" class="form-control"
+                                               id="inputTitle" name="title"
+                                               placeholder="กรอกคำนำหน้าชื่อ" required
+                                               oninvalid="this.setCustomValidity('กรอกคำนำหน้าชื่อ')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+
+                                <!--ชื่อ-->
+                                <div class="form-group col-md-5">
+                                    <label for="inputFirstName">ชื่อ:</label>
+                                    <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-user-o"></i>
+                                                    </span>
+                                        <input type="text" class="form-control"
+                                               id="inputFirstName" name="firstName"
+                                               placeholder="กรอกชื่อ" required
+                                               oninvalid="this.setCustomValidity('กรอกชื่อ')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                                <!--นามสกุล-->
+                                <div class="form-group col-md-5">
+                                    <label for="inputLastName">นามสกุล:</label>
+                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-user-o"></i>
+                                                            </span>
+                                        <input type="text" class="form-control"
+                                               id="inputLastName" name="lastName"
+                                               placeholder="กรอกนามสกุล" required
+                                               oninvalid="this.setCustomValidity('กรอกนามสกุล')"
+                                               oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group">
-                                <label for="inputTitle">ชื่อบริการ:</label>
+                                <label for="inputPosition">ตำแหน่ง:</label>
                                 <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-pencil"></i>
-                                    </span>
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-tag"></i>
+                                                    </span>
                                     <input type="text" class="form-control"
-                                           id="inputTitle" name="title"
-                                           placeholder="กรอกชื่อบริการ" required
-                                           oninvalid="this.setCustomValidity('กรอกชื่อบริการ')"
+                                           id="inputPosition" name="position"
+                                           placeholder="กรอกตำแหน่ง" required
+                                           oninvalid="this.setCustomValidity('กรอกตำแหน่ง')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
 
-                            <!--รายละเอียดแบบย่อ-->
+                            <!--รูปภาพ-->
                             <div class="form-group">
-                                <label for="inputDetails">รายละเอียดแบบย่อ (ไม่เกิน 100 ตัวอักษร):</label>
+                                <label for="inputImage">รูปภาพ:</label>
                                 <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-tag"></i>
+                                    <span class="input-group-addon" style="padding: 0px; border: 1px solid lightgrey">
+                                        <img id="imgPreview" width="100px" height="100px">
                                     </span>
-                                    <input type="text" class="form-control"
-                                           id="inputDetails" name="details" maxlength="100"
-                                           placeholder="กรอกรายละเอียดแบบย่อ (ไม่เกิน 100 ตัวอักษร)" required
-                                           oninvalid="this.setCustomValidity('กรอกรายละเอียดแบบย่อ (ไม่เกิน 100 ตัวอักษร)')"
-                                           oninput="this.setCustomValidity('')">
-                                </div>
-                            </div>
-
-                            <!--Link-->
-                            <div id="divUrl" class="form-group">
-                                <label for="inputUrl">Link:</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-link"></i>
-                                    </span>
-                                    <input type="text" class="form-control"
-                                           id="inputUrl" name="url" maxlength="500"
-                                           placeholder="กรอก Link" required
-                                           oninvalid="this.setCustomValidity('กรอก Link')"
-                                           oninput="this.setCustomValidity('')">
-                                </div>
-                            </div>
-
-                            <!--Icon-->
-                            <div class="form-group">
-                                <label for="inputIcon">Icon:</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon" style="padding: 5px; border: 1px solid lightgrey">
-                                        <img id="imgPreview" width="28px" height="28px">
-                                    </span>
-                                    <input id="inputIcon" name="icon"
+                                    <input id="inputImage" name="image"
                                            type="file" accept="image/*"/>
                                 </div>
                             </div>
@@ -135,7 +153,7 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    บริการของหน่วยงาน
+                    คณะกรรมการ
                 </h1>
             </section>
 
@@ -150,76 +168,79 @@ if ($result = $db->query($sql)) {
                                         onclick="onClickAdd(this)"
                                         data-toggle_x="modal" data-target_x="#addCourseMasterModal">
                                     <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มบริการ
+                                    เพิ่มคณะกรรมการ
                                 </button>
                             </div>
                             <div class="box-body">
-                                <table id="tableService" class="table table-bordered table-striped">
+                                <table id="tableCommittee" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th style="text-align: center; width: 25%;">ชื่อบริการ</th>
-                                        <th style="text-align: center; width: 75%;">รายละเอียดแบบย่อ</th>
-                                        <!--<th style="text-align: center;" nowrap>Link</th>-->
-                                        <th style="text-align: center;" nowrap>Icon</th>
-                                        <th style="text-align: center">สถานะ</th>
+                                        <th style="text-align: center;">รูปภาพ</th>
+                                        <th style="text-align: center; width: 50%;">ชื่อ-นามสกุล</th>
+                                        <th style="text-align: center; width: 50%;">ตำแหน่ง</th>
+                                        <!--<th style="text-align: center">สถานะ</th>-->
                                         <th style="text-align: center;" nowrap>จัดการ</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (sizeof($serviceList) == 0) {
+                                    if (sizeof($committeeList) == 0) {
                                         ?>
                                         <tr valign="middle">
                                             <td colspan="5" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
-                                        foreach ($serviceList as $service) {
-                                            $serviceId = $service['id'];
-                                            $serviceTitle = $service['title'];
-                                            $serviceDetails = $service['details'];
-                                            $serviceUrl = $service['url'];
-                                            $serviceIconFileName = $service['icon_file_name'];
-                                            $serviceStatus = (int)$service['status'] === 1;
-                                            $serviceSlug = $service['slug'];
+                                        foreach ($committeeList as $committee) {
+                                            $id = $committee['id'];
+
+                                            $displayName = sprintf(
+                                                '%s %s %s',
+                                                $committee['title'], $committee['first_name'], $committee['last_name']
+                                            );
+
+                                            $position = $committee['position'];
+
+                                            $image = sprintf(
+                                                '<a href="%s" data-lightbox="coverImage" data-title="%s"><img src="%s" width="60px" style="border-radius: 50%%;"/></a>',
+                                                UPLOAD_DIR_USER_ASSETS . $committee['image_file_name'],
+                                                "{$committee['title']} {$committee['first_name']} {$committee['last_name']}",
+                                                UPLOAD_DIR_USER_ASSETS . $committee['image_file_name']
+                                            );
                                             ?>
                                             <tr style="">
-                                                <td style=""><?= $serviceTitle; ?></td>
-                                                <td style=""><?= $serviceDetails; ?></td>
-                                                <!--<td style="text-align: center"><a target="_blank" href="<?/*= $serviceUrl; */?>" title="<?/*= $serviceUrl; */?>"><i class="fa fa-link"></i></a></td>-->
-                                                <td style="text-align: center"><img src="<?= UPLOAD_DIR_SERVICE_ICONS . $serviceIconFileName ?>" width="28px" height="28px"></td>
-
-                                                <td style="text-align: center; vertical-align: top">
-                                                    <span style="display: none">
-                                                        <?= $serviceStatus ? 'on' : 'off' ?>>
-                                                    </span>
-                                                    <input name="status" type="checkbox"
-                                                           data-toggle="toggle"
-                                                           onChange="onChangeStatus(
-                                                                   this,
-                                                           <?= currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT) ? 'true' : 'false'; ?>,
-                                                           <?= $serviceId; ?>,
-                                                                   '<?= htmlentities($serviceTitle); ?>'
-                                                                   )"
-                                                        <?= $serviceStatus ? 'checked' : '' ?>>
-                                                </td>
+                                                <td style=""><?= $image; ?></td>
+                                                <td style=""><?= $displayName; ?></td>
+                                                <td style=""><?= $position; ?></td>
 
                                                 <td style="text-align: right" nowrap>
                                                     <?php
                                                     if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
                                                         ?>
                                                         <button type="button" class="btn btn-warning"
-                                                                style="margin-left: 6px; margin-right: 6px"
+                                                                style="margin-left: 6px; margin-right: 3px"
                                                                 onclick="onClickEdit(
                                                                         this,
-                                                                <?= $serviceId; ?>,
-                                                                        '<?= $serviceTitle; ?>',
-                                                                        '<?= $serviceDetails; ?>',
-                                                                        '<?= $serviceUrl; ?>',
-                                                                        '<?= $serviceIconFileName; ?>',
-                                                                <?= $serviceSlug === 'hr-intelligence' ? 'true' : 'false'; ?>)">
+                                                                <?= $id; ?>,
+                                                                        '<?= $committee['title']; ?>',
+                                                                        '<?= $committee['first_name']; ?>',
+                                                                        '<?= $committee['last_name']; ?>',
+                                                                        '<?= $position; ?>',
+                                                                        '<?= $committee['image_file_name']; ?>'
+                                                                        )">
                                                             <span class="fa fa-edit"></span>&nbsp;
                                                             แก้ไข
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger"
+                                                                style="margin-left: 3px; margin-right: 6px"
+                                                                onclick="onClickDelete(
+                                                                        this,
+                                                                <?= $id; ?>,
+                                                                        '<?= $displayName; ?>',
+                                                                        '<?= $position; ?>'
+                                                                        )">
+                                                            <span class="fa fa-edit"></span>&nbsp;
+                                                            ลบ
                                                         </button>
                                                         <?php
                                                     }
@@ -253,8 +274,8 @@ if ($result = $db->query($sql)) {
         $(document).ready(function () {
             $('#formEdit #divLoading').hide();
 
-            $('#tableService').DataTable({
-                ordering: false,
+            $('#tableCommittee').DataTable({
+                ordering: true,
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
                 order: [[1, 'asc']],
@@ -281,7 +302,7 @@ if ($result = $db->query($sql)) {
             $('#formEdit').submit(event => {
                 event.preventDefault();
                 if (validateForm()) {
-                    doUpdateService();
+                    doAddUpdateCommittee();
                 }
             });
         });
@@ -291,7 +312,7 @@ if ($result = $db->query($sql)) {
                 //$(placeToInsertImagePreview).empty();
                 //$(placeToInsertImagePreview).hide();
 
-                $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_SERVICE_ICONS; ?>' + 'blank.png');
+                $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_USER_ASSETS; ?>' + 'blank.png');
 
                 if (input.files) {
                     let fileCount = 1; //input.files.length;
@@ -309,34 +330,36 @@ if ($result = $db->query($sql)) {
                 }
             };
 
-            $('#inputIcon').on('change', function () {
+            $('#inputImage').on('change', function () {
                 setIconPreview(this, 'div#cover-image-upload-preview');
             });
         });
 
         function onClickAdd(element) {
-            $('#editModal #title').text('เพิ่มบริการ');
-            $('#formEdit #inputIcon').attr('required', 'true');
+            $('#editModal #title').text('เพิ่มคณะกรรมการ');
+            $('#formEdit #inputImage').attr('required', 'true');
 
             $('#formEdit #inputId').val('0');
             $('#formEdit #inputTitle').val('');
-            $('#formEdit #inputDetails').val('');
-            $('#formEdit #inputUrl').val('');
-            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_SERVICE_ICONS; ?>' + 'blank.png');
+            $('#formEdit #inputFirstName').val('');
+            $('#formEdit #inputLastName').val('');
+            $('#formEdit #inputPosition').val('');
+            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_USER_ASSETS; ?>' + 'blank.png');
 
             $('#formEdit #responseText').text('');
             $('#editModal').modal('show');
         }
 
-        function onClickEdit(element, id, title, details, url, iconFileName, showUrl) {
-            $('#editModal #title').text('แก้ไขบริการ');
-            $('#formEdit #inputIcon').removeAttr('required');
+        function onClickEdit(element, id, title, firstName, lastName, position, imageFileName) {
+            $('#editModal #title').text('แก้ไขคณะกรรมการ');
+            $('#formEdit #inputImage').removeAttr('required');
 
             $('#formEdit #inputId').val(id);
             $('#formEdit #inputTitle').val(title);
-            $('#formEdit #inputDetails').val(details);
-            $('#formEdit #inputUrl').val(url);
-            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_SERVICE_ICONS; ?>' + iconFileName);
+            $('#formEdit #inputFirstName').val(firstName);
+            $('#formEdit #inputLastName').val(lastName);
+            $('#formEdit #inputPosition').val(position);
+            $('#formEdit #imgPreview').attr('src', '<?= UPLOAD_DIR_USER_ASSETS; ?>' + imageFileName);
 
             /*const divUrl = $('#formEdit #divUrl');
             if (showUrl) {
@@ -361,33 +384,7 @@ if ($result = $db->query($sql)) {
             return valid;
         }
 
-        /*function doUpdateService_old() {
-            $('#formEdit #buttonSave').prop('disabled', true);
-            $('#formEdit #divLoading').show();
-            $.post(
-                '../api/api.php/update_service',
-                {
-                    id: $('#formEdit #inputId').val(),
-                    title: $('#formEdit #inputTitle').val().trim(),
-                    details: $('#formEdit #inputDetails').val(),
-                    url: $('#formEdit #inputUrl').val(),
-                }
-            ).done(function (data) {
-                if (data.error_code === 0) {
-                    location.reload(true);
-                } else {
-                    $('#formEdit #buttonSave').prop('disabled', false);
-                    $('#formEdit #divLoading').hide();
-                    $('#formEdit #responseText').text(data.error_message);
-                }
-            }).fail(function () {
-                $('#formEdit #buttonSave').prop('disabled', false);
-                $('#formEdit #divLoading').hide();
-                $('#formEdit #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
-            });
-        }*/
-
-        function doUpdateService() {
+        function doAddUpdateCommittee() {
             $('#formEdit #buttonSave').prop('disabled', true);
             $('#formEdit #divLoading').show();
 
@@ -410,13 +407,13 @@ if ($result = $db->query($sql)) {
             });
         }
 
-        function onChangeStatus(element, userHasPermission, serviceId, serviceTitle) {
+        /*function onChangeStatus(element, userHasPermission, serviceId, serviceTitle) {
             if (userHasPermission) {
                 let result = confirm("ยืนยัน" + (element.checked ? 'เปิดการแสดงผล' : 'ปิดการแสดงผล') + " '" + serviceTitle + "' ?");
                 if (result) {
                     doChangeStatus(serviceId, (element.checked ? 1 : 0));
                 } else {
-                    /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                    /!*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*!/
                     location.reload(true);
                 }
             } else {
@@ -463,16 +460,16 @@ if ($result = $db->query($sql)) {
                     }]
                 });
             });
-        }
+        }*/
 
-        /*function onClickDelete(element, id, title) {
+        function onClickDelete(element, id, displayName, position) {
             BootstrapDialog.show({
-                title: 'ลบชื่อหลักสูตร',
-                message: 'ยืนยันลบชื่อหลักสูตร \'' + title + '\' ?',
+                title: 'ลบคณะกรรมการ',
+                message: 'ยืนยันลบ \'' + displayName + '\' ?',
                 buttons: [{
                     label: 'ลบ',
                     action: function (self) {
-                        doDeleteCourseMaster(id);
+                        doDeleteCommittee(id);
                         self.close();
                     },
                     cssClass: 'btn-primary'
@@ -485,18 +482,18 @@ if ($result = $db->query($sql)) {
             });
         }
 
-        function doDeleteCourseMaster(courseMasterId) {
+        function doDeleteCommittee(id) {
             $.post(
-                '../api/api.php/delete_course_master',
+                '../api/api.php/delete_committee',
                 {
-                    courseMasterId: courseMasterId,
+                    id: id,
                 }
             ).done(function (data) {
                 if (data.error_code === 0) {
                     location.reload(true);
                 } else {
                     BootstrapDialog.show({
-                        title: 'ลบชื่อหลักสูตร - ผิดพลาด',
+                        title: 'ลบคณะกรรมการ - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -508,7 +505,7 @@ if ($result = $db->query($sql)) {
                 }
             }).fail(function () {
                 BootstrapDialog.show({
-                    title: 'ลบชื่อหลักสูตร - ผิดพลาด',
+                    title: 'ลบคณะกรรมการ - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
@@ -518,7 +515,7 @@ if ($result = $db->query($sql)) {
                     }]
                 });
             });
-        }*/
+        }
     </script>
 
     <?php require_once('../include/foot.inc'); ?>
@@ -527,6 +524,8 @@ if ($result = $db->query($sql)) {
     <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
     <!--jQuery Form Plugin-->
     <script src="../dist/js/jquery.form.js"></script>
+    <!--Lightbox-->
+    <script src="../dist/lightbox/js/lightbox.js"></script>
     </body>
     </html>
 

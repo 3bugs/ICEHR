@@ -145,6 +145,7 @@ export default class About extends React.Component {
                                         <li><a href="/mission">ภารกิจ </a></li>
                                         <li><a href="/organization">โครงสร้างองค์กร </a></li>
                                         <li><a href="/personnel">ผู้บริหารและบุคลากร </a></li>
+                                        <li><a href="/committee">คณะกรรมการ </a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -165,6 +166,9 @@ export default class About extends React.Component {
                                             </li>
                                             <li className="menu-item">
                                                 <a href="/personnel"> ผู้บริหารและบุคลากร </a>
+                                            </li>
+                                            <li className="menu-item">
+                                                <a href="/committee"> คณะกรรมการ </a>
                                             </li>
                                         </ul>
                                     </div>
