@@ -1,5 +1,7 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
+import {HOST_BACKEND} from "../etc/constants";
+import fetch from "isomorphic-unfetch";
 
 export default class Organization extends React.Component {
     constructor(props, context) {
@@ -8,10 +10,42 @@ export default class Organization extends React.Component {
         };
     }
 
+    static getInitialProps = async function ({req, query}) {
+        let organizationList = null;
+        let errorMessage = null;
+
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const result = await fetch(baseUrl + '/api/get_intro', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'organization',
+            }),
+        });
+        const resultJson = await result.json();
+        if (resultJson['error']['code'] === 0) {
+            organizationList = resultJson['dataList'];
+            errorMessage = null;
+        } else {
+            organizationList = null;
+            errorMessage = resultJson['error']['message'];
+        }
+
+        return {organizationList, errorMessage};
+    };
+
     componentDidMount() {
     }
 
     render() {
+        const {organizationList} = this.props;
+        let organization = null;
+        if (organizationList.length > 0) {
+            organization = organizationList[0];
+        }
+
         return (
             <MainLayout>
                 <NextHead>
@@ -62,14 +96,19 @@ export default class Organization extends React.Component {
                     <div className="container mt-5">
                         <div className="row">
                             <div className="col text-title-top">
-                                <p>โครงสร้างองค์กร</p>
-                                <h3>โครงสร้างสถาบัน</h3></div>
+                                <h3>โครงสร้างองค์กร</h3>
+                            </div>
                         </div>
                         <div className="row">
                             <div className="col text-center">
-                                <a href="/static/images/structure-pic.jpg" className="single_image">
-                                    <img src="/static/images/structure-pic.jpg" className="img-fluid"/>
+                                {!organization &&
+                                    <div style={{textAlign: 'center', color: 'red'}}>ไม่มีข้อมูล</div>
+                                }
+                                {organization &&
+                                <a href={`${HOST_BACKEND}/uploads/intro_assets/${organization.image_file_name}`} className="single_image">
+                                    <img src={`${HOST_BACKEND}/uploads/intro_assets/${organization.image_file_name}`} className="img-fluid"/>
                                 </a>
+                                }
                             </div>
                         </div>
                     </div>

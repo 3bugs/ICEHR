@@ -3,12 +3,13 @@ require_once '../include/head_php.inc';
 
 define('TYPE_ABOUT', 'about');
 define('TYPE_MISSION', 'mission');
+define('TYPE_BANNER', 'banner');
 
 $itemId = $_POST['id'];
 
 $type = $_POST['type'];
 $typeList = array(
-    TYPE_ABOUT, TYPE_MISSION
+    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER
 );
 if (!isset($type) || !in_array($type, $typeList)) {
     echo "Invalid type '$type' - ระบุประเภทไม่ถูกต้อง";
@@ -18,10 +19,12 @@ if (!isset($type) || !in_array($type, $typeList)) {
 
 $pageTitleList[TYPE_ABOUT] = 'เกี่ยวกับองค์กร';
 $pageTitleList[TYPE_MISSION] = 'ภารกิจ';
+$pageTitleList[TYPE_BANNER] = 'แบนเนอร์';
 $pageTitle = $pageTitleList[$type];
 
 $hasCoverImageList[TYPE_ABOUT] = FALSE;
 $hasCoverImageList[TYPE_MISSION] = TRUE;
+$hasCoverImageList[TYPE_BANNER] = TRUE;
 $hasCoverImage = $hasCoverImageList[$type];
 
 $item = array();
@@ -123,71 +126,151 @@ if (isset($itemId)) {
                     <div class="row">
                         <div class="col-xs-12">
 
-                            <!--หัวข้อ-->
-                            <div class="box box-warning">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title"><?= $pageTitle; ?></h3>
+                            <?php
+                            if (TRUE /*$type === TYPE_ABOUT || $type === TYPE_MISSION*/) {
+                                ?>
+                                <!--หัวข้อ-->
+                                <div class="box box-warning">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><?= $pageTitle; ?></h3>
 
-                                    <div class="box-tools pull-right">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
+                                        <div class="box-tools pull-right">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                    data-toggle="tooltip" title="ย่อ">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </div>
+                                        <!-- /.box-tools -->
                                     </div>
-                                    <!-- /.box-tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body">
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
 
-                                    <!--หัวข้อ/เรื่อง-->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="inputTitle">หัวข้อ/เรื่อง:</label>
-                                                <div class="input-group">
+                                        <!--หัวข้อ/เรื่อง-->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="inputTitle">หัวข้อ/เรื่อง:</label>
+                                                    <div class="input-group">
                                                 <span class="input-group-addon">
                                                     <i class="fa fa-font"></i>
                                                 </span>
-                                                    <input type="text" class="form-control"
-                                                           id="inputTitle"
-                                                           name="title"
-                                                           value="<?php echo(!empty($item) ? $item['title'] : ''); ?>"
-                                                           placeholder="กรอกหัวข้อ/เรื่อง" required
-                                                           oninvalid="this.setCustomValidity('กรอกหัวข้อ/เรื่อง')"
-                                                           oninput="this.setCustomValidity('')">
+                                                        <input type="text" class="form-control"
+                                                               id="inputTitle" name="title"
+                                                               value="<?php echo(!empty($item) ? $item['title'] : ''); ?>"
+                                                               placeholder="กรอกหัวข้อ/เรื่อง" required
+                                                               oninvalid="this.setCustomValidity('กรอกหัวข้อ/เรื่อง')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <?php
+                                            if ($type === TYPE_BANNER) {
+                                                ?>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="inputSubTitle">หัวข้อรอง:</label>
+                                                        <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-font"></i>
+                                                </span>
+                                                            <input type="text" class="form-control"
+                                                                   id="inputSubTitle" name="subTitle"
+                                                                   value="<?php echo(!empty($item) ? $item['sub_title'] : ''); ?>"
+                                                                   placeholder="กรอกหัวข้อรอง" required
+                                                                   oninvalid="this.setCustomValidity('กรอกหัวข้อรอง')"
+                                                                   oninput="this.setCustomValidity('')">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.box -->
+                                <?php
+                            }
+                            ?>
+
+                            <?php
+                            if ($type === TYPE_BANNER) {
+                                ?>
+                                <!--Link-->
+                                <div class="box box-warning">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Link แบนเนอร์</h3>
+
+                                        <div class="box-tools pull-right">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                    data-toggle="tooltip" title="ย่อ">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </div>
+                                        <!-- /.box-tools -->
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+
+                                        <!--แบนเนอร์-->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="inputUrl">Link:</label>
+                                                    <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-link"></i>
+                                                </span>
+                                                        <input type="text" class="form-control"
+                                                               id="inputUrl" name="url"
+                                                               value="<?php echo(!empty($item) ? $item['url'] : ''); ?>"
+                                                               placeholder="กรอก Link ของแบนเนอร์" required
+                                                               oninvalid="this.setCustomValidity('กรอก Link ของแบนเนอร์')"
+                                                               oninput="this.setCustomValidity('')">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- /.box-body -->
                                 </div>
-                                <!-- /.box-body -->
-                            </div>
-                            <!-- /.box -->
+                                <!-- /.box -->
+                                <?php
+                            }
+                            ?>
 
-                            <!--content editor-->
-                            <div class="box box-warning">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">รายละเอียด
-                                        <small>&nbsp;</small>
-                                    </h3>
-                                    <!-- tools box -->
-                                    <div class="pull-right box-tools">
-                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
-                                                data-toggle="tooltip" title="ย่อ">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
+                            <?php
+                            if (TRUE /*$type === TYPE_ABOUT || $type === TYPE_MISSION*/) {
+                                ?>
+                                <!--content editor-->
+                                <div class="box box-warning">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">รายละเอียด<?= $type === TYPE_BANNER ? 'แบบย่อ' : ''; ?>
+                                            <small>&nbsp;</small>
+                                        </h3>
+                                        <!-- tools box -->
+                                        <div class="pull-right box-tools">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                    data-toggle="tooltip" title="ย่อ">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </div>
+                                        <!-- /. tools -->
                                     </div>
-                                    <!-- /. tools -->
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body pad">
+                                    <!-- /.box-header -->
+                                    <div class="box-body pad">
                                 <textarea id="editor" rows="20" cols="80"
                                           name="details" required>
                                     <?= (!empty($item) ? $item['details'] : ''); ?>
                                 </textarea>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- /.box -->
+                                <!-- /.box -->
+                                <?php
+                            }
+                            ?>
 
                             <!--รูปภาพ-->
                             <?php
@@ -233,6 +316,13 @@ if (isset($itemId)) {
                                                     <!-- /.tab-pane -->
                                                     <div class="tab-pane" id="cover_image_tab_2" style="padding: 0px">
                                                         <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                            <?php
+                                                            if ($type === TYPE_BANNER) {
+                                                                ?>
+                                                                <li>ภาพแบนเนอร์ ให้ใช้ภาพ JPG ขนาด 1000x500 (กว้าง 1,000 pixel สูง 500 pixel) หรือขนาดอื่นที่มีอัตราส่วนความกว้าง:ความสูง = 2:1 เช่น 800x400 แต่ไม่ควรมีขนาดเล็กเกินไป (ภาพจะไม่คมชัด) หรือใหญ่เกินไป (จะใช้เวลาโหลดภาพนาน)</li>
+                                                                <?php
+                                                            }
+                                                            ?>
                                                             <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                             <li>รูปภาพที่อัพโหลดใหม่ จะแทนที่รูปภาพปัจจุบัน</li>
                                                             <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
@@ -252,6 +342,13 @@ if (isset($itemId)) {
                                         } else {
                                             ?>
                                             <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                <?php
+                                                if ($type === TYPE_BANNER) {
+                                                    ?>
+                                                    <li>ภาพแบนเนอร์ ให้ใช้ภาพ JPG ขนาด 1000x500 (กว้าง 1,000 pixel สูง 500 pixel) หรือขนาดอื่นที่มีอัตราส่วนความกว้าง:ความสูง = 2:1 เช่น 800x400 แต่ไม่ควรมีขนาดเล็กเกินไป (ภาพจะไม่คมชัด) หรือใหญ่เกินไป (จะใช้เวลาโหลดภาพนาน)</li>
+                                                    <?php
+                                                }
+                                                ?>
                                                 <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                 <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                             </ul>
@@ -350,7 +447,9 @@ if (isset($itemId)) {
 
         function doAddEditNews() {
             // อัพเดท content ของ ckeditor ไปยัง textarea
-            CKEDITOR.instances.editor.updateElement();
+            if (CKEDITOR.instances.editor) {
+                CKEDITOR.instances.editor.updateElement();
+            }
 
             $('#formAddEdit #buttonSave').prop('disabled', true);
             $('#formAddEdit #divLoading').show();

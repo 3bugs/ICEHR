@@ -3,10 +3,11 @@ require_once '../include/head_php.inc';
 
 define('TYPE_ABOUT', 'about');
 define('TYPE_MISSION', 'mission');
+define('TYPE_BANNER', 'banner');
 
 $type = $_GET['type'];
 $typeList = array(
-    TYPE_ABOUT, TYPE_MISSION
+    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER
 );
 if (!isset($type) || !in_array($type, $typeList)) {
     echo "Invalid type '$type' - ระบุประเภทไม่ถูกต้อง";
@@ -16,13 +17,15 @@ if (!isset($type) || !in_array($type, $typeList)) {
 
 $pageTitleList[TYPE_ABOUT] = 'เกี่ยวกับองค์กร';
 $pageTitleList[TYPE_MISSION] = 'ภารกิจ';
+$pageTitleList[TYPE_BANNER] = 'แบนเนอร์';
 $pageTitle = $pageTitleList[$type];
 
 $sortColumnList[TYPE_ABOUT] = 0;
 $sortColumnList[TYPE_MISSION] = 0;
+$sortColumnList[TYPE_BANNER] = 0;
 $sortColumn = $sortColumnList[$type];
 
-$sql = "SELECT id, title, details, image_file_name, sort_index, created_at, status
+$sql = "SELECT id, title, details, url, image_file_name, sort_index, created_at, status
             FROM intro
             WHERE type = '$type'
             ORDER BY sort_index";
@@ -95,7 +98,14 @@ if ($result = $db->query($sql)) {
                                         ?>
                                         <li class="ui-state-default">
                                             <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
-                                            <?= $item['title']; ?>
+                                            <?php
+                                            if ($type === TYPE_MISSION || $type === TYPE_BANNER) {
+                                                ?>
+                                                <img src="<?= UPLOAD_DIR_INTRO_ASSETS . $item['image_file_name']; ?>" height="50px">&nbsp;
+                                                <?php
+                                            }
+                                            ?>
+                                            <?= $type === TYPE_BANNER ? $item['title'] : $item['title']; ?>
                                             <input type="hidden" value="<?= $item['id']; ?>"/>
                                         </li>
                                         <?php
@@ -180,8 +190,18 @@ if ($result = $db->query($sql)) {
                                         } else if ($type === TYPE_MISSION) {
                                             ?>
                                             <th style="text-align: center; width: 10%;">ลำดับ</th>
-                                            <th style="text-align: center; width: 60%;">หัวข้อ/เรื่อง</th>
-                                            <th style="text-align: center; width: 15%;">รูปภาพ</th>
+                                            <th style="text-align: center; width: 75%;">หัวข้อ/เรื่อง</th>
+                                            <th style="text-align: center;">รูปภาพ</th>
+                                            <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
+                                            <th style="text-align: center;" nowrap>เผยแพร่</th>
+                                            <th style="text-align: center;">จัดการ</th>
+                                            <?php
+                                        } else if ($type === TYPE_BANNER) {
+                                            ?>
+                                            <th style="text-align: center; width: 10%;">ลำดับ</th>
+                                            <th style="text-align: center; width: 75%;">หัวข้อ/เรื่อง</th>
+                                            <th style="text-align: center;">รูปภาพ</th>
+                                            <th style="text-align: center;">Link</th>
                                             <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
                                             <th style="text-align: center;" nowrap>เผยแพร่</th>
                                             <th style="text-align: center;">จัดการ</th>
@@ -210,16 +230,31 @@ if ($result = $db->query($sql)) {
                                             ?>
                                             <tr style="">
                                                 <td style="text-align: center"><?= $item['sort_index'] != null ? $item['sort_index'] : '<span style="display: none">999999</span>'; ?></td>
-                                                <td><?= $item['title']; ?></td>
                                                 <?php
-                                                if ($type === TYPE_MISSION) {
+                                                if (TRUE /*$type === TYPE_ABOUT || $type === TYPE_MISSION*/) {
+                                                    ?>
+                                                    <td><?= $item['title']; ?></td>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <?php
+                                                if ($type === TYPE_MISSION || $type === TYPE_BANNER) {
                                                     ?>
                                                     <td style="text-align: center; cursor: pointer">
-                                                        <a href="<?php echo(UPLOAD_DIR_INTRO_ASSETS . $item['image_file_name']); ?>"
+                                                        <a href="<?= (UPLOAD_DIR_INTRO_ASSETS . $item['image_file_name']); ?>"
                                                            data-lightbox="coverImage" data-title="<?= $item['title']; ?>">
-                                                            <img src="<?php echo(UPLOAD_DIR_INTRO_ASSETS . $item['image_file_name']); ?>"
+                                                            <img src="<?= (UPLOAD_DIR_INTRO_ASSETS . $item['image_file_name']); ?>"
                                                                  width="120px">
                                                         </a>
+                                                    </td>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <?php
+                                                if ($type === TYPE_BANNER) {
+                                                    ?>
+                                                    <td style="text-align: center; vertical-align: top">
+                                                        <a href="<?= $item['url']; ?>" target="_blank"><i class="fa fa-link"></i></a>
                                                     </td>
                                                     <?php
                                                 }

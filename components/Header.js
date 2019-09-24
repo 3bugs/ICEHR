@@ -1795,11 +1795,14 @@ export default class Header extends React.Component {
                                                             <li>
                                                                 <a href="/mission" target="_parent">ภารกิจ </a>
                                                             </li>
-                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                            <li>
                                                                 <a href="/organization" target="_parent"> โครงสร้างองค์กร </a>
                                                             </li>
                                                             <li style={{marginLeft: 0, paddingLeft: 0}}>
                                                                 <a href="/personnel" target="_parent"> ผู้บริหารและบุคลากร</a>
+                                                            </li>
+                                                            <li style={{marginLeft: 0, paddingLeft: 0}}>
+                                                                <a href="/committee" target="_parent"> คณะกรรมการ</a>
                                                             </li>
                                                         </ul>
                                                     </div>

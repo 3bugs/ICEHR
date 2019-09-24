@@ -334,7 +334,7 @@
                     <ul class="treeview-menu">
                         <li><a href="intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
                         <li><a href="intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
-                        <li><a href="organizational_structure.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
+                        <li><a href="organization.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
                         <li><a href="committee.php"><i class="fa fa-circle-o"></i> คณะกรรมการ</a></li>
                     </ul>
                 </li>
@@ -377,7 +377,7 @@
                 </li>
 
                 <li>
-                    <a href="banner.php">
+                    <a href="intro.php?type=banner">
                         <i class="fa fa-picture-o"></i> <span>แบนเนอร์</span>
                     </a>
                 </li>

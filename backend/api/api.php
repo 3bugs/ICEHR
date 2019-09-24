@@ -172,6 +172,9 @@ switch ($action) {
     case 'update_user_status':
         doUpdateUserStatus();
         break;
+    case 'update_user_show_on_web':
+        doUpdateUserShowOnWeb();
+        break;
     case 'add_trainer':
         doAddTrainer();
         break;
@@ -248,6 +251,12 @@ switch ($action) {
         break;
     case 'delete_committee':
         doDeleteCommittee();
+        break;
+    case 'sort_committee':
+        doSortCommittee();
+        break;
+    case 'add_update_organization':
+        doAddUpdateOrganization();
         break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -475,7 +484,7 @@ function doUpdateMember()
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: '. $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -905,6 +914,10 @@ function doAddUpdateCommittee()
     }
 
     if ($result = $db->query($sql)) {
+        if ($createNew) {
+            reArrangeCommitteeSortIndex();
+        }
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
@@ -924,12 +937,107 @@ function doDeleteCommittee()
     $sql = "DELETE FROM committee WHERE id = $id";
 
     if ($result = $db->query($sql)) {
+        reArrangeCommitteeSortIndex();
+
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'ลบคณะกรรมการสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doSortCommittee()
+{
+    global $db, $response;
+
+    if (!checkPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+        return;
+    }
+
+    $sortValue = $db->real_escape_string($_POST['sortValue']);
+
+    $sortValuePartList = explode(',', $sortValue);
+    foreach ($sortValuePartList as $part) {
+        $p = explode('-', $part);
+        $itemId = $p[0];
+        $sortIndex = $p[1];
+
+        $sql = "UPDATE committee SET sort_index = $sortIndex 
+                WHERE id = $itemId";
+        if ($result = $db->query($sql)) {
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+}
+
+function reArrangeCommitteeSortIndex()
+{
+    global $db;
+
+    $sql = "SELECT id FROM committee WHERE sort_index IS NOT NULL ORDER BY sort_index";
+    if ($result = $db->query($sql)) {
+        $idList = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($idList, $row['id']);
+        }
+        $result->close();
+
+        $i = 1;
+        foreach ($idList as $id) {
+            $sql = "UPDATE committee SET sort_index = $i WHERE id = $id";
+            $db->query($sql);
+            $i++;
+        }
+    }
+}
+
+function doAddUpdateOrganization()
+{
+    global $db, $response;
+
+    $id = (int)$db->real_escape_string($_POST['id']);
+
+    $createNew = $id === 0;
+
+    $imageFileName = null;
+    if (isset($_FILES['image'])) {
+        if (!moveUploadedFile('image', UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    if ($createNew) {
+        $sql = "INSERT INTO intro (title, type, image_file_name) 
+                VALUES ('ภาพโครงสร้างองค์กร', 'organization', '$imageFileName')";
+    } else {
+        $sql = "UPDATE intro
+                SET image_file_name = '$imageFileName' 
+                WHERE id = $id";
+    }
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -961,7 +1069,9 @@ function doAddIntro()
 
     $type = $db->real_escape_string($_POST['type']);
     $title = $db->real_escape_string($_POST['title']);
+    $subTitle = $db->real_escape_string($_POST['subTitle']);
     $details = $db->real_escape_string($_POST['details']);
+    $url = $db->real_escape_string($_POST['url']);
 
     if ($_FILES['image']) {
         if (!moveUploadedFile('image', UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
@@ -972,8 +1082,8 @@ function doAddIntro()
         }
     }
 
-    $sql = "INSERT INTO intro (title, details, image_file_name, type, sort_index) 
-                VALUES ('$title', '$details', '$imageFileName', '$type', 999999)";
+    $sql = "INSERT INTO intro (title, sub_title, details, url, image_file_name, type, sort_index) 
+                VALUES ('$title', '$subTitle', '$details', '$url', '$imageFileName', '$type', 999999)";
     if ($result = $db->query($sql)) {
         reArrangeIntroSortIndex($type);
 
@@ -994,7 +1104,9 @@ function doUpdateIntro()
 
     $id = $db->real_escape_string($_POST['id']);
     $title = $db->real_escape_string($_POST['title']);
+    $subTitle = $db->real_escape_string($_POST['subTitle']);
     $details = $db->real_escape_string($_POST['details']);
+    $url = $db->real_escape_string($_POST['url']);
 
     $imageFileName = NULL;
 
@@ -1010,7 +1122,7 @@ function doUpdateIntro()
     $setUploadFileName = $imageFileName ? "image_file_name = '$imageFileName', " : '';
 
     $sql = "UPDATE intro 
-            SET $setUploadFileName title = '$title', details = '$details' 
+            SET $setUploadFileName title = '$title', sub_title = '$subTitle', details = '$details', url = '$url'
             WHERE id = $id";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -1030,15 +1142,17 @@ function doDeleteIntro()
 
     $id = $db->real_escape_string($_POST['id']);
 
-    $sql = "SELECT image_file_name FROM intro WHERE id = $id";
+    $sql = "SELECT image_file_name, type FROM intro WHERE id = $id";
     if ($result = $db->query($sql)) {
         if ($result > 0) {
             $row = $result->fetch_assoc();
             $fileName = $row['image_file_name'];
+            $type = $row['type'];
 
             $deleteSql = "DELETE FROM intro WHERE id = $id";
             if ($deleteResult = $db->query($deleteSql)) {
                 unlink(UPLOAD_DIR_INTRO_ASSETS . $fileName);
+                reArrangeIntroSortIndex($type);
 
                 $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
                 $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
@@ -1712,7 +1826,8 @@ function doUpdateRegisterStatus()
     }
 }
 
-function doUpdateTraineeTraining() {
+function doUpdateTraineeTraining()
+{
     global $db, $response;
 
     $id = $db->real_escape_string($_POST['id']);
@@ -1774,19 +1889,20 @@ function doUpdateTraineeTraining() {
             $response[KEY_ERROR_MESSAGE_MORE] = '';
         } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (2): '. $db->error;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (2): ' . $db->error;
             $errMessage = $db->error;
             $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
         }
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (1): '. $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล (1): ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
 }
 
-function doUpdateTraineeSocial() {
+function doUpdateTraineeSocial()
+{
     global $db, $response;
 
     $id = $db->real_escape_string($_POST['id']);
@@ -1835,7 +1951,7 @@ function doUpdateTraineeSocial() {
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: '. $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
@@ -1901,7 +2017,7 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
                 }
             } else {
                 // Error query
-               return;
+                return;
             }
 
             if (!is_null($coordinatorEmail)) {
@@ -2533,6 +2649,30 @@ function doUpdateUserStatus()
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
         $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะผู้ใช้งานสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doUpdateUserShowOnWeb()
+{
+    global $db, $response;
+
+    $userId = $db->real_escape_string($_POST['userId']);
+    $newShowOnWeb = $db->real_escape_string($_POST['newShowOnWeb']);
+
+    if (!checkPermission(PERMISSION_USER_UPDATE)) {
+        return;
+    }
+
+    $sql = "UPDATE user SET show_on_web = $newShowOnWeb WHERE id = $userId";
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทสถานะการแสดงผลบนหน้าเว็บของผู้ใช้งานสำเร็จ';
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
@@ -3310,7 +3450,7 @@ function generateCertificateNumber($traineeId)
         }
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
-        $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ แต่เกิดข้อผิดพลาดในการออกเลขที่หนังสือรับรองการผ่านการอบรม (1): '. $db->error;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกผลการอบรมสำเร็จ แต่เกิดข้อผิดพลาดในการออกเลขที่หนังสือรับรองการผ่านการอบรม (1): ' . $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = '';
     }
 }

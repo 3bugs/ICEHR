@@ -2,7 +2,7 @@
 require_once '../include/head_php.inc';
 
 $sql = "SELECT u.id, u.username, u.title, u.first_name, u.last_name, u.position, ud.name AS department, u.email, 
-               u.phone, u.phone_office, u.phone_extension, u.image_file_name, u.status, u.permissions
+               u.phone, u.phone_office, u.phone_extension, u.image_file_name, u.status, u.permissions, u.show_on_web
         FROM user u INNER JOIN user_department ud ON u.department_id = ud.id
         WHERE u.status <> 'deleted'";
 if ($result = $db->query($sql)) {
@@ -71,6 +71,7 @@ if ($result = $db->query($sql)) {
                                         <th style="width: 25%; text-align: center">ชื่อ-นามสกุล</th>
                                         <th style="width: 25%; text-align: center">ฝ่าย / ตำแหน่ง</th>
                                         <th style="width: 35%; text-align: center">สิทธิ์</th>
+                                        <th style="text-align: center">แสดง</th>
                                         <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center">จัดการ</th>
                                     </tr>
@@ -114,6 +115,17 @@ if ($result = $db->query($sql)) {
                                                 <td style="vertical-align: top"><?= $userInfo; ?></td>
                                                 <td style="vertical-align: top"><?= $departmentAndPosition; ?></td>
                                                 <td style="vertical-align: top"><?= $permissionTags; ?></td>
+
+                                                <td style="text-align: center; vertical-align: top">
+                                                    <span style="display: none">
+                                                        <?= $user['show_on_web']; ?>>
+                                                    </span>
+                                                    <input name="status" type="checkbox"
+                                                           data-toggle="toggle"
+                                                           onChange="onChangeShowOnWeb(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
+                                                        <?= (int)$user['show_on_web'] === 1 ? 'checked' : '' ?>>
+                                                </td>
+
                                                 <td style="text-align: center; vertical-align: top">
                                                     <span style="display: none">
                                                         <?= $user['status'] == 'active' ? 'on' : 'off' ?>>
@@ -211,8 +223,18 @@ if ($result = $db->query($sql)) {
             window.location.href = 'user_add_edit.php';
         }
 
+        function onChangeShowOnWeb(element, userId, username, userDisplayName) {
+            let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ยกเลิก') + "' การแสดงผลผู้ใช้คนนี้ (" + userDisplayName + ") บนหน้าเว็บ?");
+            if (result) {
+                doChangeShowOnWeb(userId, (element.checked ? 1 : 0));
+            } else {
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+            }
+        }
+
         function onChangeStatus(element, userId, username, userDisplayName) {
-            let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ปิด') + "' การใช้งานระบบ สำหรับผู้ใช้คนนี้ (" + userDisplayName + ")?");
+            let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ยกเลิก') + "' การใช้งานระบบ สำหรับผู้ใช้คนนี้ (" + userDisplayName + ")?");
             if (result) {
                 doChangeStatus(userId, (element.checked ? 'active' : 'inactive'));
             } else {
@@ -228,6 +250,49 @@ if ($result = $db->query($sql)) {
             } else {
                 //do nothing
             }
+        }
+
+        function doChangeShowOnWeb(userId, newShowOnWeb) {
+            let title = 'แก้ไขสถานะการแสดงผลบนหน้าเว็บของผู้ใช้งานระบบ';
+            if (newShowOnWeb === 'deleted') {
+                title = 'ลบผู้ใช้งานระบบ';
+            }
+
+            $.post(
+                '../api/api.php/update_user_show_on_web',
+                {
+                    userId: userId,
+                    newShowOnWeb: newShowOnWeb
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    BootstrapDialog.show({
+                        title: title + ' - ผิดพลาด',
+                        message: data.error_message,
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                                location.reload(true);
+                            }
+                        }]
+                    });
+                }
+            }).fail(function () {
+                BootstrapDialog.show({
+                    title: title + ' - ผิดพลาด',
+                    message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                    buttons: [{
+                        label: 'ปิด',
+                        action: function (self) {
+                            self.close();
+                            location.reload(true);
+                        }
+                    }]
+                });
+            });
         }
 
         function doChangeStatus(userId, newStatus) {

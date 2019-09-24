@@ -239,6 +239,9 @@ app
                     case 'get_user':
                         doGetUser(req, res, db);
                         break;
+                    case 'get_committee':
+                        doGetCommittee(req, res, db);
+                        break;
 
                     default:
                         //res.status(404).end();
@@ -2528,7 +2531,7 @@ doGetIntro = (req, res, db) => {
     const {type} = req.body;
 
     db.query(
-            `SELECT id, title, details, image_file_name
+            `SELECT id, title, sub_title, details, url, image_file_name
              FROM intro
              WHERE type = ?
                AND status = ?
@@ -2578,6 +2581,7 @@ doGetUser = (req, res, db) => {
          FROM user_department ud 
              INNER JOIN user u 
                  ON ud.id = u.department_id
+         WHERE u.show_on_web = 1 AND status <> 'deleted'
          ORDER BY ud.sort_index, u.sort_index`,
         [],
         function (err, results, fields) {
@@ -2607,6 +2611,28 @@ doGetUser = (req, res, db) => {
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
                     dataList: departmentList,
+                });
+            }
+        }
+    );
+    db.end();
+};
+
+doGetCommittee = (req, res, db) => {
+    db.query(
+        `SELECT id, title, first_name, last_name, position, image_file_name
+         FROM committee
+         ORDER BY sort_index`,
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    dataList: results,
                 });
             }
         }

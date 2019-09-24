@@ -1,7 +1,7 @@
 <?php
 require_once '../include/head_php.inc';
 
-$sql = "SELECT * FROM committee";
+$sql = "SELECT * FROM committee ORDER BY sort_index";
 if ($result = $db->query($sql)) {
     $committeeList = array();
     while ($row = $result->fetch_assoc()) {
@@ -23,8 +23,29 @@ if ($result = $db->query($sql)) {
         <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
         <!--Lightbox-->
         <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
-        <style>
+        <!--jQuery UI (ใช้ sortable)-->
+        <link rel="stylesheet" href="../bower_components/jquery-ui/themes/base/jquery-ui.css">
 
+        <style>
+            #sortableItems {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            #sortableItems li {
+                cursor: pointer;
+                margin: 0 3px 3px 3px;
+                padding: 0.4em;
+                padding-left: 1.5em;
+                font-size: 1.0em;
+            }
+
+            #sortableItems li span {
+                position: absolute;
+                margin-left: -1.3em;
+            }
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
@@ -144,6 +165,63 @@ if ($result = $db->query($sql)) {
         </div>
     </div>
 
+    <!-- Sort Modal -->
+    <div class="modal fade" id="sortItemModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">เรียงลำดับการแสดงในหน้าเว็บ</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formSortItem" role="form"
+                          style="margin-top: 0; margin-bottom: 0">
+
+                        <div class="box-body">
+                            <ul id="sortableItems">
+                                <?php
+                                foreach ($committeeList as $committee) {
+                                    //if ($committee['status'] === 'publish') {
+                                        ?>
+                                        <li class="ui-state-default">
+                                            <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                                            <?= "{$committee['title']} {$committee['first_name']} {$committee['last_name']}"; ?>
+                                            <input type="hidden" value="<?= $committee['id']; ?>"/>
+                                        </li>
+                                        <?php
+                                    //}
+                                }
+                                ?>
+                            </ul>
+
+                            <div id="divLoading" style="text-align: center; margin-top: 25px">
+                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                            </div>
+                            <div id="responseText"
+                                 style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+
+                        <div class="box-footer">
+                            <button id="buttonSave" type="submit"
+                                    class="btn btn-info pull-right">
+                                <span class="fa fa-save"></span>&nbsp;
+                                บันทึก
+                            </button>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+                <!--<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>-->
+            </div>
+        </div>
+    </div>
+
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
@@ -164,8 +242,14 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
+                                <button type="button" class="btn btn-info pull-right"
+                                        data-toggle="modal" data-target="#sortItemModal">
+                                    <span class="fa fa-sort"></span>&nbsp;
+                                    เรียงลำดับ
+                                </button>
                                 <button type="button" class="btn btn-success pull-right"
                                         onclick="onClickAdd(this)"
+                                        style="margin-right: 5px"
                                         data-toggle_x="modal" data-target_x="#addCourseMasterModal">
                                     <span class="fa fa-plus"></span>&nbsp;
                                     เพิ่มคณะกรรมการ
@@ -175,6 +259,7 @@ if ($result = $db->query($sql)) {
                                 <table id="tableCommittee" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
+                                        <th style="text-align: center; width: 10%;">ลำดับ</th>
                                         <th style="text-align: center;">รูปภาพ</th>
                                         <th style="text-align: center; width: 50%;">ชื่อ-นามสกุล</th>
                                         <th style="text-align: center; width: 50%;">ตำแหน่ง</th>
@@ -194,8 +279,9 @@ if ($result = $db->query($sql)) {
                                         foreach ($committeeList as $committee) {
                                             $id = $committee['id'];
 
+                                            $hiddenName = "{$committee['first_name']} {$committee['last_name']}"; // for sorting
                                             $displayName = sprintf(
-                                                '%s %s %s',
+                                                '%s<br>%s %s',
                                                 $committee['title'], $committee['first_name'], $committee['last_name']
                                             );
 
@@ -209,8 +295,12 @@ if ($result = $db->query($sql)) {
                                             );
                                             ?>
                                             <tr style="">
+                                                <td style="text-align: center"><?= $committee['sort_index'] != null ? $committee['sort_index'] : '<span style="display: none">999999</span>'; ?></td>
                                                 <td style=""><?= $image; ?></td>
-                                                <td style=""><?= $displayName; ?></td>
+                                                <td style="">
+                                                    <span style="display: none"><?= $hiddenName; ?></span>
+                                                    <?= $displayName; ?>
+                                                </td>
                                                 <td style=""><?= $position; ?></td>
 
                                                 <td style="text-align: right" nowrap>
@@ -271,6 +361,8 @@ if ($result = $db->query($sql)) {
     <!-- ./wrapper -->
 
     <script>
+        let sortableItems = $('#sortableItems');
+
         $(document).ready(function () {
             $('#formEdit #divLoading').hide();
 
@@ -278,7 +370,7 @@ if ($result = $db->query($sql)) {
                 ordering: true,
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
-                order: [[1, 'asc']],
+                order: [[0, 'asc']],
                 language: {
                     lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
                     zeroRecords: "ไม่มีข้อมูล",
@@ -305,7 +397,51 @@ if ($result = $db->query($sql)) {
                     doAddUpdateCommittee();
                 }
             });
+
+            $('#formSortItem').submit(event => {
+                event.preventDefault();
+                sortItems();
+            });
+
+            $('#formSortItem #divLoading').hide();
+            sortableItems.sortable();
+            sortableItems.disableSelection();
         });
+
+        function sortItems() {
+            let sortValue = '';
+            sortableItems.children('li').each((index, listItem) => {
+                let itemId = $(listItem).find('input').val();
+                //msg += $(listItem).text().trim() + ' [' + departmentId + '-' + (index + 1) + '],';
+                sortValue += itemId + '-' + (index + 1) + ',';
+            });
+            doSortItems(sortValue.slice(0, -1));
+            //alert(sortValue);
+        }
+
+        function doSortItems(sortValue) {
+            $('#formSortItem #responseText').text('');
+            $('#formSortItem #buttonSave').prop('disabled', true);
+            $('#formSortItem #divLoading').show();
+            $.post(
+                '../api/api.php/sort_committee',
+                {
+                    sortValue: sortValue
+                }
+            ).done(function (data) {
+                if (data.error_code === 0) {
+                    location.reload(true);
+                } else {
+                    $('#formSortItem #buttonSave').prop('disabled', false);
+                    $('#formSortItem #divLoading').hide();
+                    $('#formSortItem #responseText').text(data.error_message);
+                }
+            }).fail(function () {
+                $('#formSortItem #buttonSave').prop('disabled', false);
+                $('#formSortItem #divLoading').hide();
+                $('#formSortItem #responseText').text('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
+            });
+        }
 
         $(function () {
             const setIconPreview = function (input, placeToInsertImagePreview) {
@@ -526,6 +662,8 @@ if ($result = $db->query($sql)) {
     <script src="../dist/js/jquery.form.js"></script>
     <!--Lightbox-->
     <script src="../dist/lightbox/js/lightbox.js"></script>
+    <!--jQuery UI (ใช้ sortable)-->
+    <script src="../bower_components/jquery-ui/jquery-ui.js"></script>
     </body>
     </html>
 

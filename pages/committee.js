@@ -1,12 +1,40 @@
 import MainLayout from '../layouts/MainLayout.js';
 import NextHead from 'next/head';
+import fetch from "isomorphic-unfetch";
+import {HOST_BACKEND} from '../etc/constants';
+import {Element, scroller} from "react-scroll";
 
 export default class Organization extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {
-        };
+        this.state = {};
     }
+
+    static getInitialProps = async function ({req, query}) {
+        let committeeList = null;
+        let errorMessage = null;
+
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const result = await fetch(baseUrl + '/api/get_committee', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'about',
+            }),
+        });
+        const resultJson = await result.json();
+        if (resultJson['error']['code'] === 0) {
+            committeeList = resultJson['dataList'];
+            errorMessage = null;
+        } else {
+            committeeList = null;
+            errorMessage = resultJson['error']['message'];
+        }
+
+        return {committeeList, errorMessage};
+    };
 
     componentDidMount() {
     }
@@ -62,19 +90,27 @@ export default class Organization extends React.Component {
                     <div className="container mt-5">
                         <div className="row">
                             <div className="col text-title-top">
-                                <p>โครงสร้างองค์กร</p>
-                                <h3>โครงสร้างสถาบัน</h3></div>
-                        </div>
-                        <div className="row">
-                            <div className="col text-center">
-                                <a href="/static/images/structure-pic.jpg" className="single_image">
-                                    <img src="/static/images/structure-pic.jpg" className="img-fluid"/>
-                                </a>
+                                <h3>คณะกรรมการ</h3>
                             </div>
+                        </div>
+                        <div className="row mt-3">
+                            {
+                                this.props.committeeList.map((committee, index) => (
+                                    <div className="col-6 col-sm-3 executive-detail">
+                                        <div className="pic-executive">
+                                            <img src={`${HOST_BACKEND}/uploads/user_assets/${committee.image_file_name}`}
+                                                 className="img-fluid"
+                                                 style={{borderRadius: '50%'}}/>
+                                        </div>
+                                        <h6>{`${committee.title}${committee.first_name} ${committee.last_name}`}</h6>
+                                        <p>{committee.department_name}</p>
+                                    </div>
+                                ))
+                            }
                         </div>
                     </div>
                 </React.Fragment>
-                
+
                 <style jsx>{`
                 `}</style>
             </MainLayout>

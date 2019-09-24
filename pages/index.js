@@ -672,18 +672,43 @@ export default class Index extends React.Component {
                 if (serviceResult.error.code === 0) {
                     const {serviceList} = serviceResult;
 
-                    return {
-                        trainingNewsList,
-                        publicRelationsNewsList,
-                        activityList,
-                        serviceList,
-                    };
+                    const bannerRes = await fetch(baseUrl + '/api/get_intro', {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            type: 'banner',
+                        }),
+                    });
+
+                    const bannerResult = await bannerRes.json();
+                    if (bannerResult.error.code === 0) {
+                        const bannerList = bannerResult.dataList;
+
+                        return {
+                            trainingNewsList,
+                            publicRelationsNewsList,
+                            activityList,
+                            serviceList,
+                            bannerList,
+                        };
+                    } else {
+                        return {
+                            trainingNewsList: null,
+                            publicRelationsNewsList: null,
+                            activityList: null,
+                            serviceList: null,
+                            bannerList: null,
+                        };
+                    }
                 } else {
                     return {
                         trainingNewsList: null,
                         publicRelationsNewsList: null,
                         activityList: null,
                         serviceList: null,
+                        bannerList: null,
                     };
                 }
             } else {
@@ -692,6 +717,7 @@ export default class Index extends React.Component {
                     publicRelationsNewsList: null,
                     activityList: null,
                     serviceList: null,
+                    bannerList: null,
                 };
             }
         } else {
@@ -700,6 +726,7 @@ export default class Index extends React.Component {
                 publicRelationsNewsList: null,
                 activityList: null,
                 serviceList: null,
+                bannerList: null,
             };
         }
     };
@@ -983,7 +1010,7 @@ export default class Index extends React.Component {
         });
         slideshow();*/
 
-        const {serviceList} = this.props;
+        /*const {serviceList} = this.props;
         const services = {};
         serviceList.map(item => {
             services[item.slug] = {
@@ -995,12 +1022,16 @@ export default class Index extends React.Component {
         this.setState({
             serviceList,
             services,
-        });
+        });*/
+
+        /*$('.myLink').on('click', () => {
+            alert('test');
+        });*/
     }
 
     render() {
-        const {trainingNewsList, publicRelationsNewsList, activityList} = this.props;
-        const {services, serviceList, activeNewsTab} = this.state;
+        const {trainingNewsList, publicRelationsNewsList, activityList, serviceList, bannerList} = this.props;
+        const {services, activeNewsTab} = this.state;
 
         const settings = {
             dots: true
@@ -1042,36 +1073,21 @@ export default class Index extends React.Component {
                     <div className="row wow fadeInUp">
                         <div className="col-12">
                             <div className="owl-topbanner owl-carousel owl-theme">
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>INSTITUTE</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>SERVICES</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
-                                <div><img src="/static/images/banner.jpg"/>
-                                    <div className="text_banner">
-                                        <div className="border-left-1"></div>
-                                        <h1>TRAINING</h1>
-                                        <h4>CONTINUING EDUCDTION AND HUMAN RESIURCES</h4>
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting
-                                            <br/> industry There are many variations of passages of Lorem Ipsum
-                                            <br/> available, but the majority have suffered alteration in some .</p>
-                                    </div>
-                                </div>
+                                {bannerList && bannerList.map(banner => (
+                                    <a href={banner.url}>
+                                        <div style={{border: '0px solid #ccc'}}>
+                                            <img src={HOST_BACKEND + '/uploads/intro_assets/' + banner.image_file_name}
+                                                 style={{cursor: 'pointer'}}/>
+                                            <div className="text_banner">
+                                                <div className="border-left-1"></div>
+                                                <h1>{banner.title}</h1>
+                                                <h4>{banner.sub_title}</h4>
+                                                <div dangerouslySetInnerHTML={{__html: banner.details}}/>
+                                            </div>
+                                        </div>
+                                    </a>
+                                ))
+                                }
                             </div>
                         </div>
                     </div>
@@ -1113,73 +1129,6 @@ export default class Index extends React.Component {
                                         </div>
                                     ))
                                     }
-
-                                    {/*<div className="row border-bottom mt-3">
-                                        บริการฝึกอบรม
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/service-training">
-                                                <div className="service-index"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                    <h4>{services ? services[SERVICE_TRAINING].title : ''}</h4>
-                                                    <p>{services ? services[SERVICE_TRAINING].details : ''}</p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        In-house Training
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/in-house">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_IN_HOUSE].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_IN_HOUSE].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        บริการสังคม
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/service-social">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_SOCIAL].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_SOCIAL].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    </div>*/}
-
-                                    {/*<div className="row mt-3">
-                                        อบรมสอบใบขับขี่
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/service-driving-license">
-                                                <div className="service-index"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                    <h4>{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</h4>
-                                                    <p>{services ? services[SERVICE_DRIVING_LICENSE].details : ''}</p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        งานวิจัยและวิชาการ
-                                        <div className="col-sm-4 service-index">
-                                            <Link href="/academic-paper">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_ACADEMIC_PAPER].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        วารสาร HR Intelligence
-                                        <div className="col-sm-4 service-index">
-                                            <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">
-                                                <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                    <h4>{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</h4>
-                                                    <p>{services ? services[SERVICE_HR_INTELLIGENCE].details : ''}</p>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>*/}
-
                                 </div>
 
                                 <div className="service-crop d-block d-sm-none d-md-block d-lg-none d-xl-none">
@@ -1200,66 +1149,6 @@ export default class Index extends React.Component {
                                             );
                                         })
                                         }
-                                       {/* <div className="item">
-                                            <a href="/service-training">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon1.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_TRAINING].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_TRAINING].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="/in-house">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon2.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_IN_HOUSE].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_IN_HOUSE].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="/service-social">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon3.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_SOCIAL].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_SOCIAL].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="/service-driving-license">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon4.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_DRIVING_LICENSE].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_DRIVING_LICENSE].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href="/academic-paper">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/icon5.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_ACADEMIC_PAPER].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_ACADEMIC_PAPER].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="item">
-                                            <a href={services ? services[SERVICE_HR_INTELLIGENCE].url : ''} target="_blank">
-                                                <div className="service-index">
-                                                    <div className="border-right-service"><img src="/static/images/inhouse-icon.svg" className="icon-dm-big"/>
-                                                        <h4>{services ? services[SERVICE_HR_INTELLIGENCE].title : ''}</h4>
-                                                        <p>{services ? services[SERVICE_HR_INTELLIGENCE].details : ''}</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>*/}
                                     </div>
                                 </div>
 
