@@ -120,6 +120,12 @@ app
             app.render(req, res, actualPage, queryParams)
         });
 
+        server.get('/reset-password/:token', (req, res) => {
+            const actualPage = '/reset-password';
+            const queryParams = {token: req.params.token};
+            app.render(req, res, actualPage, queryParams)
+        });
+
         /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -149,6 +155,15 @@ app
                         break;
                     case 'register_member':
                         doRegisterMember(req, res, db);
+                        break;
+                    case 'forgot_password':
+                        doForgotPassword(req, res, db);
+                        break;
+                    case 'reset_password':
+                        doResetPassword(req, res, db);
+                        break;
+                    case 'update_member':
+                        doUpdateMember(req, res, db);
                         break;
                     case 'logout_member':
                         break;
@@ -375,6 +390,19 @@ decodeToken = (token) => {
     }
 };
 
+encodeTokenWithTimestamp = (id) => {
+    return jwt.sign({id: id, timestamp: Date.now()}, SECRET_KEY);
+};
+
+decodeTokenWithTimestamp = (token) => {
+    try {
+        let decoded = jwt.verify(token, SECRET_KEY);
+        return decoded;
+    } catch (err) {
+        return null;
+    }
+};
+
 /*login สมาชิก*/
 doLoginMember = (req, res, db) => {
     let inputEmail = req.body.email;
@@ -395,7 +423,6 @@ doLoginMember = (req, res, db) => {
             } else if (results.length === 0) {
                 res.send({
                     error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
-                    dataList: null
                 });
             } else {
                 let memberData = {};
@@ -410,6 +437,7 @@ doLoginMember = (req, res, db) => {
                 memberData.organizationTypeCustom = results[0].organization_type_custom;
                 memberData.phone = results[0].phone;
                 memberData.email = results[0].email;
+                memberData.memberType = results[0].member_type;
 
                 memberData.address = results[0].address;
                 memberData.subDistrict = results[0].sub_district;
@@ -427,6 +455,228 @@ doLoginMember = (req, res, db) => {
             }
         });
     db.end();
+};
+
+/*ลืมรหัสผ่าน*/
+doForgotPassword = (req, res, db) => {
+    let inputEmail = req.body.email;
+
+    db.query(
+            `SELECT id, email
+             FROM member
+             WHERE email = ?`,
+        [inputEmail],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else if (results.length === 0) {
+                res.send({
+                    error: new Error(1, `ไม่พบอีเมล ${inputEmail} ในระบบ กรุณาตรวจสอบความถูกต้องของอีเมลที่กรอก`, ''),
+                });
+            } else {
+                res.send({
+                    error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
+                });
+
+                const nodeMailer = require('nodemailer');
+
+                let transporter = nodeMailer.createTransport({
+                    host: 'smtp.gmail.com',
+                    port: 465,
+                    secure: true, // true for 465, false for other ports
+                    auth: {
+                        user: 'promlert@gmail.com',
+                        pass: 'zfiaqdxtarzxxecl'
+                    }
+                });
+
+                const memberId = results[0].id;
+                const token = encodeTokenWithTimestamp(memberId);
+                const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+                const resetPasswordUrl = `${baseUrl}/reset-password/${token}`;
+
+                transporter.sendMail({
+                    from: 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.<icehr@tu.ac.th>', // sender address
+                    to: inputEmail, // list of receivers
+                    subject: 'รีเซ็ตรหัสผ่าน', // Subject line
+                    html: 'เรียนท่านสมาชิก<br><br>ได้มีการขอรีเซ็ตรหัสผ่านของบัญชีผู้ใช้งานของท่านที่เว็บไซต์ "สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์" (www.icehr.tu.ac.th) กรุณากด link ข้างล่างนี้เพื่อดำเนินการรีเซ็ตและตั้งรหัสผ่านใหม่ *ภายใน 15 นาที*<br><br>' +
+                        `<a href="${resetPasswordUrl}">${resetPasswordUrl}</a><br><br>` +
+                        'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์<br>' +
+                        'http://www.icehr.tu.ac.th/<br>' +
+                        'โทร. 02-613-3820-3',
+                    //html: '<b>Test</b> HTML message' // html body
+                }, (err, info) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(info);
+                        /*res.send({
+                            error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
+                        });*/
+                    }
+                });
+            }
+        });
+    db.end();
+};
+
+/*รีเซ็ตรหัสผ่าน*/
+doResetPassword = (req, res, db) => {
+    let {token, newPassword} = req.body;
+
+    const decodedToken = decodeTokenWithTimestamp(token);
+    if (decodedToken) {
+        const {id, timestamp} = decodedToken;
+        const timeSecondDiff = Date.now() - timestamp;
+        if (timeSecondDiff > 15 * 60 * 1000) { // ต้องเปลี่ยนรหัสผ่านภายใน 15 นาที นับตั้งแต่แจ้งลืมรหัสผ่าน
+            res.send({
+                error: new Error(1, 'ไม่สามารถรีเซ็ตรหัสผ่านได้ เนื่องจากเกินเวลา 15 นาที กรุณาแจ้งลืมรหัสผ่านใหม่', ''),
+            });
+        } else {
+            db.query(
+                    `UPDATE member
+                     SET password = ?
+                     WHERE id = ?`,
+                [newPassword, id],
+
+                function (err, results, fields) {
+                    if (err) {
+                        res.send({
+                            error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
+                        });
+                    } else {
+                        res.send({
+                            error: new Error(0, 'รีเซ็ตรหัสผ่านสำเร็จ คุณสามารถเข้าสู่ระบบด้วยอีเมลเดิมและรหัสผ่านที่เพิ่งตั้งใหม่', ''),
+                        });
+                    }
+                });
+        }
+    } else {
+        res.send({
+            error: new Error(1, 'Token ไม่ถูกต้อง! ถ้าหากคุณก๊อปปี link ที่ใช้รีเซ็ตรหัสผ่านมาจากอีเมล กรุณาตรวจสอบว่าได้ก๊อปปี link มาครบถ้วนสมบูรณ์', ''),
+        });
+    }
+};
+
+/*อ่านข้อมูลสมาชิก*/
+doUpdateMember = (req, res, db) => {
+    let inputId = req.body.id;
+    let inputMemberType = req.body.memberType;
+    let inputTitle = req.body.title;
+    let inputFirstName = req.body.firstName;
+    let inputLastName = req.body.lastName;
+    let inputBirthDate = req.body.birthDate;
+    let inputJobPosition = req.body.jobPosition;
+    let inputOrganizationName = req.body.organizationName;
+    let inputOrganizationType = req.body.organizationType;
+    let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
+    let inputPhone = req.body.phone;
+    //let inputEmail = req.body.email;
+    //let inputPassword = req.body.password;
+    /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
+    let inputAddress = req.body.address;
+    let inputSubDistrict = req.body.subDistrict;
+    let inputDistrict = req.body.district;
+    let inputProvince = req.body.province;
+    let inputPostalCode = req.body.postalCode;
+    let inputOrganizationPhone = req.body.organizationPhone;
+    let inputTaxId = req.body.taxId;
+
+    let jobPosition = inputJobPosition == null ? null : inputJobPosition.trim();
+    let organizationName = inputOrganizationName == null ? null : inputOrganizationName.trim();
+    let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
+    let address = inputAddress == null ? null : inputAddress.trim();
+    let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
+    let district = inputDistrict == null ? null : inputDistrict.trim();
+    let province = inputProvince == null ? null : inputProvince.trim();
+    let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
+    let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
+    let taxId = inputTaxId == null ? null : inputTaxId.trim();
+
+    db.query(
+            `UPDATE member
+             set member_type              = ?,
+                 title                    = ?,
+                 first_name               = ?,
+                 last_name                = ?,
+                 birth_date               = ?,
+                 job_position             = ?,
+                 phone = ?,
+                 organization_name = ?,
+                 organization_type = ?,
+                 organization_type_custom = ?,
+                 address                  = ?,
+                 sub_district             = ?,
+                 district                 = ?,
+                 province                 = ?,
+                 postal_code              = ?,
+                 organization_phone       = ?,
+                 tax_id                   = ?
+             WHERE id = ?`,
+        [inputMemberType, inputTitle, inputFirstName, inputLastName, inputBirthDate, jobPosition, inputPhone.trim(),
+            organizationName, inputOrganizationType, organizationTypeCustom, address, subDistrict, district, province, postalCode,
+            organizationPhone, taxId, inputId],
+
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+                });
+            } else {
+                /*query ข้อมูลกลับมา เพื่อส่งไปอัพเดท local storage*/
+                db.query(
+                        `SELECT *
+                         FROM member
+                         WHERE id = ?`,
+                    [inputId],
+
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
+                            });
+                        } else if (results.length === 0) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ!', ''),
+                            });
+                        } else {
+                            let memberData = {};
+                            memberData.id = results[0].id;
+                            memberData.title = results[0].title;
+                            memberData.firstName = results[0].first_name;
+                            memberData.lastName = results[0].last_name;
+                            memberData.birthDate = results[0].birth_date;
+                            memberData.jobPosition = results[0].job_position;
+                            memberData.organizationName = results[0].organization_name;
+                            memberData.organizationType = results[0].organization_type;
+                            memberData.organizationTypeCustom = results[0].organization_type_custom;
+                            memberData.phone = results[0].phone;
+                            memberData.email = results[0].email;
+                            memberData.memberType = results[0].member_type;
+
+                            memberData.address = results[0].address;
+                            memberData.subDistrict = results[0].sub_district;
+                            memberData.district = results[0].district;
+                            memberData.province = results[0].province;
+                            memberData.postalCode = results[0].postal_code;
+                            memberData.organizationPhone = results[0].organization_phone;
+                            memberData.taxId = results[0].tax_id;
+
+                            memberData.loginToken = encodeToken(results[0].id);
+                            res.send({
+                                error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                                memberData
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        });
+    //db.end();
 };
 
 /*register สมาชิก*/
@@ -2177,7 +2427,7 @@ doGetNews = (req, res, db) => {
                 db.end();
             } else {
                 db.query(
-                    `SELECT COUNT(*) AS totalCount
+                        `SELECT COUNT(*) AS totalCount
                          FROM news
                          WHERE news_type = ?
                            AND status = ?`,
@@ -2577,12 +2827,23 @@ doGetService = (req, res, db) => {
 
 doGetUser = (req, res, db) => {
     db.query(
-        `SELECT ud.id AS department_id, u.id AS user_id, ud.name AS department_name, u.title, u.first_name, u.last_name, u.position, u.details, u.show_details, u.image_file_name, u.phone_extension
-         FROM user_department ud 
-             INNER JOIN user u 
-                 ON ud.id = u.department_id
-         WHERE u.show_on_web = 1 AND status <> 'deleted'
-         ORDER BY ud.sort_index, u.sort_index`,
+            `SELECT ud.id AS department_id,
+                    u.id AS user_id,
+                    ud.name AS department_name,
+                    u.title,
+                    u.first_name,
+                    u.last_name,
+                    u.position,
+                    u.details,
+                    u.show_details,
+                    u.image_file_name,
+                    u.phone_extension
+             FROM user_department ud
+                      INNER JOIN user u
+                                 ON ud.id = u.department_id
+             WHERE u.show_on_web = 1
+               AND status <> 'deleted'
+             ORDER BY ud.sort_index, u.sort_index`,
         [],
         function (err, results, fields) {
             if (err) {
@@ -2620,9 +2881,9 @@ doGetUser = (req, res, db) => {
 
 doGetCommittee = (req, res, db) => {
     db.query(
-        `SELECT id, title, first_name, last_name, position, image_file_name
-         FROM committee
-         ORDER BY sort_index`,
+            `SELECT id, title, first_name, last_name, position, image_file_name
+             FROM committee
+             ORDER BY sort_index`,
         [],
         function (err, results, fields) {
             if (err) {

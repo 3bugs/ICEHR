@@ -883,7 +883,8 @@ export default class AcademicPaper extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col text-title-top">
-                            <h3 onClick={this.test}>งานวิจัยและวิชาการ</h3></div>
+                            <h3 onClick={this.test}>งานวิจัยและวิชาการ</h3>
+                        </div>
                     </div>
                 </div>
 
@@ -1003,6 +1004,13 @@ export default class AcademicPaper extends React.Component {
                 }
 
                 <style jsx>{`
+                    .text-title-top h3 {
+                        width: 100%;
+                        font-size: 2em;
+                        text-align: center;
+                        margin-top: 40px;
+                    }
+                    
                     .btn-submit {
                         margin: 0 auto;
                         display: table;

@@ -28,6 +28,7 @@
     "multer": "^1.4.1",
     "mysql": "^2.17.1",
     "next": "^8.0.4",
+    "nodemailer": "^6.3.0",
     "pdfmake": "^0.1.56",
     "react": "^16.8.6",
     "react-autocomplete": "^1.8.1",

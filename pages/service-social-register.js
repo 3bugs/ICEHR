@@ -1220,8 +1220,7 @@ export default class ServiceSocialRegister extends React.Component {
                         <div className="row">
                             <div className="col">
                                 <p style={{fontSize: '1.3rem', lineHeight: '30px', textAlign: 'center'}}>โครงการบริการสังคม สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}
-                                    onClick={this.test.bind(this, 24)}>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px', width: '100%'}}>
                                     แบบฟอร์มลงทะเบียนอบรม
                                 </h3>
                             </div>

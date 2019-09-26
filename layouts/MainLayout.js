@@ -27,35 +27,61 @@ export default class MainLayout extends React.Component {
             .then(result => {
                 if (result.error.code === 0) {
                     const {serviceList} = result;
-                    const services = {};
+                    /*const services = {};
                     serviceList.map(item => {
                         services[item.slug] = {
                             title: item.title,
                             details: item.details,
                             url: item.url,
                         };
-                    });
-                    this.setState({
-                        serviceList,
-                        services,
-                    });
+                    });*/
+
+                    fetch('/api/get_intro', {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            type: 'link',
+                        }),
+                    })
+                        .then(resultLink => resultLink.json())
+                        .then(resultLink => {
+                            if (resultLink.error.code === 0) {
+                                const linkList = resultLink.dataList;
+
+                                this.setState({
+                                    serviceList,
+                                    linkList,
+                                    //services,
+                                });
+                            } else {
+                                this.setState({
+                                    serviceList: null,
+                                    linkList: null,
+                                    //services: null,
+                                });
+                            }
+                        });
                 } else {
                     this.setState({
                         serviceList: null,
-                        services: null,
+                        linkList: null,
+                        //services: null,
                     });
                 }
             });
     }
 
     render() {
-        const {services, serviceList} = this.state;
+        const {services, serviceList, linkList} = this.state;
 
         return (
             <div style={layoutStyle}>
                 <Head/>
                 <Header
                     serviceList={serviceList}
+                    linkList={linkList}
                     services={services}/>
                 {this.props.children}
                 <Footer

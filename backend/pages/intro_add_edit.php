@@ -4,12 +4,13 @@ require_once '../include/head_php.inc';
 define('TYPE_ABOUT', 'about');
 define('TYPE_MISSION', 'mission');
 define('TYPE_BANNER', 'banner');
+define('TYPE_LINK', 'link');
 
 $itemId = $_POST['id'];
 
 $type = $_POST['type'];
 $typeList = array(
-    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER
+    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER, TYPE_LINK
 );
 if (!isset($type) || !in_array($type, $typeList)) {
     echo "Invalid type '$type' - ระบุประเภทไม่ถูกต้อง";
@@ -20,11 +21,13 @@ if (!isset($type) || !in_array($type, $typeList)) {
 $pageTitleList[TYPE_ABOUT] = 'เกี่ยวกับองค์กร';
 $pageTitleList[TYPE_MISSION] = 'ภารกิจ';
 $pageTitleList[TYPE_BANNER] = 'แบนเนอร์';
+$pageTitleList[TYPE_LINK] = ' Link';
 $pageTitle = $pageTitleList[$type];
 
 $hasCoverImageList[TYPE_ABOUT] = FALSE;
 $hasCoverImageList[TYPE_MISSION] = TRUE;
 $hasCoverImageList[TYPE_BANNER] = TRUE;
+$hasCoverImageList[TYPE_LINK] = FALSE;
 $hasCoverImage = $hasCoverImageList[$type];
 
 $item = array();
@@ -149,7 +152,7 @@ if (isset($itemId)) {
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <label for="inputTitle">หัวข้อ/เรื่อง:</label>
+                                                    <label for="inputTitle"><?= $type === TYPE_LINK ? 'ชื่อ Link' : 'หัวข้อ/เรื่อง:' ?></label>
                                                     <div class="input-group">
                                                 <span class="input-group-addon">
                                                     <i class="fa fa-font"></i>
@@ -157,8 +160,8 @@ if (isset($itemId)) {
                                                         <input type="text" class="form-control"
                                                                id="inputTitle" name="title"
                                                                value="<?php echo(!empty($item) ? $item['title'] : ''); ?>"
-                                                               placeholder="กรอกหัวข้อ/เรื่อง" required
-                                                               oninvalid="this.setCustomValidity('กรอกหัวข้อ/เรื่อง')"
+                                                               placeholder="กรอก<?= $type === TYPE_LINK ? 'ชื่อ Link' : 'หัวข้อ/เรื่อง:' ?>" required
+                                                               oninvalid="this.setCustomValidity('กรอก<?= $type === TYPE_LINK ? 'ชื่อ Link' : 'หัวข้อ/เรื่อง:' ?>')"
                                                                oninput="this.setCustomValidity('')">
                                                     </div>
                                                 </div>
@@ -196,12 +199,12 @@ if (isset($itemId)) {
                             ?>
 
                             <?php
-                            if ($type === TYPE_BANNER) {
+                            if ($type === TYPE_BANNER || $type === TYPE_LINK) {
                                 ?>
                                 <!--Link-->
                                 <div class="box box-warning">
                                     <div class="box-header with-border">
-                                        <h3 class="box-title">Link แบนเนอร์</h3>
+                                        <h3 class="box-title">Link</h3>
 
                                         <div class="box-tools pull-right">
                                             <button type="button" class="btn btn-box-tool" data-widget="collapse"
@@ -214,7 +217,7 @@ if (isset($itemId)) {
                                     <!-- /.box-header -->
                                     <div class="box-body">
 
-                                        <!--แบนเนอร์-->
+                                        <!--Link-->
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
@@ -226,8 +229,8 @@ if (isset($itemId)) {
                                                         <input type="text" class="form-control"
                                                                id="inputUrl" name="url"
                                                                value="<?php echo(!empty($item) ? $item['url'] : ''); ?>"
-                                                               placeholder="กรอก Link ของแบนเนอร์" required
-                                                               oninvalid="this.setCustomValidity('กรอก Link ของแบนเนอร์')"
+                                                               placeholder="กรอก Link" required
+                                                               oninvalid="this.setCustomValidity('กรอก Link')"
                                                                oninput="this.setCustomValidity('')">
                                                     </div>
                                                 </div>
@@ -242,7 +245,7 @@ if (isset($itemId)) {
                             ?>
 
                             <?php
-                            if (TRUE /*$type === TYPE_ABOUT || $type === TYPE_MISSION*/) {
+                            if ($type !== TYPE_LINK /*$type === TYPE_ABOUT || $type === TYPE_MISSION*/) {
                                 ?>
                                 <!--content editor-->
                                 <div class="box box-warning">

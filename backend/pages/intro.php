@@ -4,10 +4,11 @@ require_once '../include/head_php.inc';
 define('TYPE_ABOUT', 'about');
 define('TYPE_MISSION', 'mission');
 define('TYPE_BANNER', 'banner');
+define('TYPE_LINK', 'link');
 
 $type = $_GET['type'];
 $typeList = array(
-    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER
+    TYPE_ABOUT, TYPE_MISSION, TYPE_BANNER, TYPE_LINK
 );
 if (!isset($type) || !in_array($type, $typeList)) {
     echo "Invalid type '$type' - ระบุประเภทไม่ถูกต้อง";
@@ -18,11 +19,13 @@ if (!isset($type) || !in_array($type, $typeList)) {
 $pageTitleList[TYPE_ABOUT] = 'เกี่ยวกับองค์กร';
 $pageTitleList[TYPE_MISSION] = 'ภารกิจ';
 $pageTitleList[TYPE_BANNER] = 'แบนเนอร์';
+$pageTitleList[TYPE_LINK] = ' Link';
 $pageTitle = $pageTitleList[$type];
 
 $sortColumnList[TYPE_ABOUT] = 0;
 $sortColumnList[TYPE_MISSION] = 0;
 $sortColumnList[TYPE_BANNER] = 0;
+$sortColumnList[TYPE_LINK] = 0;
 $sortColumn = $sortColumnList[$type];
 
 $sql = "SELECT id, title, details, url, image_file_name, sort_index, created_at, status
@@ -206,6 +209,15 @@ if ($result = $db->query($sql)) {
                                             <th style="text-align: center;" nowrap>เผยแพร่</th>
                                             <th style="text-align: center;">จัดการ</th>
                                             <?php
+                                        } else if ($type === TYPE_LINK) {
+                                            ?>
+                                            <th style="text-align: center; width: 10%;">ลำดับ</th>
+                                            <th style="text-align: center; width: 75%;">ชื่อ Link</th>
+                                            <th style="text-align: center;">Link</th>
+                                            <th style="text-align: center; width: 15%;" nowrap>วันที่สร้าง</th>
+                                            <th style="text-align: center;" nowrap>เผยแพร่</th>
+                                            <th style="text-align: center;">จัดการ</th>
+                                            <?php
                                         }
                                         ?>
                                     </tr>
@@ -251,7 +263,7 @@ if ($result = $db->query($sql)) {
                                                 }
                                                 ?>
                                                 <?php
-                                                if ($type === TYPE_BANNER) {
+                                                if ($type === TYPE_BANNER || $type === TYPE_LINK) {
                                                     ?>
                                                     <td style="text-align: center; vertical-align: top">
                                                         <a href="<?= $item['url']; ?>" target="_blank"><i class="fa fa-link"></i></a>

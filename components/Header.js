@@ -41,8 +41,12 @@ const REGISTER_TYPE_PERSON = 'personal';
 const REGISTER_TYPE_ORGANIZATION = 'organization';
 
 const RESULT_ERROR = 'resultError';
+
 const LOGIN_EMAIL = 'loginEmail';
 const LOGIN_PASSWORD = 'loginPassword';
+
+const FORGOT_PASSWORD_EMAIL = 'forgotPasswordEmail';
+
 const REGISTER_PERSON_TITLE = 'registerPersonTitle';
 const REGISTER_PERSON_FIRST_NAME = 'registerPersonFirstName';
 const REGISTER_PERSON_LAST_NAME = 'registerPersonLastName';
@@ -84,6 +88,7 @@ class LoginForm extends React.Component {
             showRegisterModal: false,
             showLoginModal: false,
             showProfileModal: false,
+            showForgotPasswordModal: false,
             fields: {},
             errors: {},
             registerType: 1,
@@ -162,6 +167,8 @@ class LoginForm extends React.Component {
                 showLoginModal: true,
             });
         } else {
+            //window.location.href = "/user-profile";
+
             // แสดง Profile modal
             this.setState({
                 errors: {},
@@ -175,12 +182,29 @@ class LoginForm extends React.Component {
         this.setState({
             showProfileModal: false,
             loginUser: null,
+        }, () => {
+            //location.reload();
+            window.location.href = "/";
+        });
+    };
+
+    onClickShowUserProfile = e => {
+        this.setState({
+            showProfileModal: false,
+        }, () => {
+            window.location.href = "/user-profile";
         });
     };
 
     handleCloseLoginModal = e => {
         this.setState({
             showLoginModal: false
+        });
+    };
+
+    handleCloseForgotPasswordModal = e => {
+        this.setState({
+            showForgotPasswordModal: false
         });
     };
 
@@ -252,6 +276,54 @@ class LoginForm extends React.Component {
         this.setState({errors: errors});
         return formIsValid;
     }
+
+    handleSubmitForgotPassword = event => {
+        event.preventDefault();
+        if (this.validateForgotPasswordForm()) {
+            let fields = this.state.fields;
+            this.doSubmitForgotPassword(fields[FORGOT_PASSWORD_EMAIL]);
+        } else {
+            //alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+        }
+    };
+
+    validateForgotPasswordForm() {
+        let fields = this.state.fields;
+        let errors = {};
+        let formIsValid = true;
+
+        if (!fields[FORGOT_PASSWORD_EMAIL] || fields[FORGOT_PASSWORD_EMAIL].trim().length === 0) {
+            errors[FORGOT_PASSWORD_EMAIL] = 'กรุณากรอกอีเมล';
+            formIsValid = false;
+        }
+
+        this.setState({errors: errors});
+        return formIsValid;
+    }
+
+    doSubmitForgotPassword = email => {
+        fetch('/api/forgot_password', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    alert(result['error']['message']);
+                    this.setState({
+                        fields: {},
+                        showForgotPasswordModal: false,
+                    });
+                } else {
+                    alert(result['error']['message']);
+                }
+            });
+    };
 
     handleSubmitRegister = (registerType, event) => {
         event.preventDefault();
@@ -493,9 +565,9 @@ class LoginForm extends React.Component {
             .then(result => result.json())
             .then(result => {
                 if (result['error']['code'] === 0) {
-                    let memberData = result['memberData'];
+                    let {memberData} = result;
 
-                    const {
+                    /*const {
                         loginToken, id, title, firstName, lastName, birthDate, jobPosition,
                         organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
@@ -504,18 +576,20 @@ class LoginForm extends React.Component {
                         loginToken, id, title, firstName, lastName, birthDate, jobPosition,
                         organizationName, organizationType, organizationTypeCustom, phone, email,
                         address, subDistrict, district, province, postalCode, organizationPhone, taxId
-                    };
-                    setLoginUser(loginUser);
+                    };*/
+                    setLoginUser(memberData);
 
                     this.setState({
                         fields: {},
-                        loginUser,
+                        loginUser: memberData,
                         showLoginModal: false,
                     }, () => {
-                        let msg = `ยินดีต้อนรับคุณ ${memberData.firstName} ${memberData.lastName}`;
+                        location.reload();
+                        /*let msg = `ยินดีต้อนรับคุณ ${memberData.firstName} ${memberData.lastName}`;
                         this.showDialog(msg, "ok", () => {
                             this.dismissDialog();
-                        });
+                            location.reload();
+                        });*/
                     });
                 } else {
                     let errors = {};
@@ -542,6 +616,7 @@ class LoginForm extends React.Component {
     onClickForgotPassword = () => {
         this.setState({
             showLoginModal: false,
+            showForgotPasswordModal: true,
         });
     };
 
@@ -604,6 +679,7 @@ class LoginForm extends React.Component {
                             <i className="far fa-user"/>&nbsp;&nbsp;{displayName}
                         </a>
 
+                        {/*Login modal*/}
                         <Modal
                             size={'md'}
                             show={this.state.showLoginModal}
@@ -670,6 +746,49 @@ class LoginForm extends React.Component {
                             </Modal.Body>
                         </Modal>
 
+                        {/*Forgot password modal*/}
+                        <Modal
+                            size={'md'}
+                            show={this.state.showForgotPasswordModal}
+                            onHide={this.handleCloseForgotPasswordModal}
+                            centered>
+                            <Modal.Body>
+                                <div style={{padding: '10px'}}>
+                                    <div className="orlog">ลืมรหัสผ่าน</div>
+
+                                    <form id="forgotPasswordForm" method="post" onSubmit={this.handleSubmitForgotPassword} noValidate={true}>
+                                        <label style={{marginTop: '15px', marginBottom: '3px', marginLeft: '3px'}}>อีเมล
+                                            : </label>
+                                        <input value={this.state.fields[FORGOT_PASSWORD_EMAIL] || ''}
+                                               onChange={this.handleChange.bind(this, FORGOT_PASSWORD_EMAIL, false)}
+                                               onKeyDown={e => {
+                                                   if (e.key === ' ') {
+                                                       e.preventDefault();
+                                                   }
+                                               }}
+                                               placeholder="กรอกอีเมลที่คุณใช้เข้าสู่ระบบ"
+                                               type="email" className="form-control input-md"
+                                               style={{marginBottom: 0}}/>
+                                        <ErrorLabel value={this.state.errors[FORGOT_PASSWORD_EMAIL]}/>
+
+                                        <ErrorLabel value={this.state.errors[RESULT_ERROR]}
+                                                    textAlign={'center'}
+                                                    marginTop={'25px'}/>
+
+                                        <button type="submit" value="submit" className="btn btn-ss"
+                                                style={{
+                                                    width: '100%',
+                                                    marginTop: '25px',
+                                                    marginBottom: '10px'
+                                                }}>
+                                            รีเซ็ตรหัสผ่าน
+                                        </button>
+                                    </form>
+                                </div>
+                            </Modal.Body>
+                        </Modal>
+
+                        {/*Profile modal (หลังจาก login สำเร็จ)*/}
                         <Modal
                             size={'sm'}
                             show={this.state.showProfileModal}
@@ -687,10 +806,21 @@ class LoginForm extends React.Component {
                                             }}>
                                         ออกจากระบบ
                                     </button>
+
+                                    <div className="row"
+                                         style={{border: '0px solid blue', marginTop: '10px'}}>
+                                        <div className="col-12"
+                                             style={{border: '0px solid red', textAlign: 'center'}}>
+                                            <a href="javascript:void(0)" className="link inline-top" onClick={this.onClickShowUserProfile}>
+                                                ดู/แก้ไขข้อมูลสมาชิก
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </Modal.Body>
                         </Modal>
 
+                        {/*Register modal*/}
                         <Modal
                             dialogClassName={'modal-register-form'}
                             show={this.state.showRegisterModal}
@@ -1672,7 +1802,7 @@ export default class Header extends React.Component {
     }
 
     render() {
-        const {services, serviceList} = this.props;
+        const {services, serviceList, linkList} = this.props;
 
         return (
             <div>
@@ -1743,7 +1873,7 @@ export default class Header extends React.Component {
                                                                         break;
                                                                 }*/
                                                                 return (
-                                                                    <li style={index > 2 ? {marginLeft: 0, paddingLeft: 0} : {}}>
+                                                                    <li style={index >= serviceList.length / 2 ? {marginLeft: 0, paddingLeft: 0} : {}}>
                                                                         <a href={service.url} target="_parent">{service.title}</a>
                                                                     </li>
                                                                 );
@@ -1858,24 +1988,17 @@ export default class Header extends React.Component {
                                                 <div className="row">
                                                     <div className="col-xs-12 col-sm-3 submenu_left">
                                                         <hgroup>
-                                                            <h1>INNOVATION</h1>
-                                                            <h2>STRATEGIC</h2></hgroup>
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and
-                                                            typesetting
-                                                            industry.</p> <a href="#">รายละเอียด</a></div>
+                                                            <h1>Link</h1>
+                                                            <h2>ลิงก์</h2></hgroup>
+                                                    </div>
                                                     <div className="col-xs-12 col-sm-6 submenu_mid">
                                                         <ul className="submenu_mid_list">
-                                                            <li><a href="#">Area-baseb Innovation</a></li>
-                                                            <li><a href="#">Value Chain Innovation</a>
-                                                                <ul>
-                                                                    <li><a href="#">Innovation for Economy</a></li>
-                                                                    <li><a href="#">Innovation for Society</a></li>
-                                                                </ul>
-                                                            </li>
-                                                            <li><a href="#">Innovation Capability</a></li>
-                                                            <li><a href="#">Innovation Network</a></li>
-                                                            <li><a href="#">Market Innovation</a></li>
-                                                            <li><a href="#">Innovation Informatics</a></li>
+                                                            {linkList && linkList.map((link, index) => (
+                                                                <li style={index >= linkList.length / 2 ? {marginLeft: 0, paddingLeft: 0} : {}}>
+                                                                    <a href={link.url} target="_parent">{link.title}</a>
+                                                                </li>
+                                                            ))
+                                                            }
                                                         </ul>
                                                     </div>
 

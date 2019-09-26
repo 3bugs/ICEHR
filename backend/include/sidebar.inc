@@ -375,10 +375,14 @@
                         <i class="fa fa-image"></i> <span>ภาพกิจกรรม</span>
                     </a>
                 </li>
-
                 <li>
                     <a href="intro.php?type=banner">
-                        <i class="fa fa-picture-o"></i> <span>แบนเนอร์</span>
+                        <i class="fa fa-television"></i> <span>แบนเนอร์</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="intro.php?type=link">
+                        <i class="fa fa-link"></i> <span>Link</span>
                     </a>
                 </li>
                 <li>

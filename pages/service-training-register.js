@@ -1279,7 +1279,7 @@ export default class ServiceTrainingRegister extends React.Component {
                         <div className="row">
                             <div className="col text-title-top">
                                 <p style={{fontSize: '1.3rem', lineHeight: '30px', textAlign: 'center'}}>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>
-                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px'}}>แบบฟอร์มลงทะเบียนอบรม</h3></div>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '5px', width: '100%'}}>แบบฟอร์มลงทะเบียนอบรม</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">

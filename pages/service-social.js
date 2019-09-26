@@ -127,7 +127,7 @@ export default class ServiceSocial extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col">
-                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px'}}>บริการสังคม</h3></div>
+                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>บริการสังคม</h3></div>
                     </div>
                 </div>
 

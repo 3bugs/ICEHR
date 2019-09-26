@@ -83,7 +83,7 @@ export default class ServiceDrivingLicense extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col">
-                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px'}}>บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3>
+                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3>
                         </div>
                     </div>
                 </div>

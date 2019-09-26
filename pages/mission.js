@@ -113,6 +113,12 @@ export default class Mission extends React.Component {
                 </React.Fragment>
 
                 <style jsx>{`
+                    .text-title-top h3 {
+                        width: 100%;
+                        font-size: 2em;
+                        text-align: center;
+                        margin-top: 40px;
+                    }
                 `}</style>
             </MainLayout>
         );
