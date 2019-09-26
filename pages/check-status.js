@@ -120,7 +120,8 @@ export default class CheckStatus extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col text-title-top">
-                            <h3>ตรวจสอบสถานะการลงทะเบียน</h3></div>
+                            <h3>ตรวจสอบสถานะการลงทะเบียน</h3>
+                        </div>
                     </div>
                     <div className="row form-other mt-3">
                         <div className="col-md-2">
@@ -223,6 +224,13 @@ export default class CheckStatus extends React.Component {
                         onCloseCallback={dialog.onCloseCallback}/>
 
                 <style jsx>{`
+                    .text-title-top h3 {
+                        width: 100%;
+                        font-size: 2em;
+                        text-align: center;
+                        margin-top: 40px;
+                    }
+                    
                     .btn-outline-secondary:hover {
                         background: #eee
                     }
