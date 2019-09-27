@@ -126,6 +126,12 @@ app
             app.render(req, res, actualPage, queryParams)
         });
 
+        server.get('/upload-slip/:formNumber', (req, res) => {
+            const actualPage = '/upload-slip';
+            const queryParams = {formNumber: req.params.formNumber};
+            app.render(req, res, actualPage, queryParams)
+        });
+
         /*จัดการ POST api call*/
         server.post('/api/:action', (req, res) => {
             /*const actualPage = '/post';
@@ -199,6 +205,9 @@ app
                         break;
                     case 'get_trainee_by_form_number':
                         doGetTraineeByFormNumber(req, res, db);
+                        break;
+                    case 'get_registration_by_member_id':
+                        doGetRegistrationByMemberId(req, res, db);
                         break;
                     case 'add_transfer_notification':
                         doAddTransferNotification(req, res, db);
@@ -604,9 +613,9 @@ doUpdateMember = (req, res, db) => {
                  last_name                = ?,
                  birth_date               = ?,
                  job_position             = ?,
-                 phone = ?,
-                 organization_name = ?,
-                 organization_type = ?,
+                 phone                    = ?,
+                 organization_name        = ?,
+                 organization_type        = ?,
                  organization_type_custom = ?,
                  address                  = ?,
                  sub_district             = ?,
@@ -2005,6 +2014,132 @@ doGetTraineeByFormNumber = (req, res, db) => {
     );
 };
 
+doGetRegistrationByMemberId = (req, res, db) => {
+    const {memberId} = req.body;
+
+    db.query( // วิชาการ
+            `SELECT cm.title           AS courseTitle,
+                    cm.service_type    AS serviceType,
+                    c.id               AS courseId,
+                    c.batch_number     AS courseBatchNumber,
+                    c.place            AS coursePlace,
+                    c.begin_date       AS courseBeginDate,
+                    c.end_date         AS courseEndDate,
+                    c.application_fee  AS courseApplicationFee,
+                    ct.form_number     AS formNumber,
+                    ct.id              AS traineeId,
+                    ct.title           AS traineeTitle,
+                    ct.first_name      AS traineeFirstName,
+                    ct.last_name       AS traineeLastName,
+                    ct.register_status AS registerStatus,
+                    cr.created_at      AS registerDate
+             FROM course_registration cr
+                      INNER JOIN course_trainee ct
+                                 ON ct.course_registration_id = cr.id
+                      INNER JOIN course c
+                                 ON cr.course_id = c.id
+                      INNER JOIN course_master cm
+                                 ON c.course_master_id = cm.id
+             WHERE cr.member_id = ?
+             ORDER BY cr.created_at DESC, ct.id`,
+        [memberId],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+
+                db.query( // สังคม
+                        `SELECT cm.title           AS courseTitle,
+                                cm.service_type    AS serviceType,
+                                c.id               AS courseId,
+                                c.batch_number     AS courseBatchNumber,
+                                c.place            AS coursePlace,
+                                c.begin_date       AS courseBeginDate,
+                                c.end_date         AS courseEndDate,
+                                c.application_fee  AS courseApplicationFee,
+                                cr.form_number     AS formNumber,
+                                cr.id              AS traineeId,
+                                cr.title           AS traineeTitle,
+                                cr.first_name      AS traineeFirstName,
+                                cr.last_name       AS traineeLastName,
+                                cr.register_status AS registerStatus,
+                                cr.created_at      AS registerDate
+                         FROM course_registration_social cr
+                                  INNER JOIN course c
+                                             ON cr.course_id = c.id
+                                  INNER JOIN course_master cm
+                                             ON c.course_master_id = cm.id
+                         WHERE cr.member_id = ?
+                         ORDER BY cr.created_at DESC`,
+                    [memberId],
+                    function (err, socialResults, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                            db.end();
+                        } else {
+                            results = results.concat(socialResults);
+
+                            db.query( // ใบขับขี่
+                                    `SELECT cm.title           AS courseTitle,
+                                            cm.service_type    AS serviceType,
+                                            c.id               AS courseId,
+                                            c.batch_number     AS courseBatchNumber,
+                                            c.place            AS coursePlace,
+                                            c.begin_date       AS courseBeginDate,
+                                            c.end_date         AS courseEndDate,
+                                            c.application_fee  AS courseApplicationFee,
+                                            cr.form_number     AS formNumber,
+                                            cr.id              AS traineeId,
+                                            cr.title           AS traineeTitle,
+                                            cr.first_name      AS traineeFirstName,
+                                            cr.last_name       AS traineeLastName,
+                                            cr.register_status AS registerStatus,
+                                            cr.created_at      AS registerDate
+                                     FROM course_registration_driving_license cr
+                                              INNER JOIN course c
+                                                         ON cr.course_id = c.id
+                                              INNER JOIN course_master cm
+                                                         ON c.course_master_id = cm.id
+                                     WHERE cr.member_id = ?
+                                     ORDER BY cr.created_at DESC`,
+                                [memberId],
+                                function (err, drivingLicenseResults, fields) {
+                                    if (err) {
+                                        res.send({
+                                            error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                                        });
+                                        db.end();
+                                    } else {
+                                        results = results.concat(drivingLicenseResults);
+
+                                        results.sort((a, b) => {
+                                            if (a.registerDate > b.registerDate) return -1;
+                                            if (a.registerDate < b.registerDate) return 1;
+                                            if (a.traineeId < b.traineeId) return -1;
+                                            if (a.traineeId > b.traineeId) return 1;
+                                            return 0;
+                                        });
+
+                                        res.send({
+                                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                            dataList: results,
+                                        });
+                                    }
+                                }
+                            ); // ใบขับขี่
+                        }
+                    }
+                ); // สังคม
+            }
+        }
+    ); // วิชาการ
+};
+
 const slipImageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'backend/uploads/slip_images')
@@ -2827,8 +2962,8 @@ doGetService = (req, res, db) => {
 
 doGetUser = (req, res, db) => {
     db.query(
-            `SELECT ud.id AS department_id,
-                    u.id AS user_id,
+            `SELECT ud.id   AS department_id,
+                    u.id    AS user_id,
                     ud.name AS department_name,
                     u.title,
                     u.first_name,

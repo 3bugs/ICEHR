@@ -31,6 +31,23 @@ export default class UploadSlip extends React.Component {
         };
     }
 
+    static getInitialProps = async ({req, query}) => {
+        //const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const {formNumber} = query;
+        return {formNumber};
+    };
+
+    componentDidMount() {
+        const {formNumber} = this.props;
+        if (formNumber) {
+            this.setState({
+                inputFormNumber: formNumber,
+            }, () => {
+                this.handleSubmitInputFormNumber();
+            });
+        }
+    }
+
     handleInputFormNumberChange = (event, {newValue, method}) => {
         this.setState({
             inputFormNumber: newValue.trim(),

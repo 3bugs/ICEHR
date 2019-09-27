@@ -3,9 +3,14 @@ import NextHead from 'next/head';
 import fetch from 'isomorphic-unfetch';
 import ErrorLabel from '../components/ErrorLabel';
 import Dialog from "../components/Dialog";
-import {getLoginUser, setLoginUser, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject} from "../etc/utils";
+import {getLoginUser, setLoginUser, isString, isValidEmail, isPositiveInteger, getDateFormatFromDateObject, formatCourseDateShort, numberWithCommas} from "../etc/utils";
 import DatePicker from "react-datepicker";
+import {Element, scroller} from "react-scroll";
+import {SERVICE_TRAINING, SERVICE_SOCIAL, SERVICE_DRIVING_LICENSE, LIMIT_PER_PAGE} from "../etc/constants";
+import Link from "next/link";
+import ReactPaginate from "react-paginate";
 
+const KEY_LOCAL_STORAGE_ACTIVE_TAB = 'key-local-storage-active-tab';
 const ORGANIZATION_TYPE_OTHER = 9999;
 
 const REGISTER_TYPE_PERSON = 'person';
@@ -48,6 +53,7 @@ export default class UserProfile extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
+            activeTab: 1,
             fields: {},
             errors: {},
             registerType: 1,
@@ -115,6 +121,44 @@ export default class UserProfile extends React.Component {
             window.location.href = "/";
             return;
         }
+
+        const activeTab = localStorage.getItem(KEY_LOCAL_STORAGE_ACTIVE_TAB);
+        if (activeTab) {
+            this.setState({
+                activeTab: parseInt(activeTab),
+            });
+        }
+
+        fetch('/api/get_registration_by_member_id', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                memberId: loginUser.id,
+            }),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result['error']['code'] === 0) {
+                    this.setState({
+                        registrationList: result.dataList,
+                        errorMessage: null,
+                    });
+                } else {
+                    this.setState({
+                        registrationList: null,
+                        errorMessage: result['error']['message'],
+                    });
+                }
+            })
+            .catch(error => {
+                //alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+                this.setState({
+                    registrationList: null,
+                    errorMessage: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error,
+                });
+            });
 
         const fields = {};
 
@@ -499,7 +543,7 @@ export default class UserProfile extends React.Component {
 
     render() {
         const {nameTitleList, organizationTypeList} = this.props;
-        const {loginUser, fields, errors, dialog} = this.state;
+        const {activeTab, loginUser, fields, errors, dialog, errorMessage, registrationList} = this.state;
 
         return (
             <MainLayout>
@@ -509,12 +553,22 @@ export default class UserProfile extends React.Component {
                 <div className="container">
                     <div className="row">
                         <div className="col text-title-top">
-                            <h3>ข้อมูลสมาชิก</h3>
+                            <h3>
+                                <a href="javascript:void(0)" onClick={() => {
+                                    this.setState({activeTab: 1});
+                                    localStorage.setItem(KEY_LOCAL_STORAGE_ACTIVE_TAB, '1');
+                                }}><span style={{color: activeTab === 1 ? '#000' : '#ccc'}}>ข้อมูลสมาชิก</span></a>&nbsp;&nbsp;&nbsp;
+                                <span style={{color: '#b40303'}}>|</span>&nbsp;&nbsp;&nbsp;
+                                <a href="javascript:void(0)" onClick={() => {
+                                    this.setState({activeTab: 2});
+                                    localStorage.setItem(KEY_LOCAL_STORAGE_ACTIVE_TAB, '2');
+                                }}><span style={{color: activeTab === 2 ? '#000' : '#aaa'}}>หลักสูตรที่สมัคร</span></a>
+                            </h3>
                         </div>
                     </div>
 
                     <div className="mt-3">
-                        {loginUser && loginUser.memberType === REGISTER_TYPE_PERSON &&
+                        {activeTab === 1 && loginUser && loginUser.memberType === REGISTER_TYPE_PERSON &&
                         <form id="personalRegisterForm" method="post"
                               onSubmit={this.handleSubmitUpdateMember.bind(this, REGISTER_TYPE_PERSON)}
                               noValidate={true}>
@@ -842,7 +896,7 @@ export default class UserProfile extends React.Component {
                         </form>
                         }
 
-                        {loginUser && loginUser.memberType === REGISTER_TYPE_ORGANIZATION &&
+                        {activeTab === 1 && loginUser && loginUser.memberType === REGISTER_TYPE_ORGANIZATION &&
                         <form id="organizationRegisterForm" method="post"
                               onSubmit={this.handleSubmitUpdateMember.bind(this, REGISTER_TYPE_ORGANIZATION)}
                               noValidate={true}>
@@ -1272,22 +1326,123 @@ export default class UserProfile extends React.Component {
                             </div>
                         </form>
                         }
-                    </div>
 
-                    {/*<div className="row form-other mt-3">
-                        <div id="registerForm">
-                            <div id="data1" className="detail-inside-box">
-                                <div className="content-popup">
-                                    <h4 style={{
-                                        marginTop: '20px',
-                                        marginBottom: '15px'
-                                    }}>สมัครสมาชิกเว็บไซต์</h4>
-
+                        {activeTab === 2 &&
+                        <div className="container">
+                            <div className="row">
+                                <div className="col">
+                                    <Element name={'topOfTable'}>
+                                        <table className="table responsive-table table-forservice" style={{marginTop: '0px', fontSize: '1rem'}}>
+                                            <thead>
+                                            <tr>
+                                                <th scope="col" style={{width: '14%'}}>เลขที่ใบสมัคร</th>
+                                                <th scope="col" style={{width: '8%'}}>วันที่สมัคร</th>
+                                                <th scope="col" style={{width: '16%'}}>ชื่อผู้สมัคร</th>
+                                                <th scope="col" style={{width: '27%'}}>หลักสูตรที่สมัคร</th>
+                                                <th scope="col" style={{width: '13%'}}>วันที่อบรม</th>
+                                                <th scope="col" style={{width: '12%'}}>สถานะ</th>
+                                                <th scope="col" style={{width: '10%'}}>แจ้งชำระเงิน</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {registrationList && registrationList.length > 0 &&
+                                            registrationList.map((reg, index) => {
+                                                let courseName = reg.courseTitle;
+                                                if (reg.serviceType === SERVICE_TRAINING || reg.serviceType === SERVICE_SOCIAL) {
+                                                    courseName += ` รุ่นที่ ${reg.courseBatchNumber}`;
+                                                }
+                                                let statusText = null;
+                                                let statusTextColor = null;
+                                                switch (reg.registerStatus) {
+                                                    case 'start':
+                                                        if (reg.serviceType === SERVICE_SOCIAL && reg.courseApplicationFee === 0) {
+                                                            statusText = 'การลงทะเบียนสมบูรณ์';
+                                                            statusTextColor = 'darkgreen';
+                                                        } else {
+                                                            statusText = 'รอชำระเงิน';
+                                                            statusTextColor = 'orangered';
+                                                        }
+                                                        break;
+                                                    case 'wait-approve':
+                                                        statusText = 'เจ้าหน้าที่กำลังตรวจสอบข้อมูลการชำระเงิน';
+                                                        statusTextColor = 'mediumblue';
+                                                        break;
+                                                    case 'complete':
+                                                        statusText = 'การลงทะเบียนสมบูรณ์';
+                                                        statusTextColor = 'darkgreen';
+                                                        //const x = '<span style="color: mediumblue"></span>';
+                                                        break;
+                                                }
+                                                return (
+                                                    <tr className={'course-row'}>
+                                                        <td>{reg.formNumber}</td>
+                                                        <td style={{textAlign: 'center'}}>{formatCourseDateShort(reg.registerDate, reg.registerDate)}</td>
+                                                        <td>{`${reg.traineeTitle}${reg.traineeFirstName} ${reg.traineeLastName}`}</td>
+                                                        <td>
+                                                            <Link
+                                                                key={index}
+                                                                as={`/service-${reg.serviceType}/${reg.courseId}`}
+                                                                href={`/service-${reg.serviceType}?courseId=${reg.courseId}`}
+                                                            >
+                                                                {courseName}
+                                                            </Link>
+                                                        </td>
+                                                        <td style={{textAlign: 'center'}}>{formatCourseDateShort(reg.courseBeginDate, reg.courseEndDate)}</td>
+                                                        <td style={{textAlign: 'center'}}><span style={{color: statusTextColor}}>{statusText}</span></td>
+                                                        <td style={{textAlign: 'center'}}>
+                                                            <Link
+                                                                key={index}
+                                                                as={`/upload-slip/${reg.formNumber}`}
+                                                                href={`/upload-slip?formNumber=${reg.formNumber}`}
+                                                            >
+                                                                แจ้งชำระเงิน
+                                                            </Link>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                            }
+                                            {registrationList && registrationList.length === 0 &&
+                                            <tr className={'course-row'}>
+                                                <td colSpan={20} style={{textAlign: 'center', padding: '20px'}}>
+                                                    {/*{this.state.errorMessage}*/}
+                                                    ไม่มีข้อมูล
+                                                </td>
+                                            </tr>
+                                            }
+                                            {!registrationList &&
+                                            <tr className={'course-row'}>
+                                                <td colSpan={20} style={{textAlign: 'center', color: 'red', padding: '20px'}}>
+                                                    {this.state.errorMessage}
+                                                </td>
+                                            </tr>
+                                            }
+                                            </tbody>
+                                        </table>
+                                    </Element>
                                 </div>
                             </div>
-                        </div>
-                    </div>*/}
 
+                            {/*<div style={{textAlign: 'center'}}>
+                                <ReactPaginate
+                                    initialPage={this.state.initialPage}
+                                    previousLabel={'<'}
+                                    nextLabel={'>'}
+                                    breakLabel={'...'}
+                                    breakClassName={'break-me'}
+                                    pageCount={this.state.pageCount}
+                                    marginPagesDisplayed={2}
+                                    pageRangeDisplayed={5}
+                                    onPageChange={this.handlePageClick}
+                                    containerClassName={'pagination'}
+                                    activeClassName={'pagination-active'}
+                                    previousClassName={'pagination-older'}
+                                    nextClassName={'pagination-newer'}
+                                />
+                            </div>*/}
+                        </div>
+                        }
+                    </div>
                 </div>
 
                 <Dialog message={dialog.message}
@@ -1302,6 +1457,73 @@ export default class UserProfile extends React.Component {
                         text-align: center;
                         margin-top: 40px;
                     }
+                    
+                    td {
+                        text-align: left;
+                    }
+                    
+                    .course-row {
+                        //cursor: pointer;
+                    }
+                    
+                    /* Responsive Table Style */
+                    
+                    .responsive-table {
+                        text-align: left;
+                        background-color: #fff;
+                        border-collapse: collapse;
+                        margin: 40px auto;
+                    }
+                    
+                    .responsive-table tr:hover {
+                        background-color: #ffedda;
+                    }
+                    
+                    .responsive-table th,
+                    .responsive-table td {
+                        padding: 3px 10px;
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .responsive-table {
+                            width: 100%;
+                        }
+                    
+                        .responsive-table thead {
+                            display: none;
+                        }
+                    
+                        .responsive-table tbody tr:nth-of-type(even) {
+                            background-color: #ffedda;
+                        }
+                    
+                        .responsive-table tbody td {
+                            display: block;
+                            font-size: 1rem;
+                        }
+                    
+                        .responsive-table tbody td:before {
+                            content: attr(data-table);
+                            display: block;
+                            float: left;
+                            width: 40%;
+                            margin-right: 10px;
+                            padding-right: 10px;
+                            font-size: 1rem;
+                            border-right: 1px solid #ccc;
+                        }
+                    
+                        .responsive-table tbody td:after {
+                            content: '';
+                            display: block;
+                            clear: both;
+                        }
+                    
+                        .responsive-table tr {
+                            border: 1px solid #ccc;
+                        }
+                    }
+                    /* End Responsive Table Style */                                    
 
                     .btn-outline-secondary:hover {
                         background: #eee
