@@ -1150,6 +1150,30 @@ function doAddUpdateContact()
         }
     }
 
+    $socialList = array(
+        SOCIAL_SLUG_FB => null,
+        SOCIAL_SLUG_LINE => null,
+        SOCIAL_SLUG_TWITTER => null,
+        SOCIAL_SLUG_YOUTUBE => null,
+        SOCIAL_SLUG_IG => null
+    );
+
+    foreach ($socialList as $slug => $social) {
+        if (isset($_POST[$slug])) {
+            $sql = "SELECT * FROM contact_social WHERE slug = '$slug'";
+            $result = $db->query($sql);
+            $numRows = $result->num_rows;
+            $result->close();
+
+            if ($numRows > 0) {
+                $sql = "UPDATE contact_social SET url = '{$_POST[$slug]}' WHERE slug = '$slug'";
+            } else {
+                $sql = "INSERT INTO contact_social (title, slug, url) VALUES ('$slug', '$slug', '{$_POST[$slug]}')";
+            }
+            $db->query($sql);
+        }
+    }
+
     $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
     $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
     $response[KEY_ERROR_MESSAGE_MORE] = '';

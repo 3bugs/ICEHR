@@ -223,6 +223,12 @@ define('DL_LICENSE_TYPE_CAR_TEXT', 'รถยนต์ส่วนบุคค�
 define('DL_LICENSE_TYPE_MOTOR_CYCLE_TEXT', 'รถจักรยานยนต์ส่วนบุคคล');
 define('DL_LICENSE_TYPE_TRICYCLE_TEXT', 'รถสามล้อส่วนบุคคล');
 
+define('SOCIAL_SLUG_FB', 'facebook');
+define('SOCIAL_SLUG_TWITTER', 'twitter');
+define('SOCIAL_SLUG_LINE', 'line');
+define('SOCIAL_SLUG_YOUTUBE', 'youtube');
+define('SOCIAL_SLUG_IG', 'instagram');
+
 function userHasPermission($userPermissions, $permissionToCheck)
 {
     return (($userPermissions & (1 << $permissionToCheck)) > 0);

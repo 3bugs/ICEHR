@@ -87,7 +87,7 @@ export default class Mission extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="container mt-5">
+                    <div className="container mt-2">
                         <div className="row">
                             <div className="col text-title-top">
                                 <h3>ภารกิจ</h3>

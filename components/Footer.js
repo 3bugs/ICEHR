@@ -31,7 +31,7 @@ export default class Footer extends React.Component {
     };
 
     render() {
-        const {services, serviceList, contactList} = this.props;
+        const {services, serviceList, contactList, socialList} = this.props;
 
         return (
             <React.Fragment>
@@ -44,11 +44,17 @@ export default class Footer extends React.Component {
                                 </div>
                                 <div className="social-footer">
                                     <h3>สถาบันเสริมศึกษาและทรัพยากรมนุษย์</h3>
-                                    <li><a href="#"><i className="fab fa-facebook-f"/></a></li>
-                                    <li><a href="#"><i className="fab fa-twitter"/></a></li>
-                                    <li><a href="#"><i className="fab fa-youtube"/></a></li>
-                                    <li><a href="#"><i className="fab fa-instagram"/></a></li>
-                                    <li><a href="#"><i className="fab fa-line"/></a></li>
+                                    {socialList &&
+                                        socialList.map((social, index) => {
+                                            return (
+                                                <li>
+                                                    <a href={social.url}>
+                                                        <i className={'fab fa-' + social.slug + (social.slug === 'facebook' ? '-f' : '')}/>
+                                                    </a>
+                                                </li>
+                                            );
+                                        })
+                                    }
                                 </div>
                                 <div className="accordion-container">
                                     {/*{contactList &&

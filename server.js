@@ -3056,8 +3056,9 @@ doGetServiceLinkContact = (req, res, db) => {
                 db.query(
                         `SELECT id, title, type, sub_title, details, url, image_file_name
                          FROM intro
-                         WHERE (type = 'link') OR (type = 'contact')
-                           AND status = ?
+                         WHERE (type = 'link')
+                            OR (type = 'contact')
+                             AND status = ?
                          ORDER BY sort_index`,
                     ['publish'],
                     function (err, results, fields) {
@@ -3066,20 +3067,40 @@ doGetServiceLinkContact = (req, res, db) => {
                                 error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
                             });
                         } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                serviceList,
-                                linkList: results.filter(item => {
-                                    return item.type === 'link';
-                                }),
-                                contactList: results.filter(item => {
-                                    return item.type === 'contact';
-                                })
+                            const linkList = results.filter(item => {
+                                return item.type === 'link';
                             });
+                            const contactList = results.filter(item => {
+                                return item.type === 'contact';
+                            });
+
+                            db.query(
+                                    `SELECT id, title, slug, url
+                                     FROM contact_social
+                                     WHERE url <> ?`,
+                                [''],
+                                function (err, results, fields) {
+                                    if (err) {
+                                        res.send({
+                                            error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                                        });
+                                    } else {
+                                        const socialList = results;
+
+                                        res.send({
+                                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                            serviceList,
+                                            linkList,
+                                            contactList,
+                                            socialList,
+                                        });
+                                    }
+                                }
+                            );
+                            db.end();
                         }
                     }
                 );
-                db.end();
             }
         }
     );

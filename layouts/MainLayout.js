@@ -84,25 +84,27 @@ export default class MainLayout extends React.Component {
             .then(result => result.json())
             .then(result => {
                 if (result.error.code === 0) {
-                    const {serviceList, linkList, contactList} = result;
+                    const {serviceList, linkList, contactList, socialList} = result;
 
                     this.setState({
                         serviceList,
                         linkList,
                         contactList,
+                        socialList,
                     });
                 } else {
                     this.setState({
                         serviceList: null,
                         linkList: null,
                         contactList: null,
+                        socialList: null,
                     });
                 }
             });
     }
 
     render() {
-        const {serviceList, linkList, contactList} = this.state;
+        const {serviceList, linkList, contactList, socialList} = this.state;
 
         return (
             <div style={layoutStyle}>
@@ -113,7 +115,8 @@ export default class MainLayout extends React.Component {
                 {this.props.children}
                 <Footer
                     serviceList={serviceList}
-                    contactList={contactList}/>
+                    contactList={contactList}
+                    socialList={socialList}/>
             </div>
         );
     }

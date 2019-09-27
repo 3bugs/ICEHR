@@ -17,6 +17,43 @@ if ($result = $db->query($sql)) {
     $db->close();
     exit();
 }
+
+$socialList = array(
+    SOCIAL_SLUG_FB => null,
+    SOCIAL_SLUG_LINE => null,
+    SOCIAL_SLUG_TWITTER => null,
+    SOCIAL_SLUG_YOUTUBE => null,
+    SOCIAL_SLUG_IG => null
+);
+$socialTitleList = array(
+    SOCIAL_SLUG_FB => 'Facebook Page',
+    SOCIAL_SLUG_LINE => 'LINE@',
+    SOCIAL_SLUG_TWITTER => 'Twitter',
+    SOCIAL_SLUG_YOUTUBE => 'YouTube',
+    SOCIAL_SLUG_IG => 'Instagram'
+);
+$socialIconNameList = array(
+    SOCIAL_SLUG_FB => 'facebook',
+    SOCIAL_SLUG_LINE => 'line',
+    SOCIAL_SLUG_TWITTER => 'twitter',
+    SOCIAL_SLUG_YOUTUBE => 'youtube-play',
+    SOCIAL_SLUG_IG => 'instagram'
+);
+$sql = "SELECT * FROM contact_social";
+
+if ($result = $db->query($sql)) {
+    while ($row = $result->fetch_assoc()) {
+        //array_push($socialList, $row);
+        if (key_exists($row['slug'], $socialList)) {
+            $socialList[$row['slug']] = $row;
+        }
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error;
+    $db->close();
+    exit();
+}
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -299,6 +336,69 @@ if ($result = $db->query($sql)) {
                         <!-- /.tab-content -->
                     </div>
                     <!-- nav-tabs-custom -->
+
+                    <!--Social-->
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Social</h3>
+
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                        data-toggle="tooltip" title="ย่อ">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <!-- /.box-tools -->
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+
+                            <!--Facebook-->
+                            <?php
+                            foreach ($socialList as $slug => $social) {
+                                $url = '';
+                                $title = $socialTitleList[$slug];
+                                $icon = $socialIconNameList[$slug];
+                                if (!is_null($social)) {
+                                    $url = $social['url'];
+                                }
+                                ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="input<?= $slug; ?>"><?= $title; ?></label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <?php
+                                                    if ($slug === 'line') {
+                                                        ?>
+                                                        <span style="font-weight: bold">@</span>
+                                                        <?php
+                                                    } else {
+                                                        ?>
+                                                        <i class="fa fa-<?= $icon; ?>"></i>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </span>
+                                                <input type="text" class="form-control"
+                                                       id="input<?= $slug; ?>" name="<?= $slug; ?>"
+                                                       value="<?= $url; ?>"
+                                                       placeholder="กรอก Link <?= $title; ?>"
+                                                       oninvalid="this.setCustomValidity('กรอก Link <?= $title; ?>')"
+                                                       oninput="this.setCustomValidity('')">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                            ?>
+
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
 
                     <!--ปุ่ม "บันทึก"-->
                     <div class="row">

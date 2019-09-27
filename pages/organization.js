@@ -93,7 +93,7 @@ export default class Organization extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="container mt-5">
+                    <div className="container mt-2">
                         <div className="row">
                             <div className="col text-title-top">
                                 <h3>โครงสร้างองค์กร</h3>
