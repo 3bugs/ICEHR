@@ -2779,7 +2779,7 @@ function doAddTrainer()
     $email = $db->real_escape_string($_POST['email']);
     $phone = $db->real_escape_string($_POST['phone']);
 
-    $imageFileName = null;
+    $imageFileName = 'signature_blank.png';
 
     if ($_FILES['signatureImage']) {
         if (!moveUploadedFile('signatureImage', UPLOAD_DIR_SIGNATURES, $imageFileName)) {

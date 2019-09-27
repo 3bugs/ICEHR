@@ -310,7 +310,7 @@ if (isset($trainerId)) {
                                             <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                             <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                         </ul>
-                                        <input id="image-file-upload" name="signatureImage" required
+                                        <input id="image-file-upload" name="signatureImage"
                                                type="file" accept="image/*"
                                                style="width: 500px; margin-top: 10px; margin-bottom: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
                                                oninvalid="this.setCustomValidity('เลือกรูปภาพลายเซ็น')"
