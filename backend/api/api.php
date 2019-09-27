@@ -258,6 +258,9 @@ switch ($action) {
     case 'add_update_organization':
         doAddUpdateOrganization();
         break;
+    case 'add_update_contact':
+        doAddUpdateContact();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1096,6 +1099,60 @@ function doAddIntro()
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
+}
+
+function doAddUpdateContact()
+{
+    global $db, $response;
+
+    //$temp = '';
+
+    for ($i = 0; $i < 2; $i++) {
+        $title = $i === 0 ? 'ท่าพระจันทร์' : 'รังสิต';
+        $id = (int)$db->real_escape_string($_POST['id'][$i]);
+        $subTitle = $db->real_escape_string($_POST['subTitle'][$i]);
+        $details = $db->real_escape_string($_POST['details'][$i]);
+        $url = $db->real_escape_string($_POST['url'][$i]);
+        $sortIndex = $i + 1;
+
+        $imageFileName = null;
+        if (isset($_FILES['image' . $i])) {
+            if (!moveUploadedFile('image' . $i, UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+                $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ ($sortIndex)";
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                return;
+            }
+        }
+        //$temp .= $imageFileName;
+
+        $sql = null;
+        if ($id === 0) {
+            $sql = "INSERT INTO intro (title, sub_title, details, url, image_file_name, type, sort_index) 
+                    VALUES ('$title', '$subTitle', '$details', '$url', '$imageFileName', 'contact', $sortIndex)";
+        } else {
+            if (!is_null($imageFileName)) {
+                $setImage = ", image_file_name = '$imageFileName' ";
+            }
+            $sql = "UPDATE intro 
+                    SET sub_title = '$subTitle', details = '$details', url = '$url' $setImage
+                    WHERE id = $id";
+        }
+
+        if ($result = $db->query($sql)) {
+            //
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการเพิ่มข้อมูล ($sortIndex): " . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
 }
 
 function doUpdateIntro()

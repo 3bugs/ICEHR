@@ -1016,10 +1016,17 @@ a:hover {
 	line-height: 30px;
 }
 
-.branch-detail h4 {
+.branch-detail h3 {
 	font-size: 1.1rem;
 	font-family: 'DBHeavent-Med';
-	padding-top: 10px;
+	padding-top: 15px;
+}
+
+.branch-detail p {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
 }
 
 .mt-top {

@@ -353,11 +353,6 @@
                         <li><a href="document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="faq.php">
-                        <i class="fa fa-question-circle-o"></i> <span>คำถามที่พบบ่อย (FAQ)</span>
-                    </a>
-                </li>
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-newspaper-o"></i> <span>ข่าว</span>
@@ -381,11 +376,21 @@
                     </a>
                 </li>
                 <li>
+                    <a href="faq.php">
+                        <i class="fa fa-question-circle-o"></i> <span>คำถามที่พบบ่อย (FAQ)</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="contact.php">
+                        <i class="fa fa-phone-square"></i> <span>ติดต่อ</span>
+                    </a>
+                </li>
+                <li>
                     <a href="intro.php?type=link">
                         <i class="fa fa-link"></i> <span>Link</span>
                     </a>
                 </li>
-                <li>
+                <!--<li>
                     <a href="top_menu.php">
                         <i class="fa fa-bars"></i> <span>เมนูด้านบน</span>
                     </a>
@@ -402,7 +407,7 @@
                         <li><a href="footer_menu_center.php"><i class="fa fa-circle-o"></i> ตำแหน่งกลาง</a></li>
                         <li><a href="footer_menu_right.php"><i class="fa fa-circle-o"></i> ตำแหน่งขวา</a></li>
                     </ul>
-                </li>
+                </li>-->
             </ul>
         </section>
         <!-- /.sidebar -->

@@ -15,7 +15,7 @@ export default class MainLayout extends React.Component {
 
     };
 
-    componentDidMount() {
+    componentDidMount_Old() {
         fetch('/api/get_service', {
             method: 'post',
             headers: {
@@ -73,20 +73,47 @@ export default class MainLayout extends React.Component {
             });
     }
 
+    componentDidMount() {
+        fetch('/api/get_service_link_contact', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({}),
+        })
+            .then(result => result.json())
+            .then(result => {
+                if (result.error.code === 0) {
+                    const {serviceList, linkList, contactList} = result;
+
+                    this.setState({
+                        serviceList,
+                        linkList,
+                        contactList,
+                    });
+                } else {
+                    this.setState({
+                        serviceList: null,
+                        linkList: null,
+                        contactList: null,
+                    });
+                }
+            });
+    }
+
     render() {
-        const {services, serviceList, linkList} = this.state;
+        const {serviceList, linkList, contactList} = this.state;
 
         return (
             <div style={layoutStyle}>
                 <Head/>
                 <Header
                     serviceList={serviceList}
-                    linkList={linkList}
-                    services={services}/>
+                    linkList={linkList}/>
                 {this.props.children}
                 <Footer
                     serviceList={serviceList}
-                    services={services}/>
+                    contactList={contactList}/>
             </div>
         );
     }

@@ -15,8 +15,7 @@ export default class Footer extends React.Component {
                 $(this).removeClass("active");
                 $(this).siblings(".content-footer").slideUp(200);
                 $(".set > a i").removeClass("fa-minus").addClass("fa-plus");
-            }
-            else {
+            } else {
                 $(".set > a i").removeClass("fa-minus").addClass("fa-plus");
                 $(this).find("i").removeClass("fa-plus").addClass("fa-minus");
                 $(".set > a").removeClass("active");
@@ -27,8 +26,12 @@ export default class Footer extends React.Component {
         });
     }
 
+    handleClickPlusSign = e => {
+
+    };
+
     render() {
-        const {services, serviceList} = this.props;
+        const {services, serviceList, contactList} = this.props;
 
         return (
             <React.Fragment>
@@ -48,14 +51,31 @@ export default class Footer extends React.Component {
                                     <li><a href="#"><i className="fab fa-line"/></a></li>
                                 </div>
                                 <div className="accordion-container">
+                                    {/*{contactList &&
+                                    contactList.map((contact, index) => {
+                                        return (
+                                            <div className="set"><a href="javascript:void(0)">
+                                                ศูนย์{contact.title}
+                                                <i className="fa fa-plus"/>
+                                            </a>
+                                                <div className="content-footer">
+                                                    <div dangerouslySetInnerHTML={{__html: contact.sub_title}}/>
+                                                    <p>99 หมู่ 18, ถ.พหลโยธิน, คลองหลวง, รังสิต, ปทุมธานี, 12121
+                                                        <br/> Tel. +66 (0) 564 4440-79
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                    }*/}
                                     <div className="set"><a href="javascript:void(0)">
                                         ศูนย์ท่าพระจันทร์
                                         <i className="fa fa-plus"/>
                                     </a>
                                         <div className="content-footer">
-                                            <p>2 ถนนพระจันทร์ แขวงพระบรมมหาราชวัง, เขตพระนคร, กรุงเทพฯ 10200
-                                                <br/> Tel. +66 (0) 261 3333
-                                            </p>
+                                            {contactList &&
+                                            <div dangerouslySetInnerHTML={{__html: contactList[0].sub_title}}></div>
+                                            }
                                         </div>
                                     </div>
                                     <div className="set"><a href="javascript:void(0)">
@@ -63,9 +83,9 @@ export default class Footer extends React.Component {
                                         <i className="fa fa-plus"/>
                                     </a>
                                         <div className="content-footer">
-                                            <p>99 หมู่ 18, ถ.พหลโยธิน, คลองหลวง, รังสิต, ปทุมธานี, 12121
-                                                <br/> Tel. +66 (0) 564 4440-79
-                                            </p>
+                                            {contactList &&
+                                            <div dangerouslySetInnerHTML={{__html: contactList[1].sub_title}}></div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -286,7 +306,7 @@ export default class Footer extends React.Component {
                         display: none;
                     }
                     
-                    .content-footer p {
+                    .content-footer div {
                         padding: 10px 15px;
                         margin: 0;
                         color: #646469;

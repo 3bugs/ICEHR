@@ -260,6 +260,9 @@ app
                     case 'get_service':
                         doGetService(req, res, db);
                         break;
+                    case 'get_service_link_contact':
+                        doGetServiceLinkContact(req, res, db);
+                        break;
                     case 'get_user':
                         doGetUser(req, res, db);
                         break;
@@ -3034,4 +3037,50 @@ doGetCommittee = (req, res, db) => {
         }
     );
     db.end();
+};
+
+doGetServiceLinkContact = (req, res, db) => {
+    db.query(
+            `SELECT id, title, details, slug, url, icon_file_name
+             FROM service
+             WHERE status = 1`,
+        [],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+            } else {
+                const serviceList = results;
+
+                db.query(
+                        `SELECT id, title, type, sub_title, details, url, image_file_name
+                         FROM intro
+                         WHERE (type = 'link') OR (type = 'contact')
+                           AND status = ?
+                         ORDER BY sort_index`,
+                    ['publish'],
+                    function (err, results, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                serviceList,
+                                linkList: results.filter(item => {
+                                    return item.type === 'link';
+                                }),
+                                contactList: results.filter(item => {
+                                    return item.type === 'contact';
+                                })
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
 };
