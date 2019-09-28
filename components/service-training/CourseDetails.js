@@ -1,4 +1,4 @@
-import NextHead from 'next/head';
+import  NextHead from 'next/head';
 import Link from 'next/link';
 //import $ from 'jquery';
 import {formatCourseDateLong, numberWithCommas} from "../../etc/utils";
@@ -15,6 +15,7 @@ import {
     LineShareButton,
     EmailShareButton,
 } from 'react-share';
+import {Fragment} from "react";
 
 export default class CourseDetails extends React.Component {
     constructor(props, context) {
@@ -84,8 +85,12 @@ export default class CourseDetails extends React.Component {
         return (
             <div>
                 <NextHead>
-                    <meta property="og:image" content={coverImage}/>
-                    <meta property="og:image:secure_url" content={coverImage}/>
+                    {course &&
+                        <React.Fragment>
+                            <meta property="og:image" content={coverImage}/>
+                            <meta property="og:image:secure_url" content={coverImage}/>
+                        </React.Fragment>
+                    }
                 </NextHead>
 
                 {course != null &&
