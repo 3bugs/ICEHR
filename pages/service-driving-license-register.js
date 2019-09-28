@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Router from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import MainLayout from "../layouts/MainLayout";
-import {getLoginUser, formatCourseDateLong, isString, isValidEmail, isValidPid, isPositiveInteger} from "../etc/utils";
+import {getLoginUser, formatCourseDateLong, formatCourseDateLongEn, isString, isValidEmail, isValidPid, isPositiveInteger} from "../etc/utils";
 import ErrorLabel from '../components/ErrorLabel';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
 import {Element, scroller} from 'react-scroll';
@@ -521,7 +521,12 @@ class TraineeRegisterForm extends React.Component {
                             <div className="row">
                                 <div className="col">
                                     <div className="bg-gray">
-                                        <h2>มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้</h2>
+                                        <h2>
+                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                'มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้' :
+                                                'มีความประสงค์ขอสมัครเข้ารับการอบรมภาคทฤษฎีในหลักสูตร ดังนี้ / Select Course'
+                                            }
+                                        </h2>
                                         <ErrorLabel
                                             value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_COURSE_TYPE]}/>
                                         <div className="check-box-2"
@@ -530,21 +535,48 @@ class TraineeRegisterForm extends React.Component {
                                                 <input id="course-type-5-hours" name="course-type" type="radio"
                                                        value={1}
                                                        defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 1}/>
-                                                <label htmlFor="course-type-5-hours"> {this.props.courseTypeList[0].title}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="course-type-5-hours">
+                                                    {this.props.courseTypeList[0].title}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="course-type-5-hours">
+                                                    {this.props.courseTypeList[0].title}<br/>{this.props.courseTypeList[0].titleEn}
+                                                </label>
+                                                }
                                             </div>
                                             <br/>
                                             <div className="md-radio md-radio-inline radiocheck">
                                                 <input id="course-type-2-hours" name="course-type" type="radio"
                                                        value={2}
                                                        defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 2}/>
-                                                <label htmlFor="course-type-2-hours"> {this.props.courseTypeList[1].title}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="course-type-2-hours">
+                                                    {this.props.courseTypeList[1].title}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="course-type-2-hours">
+                                                    {this.props.courseTypeList[1].title}<br/>{this.props.courseTypeList[1].titleEn}
+                                                </label>
+                                                }
                                             </div>
                                             <br/>
                                             <div className="md-radio md-radio-inline radiocheck">
                                                 <input id="course-type-1-hour" name="course-type" type="radio"
                                                        value={3}
                                                        defaultChecked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] === 3}/>
-                                                <label htmlFor="course-type-1-hour"> {this.props.courseTypeList[2].title}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="course-type-1-hour">
+                                                    {this.props.courseTypeList[2].title}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="course-type-1-hour">
+                                                    {this.props.courseTypeList[2].title}<br/>{this.props.courseTypeList[2].titleEn}
+                                                </label>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -553,7 +585,12 @@ class TraineeRegisterForm extends React.Component {
                             <div className="row">
                                 <div className="col">
                                     <div className="title-sm">
-                                        <h2>ประเภทใบอนุญาตขับรถ</h2>
+                                        <h2>
+                                            {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                                'ประเภทใบอนุญาตขับรถ' :
+                                                'ประเภทใบอนุญาตขับรถ / Select License Type'
+                                            }
+                                        </h2>
                                         <ErrorLabel
                                             value={traineeForm.errors[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}/>
                                         <div className="row">
@@ -561,19 +598,49 @@ class TraineeRegisterForm extends React.Component {
                                                 <input type="checkbox" id="license-type-car"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_CAR)}/>
-                                                <label htmlFor="license-type-car">รถยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="license-type-car">
+                                                    รถยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="license-type-car">
+                                                    รถยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''} /
+                                                    <br/>Private Automobile{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? ' (Temporary)' : ''}
+                                                </label>
+                                                }
                                             </div>
                                             <div className="col-12 col-md-4">
                                                 <input type="checkbox" id="license-type-bicycle"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_BICYCLE)}/>
-                                                <label htmlFor="license-type-bicycle">รถจักรยานยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="license-type-bicycle">
+                                                    รถจักรยานยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="license-type-bicycle">
+                                                    รถจักรยานยนต์ส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''} /
+                                                    <br/>Private Motorcycle{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? ' (Temporary)' : ''}
+                                                </label>
+                                                }
                                             </div>
                                             <div className="col-12 col-md-4">
                                                 <input type="checkbox" id="license-type-tricycle"
                                                        checked={traineeForm.fields[REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE]}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_SELECTED_LICENSE_TYPE_TRICYCLE)}/>
-                                                <label htmlFor="license-type-tricycle">รถสามล้อส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}</label>
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 &&
+                                                <label htmlFor="license-type-tricycle">
+                                                    รถสามล้อส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''}
+                                                </label>
+                                                }
+                                                {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 2 &&
+                                                <label htmlFor="license-type-tricycle">
+                                                    รถสามล้อส่วนบุคคล{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? 'ชั่วคราว' : ''} /
+                                                    <br/>Private Motor Tricycle{traineeForm.fields[REGISTER_TRAINEE_SELECTED_COURSE_TYPE] == 1 ? ' (Temporary)' : ''}
+                                                </label>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -583,7 +650,12 @@ class TraineeRegisterForm extends React.Component {
                             <div className="border-red"></div>
 
                             <div className="btn-red-submit mb-4 mt-4" style={{_marginTop: '20px'}}>
-                                <button type="submit" className="btn btn-danger">ลงทะเบียน</button>
+                                <button type="submit" className="btn btn-danger">
+                                    {traineeForm.fields[REGISTER_TRAINEE_NATIONALITY] === 1 ?
+                                        'ลงทะเบียน' :
+                                        'ลงทะเบียน / Register'
+                                    }
+                                </button>
                             </div>
                         </div>
                         }
@@ -1269,6 +1341,16 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
         this.setState({dialog});
     };
 
+    /*Select Course
+    Training course for requesting a driver's license.
+    Training course for extending a driver's license. (the license has expired 1-3 years ago)
+    Training course for extending a driver's license. (the license has expired up to 1 year ago)
+
+    Select Driver's License Type
+    Private car
+    Private motorcycle
+    Private motor tricycle*/
+
     render() {
         let {traineeForm, step, dialog} = this.state;
 
@@ -1286,7 +1368,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                         <div className="row">
                             <div className="col">
                                 {/*<p>โครงการบริการวิชาการ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์</p>*/}
-                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>แบบฟอร์มสมัครอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่</h3></div>
+                                <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>แบบฟอร์มสมัครอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่<br/>Registration Form</h3></div>
                         </div>
                         {/*ชื่อหลักสูตร, วันที่อบรม, สถานที่อบรม*/}
                         <div className="row">
@@ -1295,12 +1377,12 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                                     <div className="row">
                                         <div className="col-12">
                                             <div className="row">
-                                                <div className="col-sm-3 text-black ">ชื่อหลักสูตร / รุ่นที่</div>
-                                                <div className="col-sm-9 text-gray">{this.props.course.name}</div>
+                                                <div className="col-sm-3 text-black ">หลักสูตร /<br/>Course</div>
+                                                <div className="col-sm-9 text-gray">{this.props.course.name} /<br/>Training Course For Requesting/Extending a Driving License.</div>
                                             </div>
                                             <div className="row">
-                                                <div className="col-sm-3 text-black ">วันที่จัด</div>
-                                                <div className="col-sm-9 text-gray">{formatCourseDateLong(this.props.course.beginDate, this.props.course.endDate)}</div>
+                                                <div className="col-sm-3 text-black ">วันที่อบรม /<br/>Training Day</div>
+                                                <div className="col-sm-9 text-gray">{formatCourseDateLong(this.props.course.beginDate, this.props.course.endDate)} /<br/>{formatCourseDateLongEn(this.props.course.beginDate, this.props.course.endDate)}</div>
                                             </div>
                                             {/*<div className="row">
                                                 <div className="col-sm-3 text-black ">สถานที่อบรม</div>
@@ -1324,7 +1406,7 @@ export default class ServiceDrivingLicenseRegister extends React.Component {
                                 <div className="row" style={{border: '0px solid red', clear: 'both'}}>
                                     <div className="col">
                                         <h4 className="text-black" style={{marginTop: '20px'}}>
-                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม&nbsp;
+                                            <img src="/static/images/title-detail-icon.svg"/>&nbsp;ข้อมูลผู้สมัครอบรม / Registrant Information
                                         </h4>
                                     </div>
                                 </div>

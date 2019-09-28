@@ -3410,10 +3410,11 @@ function doUpdateDrivingLicenseCourseType()
 
     $id = $db->real_escape_string($_POST['id']);
     $title = $db->real_escape_string($_POST['title']);
+    $titleEn = $db->real_escape_string($_POST['titleEn']);
     $fee = $db->real_escape_string($_POST['fee']);
 
     $sql = "UPDATE driving_license_course_type 
-                SET title = '$title', application_fee = $fee
+                SET title = '$title', title_en = '$titleEn', application_fee = $fee
                 WHERE id = $id ";
 
     if ($result = $db->query($sql)) {

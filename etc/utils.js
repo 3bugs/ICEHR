@@ -93,6 +93,34 @@ module.exports = {
         }
     },
 
+    formatCourseDateLongEn: (beginDate, endDate) => {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const dayNames = [
+            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+        ];
+
+        let bDateObj = new Date(beginDate);
+        let bDay = dayNames[bDateObj.getDay()];
+        let bDate = bDateObj.getDate();
+        let bMonth = monthNames[bDateObj.getMonth()];
+        let bYear = (parseInt(bDateObj.getFullYear())).toString();
+
+        let eDateObj = new Date(endDate);
+        let eDay = dayNames[eDateObj.getDay()];
+        let eDate = eDateObj.getDate();
+        let eMonth = monthNames[eDateObj.getMonth()];
+        let eYear = (parseInt(eDateObj.getFullYear())).toString();
+
+        if (bDate === eDate && bMonth === eMonth && bYear === eYear) {
+            return `${bMonth} ${bDate}, ${bYear} (${bDay})`;
+        } else {
+            return `${bMonth} ${bDate}, ${eYear} (${bDay}) - ${eMonth} ${eDate}, ${eYear} (${eDay})`;
+        }
+    },
+
     numberWithCommas: (n) => {
         var parts = n.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");

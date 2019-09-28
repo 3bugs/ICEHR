@@ -8,6 +8,7 @@ if ($result = $db->query($sql)) {
         $courseType = array();
         $courseType['id'] = (int)$row['id'];
         $courseType['title'] = $row['title'];
+        $courseType['title_en'] = $row['title_en'];
         $courseType['application_fee'] = (int)$row['application_fee'];
 
         array_push($courseTypeList, $courseType);
@@ -48,7 +49,7 @@ if ($result = $db->query($sql)) {
                         <div class="box-body">
                             <input type="hidden" id="inputCourseTypeId">
 
-                            <!--ประเภทการอบรมใบขับขี่-->
+                            <!--ชื่อประเภทหลักสูตร-->
                             <div class="form-group">
                                 <label for="inputCourseTypeTitle">ชื่อประเภทหลักสูตร:</label>
                                 <div class="input-group">
@@ -59,6 +60,21 @@ if ($result = $db->query($sql)) {
                                            id="inputCourseTypeTitle"
                                            placeholder="กรอกชื่อประเภทหลักสูตร" required
                                            oninvalid="this.setCustomValidity('กรอกชื่อประเภทหลักสูตร')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+
+                            <!--ชื่อประเภทหลักสูตร ภาษาอังกฤษ-->
+                            <div class="form-group">
+                                <label for="inputCourseTypeTitleEn">ชื่อประเภทหลักสูตร ภาษาอังกฤษ:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-pencil"></i>
+                                    </span>
+                                    <input type="text" class="form-control"
+                                           id="inputCourseTypeTitleEn"
+                                           placeholder="กรอกชื่อประเภทหลักสูตร ภาษาอังกฤษ" required
+                                           oninvalid="this.setCustomValidity('กรอกชื่อประเภทหลักสูตร ภาษาอังกฤษ')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
@@ -113,7 +129,7 @@ if ($result = $db->query($sql)) {
             <section class="content-header">
                 <h1>
                     ประเภทหลักสูตร
-                    <small><?php echo $serviceTypeText[SERVICE_TYPE_DRIVING_LICENSE]; ?></small>
+                    <small><?= $serviceTypeText[SERVICE_TYPE_DRIVING_LICENSE]; ?></small>
                 </h1>
             </section>
 
@@ -151,18 +167,24 @@ if ($result = $db->query($sql)) {
                                         foreach ($courseTypeList as $courseType) {
                                             $courseTypeId = $courseType['id'];
                                             $courseTypeTitle = $courseType['title'];
+                                            $courseTypeTitleEn = $courseType['title_en'];
                                             $courseTypeFee = $courseType['application_fee'];
                                             ?>
                                             <tr style="">
-                                                <td style=""><?php echo $courseTypeTitle; ?></td>
-                                                <td style="text-align: center"><?php echo $courseTypeFee; ?></td>
+                                                <td style=""><?= $courseType['title'] . ($courseTypeTitleEn ? " /<br>{$courseTypeTitleEn}" : ''); ?></td>
+                                                <td style="text-align: center"><?= $courseTypeFee; ?></td>
                                                 <td style="text-align: center" nowrap>
                                                     <?php
                                                     if (currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER)) {
                                                         ?>
                                                         <button type="button" class="btn btn-warning"
                                                                 style="margin-left: 6px; margin-right: 6px"
-                                                                onclick="onClickEdit(this, <?php echo $courseTypeId; ?>, '<?php echo $courseTypeTitle; ?>', <?php echo $courseTypeFee; ?>)">
+                                                                    onclick="onClickEdit(
+                                                                        this,
+                                                                    <?= $courseTypeId; ?>,
+                                                                            '<?= htmlentities($courseTypeTitle, ENT_QUOTES); ?>',
+                                                                            '<?= htmlentities($courseTypeTitleEn, ENT_QUOTES); ?>',
+                                                                    <?= $courseTypeFee; ?>)">
                                                             <span class="fa fa-edit"></span>&nbsp;
                                                             แก้ไข
                                                         </button>
@@ -230,9 +252,10 @@ if ($result = $db->query($sql)) {
             });
         });
 
-        function onClickEdit(element, courseTypeId, courseTypeTitle, courseTypeFee) {
+        function onClickEdit(element, courseTypeId, courseTypeTitle, courseTypeTitleEn, courseTypeFee) {
             $('#formEditCourseType #inputCourseTypeId').val(courseTypeId);
             $('#formEditCourseType #inputCourseTypeTitle').val(courseTypeTitle);
+            $('#formEditCourseType #inputCourseTypeTitleEn').val(courseTypeTitleEn);
             $('#formEditCourseType #inputCourseTypeFee').val(courseTypeFee);
             $('#editCourseTypeModal').modal('show');
         }
@@ -256,6 +279,7 @@ if ($result = $db->query($sql)) {
                 {
                     id: $('#formEditCourseType #inputCourseTypeId').val(),
                     title: $('#formEditCourseType #inputCourseTypeTitle').val().trim(),
+                    titleEn: $('#formEditCourseType #inputCourseTypeTitleEn').val().trim(),
                     fee: $('#formEditCourseType #inputCourseTypeFee').val(),
                 }
             ).done(function (data) {

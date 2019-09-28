@@ -2399,7 +2399,7 @@ doGetTrainingCourseCategory = (req, res, db) => {
 
 doGetDrivingLicenseCourseType = (req, res, db) => {
     db.query(
-        'SELECT id, title, application_fee FROM driving_license_course_type',
+        'SELECT id, title, title_en, application_fee FROM driving_license_course_type',
         [],
         function (err, results, fields) {
             if (err) {
@@ -2410,8 +2410,9 @@ doGetDrivingLicenseCourseType = (req, res, db) => {
                 let dataList = [];
                 results.forEach(row => {
                     const {id, title} = row;
+                    const titleEn = row.title_en;
                     const applicationFee = row.application_fee;
-                    dataList.push({id, title, applicationFee});
+                    dataList.push({id, title, titleEn, applicationFee});
                 });
 
                 res.send({
