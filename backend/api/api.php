@@ -2221,7 +2221,7 @@ function sendPaymentConfirmEmail($serviceType, $traineeId)
 
     $hostFrontEnd = HOST_FRONTEND;
 
-    $message = "สถาบันฯ ได้รับค่าสมัครอบรมของใบสม้ครเลขที่ $formNumber จำนวน $paidAmount บาท เรียบร้อยแล้ว\n\n";
+    $message = "เรียนผู้เข้ารับการอบรม\n\nสถาบันฯ ได้รับค่าลงทะเบียนอบรมของใบสม้ครเลขที่ $formNumber จำนวน $paidAmount บาท เรียบร้อยแล้ว\n\n";
     $message .= "----------\n";
     $message .= "ชื่อผู้สมัคร: $displayName\n";
     $message .= "หลักสูตรที่สมัคร: $displayCourseName\n";

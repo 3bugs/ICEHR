@@ -41,7 +41,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
     $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
                cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, cr.coordinator_job_position, 
                cr.coordinator_organization_name, cr.coordinator_phone, cr.coordinator_email,
-               ct.form_number, ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email, ct.paid_amount
+               ct.form_number, ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email, ct.paid_amount, ct.receipt_number
         FROM course_trainee ct 
             INNER JOIN course_registration cr 
                 ON cr.id = ct.course_registration_id 
@@ -53,7 +53,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
         ORDER BY ct.id";
 } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
     $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
-               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.occupation, cr.work_place, cr.phone, cr.email, cr.paid_amount
+               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.occupation, cr.work_place, cr.phone, cr.email, cr.paid_amount, cr.receipt_number
         FROM course_registration_social cr  
             INNER JOIN course c 
                 ON c.id = cr.course_id 
@@ -63,7 +63,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
         ORDER BY cr.id";
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
     $sql = "SELECT cm.title AS course_title, cm.service_type, c.batch_number, c.begin_date, c.end_date, c.place,
-               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.paid_amount
+               cr.form_number, cr.title, cr.first_name, cr.last_name, cr.phone, cr.paid_amount, cr.receipt_number
         FROM course_registration_driving_license cr  
             INNER JOIN course c 
                 ON c.id = cr.course_id 
@@ -101,11 +101,11 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
-    $sheet->mergeCells("A1:F1");
+    $sheet->mergeCells("A1:G1");
     $sheet->mergeCells("B2:C2");
     $sheet->mergeCells("D2:E2");
 } else {
-    $sheet->mergeCells("A1:D1");
+    $sheet->mergeCells("A1:E1");
     $sheet->mergeCells("B2:C2");
 }
 
@@ -148,8 +148,10 @@ $sheet->setCellValueByColumnAndRow(2, $row, 'ผู้เข้ารับก�
 if ($serviceType === SERVICE_TYPE_TRAINING) {
     $sheet->setCellValueByColumnAndRow(4, $row, 'ผู้ประสานงาน')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(6, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(7, $row, 'เลขที่ใบเสร็จ')->getStyleByColumnAndRow(7, $row)->getAlignment()->setHorizontal('center');
 } else {
     $sheet->setCellValueByColumnAndRow(4, $row, 'ยอดเงินค่าสม้คร (บาท)')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(5, $row, 'เลขที่ใบเสร็จ')->getStyleByColumnAndRow(5, $row)->getAlignment()->setHorizontal('center');
 }
 
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
@@ -177,6 +179,9 @@ foreach ($traineeList as $trainee) {
 
     $sheet->setCellValueByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row, $paidAmount)->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getAlignment()->setVertical('top')->setHorizontal('right');
     $sheet->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 6 : 4, $row)->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+
+    //เลขที่ใบเสร็จ
+    $sheet->setCellValueByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 7 : 5, $row, $trainee['receipt_number'])->getStyleByColumnAndRow($serviceType === SERVICE_TYPE_TRAINING ? 7 : 5, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
     $row++;

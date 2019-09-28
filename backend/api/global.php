@@ -411,12 +411,17 @@ function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayN
         // Create instance of Swift_Attachment with our PDF file
         $attachment = new Swift_Attachment($pdfFileContent, $pdfFileName, 'application/pdf');
 
+        $body = "เรียนผู้เข้ารับการอบรม\n\nสถาบันฯ ขอยืนยันใบสมัครการอบรม $courseDisplayName ตามรายละเอียดไฟล์ที่แนบมาด้วยนี้\n\n\n";
+        $body .= "สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์\n";
+        $body .= "http://www.icehr.tu.ac.th/\n";
+        $body .= 'โทร. 02-613-3820-3';
+
         $message = new Swift_Message();
         $message
             ->setSubject(($isCourseFree ? 'ใบสมัคร: ' : 'ใบสมัครและรายละเอียดการชำระเงิน: ') . $courseDisplayName)
             ->setFrom(array('no-reply@icehr.tu.ac.th'))
             ->setTo($recipientList)
-            ->setBody(($isCourseFree ? 'ใบสมัคร: ' : 'ใบสมัครและรายละเอียดการชำระเงิน: ') . $courseDisplayName)
+            ->setBody($body)
             ->attach($attachment);
 
         //$transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl');

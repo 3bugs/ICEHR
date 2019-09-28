@@ -158,7 +158,7 @@ $pdf->Cell(50, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
 $pdf->SetXY(60, 34);
 //$pdf->SetXY(60,30);
 
-$displayAddress = ($serviceType === SERVICE_TYPE_TRAINING ? (' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']) . ', ที่อยู่ ') : '');
+//$displayAddress = ($serviceType === SERVICE_TYPE_TRAINING ? (' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']) . ', ที่อยู่ ') : '');
 
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
     $address = trim($trainee['receipt_address']);
@@ -180,6 +180,9 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
 
     //$displayAddress = '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซอยงามวงศ์วาน 59 (วัดเทวสุนทร) แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900';
 
+    if ($serviceType === SERVICE_TYPE_TRAINING) {
+        $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']);
+    }
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
     $province = trim($trainee['province']);
 
