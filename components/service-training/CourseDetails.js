@@ -84,12 +84,10 @@ export default class CourseDetails extends React.Component {
         //https://github.com/nygardk/react-share/issues/59
         return (
             <div>
-                {course &&
                 <NextHead>
                     <meta property="og:image" content={coverImage}/>
                     <meta property="og:image:secure_url" content={coverImage}/>
                 </NextHead>
-                }
 
                 {course != null &&
                 <div className="container">
