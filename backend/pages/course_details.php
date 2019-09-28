@@ -632,6 +632,10 @@ if ($result = $db->query($sql)) {
                                                 <a target="_blank" href="print_ac_registration_form.php?service_type=<?= $course['service_type']; ?>&trainee_id=<?= $traineeIdListText; ?>"
                                                    class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
                                             </div>
+                                            <div class="btn-group" style="margin-right: 6px">
+                                                <a target="_blank" href="word_ac_certificate.php?service_type=<?= $course['service_type']; ?>&course_id=<?= $courseId; ?>"
+                                                   class="btn btn-default"><i class="fa fa-file-word-o"></i>&nbsp;&nbsp;ใบรับรองการผ่านการอบรม</a>
+                                            </div>
                                             <?php
                                         } else if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
                                             ?>

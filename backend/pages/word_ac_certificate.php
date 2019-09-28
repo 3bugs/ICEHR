@@ -2,20 +2,37 @@
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
+$courseId = $_GET['course_id'];
 $traineeId = $_GET['trainee_id'];
 $serviceType = $_GET['service_type'];
 
-if (!isset($traineeId) || !isset($serviceType)) {
+if (!isset($serviceType) || (!isset($traineeId) && !isset($courseId))) {
     echo 'Error: ระบุ parameter ไม่ครบ';
     $db->close();
     exit();
 }
 
+$where = null;
+if (isset($courseId)) {
+    $where = " c.id = $courseId ";
+    if ($serviceType === SERVICE_TYPE_TRAINING) {
+        $where .= " AND ct.register_status = 'complete' ";
+    } else {
+        $where .= " AND cr.register_status = 'complete' ";
+    }
+} else {
+    if ($serviceType === SERVICE_TYPE_TRAINING) {
+        $where = " ct.id = $traineeId ";
+    } else {
+        $where = " cr.id = $traineeId ";
+    }
+}
+
 $sql = null;
 switch ($serviceType) {
     case SERVICE_TYPE_TRAINING:
-        $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name,   
-                       cm.title AS course_title, c.batch_number, c.begin_date, c.end_date
+        $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name,
+                       cm.title AS course_title, c.id AS course_id, c.batch_number, c.begin_date, c.end_date
         FROM course_trainee ct 
             INNER JOIN course_registration cr 
                 ON cr.id = ct.course_registration_id 
@@ -23,27 +40,29 @@ switch ($serviceType) {
                 ON c.id = cr.course_id 
             INNER JOIN course_master cm 
                 ON cm.id = c.course_master_id
-        WHERE ct.id = $traineeId";
+        WHERE $where";
         break;
     case SERVICE_TYPE_SOCIAL:
-        $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name,   
-                       cm.title AS course_title, c.batch_number, c.begin_date, c.end_date
+        $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, 
+                       cm.title AS course_title, c.id AS course_id, c.batch_number, c.begin_date, c.end_date
         FROM course_registration_social cr  
             INNER JOIN course c 
                 ON c.id = cr.course_id 
             INNER JOIN course_master cm 
                 ON cm.id = c.course_master_id
-        WHERE cr.id = $traineeId";
+        WHERE $where";
         break;
 }
 
-$trainee = null;
+$traineeList = array();
 if ($result = $db->query($sql)) {
     if ($result->num_rows > 0) {
-        $trainee = $result->fetch_assoc();
+        while ($row = $result->fetch_assoc()) {
+            array_push($traineeList, $row);
+        }
         $result->close();
     } else {
-        echo 'Error: ไม่พบข้อมูล';
+        echo 'ไม่มีข้อมูลผู้เข้าอบรมที่มีสถานะการชำระเงินเป็น "สมบูรณ์"';
         $result->close();
         $db->close();
         exit();
@@ -54,7 +73,12 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-$fileName = "cert-{$trainee['form_number']}.docx";
+if (isset($courseId)) {
+    $serviceTypePrefix = ($serviceType === SERVICE_TYPE_TRAINING) ? 'AC' : 'SO';
+    $fileName = "Cert-{$serviceTypePrefix}-{$traineeList[0]['course_id']}.docx";
+} else {
+    $fileName = "Cert-{$traineeList[0]['form_number']}.docx";
+}
 
 header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessing‌​ml.document");
 header('Content-Disposition: attachment; filename="' . $fileName . '"');
@@ -67,73 +91,79 @@ $section = $phpWord->addSection([
     'pageSizeW' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(25.5)
 ]);
 
-$phpWord->addParagraphStyle('centerStyle', array('align' => 'center', 'spaceAfter' => 0));
+$i = 0;
+foreach ($traineeList as $trainee) {
+    if ($i !== 0) {
+        $section->addPageBreak();
+    }
 
-$tuText = $section->addText('มหาวิทยาลัยธรรมศาสตร์', null, 'centerStyle');
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(true);
-$fontStyle->setSize(57 - 5);
-$tuText->setFontStyle($fontStyle);
+    $phpWord->addParagraphStyle('centerStyle', array('align' => 'center', 'spaceAfter' => 0));
 
-$icehrText = $section->addText('สถาบันเสริมศึกษาและทรัพยากรมนุษย์');
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(false);
-$fontStyle->setSize(39 - 5);
-$icehrText->setFontStyle($fontStyle);
+    $tuText = $section->addText('มหาวิทยาลัยธรรมศาสตร์', null, 'centerStyle');
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(true);
+    $fontStyle->setSize(57 - 5);
+    $tuText->setFontStyle($fontStyle);
 
-$certText = $section->addText('ใบรับรองฉบับนี้ให้ไว้เพื่อแสดงว่า');
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(false);
-$fontStyle->setSize(28 - 5);
-$certText->setFontStyle($fontStyle);
+    $icehrText = $section->addText('สถาบันเสริมศึกษาและทรัพยากรมนุษย์');
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(false);
+    $fontStyle->setSize(39 - 5);
+    $icehrText->setFontStyle($fontStyle);
 
-$displayName = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}";
-$displayNameText = $section->addText($displayName);
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(true);
-$fontStyle->setSize(40 - 5);
-$displayNameText->setFontStyle($fontStyle);
+    $certText = $section->addText('ใบรับรองฉบับนี้ให้ไว้เพื่อแสดงว่า');
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(false);
+    $fontStyle->setSize(28 - 5);
+    $certText->setFontStyle($fontStyle);
 
-$courseText = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(true);
-$fontStyle->setSize(26 - 5);
-$courseText->setFontStyle($fontStyle);
+    $displayName = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}";
+    $displayNameText = $section->addText($displayName);
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(true);
+    $fontStyle->setSize(40 - 5);
+    $displayNameText->setFontStyle($fontStyle);
 
-$dateText = $section->addText(($trainee['begin_date'] === $trainee['end_date'] ? 'อบรมวันที่ ' : 'อบรมตั้งแต่วันที่ ') .
-    thaiNumDigit(getThaiIntervalDate(date_create($trainee['begin_date']), date_create($trainee['end_date']))));
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(false);
-$fontStyle->setSize(20 - 5);
-$dateText->setFontStyle($fontStyle);
+    $courseText = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(true);
+    $fontStyle->setSize(26 - 5);
+    $courseText->setFontStyle($fontStyle);
 
-$blessText = $section->addText('ขอให้มีความสุข ความเจริญ และบำเพ็ญตนให้เป็นประโยชน์แก่สังคมสืบไป');
-$blessText->setFontStyle($fontStyle);
+    $dateText = $section->addText(($trainee['begin_date'] === $trainee['end_date'] ? 'อบรมวันที่ ' : 'อบรมตั้งแต่วันที่ ') .
+        thaiNumDigit(getThaiIntervalDate(date_create($trainee['begin_date']), date_create($trainee['end_date']))));
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(false);
+    $fontStyle->setSize(20 - 5);
+    $dateText->setFontStyle($fontStyle);
 
-define('NUM_SPACES', 3);
-$spaces = str_repeat(' ', NUM_SPACES);
-$giveDateText = $section->addText("ให้ไว้{$spaces}ณ{$spaces}วันที่{$spaces}" . thaiNumDigit(getThaiDateForCertificate(date_create($trainee['end_date']), NUM_SPACES)));
-$giveDateText->setFontStyle($fontStyle);
+    $blessText = $section->addText('ขอให้มีความสุข ความเจริญ และบำเพ็ญตนให้เป็นประโยชน์แก่สังคมสืบไป');
+    $blessText->setFontStyle($fontStyle);
 
-$section->addText("\n");
+    define('NUM_SPACES', 3);
+    $spaces = str_repeat(' ', NUM_SPACES);
+    $giveDateText = $section->addText("ให้ไว้{$spaces}ณ{$spaces}วันที่{$spaces}" . thaiNumDigit(getThaiDateForCertificate(date_create($trainee['end_date']), NUM_SPACES)));
+    $giveDateText->setFontStyle($fontStyle);
+
+    $section->addText("\n");
 
 //$section->addImage('../uploads/signatures/signature001.jpg');
 //$section->addImage('../uploads/signatures/signature002.png');
 
-$table = $section->addTable();
-$row = $table->addRow(-1);
-$leftCell = $row->addCell(5000);
-$row->addCell(1100);
-$rightCell = $row->addCell(5700);
+    $table = $section->addTable();
+    $row = $table->addRow(-1);
+    $leftCell = $row->addCell(5000);
+    $row->addCell(1100);
+    $rightCell = $row->addCell(5700);
 
-$leftSignatureHtml = <<<EOT
+    $leftSignatureHtml = <<<EOT
 <table style="width: 100%">
 <tr>
     <td style="text-align: center"><img src="../uploads/signatures/signature001.jpg" height="40"/></td>
 </tr>
 </table>
 EOT;
-$rightSignatureHtml = <<<EOT
+    $rightSignatureHtml = <<<EOT
 <table style="width: 100%">
 <tr>
     <td style="text-align: center"><img src="../uploads/signatures/signature002.png" height="50"/></td>
@@ -141,21 +171,24 @@ $rightSignatureHtml = <<<EOT
 </table>
 EOT;
 
-\PhpOffice\PhpWord\Shared\Html::addHtml($leftCell, $leftSignatureHtml);
-\PhpOffice\PhpWord\Shared\Html::addHtml($rightCell, $rightSignatureHtml);
+    \PhpOffice\PhpWord\Shared\Html::addHtml($leftCell, $leftSignatureHtml);
+    \PhpOffice\PhpWord\Shared\Html::addHtml($rightCell, $rightSignatureHtml);
 
-$row = $table->addRow(-1);
-$leftCell = $row->addCell(5000);
-$leftCellText = $leftCell->addText("(รองศาสตราจารย์เกศินี วิฑูรชาติ)\nอธิการบดีมหาวิทยาลัยธรรมศาสตร์");
-$row->addCell(1100);
-$rightCell = $row->addCell(5700);
-$rightCellText = $rightCell->addText("(ผู้ช่วยศาสตราจารย์ ดร.ศุภชัย ศรีสุชาติ)\nผู้อำนวยการสถาบันเสริมศึกษาและทรัพยากรมนุษย์");
+    $row = $table->addRow(-1);
+    $leftCell = $row->addCell(5000);
+    $leftCellText = $leftCell->addText("(รองศาสตราจารย์เกศินี วิฑูรชาติ)\nอธิการบดีมหาวิทยาลัยธรรมศาสตร์");
+    $row->addCell(1100);
+    $rightCell = $row->addCell(5700);
+    $rightCellText = $rightCell->addText("(ผู้ช่วยศาสตราจารย์ ดร.ศุภชัย ศรีสุชาติ)\nผู้อำนวยการสถาบันเสริมศึกษาและทรัพยากรมนุษย์");
 
-$fontStyle = new \PhpOffice\PhpWord\Style\Font();
-$fontStyle->setBold(true);
-$fontStyle->setSize(18 - 5);
-$leftCellText->setFontStyle($fontStyle);
-$rightCellText->setFontStyle($fontStyle);
+    $fontStyle = new \PhpOffice\PhpWord\Style\Font();
+    $fontStyle->setBold(true);
+    $fontStyle->setSize(18 - 5);
+    $leftCellText->setFontStyle($fontStyle);
+    $rightCellText->setFontStyle($fontStyle);
+
+    $i++;
+}
 
 $writer = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
 
