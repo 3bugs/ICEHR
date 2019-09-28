@@ -191,12 +191,12 @@ if ($result = $db->query($sql)) {
                                                 ?>
                                                 <td style="vertical-align: top; text-align: center"><?= $courseDateHidden . $courseDate; ?></td>
                                                 <td style="vertical-align: top; text-align: center"><?= "<strong>$traineeCount</strong> / $traineeLimit"; ?></td>
-
+                                                <!--<span style="display: none">
+                                                        <?/*= $status === 'normal' ? 'on' : 'off' */?>>
+                                                    </span>-->
                                                 <td style="text-align: center; vertical-align: top">
-                                                    <span style="display: none">
-                                                        <?= $status === 'normal' ? 'on' : 'off' ?>>
-                                                    </span>
                                                     <input name="status" type="checkbox"
+                                                           class="statusCheckBox"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $userHasPermission ? 'true' : 'false'; ?>, <?= $courseId; ?>, '<?= htmlentities($courseName); ?>')"
                                                         <?= $status === 'normal' ? 'checked' : '' ?>>
@@ -274,6 +274,9 @@ if ($result = $db->query($sql)) {
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
+                },
+                drawCallback: function(row, data) {
+                    $('.statusCheckBox').bootstrapToggle();
                 }
             });
         });
