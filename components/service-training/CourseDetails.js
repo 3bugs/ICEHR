@@ -69,12 +69,12 @@ export default class CourseDetails extends React.Component {
     render() {
         const {course, errorMessage} = this.state;
 
-        let coverImage = 'default_cover_image.jpg';
+        let coverImage = `${HOST_BACKEND}/uploads/course_assets/default_cover_image.jpg`;
         if (course != null) {
             const imageList = course.assets.filter(asset => {
                 return asset.type === 'image';
             });
-            
+
             if (imageList.length > 0) {
                 coverImage = `${HOST_BACKEND}/uploads/course_assets/${imageList[0].fileName}`;
             }
