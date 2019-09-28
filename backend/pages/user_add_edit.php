@@ -675,6 +675,34 @@ if ($result = $db->query($sql)) {
                                     </div>
                                     <!-- /.row -->
 
+                                    <!--In-house-->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>In-House Training:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-12">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionManageInHouse" type="checkbox"
+                                                                       data-toggle="toggle"
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_MANAGE_IN_HOUSE) ? 'checked' : '' ?>>
+                                                                จัดการสถานะการติดต่อกลับ และเนื้อหาข่าวหลักสูตรที่ผ่านมา
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                    </div>
+                                    <!-- /.row -->
+
                                     <!--เนื้อหาเว็บไซต์-->
                                     <div class="row">
                                         <div class="col-md-12">

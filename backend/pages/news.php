@@ -33,6 +33,12 @@ if ($result = $db->query($sql)) {
     $db->close();
     exit();
 }
+
+if ($newsType === 'in-house') {
+    $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_IN_HOUSE);
+} else {
+    $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
+}
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -71,11 +77,17 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        onclick="onClickAdd(this)">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่ม<?= $pageTitle; ?>
-                                </button>
+                                <?php
+                                if ($userHasPermission) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่ม<?= $pageTitle; ?>
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableNews" class="table table-bordered table-striped">
@@ -132,7 +144,7 @@ if ($result = $db->query($sql)) {
                                                     </span>
                                                     <input name="status" type="checkbox"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')"
+                                                           onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $news['status'] == 'publish' ? 'checked' : '' ?>>
                                                 </td>
 
@@ -143,7 +155,7 @@ if ($result = $db->query($sql)) {
                                                     </span>
                                                     <input name="status" type="checkbox"
                                                            data-toggle="toggle"
-                                                           onChange="onChangePin(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')"
+                                                           onChange="onChangePin(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= (int)$news['pinned'] === 1 ? 'checked' : '' ?>>
                                                 </td>
 
@@ -152,17 +164,23 @@ if ($result = $db->query($sql)) {
                                                         <input type="hidden" name="news_type" value="<?= $newsType; ?>"/>
                                                         <input type="hidden" name="news_id" value="<?= $news['id']; ?>"/>
 
-                                                        <button type="submit" class="btn btn-warning"
-                                                                style="margin-left: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 3px"
-                                                                onclick="onClickDelete(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
-                                                        </button>
+                                                        <?php
+                                                        if ($userHasPermission) {
+                                                            ?>
+                                                            <button type="submit" class="btn btn-warning"
+                                                                    style="margin-left: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger"
+                                                                    style="margin-left: 3px; margin-right: 3px"
+                                                                    onclick="onClickDelete(this, <?= $news['id']; ?>, '<?= $news['title']; ?>')">
+                                                                <span class="fa fa-remove"></span>&nbsp;
+                                                                ลบ
+                                                            </button>
+                                                            <?php
+                                                        }
+                                                        ?>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -228,7 +246,13 @@ if ($result = $db->query($sql)) {
             window.location.href = 'news_add_edit.php?news_type=<?= $newsType; ?>';
         }
 
-        function onChangePin(element, newsId, title) {
+        function onChangePin(element, newsId, title, userHasPermission) {
+            if (!userHasPermission) {
+                alert('คุณไม่มีสิทธิ์ในการดำเนินการนี้');
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน" + (element.checked ? 'ปักหมุด' : 'ยกเลิกการปักหมุด') + " '" + title + "' ?");
             if (result) {
                 doChangePin(newsId, (element.checked ? 1 : 0));
@@ -238,7 +262,13 @@ if ($result = $db->query($sql)) {
             }
         }
 
-        function onChangeStatus(element, newsId, title) {
+        function onChangeStatus(element, newsId, title, userHasPermission) {
+            if (!userHasPermission) {
+                alert('คุณไม่มีสิทธิ์ในการดำเนินการนี้');
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
             if (result) {
                 doChangeStatus(newsId, (element.checked ? 'publish' : 'draft'));

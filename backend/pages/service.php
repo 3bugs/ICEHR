@@ -14,6 +14,7 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
+$userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -146,12 +147,18 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        onclick="onClickAdd(this)"
-                                        data-toggle_x="modal" data-target_x="#addCourseMasterModal">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มบริการ
-                                </button>
+                                <?php
+                                if ($userHasPermission) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)"
+                                            data-toggle_x="modal" data-target_x="#addCourseMasterModal">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มบริการ
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableService" class="table table-bordered table-striped">
@@ -186,7 +193,7 @@ if ($result = $db->query($sql)) {
                                             <tr style="">
                                                 <td style=""><?= $serviceTitle; ?></td>
                                                 <td style=""><?= $serviceDetails; ?></td>
-                                                <!--<td style="text-align: center"><a target="_blank" href="<?/*= $serviceUrl; */?>" title="<?/*= $serviceUrl; */?>"><i class="fa fa-link"></i></a></td>-->
+                                                <!--<td style="text-align: center"><a target="_blank" href="<?/*= $serviceUrl; */ ?>" title="<?/*= $serviceUrl; */ ?>"><i class="fa fa-link"></i></a></td>-->
                                                 <td style="text-align: center"><img src="<?= UPLOAD_DIR_SERVICE_ICONS . $serviceIconFileName ?>" width="28px" height="28px"></td>
 
                                                 <td style="text-align: center; vertical-align: top">
@@ -197,16 +204,16 @@ if ($result = $db->query($sql)) {
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(
                                                                    this,
-                                                           <?= currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT) ? 'true' : 'false'; ?>,
                                                            <?= $serviceId; ?>,
-                                                                   '<?= htmlentities($serviceTitle); ?>'
+                                                                   '<?= htmlentities($serviceTitle); ?>',
+                                                           <?= $userHasPermission; ?>
                                                                    )"
                                                         <?= $serviceStatus ? 'checked' : '' ?>>
                                                 </td>
 
                                                 <td style="text-align: right" nowrap>
                                                     <?php
-                                                    if (currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT)) {
+                                                    if ($userHasPermission) {
                                                         ?>
                                                         <button type="button" class="btn btn-warning"
                                                                 style="margin-left: 6px; margin-right: 6px"
@@ -410,17 +417,18 @@ if ($result = $db->query($sql)) {
             });
         }
 
-        function onChangeStatus(element, userHasPermission, serviceId, serviceTitle) {
-            if (userHasPermission) {
-                let result = confirm("ยืนยัน" + (element.checked ? 'เปิดการแสดงผล' : 'ปิดการแสดงผล') + " '" + serviceTitle + "' ?");
-                if (result) {
-                    doChangeStatus(serviceId, (element.checked ? 1 : 0));
-                } else {
-                    /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
-                    location.reload(true);
-                }
+        function onChangeStatus(element, serviceId, serviceTitle, userHasPermission) {
+            if (!userHasPermission) {
+                alert('คุณไม่มีสิทธิ์ในการดำเนินการนี้');
+                location.reload(true);
+                return;
+            }
+            
+            let result = confirm("ยืนยัน" + (element.checked ? 'เปิดการแสดงผล' : 'ปิดการแสดงผล') + " '" + serviceTitle + "' ?");
+            if (result) {
+                doChangeStatus(serviceId, (element.checked ? 1 : 0));
             } else {
-                alert("คุณไม่มีสิทธิ์แก้ไขสถานะของบริการ\n\n'" + serviceTitle + "'");
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
                 location.reload(true);
             }
         }

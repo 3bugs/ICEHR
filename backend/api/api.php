@@ -2605,6 +2605,7 @@ function getPermissionValuesFromPost()
     $permissions += pow(2, PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER) * (isset($_POST['permissionCourseDrivingLicenseManageCourseMaster']) ? 1 : 0);
 
     $permissions += pow(2, PERMISSION_MANAGE_WEB_CONTENT) * (isset($_POST['permissionManageWebContent']) ? 1 : 0);
+    $permissions += pow(2, PERMISSION_MANAGE_IN_HOUSE) * (isset($_POST['permissionManageInHouse']) ? 1 : 0);
 
     return $permissions;
 }

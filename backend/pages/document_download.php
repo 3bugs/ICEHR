@@ -39,6 +39,8 @@ if ($result = $db->query($sql)) {
     $db->close();
     exit();
 }
+
+$userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -78,11 +80,17 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        onclick="onClickAdd(this)">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่ม<?= $pageTitle; ?>
-                                </button>
+                                <?php
+                                if ($userHasPermission) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่ม<?= $pageTitle; ?>
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableDocumentDownload" class="table table-bordered table-striped">
@@ -159,7 +167,7 @@ if ($result = $db->query($sql)) {
                                                     </span>
                                                     <input name="status" type="checkbox"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeStatus(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>')"
+                                                           onChange="onChangeStatus(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $documentDownload['status'] == 'publish' ? 'checked' : '' ?>>
                                                 </td>
 
@@ -168,17 +176,23 @@ if ($result = $db->query($sql)) {
                                                         <input type="hidden" name="document_type" value="<?= $documentType; ?>"/>
                                                         <input type="hidden" name="id" value="<?= $documentDownload['id']; ?>"/>
 
-                                                        <button type="submit" class="btn btn-warning"
-                                                                style="margin-left: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 3px"
-                                                                onclick="onClickDelete(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
-                                                        </button>
+                                                        <?php
+                                                        if ($userHasPermission) {
+                                                            ?>
+                                                            <button type="submit" class="btn btn-warning"
+                                                                    style="margin-left: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger"
+                                                                    style="margin-left: 3px; margin-right: 3px"
+                                                                    onclick="onClickDelete(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>')">
+                                                                <span class="fa fa-remove"></span>&nbsp;
+                                                                ลบ
+                                                            </button>
+                                                            <?php
+                                                        }
+                                                        ?>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -244,7 +258,13 @@ if ($result = $db->query($sql)) {
             window.location.href = 'document_download_add_edit.php?document_type=<?= $documentType; ?>';
         }
 
-        function onChangeStatus(element, documentDownloadId, title) {
+        function onChangeStatus(element, documentDownloadId, title, userHasPermission) {
+            if (!userHasPermission) {
+                alert('คุณไม่มีสิทธิ์ในการดำเนินการนี้');
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
             if (result) {
                 doChangeStatus(documentDownloadId, (element.checked ? 'publish' : 'draft'));

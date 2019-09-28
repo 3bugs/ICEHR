@@ -54,6 +54,8 @@ if ($result = $db->query($sql)) {
     $db->close();
     exit();
 }
+
+$userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -406,11 +408,25 @@ if ($result = $db->query($sql)) {
                             <div id="divLoading" style="text-align: center; margin-bottom: 10px;">
                                 <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
                             </div>
-                            <button id="buttonSave" type="submit"
-                                    class="btn btn-info">
-                                <span class="fa fa-save"></span>&nbsp;
-                                บันทึก
-                            </button>
+                            <?php
+                            if ($userHasPermission) {
+                                ?>
+                                <button id="buttonSave" type="submit"
+                                        class="btn btn-info">
+                                    <span class="fa fa-save"></span>&nbsp;
+                                    บันทึก
+                                </button>
+                                <?php
+                            } else {
+                                ?>
+                                <button id="buttonCanNotSave" type="button"
+                                        class="btn btn-danger">
+                                    <span class="fa fa-ban"></span>&nbsp;
+                                    คุณไม่มีสิทธิ์แก้ไขข้อมูล
+                                </button>
+                                <?php
+                            }
+                            ?>
                         </div>
                     </div>
                 </form>

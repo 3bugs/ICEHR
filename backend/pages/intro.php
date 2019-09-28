@@ -43,6 +43,8 @@ if ($result = $db->query($sql)) {
     $db->close();
     exit();
 }
+
+$userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -163,19 +165,25 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-info pull-right"
-                                        data-toggle="modal" data-target="#sortItemModal">
-                                    <span class="fa fa-sort"></span>&nbsp;
-                                    เรียงลำดับ
-                                </button>
-                                <form method="post" action="intro_add_edit.php" style="display: inline">
-                                    <input type="hidden" name="type" value="<?= $type; ?>"/>
-                                    <button type="submit" class="btn btn-success pull-right"
-                                            style="margin-right: 5px">
-                                        <span class="fa fa-plus"></span>&nbsp;
-                                        เพิ่ม<?= $pageTitle; ?>
+                                <?php
+                                if ($userHasPermission) {
+                                    ?>
+                                    <button type="button" class="btn btn-info pull-right"
+                                            data-toggle="modal" data-target="#sortItemModal">
+                                        <span class="fa fa-sort"></span>&nbsp;
+                                        เรียงลำดับ
                                     </button>
-                                </form>
+                                    <form method="post" action="intro_add_edit.php" style="display: inline">
+                                        <input type="hidden" name="type" value="<?= $type; ?>"/>
+                                        <button type="submit" class="btn btn-success pull-right"
+                                                style="margin-right: 5px">
+                                            <span class="fa fa-plus"></span>&nbsp;
+                                            เพิ่ม<?= $pageTitle; ?>
+                                        </button>
+                                    </form>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableItems" class="table table-bordered table-striped">
@@ -278,7 +286,7 @@ if ($result = $db->query($sql)) {
                                                     </span>
                                                     <input name="status" type="checkbox"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeStatus(this, <?= $item['id']; ?>, '<?= $item['title']; ?>')"
+                                                           onChange="onChangeStatus(this, <?= $item['id']; ?>, '<?= $item['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $item['status'] == 'publish' ? 'checked' : '' ?>>
                                                 </td>
 
@@ -287,17 +295,23 @@ if ($result = $db->query($sql)) {
                                                         <input type="hidden" name="type" value="<?= $type; ?>"/>
                                                         <input type="hidden" name="id" value="<?= $item['id']; ?>"/>
 
-                                                        <button type="submit" class="btn btn-warning"
-                                                                style="margin-left: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 3px"
-                                                                onclick="onClickDelete(this, <?= $item['id']; ?>, '<?= $item['title']; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
-                                                        </button>
+                                                        <?php
+                                                        if ($userHasPermission) {
+                                                            ?>
+                                                            <button type="submit" class="btn btn-warning"
+                                                                    style="margin-left: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger"
+                                                                    style="margin-left: 3px; margin-right: 3px"
+                                                                    onclick="onClickDelete(this, <?= $item['id']; ?>, '<?= $item['title']; ?>')">
+                                                                <span class="fa fa-remove"></span>&nbsp;
+                                                                ลบ
+                                                            </button>
+                                                            <?php
+                                                        }
+                                                        ?>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -411,7 +425,13 @@ if ($result = $db->query($sql)) {
             //window.location.href = 'intro_add_edit.php?type=<?= $type; ?>';
         }
 
-        function onChangeStatus(element, id, title) {
+        function onChangeStatus(element, id, title, userHasPermission) {
+            if (!userHasPermission) {
+                alert('คุณไม่มีสิทธิ์ในการดำเนินการนี้');
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน" + (element.checked ? 'เผยแพร่' : 'ยกเลิกการเผยแพร่') + " '" + title + "' ?");
             if (result) {
                 doChangeStatus(id, (element.checked ? 'publish' : 'draft'));
