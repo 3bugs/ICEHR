@@ -7,7 +7,7 @@ import {SERVICE_SOCIAL, SERVICE_TRAINING, HOST_BACKEND} from "../../etc/constant
 import './CourseDetails.css'
 import {Carousel} from 'react-responsive-carousel';
 import "video-react/dist/video-react.css";
-import { Scrollbars } from 'react-custom-scrollbars';
+import {Scrollbars} from 'react-custom-scrollbars';
 import {Player} from 'video-react';
 import {
     FacebookShareButton,
@@ -68,10 +68,21 @@ export default class CourseDetails extends React.Component {
 
     render() {
         const {course, errorMessage} = this.state;
+        const imageList = course.assets.filter(asset => {
+            return asset.type === 'image';
+        });
 
+        let coverImage = 'default_cover_image.jpg';
+        if (imageList.length > 0) {
+            coverImage = `${HOST_BACKEND}/uploads/course_assets/${imageList[0].fileName}`;
+        }
+
+        //https://github.com/nygardk/react-share/issues/59
         return (
             <div>
                 <NextHead>
+                    <meta property="og:image" content={coverImage}/>
+                    <meta property="og:image:secure_url" content={coverImage}/>
                 </NextHead>
 
                 {course != null &&
@@ -89,7 +100,8 @@ export default class CourseDetails extends React.Component {
                             <div className="row">
                                 <div className="col">
                                     {course.isCourseFull &&
-                                    <a className="btn btn-regis" style={{color: 'white'}} onClick={() => alert('ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว')}>เต็มแล้ว <i className="fa fa-times"></i></a>
+                                    <a className="btn btn-regis" style={{color: 'white'}} onClick={() => alert('ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว')}>เต็มแล้ว <i
+                                        className="fa fa-times"></i></a>
                                     }
                                     {!course.isCourseFull &&
                                     <Link
@@ -144,7 +156,7 @@ export default class CourseDetails extends React.Component {
                     }}/>
                     <div className="row">
                         <div className="col-12 col-md-6">
-                            <Scrollbars style={{ height: 450 }}>
+                            <Scrollbars style={{height: 450}}>
                                 <div className="content mCustomScrollbar_"
                                      style={{background: '#f8f8f8', margin: '0px', paddingTop: '15px', paddingBottom: '10px', paddingLeft: '15px', paddingRight: '5px'}}
                                      dangerouslySetInnerHTML={{__html: course.details}}>
