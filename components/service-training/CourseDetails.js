@@ -105,22 +105,28 @@ export default class CourseDetails extends React.Component {
                                     <div className="social-inside">
                                         <FacebookShareButton
                                             style={{display: 'inline'}}
-                                            url={window.location.href}>
+                                            url={window.location.href}
+                                            quote={course.name}>
                                             <a href="#"><i className="fab fa-facebook-f"/></a>
                                         </FacebookShareButton>
                                         <TwitterShareButton
                                             style={{display: 'inline'}}
-                                            url={window.location.href}>
+                                            url={window.location.href}
+                                            title={course.name}>
                                             <a href="#"><i className="fab fa-twitter"/></a>
                                         </TwitterShareButton>
                                         <LineShareButton
                                             style={{display: 'inline'}}
-                                            url={window.location.href}>
+                                            url={window.location.href}
+                                            title={course.name}>
                                             <a href="#"><i className="fab fa-line"/></a>
                                         </LineShareButton>
                                         <EmailShareButton
                                             style={{display: 'inline'}}
-                                            url={window.location.href}>
+                                            url={window.location.href}
+                                            subject={course.name}
+                                            body={course.name}
+                                            separator={'\n\n'}>
                                             <a href="#"><i className="fa fa-envelope"/></a>
                                         </EmailShareButton>
                                     </div>
