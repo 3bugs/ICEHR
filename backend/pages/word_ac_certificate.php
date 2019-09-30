@@ -220,7 +220,7 @@ foreach ($traineeList as $trainee) {
     );
 
     $table = $section->addTable();
-    $row = $table->addRow(-1);
+    $row = $table->addRow();
     $leftCell = $row->addCell(5000);
     $row->addCell(1100);
     $rightCell = $row->addCell(5700);
@@ -263,7 +263,7 @@ EOT;*/
     //\PhpOffice\PhpWord\Shared\Html::addHtml($leftCell, $leftSignatureHtml);
     //\PhpOffice\PhpWord\Shared\Html::addHtml($rightCell, $rightSignatureHtml);
 
-    $row = $table->addRow(-1);
+    $row = $table->addRow();
     $leftCell = $row->addCell(5000);
     $leftCellText = $leftCell->addText("(รองศาสตราจารย์เกศินี วิฑูรชาติ)\nอธิการบดีมหาวิทยาลัยธรรมศาสตร์");
     $row->addCell(1100);
