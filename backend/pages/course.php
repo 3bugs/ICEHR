@@ -197,7 +197,7 @@ if ($result = $db->query($sql)) {
                                                         <?= $status === 'normal' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
-                                                           class="statusCheckBox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $userHasPermission ? 'true' : 'false'; ?>, <?= $courseId; ?>, '<?= htmlentities($courseName); ?>')"
                                                         <?= $status === 'normal' ? 'checked' : '' ?>>
@@ -277,7 +277,7 @@ if ($result = $db->query($sql)) {
                     },
                 },
                 drawCallback: function(row, data) {
-                    $('.statusCheckBox').bootstrapToggle();
+                    $('.toggle').bootstrapToggle();
                 }
             });
         });

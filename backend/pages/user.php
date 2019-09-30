@@ -121,6 +121,7 @@ if ($result = $db->query($sql)) {
                                                         <?= $user['show_on_web']; ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeShowOnWeb(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
                                                         <?= (int)$user['show_on_web'] === 1 ? 'checked' : '' ?>>
@@ -131,6 +132,7 @@ if ($result = $db->query($sql)) {
                                                         <?= $user['status'] == 'active' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
                                                         <?= $user['status'] == 'active' ? 'checked' : '' ?>>
@@ -215,6 +217,9 @@ if ($result = $db->query($sql)) {
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
+                },
+                drawCallback: function(row, data) {
+                    $('.statusCheckBox').bootstrapToggle();
                 }
             });
         });

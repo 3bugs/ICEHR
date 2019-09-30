@@ -133,6 +133,7 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                                                         <?= $faq['status'] == 'publish' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $faq['id']; ?>, '<?= $faq['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $faq['status'] == 'publish' ? 'checked' : '' ?>>
@@ -210,6 +211,9 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
+                },
+                drawCallback: function(row, data) {
+                    $('.toggle').bootstrapToggle();
                 }
             });
 

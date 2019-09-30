@@ -143,6 +143,7 @@ if ($newsType === 'in-house') {
                                                         <?= $news['status'] == 'publish' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $news['status'] == 'publish' ? 'checked' : '' ?>>
@@ -154,6 +155,7 @@ if ($newsType === 'in-house') {
                                                         <?= (int)$news['pinned'] === 1 ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangePin(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= (int)$news['pinned'] === 1 ? 'checked' : '' ?>>
@@ -232,6 +234,9 @@ if ($newsType === 'in-house') {
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
+                },
+                drawCallback: function(row, data) {
+                    $('.toggle').bootstrapToggle();
                 }
             });
 

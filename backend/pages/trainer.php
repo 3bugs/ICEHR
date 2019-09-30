@@ -100,6 +100,7 @@ if ($result = $db->query($sql)) {
                                                         <?= $trainer['status'] == 'active' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
+                                                           class="toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $trainer['id']; ?>, '<?= "{$trainer['title']} {$trainer['first_name']} {$trainer['last_name']}"; ?>')"
                                                         <?= $trainer['status'] == 'active' ? 'checked' : '' ?>>
@@ -183,6 +184,9 @@ if ($result = $db->query($sql)) {
                         next: "ถัดไป",
                         previous: "ก่อนหน้า"
                     },
+                },
+                drawCallback: function(row, data) {
+                    $('.toggle').bootstrapToggle();
                 }
             });
         });
