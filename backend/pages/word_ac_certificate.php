@@ -213,6 +213,12 @@ foreach ($traineeList as $trainee) {
 //$section->addImage('../uploads/signatures/signature001.jpg');
 //$section->addImage('../uploads/signatures/signature002.png');
 
+    $section->addImage(dirname(__FILE__) . '/../uploads/signatures/signature001.jpg',
+        array(
+            'height' => 30
+        )
+    );
+
     $table = $section->addTable();
     $row = $table->addRow(-1);
     $leftCell = $row->addCell(5000);
