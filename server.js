@@ -500,8 +500,8 @@ doForgotPassword = (req, res, db) => {
                     port: 465,
                     secure: true, // true for 465, false for other ports
                     auth: {
-                        user: 'promlert@gmail.com',
-                        pass: 'zfiaqdxtarzxxecl'
+                        user: 'icehr.tu@gmail.com',
+                        pass: 'wgyhexikkwevucwq'
                     }
                 });
 
@@ -511,7 +511,7 @@ doForgotPassword = (req, res, db) => {
                 const resetPasswordUrl = `${baseUrl}/reset-password/${token}`;
 
                 transporter.sendMail({
-                    from: 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.<icehr@tu.ac.th>', // sender address
+                    from: 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.<icehr.tu@gmail.com>', // sender address
                     to: inputEmail, // list of receivers
                     subject: 'รีเซ็ตรหัสผ่าน', // Subject line
                     html: 'เรียนท่านสมาชิก<br><br>ได้มีการขอรีเซ็ตรหัสผ่านของบัญชีผู้ใช้งานของท่านที่เว็บไซต์ "สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์" (www.icehr.tu.ac.th) กรุณากด link ข้างล่างนี้เพื่อดำเนินการรีเซ็ตและตั้งรหัสผ่านใหม่ *ภายใน 15 นาที*<br><br>' +

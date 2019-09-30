@@ -79,6 +79,12 @@ define('PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_CATEGORY', 21);
 define('PERMISSION_MANAGE_WEB_CONTENT', 22);
 define('PERMISSION_MANAGE_IN_HOUSE', 23);
 
+define('GMAIL_SMTP_HOST', 'smtp.gmail.com');
+define('GMAIL_SMTP_PORT', 465);
+define('GMAIL_SMTP_USERNAME', 'icehr.tu@gmail.com');
+define('GMAIL_SMTP_NAME', 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.');
+define('GMAIL_SMTP_PASSWORD', 'wgyhexikkwevucwq');
+
 $permissionList = array(
     //PERMISSION_USER_READ,
     PERMISSION_USER_CREATE,
@@ -419,7 +425,7 @@ function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayN
         $message = new Swift_Message();
         $message
             ->setSubject(($isCourseFree ? 'ใบสมัคร: ' : 'ใบสมัครและรายละเอียดการชำระเงิน: ') . $courseDisplayName)
-            ->setFrom(array('no-reply@icehr.tu.ac.th'))
+            ->setFrom(array(GMAIL_SMTP_USERNAME => GMAIL_SMTP_NAME))
             ->setTo($recipientList)
             ->setBody($body)
             ->attach($attachment);
@@ -427,8 +433,8 @@ function sendMail($pdfFileName, $pdfFileContent, $recipientList, $courseDisplayN
         //$transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl');
         //$transport->setUsername('email@gmail.com')->setPassword('password');
 
-        $transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'); // port 465 or 587
-        $transport->setUsername('promlert@gmail.com')->setPassword('zfiaqdxtarzxxecl');
+        $transport = new Swift_SmtpTransport(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, 'ssl'); // port 465 or 587
+        $transport->setUsername(GMAIL_SMTP_USERNAME)->setPassword(GMAIL_SMTP_PASSWORD);
 
         // Create the Mailer using your created Transport
         $mailer = new Swift_Mailer($transport);
@@ -444,12 +450,12 @@ function sendMailNoAttachment($recipientList, $subject, $body)
         $message = new Swift_Message();
         $message
             ->setSubject($subject)
-            ->setFrom(array('no-reply@icehr.tu.ac.th'))
+            ->setFrom(array(GMAIL_SMTP_USERNAME => GMAIL_SMTP_NAME))
             ->setTo($recipientList)
             ->setBody($body);
 
-        $transport = new Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'); // port 465 or 587
-        $transport->setUsername('promlert@gmail.com')->setPassword('zfiaqdxtarzxxecl');
+        $transport = new Swift_SmtpTransport(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, 'ssl'); // port 465 or 587
+        $transport->setUsername(GMAIL_SMTP_USERNAME)->setPassword(GMAIL_SMTP_PASSWORD);
 
         // Create the Mailer using your created Transport
         $mailer = new Swift_Mailer($transport);

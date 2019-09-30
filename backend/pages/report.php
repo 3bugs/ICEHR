@@ -64,17 +64,15 @@ require_once '../include/head_php.inc';
 
             <!-- Main content -->
             <section class="content">
-                <form id="formDlTraineeListByDate"
-                      action="../api/api.php/<?php echo(isset($courseId) ? 'update_course' : 'add_course'); ?>"
-                      method="post">
+                <input type="hidden" name="courseId"
+                       value="<?php echo $courseId; ?>"/>
 
-                    <input type="hidden" name="courseId"
-                           value="<?php echo $courseId; ?>"/>
+                <div class="row">
+                    <div class="col-xs-12">
 
-                    <div class="row">
-                        <div class="col-xs-12">
-
-                            <!--รายละเอียดหลักสูตร-->
+                        <!--สรุปผู้เข้ารับการอบรมประจำเดือน บริการใบขับขี่-->
+                        <form id="formDlTraineeListByDate"
+                              method="post">
                             <div class="box box-warning">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">สรุปผู้เข้ารับการอบรมประจำเดือน <small>บริการใบขับขี่</small></h3>
@@ -175,12 +173,101 @@ require_once '../include/head_php.inc';
                                 <!-- /.box-body -->
                             </div>
                             <!-- /.box -->
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-                </form>
+                        </form>
 
+                        <!--ข้อมูลสมาชิก-->
+                        <form id="formMemberListByDate"
+                              method="post">
+                            <div class="box box-info">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">ข้อมูลสมาชิก</h3>
+
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"
+                                                data-toggle="tooltip" title="ย่อ">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- /.box-tools -->
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body">
+
+                                    <!--เดือนและปี-->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="selectMonth">เดือน:</label>
+                                                <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                    <select id="selectMonth" class="form-control" required
+                                                            name="month"
+                                                            oninvalid="this.setCustomValidity('เลือกเดือน')"
+                                                            oninput="this.setCustomValidity('')">
+                                                        <option value="0" selected>ไม่ระบุเดือน</option>
+                                                        <?php
+                                                        for ($i = 0; $i < sizeof($monthNames); $i++) {
+                                                            ?>
+                                                            <option value="<?= $i + 1; ?>"><?= substr('0' . ($i + 1), -2) . " - {$monthNames[$i]}"; ?></option>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="selectYear">ปี:</label>
+                                                <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                    <select id="selectYear" class="form-control" required
+                                                            name="year"
+                                                            oninvalid="this.setCustomValidity('เลือกปี')"
+                                                            oninput="this.setCustomValidity('')">
+                                                        <option value="0" selected>ไม่ระบุปี</option>
+                                                        <?php
+                                                        for ($i = $currentYear - 5; $i <= $currentYear; $i++) {
+                                                            $beYear = $i + 543;
+                                                            ?>
+                                                            <option value="<?= $i; ?>"><?= $i . "&nbsp;&nbsp;(พ.ศ. $beYear)"; ?></option>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="button">&nbsp;</label>
+                                                <div class="input-group">
+                                                    <button id="button" type="submit"
+                                                            class="btn btn-info">
+                                                        <span class="fa fa-file-excel-o"></span>&nbsp;
+                                                        DOWNLOAD
+                                                    </button>
+                                                    <span id="divLoading" style="text-align: center; margin-bottom: 10px;">
+                                                <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                                            </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- /.box-body -->
+                            </div>
+                            <!-- /.box -->
+                        </form>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
             </section>
             <!-- /.content -->
         </div>
@@ -199,6 +286,21 @@ require_once '../include/head_php.inc';
                 const selectMonthValue = $('#formDlTraineeListByDate #selectMonth').val();
                 const selectYearValue = $('#formDlTraineeListByDate #selectYear').val();
                 window.open(`print_trainee_list_by_date.php?month=${selectMonthValue}&year=${selectYearValue}`, '_blank');
+            });
+
+            $('#formMemberListByDate #divLoading').hide();
+
+            $('#formMemberListByDate').submit(event => {
+                event.preventDefault();
+                const selectMonthValue = parseInt($('#formMemberListByDate #selectMonth').val());
+                const selectYearValue = parseInt($('#formMemberListByDate #selectYear').val());
+
+                if (selectMonthValue !== 0 && selectYearValue === 0) {
+                    alert('ถ้าหากเลือกเดือน จะต้องเลือกปีด้วย');
+                    $('#formMemberListByDate #selectYear').focus();
+                    return;
+                }
+                window.open(`excel_member_list.php?month=${selectMonthValue}&year=${selectYearValue}`, '_blank');
             });
         });
     </script>
