@@ -219,7 +219,7 @@ if ($result = $db->query($sql)) {
                     },
                 },
                 drawCallback: function(row, data) {
-                    $('.statusCheckBox').bootstrapToggle();
+                    $('.toggle').bootstrapToggle();
                 }
             });
         });
