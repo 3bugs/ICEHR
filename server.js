@@ -896,45 +896,86 @@ doGetCourse = (req, res, db) => {
 
                                 dataList[0].assets = assetList;
 
-                                db.query(
-                                        `SELECT title, amount, created_at
-                                         FROM course_fee
-                                         WHERE course_id = ?`,
-                                    [inputCourseId],
-                                    function (err, results, fields) {
-                                        if (err) {
-                                            res.send({
-                                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
-                                            });
-                                            db.end();
-
-                                        } else {
-                                            const feeList = [];
-                                            results.forEach(row => {
-                                                feeList.push({
-                                                    title: row.title,
-                                                    amount: row.amount,
-                                                    createdAt: row.created_at,
-                                                });
-                                            });
-
-                                            dataList[0].fees = feeList;
-
-                                            checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
-                                                dataList[0].isCourseFull = isCourseFull;
-                                                dataList[0].regCount = regCount;
-
+                                if (inputServiceType === constants.SERVICE_TRAINING || inputServiceType === constants.SERVICE_SOCIAL) {
+                                    db.query(
+                                            `SELECT title, amount, created_at
+                                             FROM course_fee
+                                             WHERE course_id = ?`,
+                                        [inputCourseId],
+                                        function (err, results, fields) {
+                                            if (err) {
                                                 res.send({
-                                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                                    //sql,
-                                                    monthYearString,
-                                                    dataList
+                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
                                                 });
                                                 db.end();
-                                            });
+
+                                            } else {
+                                                const feeList = [];
+                                                results.forEach(row => {
+                                                    feeList.push({
+                                                        title: row.title,
+                                                        amount: row.amount,
+                                                        createdAt: row.created_at,
+                                                    });
+                                                });
+
+                                                dataList[0].fees = feeList;
+
+                                                checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
+                                                    dataList[0].isCourseFull = isCourseFull;
+                                                    dataList[0].regCount = regCount;
+
+                                                    res.send({
+                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                                        //sql,
+                                                        monthYearString,
+                                                        dataList
+                                                    });
+                                                    db.end();
+                                                });
+                                            }
                                         }
-                                    }
-                                );
+                                    );
+                                } else {
+                                    db.query(
+                                        `SELECT title, title_en, application_fee
+                                             FROM driving_license_course_type`,
+                                        [],
+                                        function (err, results, fields) {
+                                            if (err) {
+                                                res.send({
+                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                                                });
+                                                db.end();
+
+                                            } else {
+                                                const feeList = [];
+                                                results.forEach(row => {
+                                                    feeList.push({
+                                                        title: row.title,
+                                                        titleEn: row.title_en,
+                                                        amount: row.application_fee,
+                                                    });
+                                                });
+
+                                                dataList[0].fees = feeList;
+
+                                                checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
+                                                    dataList[0].isCourseFull = isCourseFull;
+                                                    dataList[0].regCount = regCount;
+
+                                                    res.send({
+                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                                        //sql,
+                                                        monthYearString,
+                                                        dataList
+                                                    });
+                                                    db.end();
+                                                });
+                                            }
+                                        }
+                                    );
+                                }
                                 //db.end();
                             }
                         }

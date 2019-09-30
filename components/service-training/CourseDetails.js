@@ -2,7 +2,7 @@ import NextHead from 'next/head';
 import Link from 'next/link';
 //import $ from 'jquery';
 import {formatCourseDateLong, numberWithCommas} from "../../etc/utils";
-import {SERVICE_SOCIAL, SERVICE_TRAINING, HOST_BACKEND} from "../../etc/constants";
+import {SERVICE_SOCIAL, SERVICE_TRAINING, SERVICE_DRIVING_LICENSE, HOST_BACKEND} from "../../etc/constants";
 /*import "react-responsive-carousel/lib/styles/carousel.min.css";*/
 import './CourseDetails.css'
 import {Carousel} from 'react-responsive-carousel';
@@ -170,13 +170,15 @@ export default class CourseDetails extends React.Component {
                             <div className="title-download-inside mt-4">
                                 <h3>ค่าลงทะเบียน</h3>
                             </div>
-                            {
-                                course.fees.length === 0 &&
-                                <div style={{color: 'red'}}>ไม่มีข้อมูล</div>
+                            {course.serviceType === SERVICE_SOCIAL && course.applicationFee === 0 &&
+                            <div style={{color: 'darkgreen'}}>ฟรี ไม่มีค่าลงทะเบียน</div>
+                            }
+                            {course.applicationFee > 0 && course.fees.length === 0 &&
+                            <div>{numberWithCommas(course.applicationFee)} บาท</div>
                             }
                             <table className="table table-price table-bordered" style={{width: '85%'}}>
                                 <tbody>
-                                {
+                                {course.fees &&
                                     course.fees.map(fee => {
                                         let feeAmountText = fee.amount == null ? null : `${numberWithCommas(fee.amount)} บาท`;
                                         return (
@@ -190,6 +192,9 @@ export default class CourseDetails extends React.Component {
                                         )
                                     })
                                 }
+                                {/*{course.service_type === SERVICE_DRIVING_LICENSE &&
+
+                                }*/}
                                 </tbody>
                             </table>
                         </div>
