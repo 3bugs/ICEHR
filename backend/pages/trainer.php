@@ -100,7 +100,7 @@ if ($result = $db->query($sql)) {
                                                         <?= $trainer['status'] == 'active' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
-                                                           class="toggle"
+                                                           class="my-toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $trainer['id']; ?>, '<?= "{$trainer['title']} {$trainer['first_name']} {$trainer['last_name']}"; ?>')"
                                                         <?= $trainer['status'] == 'active' ? 'checked' : '' ?>>
@@ -186,7 +186,7 @@ if ($result = $db->query($sql)) {
                     },
                 },
                 drawCallback: function(row, data) {
-                    $('.toggle').bootstrapToggle();
+                    $('.my-toggle').bootstrapToggle();
                 }
             });
         });

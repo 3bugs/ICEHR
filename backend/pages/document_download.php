@@ -166,7 +166,7 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                                                         <?= $documentDownload['status'] == 'publish' ? 'on' : 'off' ?>>
                                                     </span>
                                                     <input name="status" type="checkbox"
-                                                           class="toggle"
+                                                           class="my-toggle"
                                                            data-toggle="toggle"
                                                            onChange="onChangeStatus(this, <?= $documentDownload['id']; ?>, '<?= $documentDownload['title']; ?>', <?= $userHasPermission; ?>)"
                                                         <?= $documentDownload['status'] == 'publish' ? 'checked' : '' ?>>
@@ -247,7 +247,7 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                     },
                 },
                 drawCallback: function(row, data) {
-                    $('.toggle').bootstrapToggle();
+                    $('.my-toggle').bootstrapToggle();
                 }
             });
 
