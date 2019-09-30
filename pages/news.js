@@ -40,6 +40,7 @@ export default class News extends React.Component {
             switch (id) {
                 case 'training':
                 case 'public-relations':
+                case 'activity':
                     return {news: null, newsListType: id};
             }
 

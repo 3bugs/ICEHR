@@ -1219,8 +1219,13 @@ export default class Index extends React.Component {
                             <div className="col text-title-top" style={{marginBottom: 0, paddingBottom: 0}}>
                                 <h3 style={{marginBottom: 0, paddingBottom: 0}}>ภาพกิจกรรม</h3>
                             </div>
-                            <div className="col">
+                            {/*<div className="col">
                                 <a href="javascript:void(0)" className="viewmoreindex"> ดูทั้งหมด <i className="fas fa-plus"/></a>
+                            </div>*/}
+                            <div className="col">
+                                <a href={'/news/activity'} className="viewmoreindex">
+                                    ดูทั้งหมด <i className="fas fa-plus"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
