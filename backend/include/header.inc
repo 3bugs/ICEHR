@@ -15,9 +15,11 @@
 
         <?php
         if (isset($_SESSION[KEY_SESSION_USER_ID])) {
+            $username = $_SESSION[KEY_SESSION_USER_USERNAME];
             $firstName = $_SESSION[KEY_SESSION_USER_FIRST_NAME];
             $lastName = $_SESSION[KEY_SESSION_USER_LAST_NAME];
             $displayName = "$firstName $lastName";
+            $profileImageUrl = $_SESSION[KEY_SESSION_USER_PROFILE_IMAGE_URL];
             switch ($_SESSION[KEY_SESSION_USER_ROLE]) {
                 case ROLE_USER:
                     $role = 'User';
@@ -35,22 +37,22 @@
                     <!-- User Account: style can be found in dropdown.less -->
                     <li class="dropdown user user-menu">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <img alt="User Image" class="user-image" src="../images/avatar.png">
-                            <span class="hidden-xs"><?php echo $displayName; ?></span>
+                            <img alt="User Image" class="user-image" src="<?= $profileImageUrl; ?>">
+                            <span class="hidden-xs"><?= $displayName; ?></span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
                             <li class="user-header">
-                                <img alt="User Image" class="img-circle" src="../images/avatar.png">
+                                <img alt="User Image" class="img-circle" src="<?= $profileImageUrl; ?>">
                                 <p>
-                                    <?php echo $displayName; ?>
-                                    <small><?php echo $role; ?></small>
+                                    <?= $displayName; ?>
+                                    <small>(<?= $username; ?>)</small>
                                 </p>
                             </li>
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <!--<div class="pull-left">
-                                    <a class="btn btn-default btn-flat" href="#">Profile</a>
+                                    <a id="changePasswordButton" class="btn btn-default btn-flat" href="#">เปลี่ยนรหัสผ่าน</a>
                                 </div>-->
                                 <div class="pull-right">
                                     <a id="logoutButton" class="btn btn-default btn-flat" href="#">ออกจากระบบ</a>
@@ -121,5 +123,9 @@
                 ]
             });
         });
+
+        /*$('#changePasswordButton').click(function (e) {
+
+        });*/
     });
 </script>

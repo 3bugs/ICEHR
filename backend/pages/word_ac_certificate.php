@@ -6,6 +6,9 @@ $courseId = $_GET['course_id'];
 $traineeId = $_GET['trainee_id'];
 $serviceType = $_GET['service_type'];
 
+$courseText = $_POST['courseText'];
+$fontSize = $_POST['fontSize'];
+
 if (!isset($serviceType) || (!isset($traineeId) && !isset($courseId))) {
     echo 'Error: ระบุ parameter ไม่ครบ';
     $db->close();
@@ -105,12 +108,12 @@ foreach ($traineeList as $trainee) {
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(true);
-    $fontStyle->setSize(57 - 5);
+    $fontStyle->setSize(57);
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
     $paragraphStyle->setAlignment('center');
-    $paragraphStyle->setSpaceBefore(150);
+    $paragraphStyle->setSpaceBefore(1500);
     $paragraphStyle->setLineHeight(0.8);
     $text->setParagraphStyle($paragraphStyle);
 
@@ -120,7 +123,7 @@ foreach ($traineeList as $trainee) {
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(false);
-    $fontStyle->setSize(39 - 5);
+    $fontStyle->setSize(39);
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
@@ -135,7 +138,7 @@ foreach ($traineeList as $trainee) {
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(false);
-    $fontStyle->setSize(28 - 5);
+    $fontStyle->setSize(28);
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
@@ -149,7 +152,7 @@ foreach ($traineeList as $trainee) {
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('TH Charm of AU');
     $fontStyle->setBold(false);
-    $fontStyle->setSize(40 - 2);
+    $fontStyle->setSize(40);
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
@@ -158,11 +161,12 @@ foreach ($traineeList as $trainee) {
     $text->setParagraphStyle($paragraphStyle);
 
     // ได้ผ่านการอบรมหลักสูตร
-    $text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
+    //$text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
+    $text = $section->addText($courseText);
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(true);
-    $fontStyle->setSize(26 - 2);
+    $fontStyle->setSize(floatval($fontSize));
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
@@ -205,6 +209,7 @@ foreach ($traineeList as $trainee) {
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
     $paragraphStyle->setAlignment('center');
     $paragraphStyle->setLineHeight(0.8);
+    $paragraphStyle->setSpaceBefore(350);
     $paragraphStyle->setSpaceAfter(350);
     $text->setParagraphStyle($paragraphStyle);
 
@@ -213,12 +218,6 @@ foreach ($traineeList as $trainee) {
 //$section->addImage('../uploads/signatures/signature001.jpg');
 //$section->addImage('../uploads/signatures/signature002.png');
 
-    $section->addImage(dirname(__FILE__) . '/../uploads/signatures/signature001.jpg',
-        array(
-            'height' => 30
-        )
-    );
-
     $table = $section->addTable();
     $row = $table->addRow();
     $leftCell = $row->addCell(5000);
@@ -226,8 +225,7 @@ foreach ($traineeList as $trainee) {
     $rightCell = $row->addCell(5700);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
-    $paragraphStyle->setAlignment('center');
-
+    $paragraphStyle->setAlignment('center')->setSpaceBefore(200);
     $leftTextRun = $leftCell->addTextRun();
     $leftTextRun->setParagraphStyle($paragraphStyle);
     $leftTextRun->addImage(
@@ -236,6 +234,9 @@ foreach ($traineeList as $trainee) {
             'height' => 30
         )
     );
+
+    $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
+    $paragraphStyle->setAlignment('center');
     $rightTextRun = $rightCell->addTextRun();
     $rightTextRun->setParagraphStyle($paragraphStyle);
     $rightTextRun->addImage(
@@ -244,21 +245,6 @@ foreach ($traineeList as $trainee) {
             'height' => 40
         )
     );
-
-    /*$leftSignatureHtml = <<<EOT
-<table style="width: 100%">
-<tr>
-    <td style="text-align: center"><img src="../uploads/signatures/signature001.jpg" height="40"/></td>
-</tr>
-</table>
-EOT;
-    $rightSignatureHtml = <<<EOT
-<table style="width: 100%">
-<tr>
-    <td style="text-align: center"><img src="../uploads/signatures/signature002.png" height="50"/></td>
-</tr>
-</table>
-EOT;*/
 
     //\PhpOffice\PhpWord\Shared\Html::addHtml($leftCell, $leftSignatureHtml);
     //\PhpOffice\PhpWord\Shared\Html::addHtml($rightCell, $rightSignatureHtml);
@@ -273,7 +259,7 @@ EOT;*/
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(true);
-    $fontStyle->setSize(18 - 2);
+    $fontStyle->setSize(16);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
     $paragraphStyle->setAlignment('center');

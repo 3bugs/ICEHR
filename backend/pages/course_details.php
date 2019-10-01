@@ -7,7 +7,8 @@ $course = array();
 if (isset($courseId)) {
     $courseId = $db->real_escape_string($courseId);
     $sql = "SELECT c.course_master_id, c.batch_number, c.details, c.trainee_limit, c.application_fee, 
-                   c.place, c.begin_date, c.end_date, c.responsible_user_id, c.trainer_id, cm.service_type
+                   c.place, c.begin_date, c.end_date, c.responsible_user_id, c.trainer_id, 
+                   cm.title AS course_title, cm.service_type
             FROM course c 
                 INNER JOIN course_master cm 
                     ON c.course_master_id = cm.id 
@@ -16,6 +17,7 @@ if (isset($courseId)) {
     if ($result = $db->query($sql)) {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
+            $course['course_title'] = $row['course_title'];
             $course['course_master_id'] = (int)$row['course_master_id'];
             $course['batch_number'] = (int)$row['batch_number'];
             $course['details'] = $row['details'];
@@ -178,6 +180,98 @@ if ($result = $db->query($sql)) {
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
+
+    <!-- Certificate settings modal -->
+    <div class="modal fade" id="certificateSettingsModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">ตั้งค่าการสร้างใบรับรอง</h4>
+                </div>
+                <div class="modal-body">
+                    <!--<div id="divLoading" style="text-align: center">
+                        <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                    </div>-->
+                    <!--<div id="alertReceiptSuccess" class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertReceiptSuccess').hide()">&times;</button>
+                        <i class="icon fa fa-check"></i><span id="alertReceiptSuccessText"></span>
+                    </div>
+                    <div id="alertReceiptError" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" aria-hidden="true" onClick="$('#alertReceiptError').hide()">&times;</button>
+                        <i class="icon fa fa-warning"></i><span id="alertReceiptErrorText"></span>
+                    </div>-->
+
+                    <form id="formCertificateSettings" role="form"
+                          action="word_ac_certificate.php?service_type=<?= $course['service_type']; ?>&course_id=<?= $courseId; ?>"
+                          method="post" target="_blank"
+                          style="margin-top: 0; margin-bottom: 0">
+                        <div class="box-body">
+                            <!--<input type="hidden" id="inputTraineeId" name="trainee_id">-->
+
+                            <!--<div id="alertCanNotPrint" class="alert alert-danger alert-dismissible">
+                                <i class="icon fa fa-warning"></i>ไม่สามารถพิมพ์ใบเสร็จรับเงินของใบสมัครนี้ได้ เนื่องจากสถานะการชำระเงินยังไม่สมบูรณ์
+                            </div>-->
+
+                            <!--ข้อความหลักสูตร-->
+                            <div class="form-group">
+                                <label for="inputCourseText">ข้อความหลักสูตร:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-pencil"></i>
+                                    </span>
+                                    <?php
+                                    $courseBatchNumber = thaiNumDigit($course['batch_number']);
+                                    $courseText = "ได้ผ่านการอบรม หลักสูตร &#8220{$course['course_title']}&#8221 รุ่นที่ {$courseBatchNumber}";
+                                    ?>
+                                    <textarea class="form-control" rows="3"
+                                              id="inputCourseText" name="courseText"
+                                              placeholder="กรอกข้อความหลักสูตร" required
+                                              oninvalid="this.setCustomValidity('กรอกข้อความหลักสูตร')"
+                                              oninput="this.setCustomValidity('')"><?= $courseText; ?></textarea>
+                                </div>
+                            </div>
+
+                            <!--ขนาดฟอนต์-->
+                            <div class="form-group">
+                                <label for="inputFontSize">ขนาดฟอนต์:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-font"></i>
+                                    </span>
+                                    <input type="number" class="form-control"
+                                           id="inputFontSize" name="fontSize"
+                                           placeholder="กรอกขนาดฟอนต์" required
+                                           value="24"
+                                           oninvalid="this.setCustomValidity('กรอกขนาดฟอนต์')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <div id="responseText"
+                                 style="text-align: center; color: red; margin-top: 25px; margin-bottom: 20px;">
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer">
+
+                            <button id="buttonGenerateCertificate" type="submit"
+                                    class="btn btn-info pull-right">
+                                <span class="fa fa-file-word-o"></span>&nbsp;
+                                สร้างใบรับรอง
+                            </button>
+
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+                <!--<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>-->
+            </div>
+        </div>
+    </div>
 
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>
@@ -633,7 +727,8 @@ if ($result = $db->query($sql)) {
                                                    class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
                                             </div>
                                             <div class="btn-group" style="margin-right: 6px">
-                                                <a target="_blank" href="word_ac_certificate.php?service_type=<?= $course['service_type']; ?>&course_id=<?= $courseId; ?>"
+                                                <a target="_blank" href="javascript:void(0)"
+                                                   onClick="onClickWordCertificate()"
                                                    class="btn btn-default"><i class="fa fa-file-word-o"></i>&nbsp;&nbsp;ใบรับรองการผ่านการอบรม</a>
                                             </div>
                                             <?php
@@ -726,6 +821,9 @@ if ($result = $db->query($sql)) {
     <!-- ./wrapper -->
 
     <script>
+        const KEY_CERTIFICATE_FONT_SIZE = 'certificate_font_size';
+        const DEFAULT_CERTIFICATE_FONT_SIZE = 24;
+
         $(document).ready(function () {
             $('#tableCourse').DataTable({
                 order: [[4, 'desc']],
@@ -753,6 +851,12 @@ if ($result = $db->query($sql)) {
                 fadeDuration: 500,
                 imageFadeDuration: 500,
                 resizeDuration: 500,
+            });
+
+            $('#formCertificateSettings').on('submit', (event) => {
+                //event.preventDefault();
+                const fontSize = parseInt($('#formCertificateSettings #inputFontSize').val());
+                window.localStorage.setItem(KEY_CERTIFICATE_FONT_SIZE, fontSize);
             });
         });
 
@@ -787,6 +891,16 @@ if ($result = $db->query($sql)) {
 
         function doPrintCertificate() {
 
+        }
+
+        function onClickWordCertificate() {
+            let fontSize = window.localStorage.getItem(KEY_CERTIFICATE_FONT_SIZE);
+            if (fontSize == null) {
+                fontSize = DEFAULT_CERTIFICATE_FONT_SIZE;
+            }
+            $('#formCertificateSettings #inputFontSize').val(fontSize);
+            $('#certificateSettingsModal').modal('show');
+            //window.location.href = "word_ac_certificate.php?service_type=<?= $course['service_type']; ?>&course_id=<?= $courseId; ?>";
         }
 
     </script>

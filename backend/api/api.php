@@ -175,6 +175,9 @@ switch ($action) {
     case 'update_user_show_on_web':
         doUpdateUserShowOnWeb();
         break;
+    case 'change_user_password':
+        doChangeUserPassword();
+        break;
     case 'add_trainer':
         doAddTrainer();
         break;
@@ -396,6 +399,7 @@ function doLoginUser($username, $password)
             $user['first_name'] = $row['first_name'];
             $user['last_name'] = $row['last_name'];
             $user['email'] = $row['email'];
+            $user['image_file_name'] = $row['image_file_name'];
             //$user['role'] = $row['role'];
             $response['user'] = $user;
 
@@ -421,7 +425,8 @@ function createSession($user)
     $_SESSION[KEY_SESSION_USER_FIRST_NAME] = $user['first_name'];
     $_SESSION[KEY_SESSION_USER_LAST_NAME] = $user['last_name'];
     $_SESSION[KEY_SESSION_USER_EMAIL] = $user['email'];
-    $_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
+    $_SESSION[KEY_SESSION_USER_PROFILE_IMAGE_URL] = UPLOAD_DIR_USER_ASSETS . $user['image_file_name'];
+    //$_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
     $_SESSION[KEY_SESSION_USER_PERMISSION] = (int)$user['permissions'];
 }
 
@@ -2628,9 +2633,9 @@ function doUpdateUser()
 {
     global $db, $response;
 
-    if (!checkPermission(PERMISSION_USER_UPDATE)) {
+    /*if (!checkPermission(PERMISSION_USER_UPDATE)) {
         return;
-    }
+    }*/
 
     $userId = $db->real_escape_string($_POST['userId']);
     $departmentId = $db->real_escape_string($_POST['department']);
@@ -2685,7 +2690,12 @@ function doUpdateUser()
     $showDetails = isset($_POST['showDetails']) ? 1 : 0;
     $details = isset($_POST['details']) ? $db->real_escape_string($_POST['details']) : '';
 
-    $permissions = getPermissionValuesFromPost();
+    $canUpdatePermission = (int)$_POST['canUpdatePermission'] === 1;
+    $setPermissions = '';
+    if ($canUpdatePermission) {
+        $permissions = getPermissionValuesFromPost();
+        $setPermissions = ", permissions = $permissions ";
+    }
 
     if ($_FILES['imageFile']) {
         if (!moveUploadedFile('imageFile', UPLOAD_DIR_USER_ASSETS, $imageFileName)) {
@@ -2698,7 +2708,7 @@ function doUpdateUser()
 
     $sql = "UPDATE user SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', department_id = $departmentId, 
                 sort_index = $sortIndex, email = '$email', phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', 
-                show_details = $showDetails, details = '$details', image_file_name = '$imageFileName', permissions = $permissions
+                show_details = $showDetails, details = '$details', image_file_name = '$imageFileName' {$setPermissions}
                 WHERE id = $userId";
     if ($result = $db->query($sql)) {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -2759,6 +2769,50 @@ function doUpdateUserShowOnWeb()
     } else {
         $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
         $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doChangeUserPassword() {
+    global $db, $response;
+
+    $userId = $db->real_escape_string($_POST['userId']);
+    $oldPassword = $db->real_escape_string(MD5($_POST['oldPassword']));
+    $newPassword = $db->real_escape_string(MD5($_POST['newPassword']));
+
+    if (isset($_POST['oldPassword'])) {
+        $sql = "SELECT * FROM user WHERE id = $userId AND password = '$oldPassword'";
+        if ($result = $db->query($sql)) {
+            if ($result->num_rows > 0) {
+
+                $result->close();
+            } else {
+                $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+                $response[KEY_ERROR_MESSAGE] = 'รหัสผ่านเดิมไม่ถูกต้อง';
+                $response[KEY_ERROR_MESSAGE_MORE] = '';
+                $result->close();
+                return;
+            }
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน (1): ' . $db->error;
+            $errMessage = $db->error;
+            $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+            return;
+        }
+    }
+
+    $sql = "UPDATE user SET password = '$newPassword' WHERE id = $userId";
+    if ($db->query($sql)) {
+        session_destroy();
+
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'เปลี่ยนรหัสผ่านสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน (2): ' . $db->error;
         $errMessage = $db->error;
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }

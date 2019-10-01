@@ -123,7 +123,7 @@ if ($result = $db->query($sql)) {
                                                     <input name="status" type="checkbox"
                                                            class="my-toggle"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeShowOnWeb(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
+                                                           onChange="onChangeShowOnWeb(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>', <?= currentUserHasPermission(PERMISSION_USER_UPDATE) ? 'true' : 'false' ?>)"
                                                         <?= (int)$user['show_on_web'] === 1 ? 'checked' : '' ?>>
                                                 </td>
 
@@ -134,13 +134,13 @@ if ($result = $db->query($sql)) {
                                                     <input name="status" type="checkbox"
                                                            class="my-toggle"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeStatus(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>')"
+                                                           onChange="onChangeStatus(this, <?= $user['id']; ?>, '<?= $user['username']; ?>', '<?= "{$user['title']} {$user['first_name']} {$user['last_name']}"; ?>', <?= currentUserHasPermission(PERMISSION_USER_UPDATE) ? 'true' : 'false' ?>)"
                                                         <?= $user['status'] == 'active' ? 'checked' : '' ?>>
                                                 </td>
 
                                                 <td style="text-align: center" nowrap>
                                                     <?php
-                                                    if (currentUserHasPermission(PERMISSION_USER_UPDATE)) {
+                                                    if (currentUserHasPermission(PERMISSION_USER_UPDATE) || ((int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID])) {
                                                         ?>
                                                         <form method="get" action="user_add_edit.php" style="display: inline">
                                                             <input type="hidden" name="user_id" value="<?= $user['id']; ?>"/>
@@ -228,7 +228,14 @@ if ($result = $db->query($sql)) {
             window.location.href = 'user_add_edit.php';
         }
 
-        function onChangeShowOnWeb(element, userId, username, userDisplayName) {
+        function onChangeShowOnWeb(element, userId, username, userDisplayName, hasPermission) {
+            if (!hasPermission) {
+                alert('คุณไม่มีสิทธิ์สำหรับการดำเนินการนี้');
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ยกเลิก') + "' การแสดงผลผู้ใช้คนนี้ (" + userDisplayName + ") บนหน้าเว็บ?");
             if (result) {
                 doChangeShowOnWeb(userId, (element.checked ? 1 : 0));
@@ -238,7 +245,14 @@ if ($result = $db->query($sql)) {
             }
         }
 
-        function onChangeStatus(element, userId, username, userDisplayName) {
+        function onChangeStatus(element, userId, username, userDisplayName, hasPermission) {
+            if (!hasPermission) {
+                alert('คุณไม่มีสิทธิ์สำหรับการดำเนินการนี้');
+                /*รีโหลด เพื่อให้สถานะ checkbox กลับมาเหมือนเดิม*/
+                location.reload(true);
+                return;
+            }
+
             let result = confirm("ยืนยัน '" + (element.checked ? 'เปิด' : 'ยกเลิก') + "' การใช้งานระบบ สำหรับผู้ใช้คนนี้ (" + userDisplayName + ")?");
             if (result) {
                 doChangeStatus(userId, (element.checked ? 'active' : 'inactive'));

@@ -53,6 +53,7 @@ define('KEY_SESSION_USER_LAST_NAME', 'session_user_last_name');
 define('KEY_SESSION_USER_EMAIL', 'session_user_email');
 define('KEY_SESSION_USER_ROLE', 'session_user_role');
 define('KEY_SESSION_USER_PERMISSION', 'session_user_permission');
+define('KEY_SESSION_USER_PROFILE_IMAGE_URL', 'session_user_profile_image_url');
 
 define('PERMISSION_USER_READ', 0);
 define('PERMISSION_USER_CREATE', 1);
