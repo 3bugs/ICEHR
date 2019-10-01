@@ -137,11 +137,17 @@ if ($result = $db->query($sql)) {
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">&nbsp;</h3>
-                                <button type="button" class="btn btn-success pull-right"
-                                        onclick="onClickAdd(this)">
-                                    <span class="fa fa-plus"></span>&nbsp;
-                                    เพิ่มงานวิจัย/วิชาการ
-                                </button>
+                                <?php
+                                if (currentUserHasPermission(PERMISSION_MANAGE_ACADEMIC_PAPERS)) {
+                                    ?>
+                                    <button type="button" class="btn btn-success pull-right"
+                                            onclick="onClickAdd(this)">
+                                        <span class="fa fa-plus"></span>&nbsp;
+                                        เพิ่มงานวิจัย/วิชาการ
+                                    </button>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="box-body">
                                 <table id="tableAcademicPapaer" class="table table-bordered table-striped">
@@ -180,7 +186,7 @@ if ($result = $db->query($sql)) {
                                                 <td style="text-align: center"><?php echo $academicPaper['year_published']; ?></td>
                                                 <td><?php echo "{$academicPaper['first_name']} {$academicPaper['last_name']}"; ?></td>
                                                 <td style="text-align: center; cursor: pointer"
-                                                    onClick="window.open('<?php echo (UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>', '_blank')">
+                                                    onClick="window.open('<?php echo(UPLOAD_DIR_ACADEMIC_PAPERS . $academicPaper['file_name']); ?>', '_blank')">
                                                     <a target="_blank" href="javascript:void(0)">
                                                         <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
                                                     </a>
@@ -201,17 +207,23 @@ if ($result = $db->query($sql)) {
                                                 <td nowrap>
                                                     <form method="get" action="academic_papers_add_edit.php" style="display: inline; margin: 0">
                                                         <input type="hidden" name="id" value="<?= $academicPaper['id']; ?>"/>
-                                                        <button type="submit" class="btn btn-warning"
-                                                                style="margin-left: 3px">
-                                                            <span class="fa fa-pencil"></span>&nbsp;
-                                                            แก้ไข
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger"
-                                                                style="margin-left: 3px; margin-right: 3px"
-                                                                onclick="onClickDelete(this, <?= $academicPaper['id']; ?>, '<?= $academicPaper['title']; ?>')">
-                                                            <span class="fa fa-remove"></span>&nbsp;
-                                                            ลบ
-                                                        </button>
+                                                        <?php
+                                                        if (currentUserHasPermission(PERMISSION_MANAGE_ACADEMIC_PAPERS)) {
+                                                            ?>
+                                                            <button type="submit" class="btn btn-warning"
+                                                                    style="margin-left: 3px">
+                                                                <span class="fa fa-pencil"></span>&nbsp;
+                                                                แก้ไข
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger"
+                                                                    style="margin-left: 3px; margin-right: 3px"
+                                                                    onclick="onClickDelete(this, <?= $academicPaper['id']; ?>, '<?= $academicPaper['title']; ?>')">
+                                                                <span class="fa fa-remove"></span>&nbsp;
+                                                                ลบ
+                                                            </button>
+                                                            <?php
+                                                        }
+                                                        ?>
                                                     </form>
                                                 </td>
                                             </tr>

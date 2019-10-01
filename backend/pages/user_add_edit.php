@@ -797,7 +797,7 @@ if ($result = $db->query($sql)) {
 
                                     <!--In-house-->
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="box box-solid">
                                                 <div class="box-header with-border">
                                                     <label>In-House Training:</label>
@@ -811,6 +811,29 @@ if ($result = $db->query($sql)) {
                                                                        data-toggle="toggle" <?= $disablePermissionUpdate ? 'disabled' : ''; ?>
                                                                     <?= userHasPermission($user['permissions'], PERMISSION_MANAGE_IN_HOUSE) ? 'checked' : '' ?>>
                                                                 จัดการสถานะการติดต่อกลับ และเนื้อหาข่าวหลักสูตรที่ผ่านมา
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.box-body -->
+                                            </div>
+                                            <!-- /.box -->
+                                        </div>
+                                        <!-- /.col -->
+                                        <div class="col-md-6">
+                                            <div class="box box-solid">
+                                                <div class="box-header with-border">
+                                                    <label>งานวิจัยและวิชาการ:</label>
+                                                </div>
+                                                <!-- /.box-header -->
+                                                <div class="box-body">
+                                                    <div class="row" style="margin-bottom: 5px">
+                                                        <div class="col-md-12">
+                                                            <label class="checkbox-inline">
+                                                                <input name="permissionManageAcademicPapers" type="checkbox"
+                                                                       data-toggle="toggle" <?= $disablePermissionUpdate ? 'disabled' : ''; ?>
+                                                                    <?= userHasPermission($user['permissions'], PERMISSION_MANAGE_ACADEMIC_PAPERS) ? 'checked' : '' ?>>
+                                                                เพิ่ม/แก้ไข/ลบงานวิจัยและวิชาการ
                                                             </label>
                                                         </div>
                                                     </div>

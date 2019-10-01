@@ -79,6 +79,7 @@ define('PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER', 20);
 define('PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_CATEGORY', 21);
 define('PERMISSION_MANAGE_WEB_CONTENT', 22);
 define('PERMISSION_MANAGE_IN_HOUSE', 23);
+define('PERMISSION_MANAGE_ACADEMIC_PAPERS', 24);
 
 define('GMAIL_SMTP_HOST', 'smtp.gmail.com');
 define('GMAIL_SMTP_PORT', 465);
@@ -112,7 +113,8 @@ $permissionList = array(
     PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER,
 
     PERMISSION_MANAGE_WEB_CONTENT,
-    PERMISSION_MANAGE_IN_HOUSE
+    PERMISSION_MANAGE_IN_HOUSE,
+    PERMISSION_MANAGE_ACADEMIC_PAPERS
 );
 
 $permissionText = array(
@@ -141,7 +143,8 @@ $permissionText = array(
     PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER => 'จัดการข้อมูลพื้นฐานใบขับขี่',
 
     PERMISSION_MANAGE_WEB_CONTENT => 'จัดการเนื้อหาเว็บไซต์',
-    PERMISSION_MANAGE_IN_HOUSE => 'จัดการ In-House Training'
+    PERMISSION_MANAGE_IN_HOUSE => 'จัดการ In-House Training',
+    PERMISSION_MANAGE_ACADEMIC_PAPERS => 'จัดการงานวิจัยและวิชาการ'
 );
 
 $permissionColor = array(
@@ -170,7 +173,8 @@ $permissionColor = array(
     PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_COURSE_MASTER => 'info',
 
     PERMISSION_MANAGE_WEB_CONTENT => 'info',
-    PERMISSION_MANAGE_IN_HOUSE => 'info'
+    PERMISSION_MANAGE_IN_HOUSE => 'info',
+    PERMISSION_MANAGE_ACADEMIC_PAPERS => 'info',
 );
 
 define('ROLE_USER', 'user');
