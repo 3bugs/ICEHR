@@ -141,7 +141,7 @@ if ($result = $db->query($sql)) {
                                             ?>
                                             <th style="width: 60%; text-align: center">หลักสูตร</th>
                                             <th style="width: 20%; text-align: center">วันที่อบรม</th>
-                                            <th style="width: 20%; text-align: center">จำนวนผู้สมัคร (คน)</th>
+                                            <th style="width: 20%; text-align: center">สมัคร / รับได้</th>
                                             <th style="text-align: center">สถานะ</th>
                                             <th style="text-align: center">จัดการ</th>
                                             <?php

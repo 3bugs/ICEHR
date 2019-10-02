@@ -2964,7 +2964,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     return;
                 }
             }
-            window.open(`print_dl_registration_form.php?trainee_id=${traineeId}&payment=1`, '_blank');
+            window.open(`print_dl_registration_form.php?trainee_id=${traineeId}&payment=1&thai=1`, '_blank');
         }
 
         function onClickPrintResult(formNumber, traineeId) {

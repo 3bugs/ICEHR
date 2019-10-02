@@ -219,6 +219,7 @@ if ($result = $db->query($sql)) {
             <!-- Main content -->
             <section class="content">
                 <form id="formAddUser"
+                      autocomplete="off"
                       action="../api/api.php/<?php echo(isset($userId) ? 'update_user' : 'add_user'); ?>"
                       method="post">
 
@@ -267,8 +268,16 @@ if ($result = $db->query($sql)) {
                                                            placeholder="กรอก Username" required
                                                            oninvalid="this.setCustomValidity('กรอก Username')"
                                                            oninput="this.setCustomValidity('')"
+                                                           autocomplete="off"
                                                            style="font-family: monospace,serif">
                                                 </div>
+                                                <?php
+                                                if (isset($userId)) {
+                                                    ?>
+                                                    <div style="margin-top: 5px; color: orangered">ไม่อนุญาตให้แก้ไข Username</div>
+                                                    <?php
+                                                }
+                                                ?>
                                             </div>
                                         </div>
 
@@ -291,6 +300,7 @@ if ($result = $db->query($sql)) {
                                                                placeholder="กรอก Password" required
                                                                oninvalid="this.setCustomValidity('กรอก Password')"
                                                                oninput="this.setCustomValidity('')"
+                                                               autocomplete="off"
                                                                style="font-family: monospace,serif">
                                                     </div>
                                                 </div>

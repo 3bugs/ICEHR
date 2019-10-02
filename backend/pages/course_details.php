@@ -735,7 +735,7 @@ if ($result = $db->query($sql)) {
                                         } else if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
                                             ?>
                                             <div class="btn-group" style="margin-right: 6px">
-                                                <a target="_blank" href="print_dl_registration_form.php?trainee_id=<?= $traineeIdListText; ?>"
+                                                <a target="_blank" href="print_dl_registration_form.php?trainee_id=<?= $traineeIdListText; ?>&thai=1"
                                                    class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ใบสมัครทั้งหมด</a>
                                             </div>
                                             <?php

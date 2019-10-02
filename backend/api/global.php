@@ -377,13 +377,17 @@ function getThaiIntervalShortDate2($beginDate, $endDate)
     return $output;
 }
 
-function thaiNumDigit($num)
+function thaiNumDigit($text, $thai = true)
 {
-    return str_replace(
-        array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'),
-        array('๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'),
-        $num
-    );
+    if ($thai) {
+        return str_replace(
+            array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'),
+            array('๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'),
+            $text
+        );
+    } else {
+        return $text;
+    }
 }
 
 function formatPid($pid, $separator = '-')
