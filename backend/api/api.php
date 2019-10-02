@@ -400,7 +400,7 @@ function doLoginUser($username, $password)
             $user['last_name'] = $row['last_name'];
             $user['email'] = $row['email'];
             $user['image_file_name'] = $row['image_file_name'];
-            //$user['role'] = $row['role'];
+            $user['role'] = $row['role'];
             $response['user'] = $user;
 
             createSession($row);
@@ -426,7 +426,7 @@ function createSession($user)
     $_SESSION[KEY_SESSION_USER_LAST_NAME] = $user['last_name'];
     $_SESSION[KEY_SESSION_USER_EMAIL] = $user['email'];
     $_SESSION[KEY_SESSION_USER_PROFILE_IMAGE_URL] = UPLOAD_DIR_USER_ASSETS . $user['image_file_name'];
-    //$_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
+    $_SESSION[KEY_SESSION_USER_ROLE] = $user['role'];
     $_SESSION[KEY_SESSION_USER_PERMISSION] = (int)$user['permissions'];
 }
 
