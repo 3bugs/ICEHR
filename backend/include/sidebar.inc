@@ -390,6 +390,11 @@
                         <i class="fa fa-link"></i> <span>Link</span>
                     </a>
                 </li>
+                <li>
+                    <a href="intro_page.php">
+                        <i class="fa fa-desktop"></i> <span>Intro Page</span>
+                    </a>
+                </li>
                 <!--<li>
                     <a href="top_menu.php">
                         <i class="fa fa-bars"></i> <span>เมนูด้านบน</span>

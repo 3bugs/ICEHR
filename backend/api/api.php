@@ -264,6 +264,9 @@ switch ($action) {
     case 'add_update_contact':
         doAddUpdateContact();
         break;
+    case 'add_update_intro_page':
+        doAddUpdateIntroPage();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1034,8 +1037,59 @@ function doAddUpdateOrganization()
         $sql = "INSERT INTO intro (title, type, image_file_name) 
                 VALUES ('ภาพโครงสร้างองค์กร', 'organization', '$imageFileName')";
     } else {
-        $sql = "UPDATE intro
+        if (!is_null($imageFileName)) {
+            $sql = "UPDATE intro
                 SET image_file_name = '$imageFileName' 
+                WHERE id = $id";
+        } else {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+            $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddUpdateIntroPage()
+{
+    global $db, $response;
+
+    $id = (int)$db->real_escape_string($_POST['id']);
+    $url = $db->real_escape_string($_POST['url']);
+
+    $createNew = $id === 0;
+
+    $imageFileName = null;
+    if (isset($_FILES['image'])) {
+        if (!moveUploadedFile('image', UPLOAD_DIR_INTRO_ASSETS, $imageFileName)) {
+            $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+            $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์ (รูปภาพ)';
+            $response[KEY_ERROR_MESSAGE_MORE] = '';
+            return;
+        }
+    }
+
+    if ($createNew) {
+        $sql = "INSERT INTO intro (title, type, image_file_name, url) 
+                VALUES ('Intro Page', 'intro', '$imageFileName', '$url')";
+    } else {
+        $setImage = '';
+        if (!is_null($imageFileName)) {
+            $setImage = " , image_file_name = '$imageFileName' ";
+        }
+        $sql = "UPDATE intro
+                SET url = '$url' $setImage
                 WHERE id = $id";
     }
 
