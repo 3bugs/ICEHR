@@ -104,7 +104,7 @@ if ($result = $db->query($sql)) {
 
     <!-- Sort User Modal -->
     <div class="modal fade" id="sortUserModal" role="dialog">
-        <div class="modal-dialog modal-md">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">

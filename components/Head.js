@@ -15,7 +15,7 @@ export default class Head extends React.Component {
         return (
             <div>
                 <NextHead>
-                    <title>ICE HR</title>
+                    <title>ICEHR</title>
                     <meta name="keywords" content=""/>
                     <meta name="description" content=""/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
