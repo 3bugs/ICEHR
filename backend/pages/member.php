@@ -71,6 +71,75 @@ foreach ($memberList as $member) {
     }
 }
 
+$traineeList = array();
+
+/*วิชาการ*/
+$sql = "SELECT ct.title, ct.first_name, ct.last_name, ct.birth_date, TIMESTAMPDIFF(YEAR, ct.birth_date, CURDATE()) AS age, 
+               ct.phone, ct.email, ct.job_position, ct.organization_name, cr.created_at AS register_date,
+               CONCAT_WS(' ', cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code) AS full_address, 
+               cr.receipt_province AS province,
+               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+        FROM course_trainee ct 
+            INNER JOIN course_registration cr 
+                ON cr.id = ct.course_registration_id 
+            INNER JOIN course c 
+                ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON cm.id = c.course_master_id ORDER BY c.begin_date DESC, c.id, ct.first_name, ct.last_name";
+if ($result = $db->query($sql)) {
+    while ($row = $result->fetch_assoc()) {
+        array_push($traineeList, $row);
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล (ดึงข้อมูลผู้สมัครอบรม-วิชาการ)';
+    $db->close();
+    exit();
+}
+
+/*สังคม*/
+$sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.birth_date, TIMESTAMPDIFF(YEAR, cr.birth_date, CURDATE()) AS age, 
+               cr.phone, cr.email, cr.occupation AS job_position, cr.work_place AS organization_name, cr.created_at AS register_date,
+               CONCAT_WS(' ', cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code) AS full_address, 
+               cr.receipt_province AS province,
+               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+        FROM course_registration_social cr  
+            INNER JOIN course c 
+                ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON cm.id = c.course_master_id ORDER BY c.begin_date DESC, c.id, cr.first_name, cr.last_name";
+if ($result = $db->query($sql)) {
+    while ($row = $result->fetch_assoc()) {
+        array_push($traineeList, $row);
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล (ดึงข้อมูลผู้สมัครอบรม-สังคม)';
+    $db->close();
+    exit();
+}
+
+/*ใบขับขี่*/
+$sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.phone, cr.created_at AS register_date,
+               CONCAT_WS(' ', cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province) AS full_address, 
+               cr.province AS province,
+               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+        FROM course_registration_driving_license cr  
+            INNER JOIN course c 
+                ON c.id = cr.course_id 
+            INNER JOIN course_master cm 
+                ON cm.id = c.course_master_id ORDER BY c.begin_date DESC, c.id, cr.first_name, cr.last_name";
+if ($result = $db->query($sql)) {
+    while ($row = $result->fetch_assoc()) {
+        array_push($traineeList, $row);
+    }
+    $result->close();
+} else {
+    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล (ดึงข้อมูลผู้สมัครอบรม-ใบขับขี่)';
+    $db->close();
+    exit();
+}
+
 ?>
     <!DOCTYPE html>
     <html lang="th">
@@ -396,7 +465,7 @@ foreach ($memberList as $member) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    สมาชิกเว็บไซต์
+                    สมาชิกเว็บไซต์ / ผู้สมัครอบรม
                 </h1>
             </section>
 
@@ -411,8 +480,9 @@ foreach ($memberList as $member) {
                             <div class="box-body">
                                 <div class="nav-tabs-custom">
                                     <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#tabOrganization" data-toggle="tab">องค์กร/บริษัท</a></li>
-                                        <li><a href="#tabPerson" data-toggle="tab">บุคคล</a></li>
+                                        <li class="active"><a href="#tabOrganization" data-toggle="tab">สมาชิกประเภทองค์กร/บริษัท</a></li>
+                                        <li><a href="#tabPerson" data-toggle="tab">สมาชิกประเภทบุคคล</a></li>
+                                        <li><a href="#tabTrainee" data-toggle="tab">ผู้สมัครอบรม</a></li>
                                     </ul>
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="tabOrganization">
@@ -422,6 +492,11 @@ foreach ($memberList as $member) {
 
                                         <div class="tab-pane" id="tabPerson">
                                             <?= generateTable($personMemberList, MEMBER_TYPE_PERSON); ?>
+                                        </div>
+                                        <!-- /.tab-pane -->
+
+                                        <div class="tab-pane" id="tabTrainee">
+                                            <?= generateTraineeTable($traineeList); ?>
                                         </div>
                                         <!-- /.tab-pane -->
                                     </div>
@@ -523,6 +598,30 @@ foreach ($memberList as $member) {
                 }
             });
 
+            $('#trainee').DataTable({
+                stateSave: true,
+                stateDuration: -1, // sessionStorage
+                order: [[0, 'desc']],
+                language: {
+                    lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+                    zeroRecords: "ไม่มีข้อมูล",
+                    emptyTable: "ไม่มีข้อมูล",
+                    info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+                    infoEmpty: "แสดง 0 แถวข้อมูล",
+                    infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+                    search: "ค้นหา:",
+                    thousands: ",",
+                    loadingRecords: "รอสักครู่...",
+                    processing: "กำลังประมวลผล...",
+                    paginate: {
+                        first: "หน้าแรก",
+                        last: "หน้าสุดท้าย",
+                        next: "ถัดไป",
+                        previous: "ก่อนหน้า"
+                    },
+                }
+            });
+
             $('#selectOrganizationType').change(function () {
                 //alert(this.value);
                 $("#inputOrganizationTypeCustom").prop("disabled", parseInt(this.value) !== 9999);
@@ -569,7 +668,7 @@ foreach ($memberList as $member) {
                 $('a[href="' + activeTab + '"]').tab('show');
             }
         });
-        
+
         $('body').on('click', 'a[data-toggle=\'tab\']', function (e) {
             e.preventDefault();
             var tab_name = this.getAttribute('href');
@@ -884,6 +983,97 @@ function generateTable($memberList, $memberType)
                         }
                         ?>
                     </td>
+                </tr>
+                <?php
+            }
+        }
+        ?>
+        </tbody>
+    </table>
+    <?php
+}
+
+function generateTraineeTable($traineeList)
+{
+    ?>
+    <table id="trainee" class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th style="width: 20%; text-align: center">ชื่อ-นามสกุล</th>
+            <th style="width: 10%; text-align: center">วันเกิด / อายุ</th>
+            <th style="width: 10%; text-align: center">เบอร์โทร / อีเมล</th>
+            <th style="width: 10%; text-align: center">ตำแหน่ง / หน่วยงาน</th>
+            <th style="width: 20%; text-align: center">ที่อยู่</th>
+            <th style="width: 15%; text-align: center">หลักสูตรที่สมัคร</th>
+            <th style="width: 7%; text-align: center">ประเภท</th>
+            <th style="width: 8%; text-align: center">วัน/เวลาที่สมัคร</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        if (sizeof($traineeList) == 0) {
+            ?>
+            <tr valign="middle">
+                <td colspan="20" align="center">ไม่มีข้อมูล</td>
+            </tr>
+            <?php
+        } else {
+            foreach ($traineeList as $trainee) {
+                $id = $trainee['id'];
+                $title = $trainee['title'];
+                $firstName = $trainee['first_name'];
+                $lastName = $trainee['last_name'];
+
+                $birthDate = $trainee['birth_date'];
+                $displayBirthDate = $birthDate ? getThaiShortDate(date_create($birthDate)) : null;
+                $birthDateHidden = "<span style=\"display: none\">$birthDate</span></span>";
+                $age = $trainee['age'] ? $trainee['age'] : null;
+
+                $phone = $trainee['phone'];
+                $email = $trainee['email'];
+                $jobPosition = $trainee['job_position'];
+                $organizationName = $trainee['organization_name'];
+
+                /*$memberOrganizationType = $trainee['organization_type'];
+                $memberOrganizationTypeText = $trainee['organization_type_name'];
+                $memberOrganizationTypeCustom = $trainee['organization_type_custom'];
+                $memberTaxId = $trainee['tax_id'];*/
+
+                $fullAddress = $trainee['full_address'];
+
+                $courseId = $trainee['course_id'];
+                $courseName = $trainee['course_title'] . ($trainee['service_type'] !== SERVICE_TYPE_DRIVING_LICENSE ? "รุ่นที่ {$trainee['batch_number']}" : '');
+                $serviceType = $trainee['service_type'];
+                $serviceTypeText = $trainee['service_type'] === SERVICE_TYPE_TRAINING ? '<i class="fa fa-mortar-board"></i> วิชาการ' :
+                    ($trainee['service_type'] === SERVICE_TYPE_SOCIAL ? '<i class="fa fa-male"> สังคม' :
+                        '<i class="fa fa-car"> ใบขับขี่');
+
+                $registerDate = $trainee['register_date'];
+                $dateTimePart = explode(' ', $registerDate);
+                $displayDate = getThaiShortDateWithDayName(date_create($dateTimePart[0]));
+                $timePart = explode(':', $dateTimePart[1]);
+                $displayTime = $timePart[0] . '.' . $timePart[1] . ' น.';
+                $displayDateTime = "$displayDate<br>$displayTime";
+                $createdDateHidden = '<span style="display: none">' . $registerDate . '</span></span>';
+
+                ?>
+                <tr style="">
+                    <td style="vertical-align: top">
+                        <span style="display: none;"><?= "{$firstName} {$lastName}"; ?></span>
+                        <?= "{$title}<br/>{$firstName} {$lastName}"; ?>
+                    </td>
+                    <td style="vertical-align: top"><?= $displayBirthDate ? "{$birthDateHidden} {$displayBirthDate}<br/>({$age} ปี)" : '-'; ?></td>
+                    <td style="vertical-align: top"><?= "{$phone}" . ($email ? "<br/><a href=\"mailto:{$email}\">{$email}</a>" : ''); ?></td>
+                    <td style="vertical-align: top">
+                        <?= $jobPosition ? ($jobPosition . ($organizationName ? '<br/><strong>' . $organizationName . '</strong>' : '')) : '-'; ?>
+                    </td>
+                    <td style="vertical-align: top"><?= $fullAddress; ?></td>
+                    <td style="vertical-align: top"><?= $courseName; ?>&nbsp;&nbsp;
+                        <a target="_blank" title="ไปหน้าเว็บของหลักสูตร"
+                           href="<?= HOST_FRONTEND . "/service-{$serviceType}/{$courseId}" ?>"><i class="fa fa-external-link"></i></a>
+                    </td>
+                    <td style="vertical-align: top"><?= $serviceTypeText; ?></td>
+                    <td style="vertical-align: top; text-align: center" nowrap><?= "{$createdDateHidden}{$displayDateTime}"; ?></td>
                 </tr>
                 <?php
             }
