@@ -223,7 +223,7 @@ if ($result = $db->query($sql)) {
                                                 <!-- /.tab-pane -->
                                                 <div class="tab-pane" id="cover_image_tab_2" style="padding: 0px">
                                                     <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
-                                                        <li>ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
+                                                        <li style="margin-bottom: 10px">ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
                                                         <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                         <li>รูปภาพที่อัพโหลดใหม่ จะแทนที่รูปภาพปัจจุบัน</li>
                                                         <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
@@ -243,7 +243,7 @@ if ($result = $db->query($sql)) {
                                     } else {
                                         ?>
                                         <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
-                                            <li>ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
+                                            <li style="margin-bottom: 10px">ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
                                             <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                             <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                         </ul>

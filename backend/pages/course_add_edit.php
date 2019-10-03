@@ -911,6 +911,7 @@ if (isset($courseId)) {
                                             <!--เพิ่มรูปภาพใหม่-->
                                             <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="image_tab_2">
                                                 <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
+                                                    <li style="margin-bottom: 10px">ให้ใช้ภาพ JPG ขนาด 600x312 pixel (กว้าง 600 pixel, สูง 312 pixel) <u>ทุกภาพ</u></li>
                                                     <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                     <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
                                                     <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
