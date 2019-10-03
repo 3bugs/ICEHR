@@ -70,20 +70,35 @@ if ($result = $db->query($sql)) {
         <?php require_once('../include/header.inc'); ?>
         <?php require_once('../include/sidebar.inc'); ?>
 
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <section class="content-header">
-                <h1>
-                    <?= $pageTitle; ?>
-                </h1>
-            </section>
+        <form id="formAddEdit"
+              autocomplete="off"
+              action="../api/api.php/add_update_intro_page"
+              method="post">
 
-            <!-- Main content -->
-            <section class="content">
-                <form id="formAddEdit"
-                      action="../api/api.php/add_update_intro_page"
-                      method="post">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+
+                <div class="row" style="border: 0px solid red">
+                    <div class="col-xs-6">
+                        <section class="content-header">
+                            <h1>
+                                <?= $pageTitle; ?>
+                            </h1>
+                        </section>
+                    </div>
+                    <div class="col-xs-6" style="text-align: right">
+                        <section class="content-header">
+                            <input name="status"
+                                   type="checkbox"
+                                   data-toggle="toggle"
+                                <?= $item != null ? ($item['status'] == 'publish' ? 'checked' : '') : ''; ?>/>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Main content -->
+                <section class="content">
 
                     <input type="hidden" name="id" value="<?= $item == null ? '0' : $item['id']; ?>"/>
                     <input type="hidden" name="type" value="intro"/>
@@ -202,15 +217,7 @@ if ($result = $db->query($sql)) {
                                                 <!-- /.tab-pane -->
                                                 <div class="tab-pane" id="cover_image_tab_2" style="padding: 0px">
                                                     <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
-                                                        <?php
-                                                        if ($type === TYPE_BANNER) {
-                                                            ?>
-                                                            <li>ภาพแบนเนอร์ ให้ใช้ภาพ JPG ขนาด 1000x500 (กว้าง 1,000 pixel สูง 500 pixel) หรือขนาดอื่นที่มีอัตราส่วนความกว้าง:ความสูง = 2:1 เช่น
-                                                                800x400 แต่ไม่ควรมีขนาดเล็กเกินไป (ภาพจะไม่คมชัด) หรือใหญ่เกินไป (จะใช้เวลาโหลดภาพนาน)
-                                                            </li>
-                                                            <?php
-                                                        }
-                                                        ?>
+                                                        <li>ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
                                                         <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                         <li>รูปภาพที่อัพโหลดใหม่ จะแทนที่รูปภาพปัจจุบัน</li>
                                                         <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
@@ -230,15 +237,7 @@ if ($result = $db->query($sql)) {
                                     } else {
                                         ?>
                                         <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
-                                            <?php
-                                            if ($type === TYPE_BANNER) {
-                                                ?>
-                                                <li>ภาพแบนเนอร์ ให้ใช้ภาพ JPG ขนาด 1000x500 (กว้าง 1,000 pixel สูง 500 pixel) หรือขนาดอื่นที่มีอัตราส่วนความกว้าง:ความสูง = 2:1 เช่น 800x400
-                                                    แต่ไม่ควรมีขนาดเล็กเกินไป (ภาพจะไม่คมชัด) หรือใหญ่เกินไป (จะใช้เวลาโหลดภาพนาน)
-                                                </li>
-                                                <?php
-                                            }
-                                            ?>
+                                            <li>ภาพ Intro Page ให้ใช้ภาพ JPG ขนาดกว้างไม่เกิน 1,000 pixel และสูงไม่เกิน 500 pixel</li>
                                             <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                             <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                         </ul>
@@ -274,12 +273,11 @@ if ($result = $db->query($sql)) {
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
-                </form>
-
-            </section>
-            <!-- /.content -->
-        </div>
-        <!-- /.content-wrapper -->
+                </section>
+                <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper -->
+        </form>
 
         <?php require_once('../include/footer.inc'); ?>
     </div>

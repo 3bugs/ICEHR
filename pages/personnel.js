@@ -232,7 +232,8 @@ export default class Personnel extends React.Component {
                                                                     <p>{user.department_name}</p>
 
                                                                     {user.show_details === 1 &&
-                                                                    <div className="moredetail"><a href={'#user' + user.user_id} className="btn btn-outline-primary inline">รายละเอียด</a>
+                                                                    <div className="moredetail">
+                                                                        <a href={'#user' + user.user_id} className="btn btn-outline-primary inline">รายละเอียด</a>
                                                                         <div style={{display: 'none'}}>
                                                                             <div id={'user' + user.user_id} className="detail-inside-box">
                                                                                 <h4>ผลงานที่ผ่านมา </h4>

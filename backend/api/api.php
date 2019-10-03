@@ -1067,6 +1067,7 @@ function doAddUpdateIntroPage()
 
     $id = (int)$db->real_escape_string($_POST['id']);
     $url = $db->real_escape_string($_POST['url']);
+    $status = isset($_POST['status']) ? 'publish' : 'draft';
 
     $createNew = $id === 0;
 
@@ -1081,15 +1082,15 @@ function doAddUpdateIntroPage()
     }
 
     if ($createNew) {
-        $sql = "INSERT INTO intro (title, type, image_file_name, url) 
-                VALUES ('Intro Page', 'intro', '$imageFileName', '$url')";
+        $sql = "INSERT INTO intro (title, type, image_file_name, url, status) 
+                VALUES ('Intro Page', 'intro', '$imageFileName', '$url', '$status')";
     } else {
         $setImage = '';
         if (!is_null($imageFileName)) {
             $setImage = " , image_file_name = '$imageFileName' ";
         }
         $sql = "UPDATE intro
-                SET url = '$url' $setImage
+                SET url = '$url', status = '$status' $setImage
                 WHERE id = $id";
     }
 

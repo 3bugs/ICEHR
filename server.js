@@ -2958,15 +2958,32 @@ doGetTraineeFormPdf = (req, res, db) => {
 };
 
 doGetIntro = (req, res, db) => {
+    /*ถ้าเอาประเภทเดียวก็ส่ง type เป็น string แต่ถ้าเอาหลายประเภทก็ส่งเป็น array มา*/
     const {type} = req.body;
 
+    let typeCount = 1;
+    let queryValueList = null;
+    if (Array.isArray(type)) {
+        typeCount = type.length;
+        queryValueList = type;
+    } else {
+        typeCount = 1;
+        queryValueList = [type];
+    }
+    queryValueList.push('publish');
+
+    let placeHolder = '';
+    for (let i = 0; i < typeCount; i++) {
+        placeHolder = placeHolder.concat(i !== 0 ? ',' : '').concat('?');
+    }
+
     db.query(
-            `SELECT id, title, sub_title, details, url, image_file_name
+            `SELECT id, title, sub_title, details, url, image_file_name, type
              FROM intro
-             WHERE type = ?
+             WHERE type in (${placeHolder})
                AND status = ?
              ORDER BY sort_index`,
-        [type, 'publish'],
+        queryValueList,
         function (err, results, fields) {
             if (err) {
                 res.send({

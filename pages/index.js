@@ -678,13 +678,18 @@ export default class Index extends React.Component {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            type: 'banner',
+                            type: ['banner', 'intro'], // banner กับ intro page
                         }),
                     });
 
                     const bannerResult = await bannerRes.json();
                     if (bannerResult.error.code === 0) {
-                        const bannerList = bannerResult.dataList;
+                        const bannerList = bannerResult.dataList.filter(item => {
+                            return item.type === 'banner';
+                        });
+                        const introPageList = bannerResult.dataList.filter(item => {
+                            return item.type === 'intro';
+                        });
 
                         return {
                             trainingNewsList,
@@ -692,6 +697,7 @@ export default class Index extends React.Component {
                             activityList,
                             serviceList,
                             bannerList,
+                            introPageList,
                         };
                     } else {
                         return {
@@ -700,6 +706,7 @@ export default class Index extends React.Component {
                             activityList: null,
                             serviceList: null,
                             bannerList: null,
+                            introPageList: null,
                         };
                     }
                 } else {
@@ -709,6 +716,7 @@ export default class Index extends React.Component {
                         activityList: null,
                         serviceList: null,
                         bannerList: null,
+                        introPageList: null,
                     };
                 }
             } else {
@@ -718,6 +726,7 @@ export default class Index extends React.Component {
                     activityList: null,
                     serviceList: null,
                     bannerList: null,
+                    introPageList: null,
                 };
             }
         } else {
@@ -727,6 +736,7 @@ export default class Index extends React.Component {
                 activityList: null,
                 serviceList: null,
                 bannerList: null,
+                introPageList: null,
             };
         }
     };
@@ -1027,10 +1037,24 @@ export default class Index extends React.Component {
         /*$('.myLink').on('click', () => {
             alert('test');
         });*/
+
+        const {introPageList} = this.props;
+        if (introPageList && introPageList.length > 0) {
+            $.fancybox({
+                'autoScale': true,
+                'transitionIn': 'elastic',
+                'transitionOut': 'elastic',
+                'speedIn': 500,
+                'speedOut': 300,
+                'autoDimensions': true,
+                'centerOnScroll': true,
+                'href': '#divIntroPage'
+            });
+        }
     }
 
     render() {
-        const {trainingNewsList, publicRelationsNewsList, activityList, serviceList, bannerList} = this.props;
+        const {trainingNewsList, publicRelationsNewsList, activityList, serviceList, bannerList, introPageList} = this.props;
         const {services, activeNewsTab} = this.state;
 
         const settings = {
@@ -1067,7 +1091,19 @@ export default class Index extends React.Component {
         return (
             <MainLayout>
                 <NextHead>
+                    <script src="/static/fancybox/source/jquery.fancybox.js?v=2.1.5"/>
+                    <link rel="stylesheet" href="/static/fancybox/source/jquery.fancybox.css?v=2.1.5" media="screen"/>
                 </NextHead>
+
+                <div id="divIntroPage" style={{display: 'none'}}>
+                    {introPageList && introPageList.length > 0 &&
+                    <a href={introPageList[0].url}
+                       target="_blank">
+                        <img src={HOST_BACKEND + '/uploads/intro_assets/' + introPageList[0].image_file_name}
+                             style={{cursor: 'pointer', maxWidth: '100%'}}/>
+                    </a>
+                    }
+                </div>
 
                 <div className="container-fluid">
                     <div className="row wow fadeInUp">
