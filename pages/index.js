@@ -1096,12 +1096,16 @@ export default class Index extends React.Component {
                 </NextHead>
 
                 <div id="divIntroPage" style={{display: 'none'}}>
-                    {introPageList && introPageList.length > 0 &&
+                    {introPageList && introPageList.length > 0 && (introPageList[0].url && introPageList[0].url.trim() !== '') &&
                     <a href={introPageList[0].url}
                        target="_blank">
                         <img src={HOST_BACKEND + '/uploads/intro_assets/' + introPageList[0].image_file_name}
                              style={{cursor: 'pointer', maxWidth: '100%'}}/>
                     </a>
+                    }
+                    {introPageList && introPageList.length > 0 && (!introPageList[0].url || introPageList[0].url.trim() === '') &&
+                    <img src={HOST_BACKEND + '/uploads/intro_assets/' + introPageList[0].image_file_name}
+                         style={{maxWidth: '100%'}}/>
                     }
                 </div>
 

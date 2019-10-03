@@ -133,9 +133,15 @@ if ($result = $db->query($sql)) {
                                                     <input type="text" class="form-control"
                                                            id="inputUrl" name="url"
                                                            value="<?php echo(!is_null($item) ? $item['url'] : ''); ?>"
-                                                           placeholder="กรอก Link"
+                                                           placeholder="กรอก Link หรือปล่อยว่างหากรูปภาพไม่มี Link"
                                                            oninvalid="this.setCustomValidity('กรอก Link')"
                                                            oninput="this.setCustomValidity('')">
+                                                    <span class="input-group-btn">
+                                                        <button type="button" class="btn btn-info btn-flat"
+                                                                onclick="$('#inputUrl').val('')">
+                                                            ไม่มี Link
+                                                        </button>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
