@@ -276,7 +276,7 @@
                     <ul class="treeview-menu">
                         <li style="margin-left: 20px"><a href="../pages/data_table.php?table_name=name_title"><i class="fa fa-font"></i>คำนำหน้าชื่อ</a></li>
                         <li style="margin-left: 20px"><a href="../pages/user_department.php"><i class="fa fa-sitemap"></i>จัดการฝ่ายผู้ใช้งานระบบ</a></li>
-                        <li style="margin-left: 20px"><a href="javascript:void(0)"><i class="fa fa-money"></i>ข้อมูลการชำระเงิน</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/payment_info.php"><i class="fa fa-money"></i>ข้อมูลการชำระเงิน</a></li>
                     </ul>
                 </li>
                 <li class="treeview">

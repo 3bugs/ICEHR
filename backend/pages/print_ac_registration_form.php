@@ -18,6 +18,7 @@ if (isset($courseRegId)) {
                 $traineeId .= "{$row['id']},";
             }
             $traineeId = substr($traineeId, 0, -1); //ลบ comma ตัวสุดท้าย
+            $result->close();
         } else {
             echo 'Error: ไม่พบข้อมูลใบสมัคร';
             $result->close();
@@ -135,6 +136,20 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
+/*ข้อมูลการชำระเงิน*/
+$paymentInfo = null;
+$sql = "SELECT details FROM intro WHERE type = 'payment'";
+if ($result = $db->query($sql)) {
+    if ($result->num_rows > 0) {
+        $paymentInfo = $result->fetch_assoc();
+    } else {
+        $paymentInfo = 'ไม่มีรายละเอียดวิธีการชำระเงิน';
+    }
+    $result->close();
+} else {
+    $paymentInfo = 'Error: เกิดข้อผิดพลาดในการอ่านข้อมูลรายละเอียดวิธีการชำระเงิน';
+}
+
 $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
 $fontDirs = $defaultConfig['fontDir'];
 
@@ -173,6 +188,11 @@ $mpdf = new \Mpdf\Mpdf([
 
             td {
                 line-height: 140%;
+            }
+
+            ul {
+                margin-top: 5px;
+                margin-bottom: 10px;
             }
         </style>
     </head>
@@ -530,6 +550,12 @@ $mpdf = new \Mpdf\Mpdf([
                         <td>
                             <table width="650px" align="center" border="0" cellpadding="2px" cellspacing="0">
                                 <tr>
+                                    <td width="50px">&nbsp;</td>
+                                    <td width="600px">
+                                        <?= str_replace('<li>', '<li>&nbsp;&nbsp;', $paymentInfo['details']); ?>
+                                    </td>
+                                </tr>
+                                <!--<tr>
                                     <td width="80px">&nbsp;</td>
                                     <td width="570px">ชำระเงินโดยโอนเงินเข้า <strong>ธนาคารไทยพาณิชย์</strong> สาขาย่อยท่าพระจันทร์ บัญชีเงินฝากออมทรัพย์</td>
                                 </tr>
@@ -554,7 +580,7 @@ $mpdf = new \Mpdf\Mpdf([
                                     <td width="570px" style="padding-top: 10px">
                                         และแจ้งโอนเงินผ่านเว็บไซต์ www.icehr.ac.th หรือส่งสำเนาหลักฐานการโอนเงินมาพร้อมกับใบสมัครนี้ทาง โทรสาร 02-225-7517 โทร. 02-613-3820-5
                                     </td>
-                                </tr>
+                                </tr>-->
                             </table>
                         </td>
                     </tr>

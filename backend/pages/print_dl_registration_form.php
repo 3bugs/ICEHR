@@ -79,6 +79,20 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
+/*ข้อมูลการชำระเงิน*/
+$paymentInfo = null;
+$sql = "SELECT details FROM intro WHERE type = 'payment'";
+if ($result = $db->query($sql)) {
+    if ($result->num_rows > 0) {
+        $paymentInfo = $result->fetch_assoc();
+    } else {
+        $paymentInfo = 'ไม่มีรายละเอียดวิธีการชำระเงิน';
+    }
+    $result->close();
+} else {
+    $paymentInfo = 'Error: เกิดข้อผิดพลาดในการอ่านข้อมูลรายละเอียดวิธีการชำระเงิน';
+}
+
 $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
 $fontDirs = $defaultConfig['fontDir'];
 
@@ -429,7 +443,7 @@ function getPage($trainee, $licenseType)
 
 function getPaymentPage($trainee)
 {
-    global $courseTypeList, $isThaiDigit;
+    global $courseTypeList, $isThaiDigit, $paymentInfo;
 
     ?>
     <div style="page-break-before: always">
@@ -573,6 +587,12 @@ function getPaymentPage($trainee)
                 <td>
                     <table width="650px" align="center" border="0" cellpadding="2px" cellspacing="0">
                         <tr>
+                            <td width="50px">&nbsp;</td>
+                            <td width="600px">
+                                <?= str_replace('<li>', '<li>&nbsp;&nbsp;', $paymentInfo['details']); ?>
+                            </td>
+                        </tr>
+                        <!--<tr>
                             <td width="80px">&nbsp;</td>
                             <td width="570px">ชำระเงินโดยโอนเงินเข้า <strong>ธนาคารไทยพาณิชย์</strong> สาขาย่อยท่าพระจันทร์ บัญชีเงินฝากออมทรัพย์</td>
                         </tr>
@@ -588,16 +608,16 @@ function getPaymentPage($trainee)
                             <td width="80px">&nbsp;</td>
                             <td width="570px">
                                 <ul>
-                                    <li>&nbsp;เลขที่บัญชี <strong><?= thaiNumDigit('114-220817-0', $isThaiDigit); ?></strong></li>
+                                    <li>&nbsp;เลขที่บัญชี <strong><?/*= thaiNumDigit('114-220817-0', $isThaiDigit); */?></strong></li>
                                 </ul>
                             </td>
                         </tr>
                         <tr>
                             <td width="80px">&nbsp;</td>
                             <td width="570px" style="padding-top: 10px">
-                                <?= thaiNumDigit('และแจ้งโอนเงินผ่านเว็บไซต์ www.icehr.ac.th หรือส่งสำเนาหลักฐานการโอนเงินมาพร้อมกับใบสมัครนี้ทาง โทรสาร 02-225-7517 โทร. 02-613-3820-5', $isThaiDigit); ?>
+                                <?/*= thaiNumDigit('และแจ้งโอนเงินผ่านเว็บไซต์ www.icehr.ac.th หรือส่งสำเนาหลักฐานการโอนเงินมาพร้อมกับใบสมัครนี้ทาง โทรสาร 02-225-7517 โทร. 02-613-3820-5', $isThaiDigit); */?>
                             </td>
-                        </tr>
+                        </tr>-->
                     </table>
                 </td>
             </tr>

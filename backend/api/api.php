@@ -267,6 +267,9 @@ switch ($action) {
     case 'add_update_intro_page':
         doAddUpdateIntroPage();
         break;
+    case 'add_update_payment_info':
+        doAddUpdatePaymentInfo();
+        break;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1091,6 +1094,36 @@ function doAddUpdateIntroPage()
         }
         $sql = "UPDATE intro
                 SET url = '$url', status = '$status' $setImage
+                WHERE id = $id";
+    }
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'บันทึกข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}
+
+function doAddUpdatePaymentInfo()
+{
+    global $db, $response;
+
+    $id = (int)$db->real_escape_string($_POST['id']);
+    $details = $db->real_escape_string($_POST['details']);
+
+    $createNew = $id === 0;
+
+    if ($createNew) {
+        $sql = "INSERT INTO intro (title, type, details) 
+                VALUES ('Payment Information', 'payment', '$details')";
+    } else {
+        $sql = "UPDATE intro
+                SET details = '$details'
                 WHERE id = $id";
     }
 
