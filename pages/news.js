@@ -169,6 +169,12 @@ export default class News extends React.Component {
         return (
             <MainLayout>
                 <NextHead>
+                    {news &&
+                    <React.Fragment>
+                        <meta property="og:image" content={`${HOST_BACKEND}/uploads/news_assets/${news.imageFileName}`}/>
+                        <meta property="og:image:secure_url" content={`${HOST_BACKEND}/uploads/news_assets/${news.imageFileName}`}/>
+                    </React.Fragment>
+                    }
                 </NextHead>
 
                 {/*หัวข้อ*/}
@@ -241,22 +247,28 @@ export default class News extends React.Component {
                                 <div className="social-inside" style={{marginTop: '30px'}}>
                                     <FacebookShareButton
                                         style={{display: 'inline'}}
-                                        url={typeof window !== 'undefined' ? window.location.href : ''}>
+                                        url={typeof window !== 'undefined' ? window.location.href : ''}
+                                        quote={news.title}>
                                         <a href="#"><i className="fab fa-facebook-f"/></a>
                                     </FacebookShareButton>
                                     <TwitterShareButton
                                         style={{display: 'inline'}}
-                                        url={typeof window !== 'undefined' ? window.location.href : ''}>
+                                        url={typeof window !== 'undefined' ? window.location.href : ''}
+                                        title={news.title}>
                                         <a href="#"><i className="fab fa-twitter"/></a>
                                     </TwitterShareButton>
                                     <LineShareButton
                                         style={{display: 'inline'}}
-                                        url={typeof window !== 'undefined' ? window.location.href : ''}>
+                                        url={typeof window !== 'undefined' ? window.location.href : ''}
+                                        title={news.title}>
                                         <a href="#"><i className="fab fa-line"/></a>
                                     </LineShareButton>
                                     <EmailShareButton
                                         style={{display: 'inline'}}
-                                        url={typeof window !== 'undefined' ? window.location.href : ''}>
+                                        url={typeof window !== 'undefined' ? window.location.href : ''}
+                                        subject={news.title}
+                                        body={news.title}
+                                        separator={'\n\n'}>
                                         <a href="#"><i className="fa fa-envelope"/></a>
                                     </EmailShareButton>
                                 </div>

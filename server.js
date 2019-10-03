@@ -2787,6 +2787,7 @@ doGetNewsById = (req, res, db) => {
                         details: results[0].details,
                         newsDate: results[0].news_date,
                         newsType: results[0].news_type,
+                        imageFileName: results[0].image_file_name,
                     };
 
                     const imageList = [];
