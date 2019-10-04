@@ -147,6 +147,7 @@ if (isset($newsId)) {
             <!-- Main content -->
             <section class="content">
                 <form id="formAddNews"
+                      autocomplete="off"
                       action="../api/api.php/<?= (isset($newsId) ? 'update_news' : 'add_news'); ?>"
                       method="post">
 
@@ -440,8 +441,12 @@ if (isset($newsId)) {
                                                     <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
                                                     <li>ไฟล์จะถูกบันทึกเข้าสู่ระบบ หลังจากกดปุ่ม "บันทึก"</li>
                                                 </ul>
+
+                                                <!--<div>
+                                                    <button onclick="test()" type="button">Test</button>
+                                                </div>-->
+
                                                 <input id="image-upload" type="file" accept="image/*" multiple
-                                                       name="imageFiles[]"
                                                        style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
                                                 <div id="image-upload-preview"
                                                      style="background: #efffd1; padding: 10px;"></div>
@@ -606,6 +611,13 @@ if (isset($newsId)) {
     <!-- ./wrapper -->
 
     <script>
+        //https://www.raymondcamden.com/2014/04/14/MultiFile-Uploads-and-Multiple-Selects-Part-2/
+
+        /*function test() {
+            $('#image-upload').prop('files').splice(0, 1);
+            alert($('#image-upload').prop('files').length());
+        }*/
+
         $(() => {
             <?php
             if (!empty($news)) {
@@ -732,7 +744,11 @@ if (isset($newsId)) {
             }
         }*/
 
+        const storedFiles = [];
+
         $(function () {
+            $("body").on("click", ".selFile", removeFile);
+
             $('#image-upload-preview').hide();
 
             const imagesPreview = function (input, placeToInsertImagePreview) {
@@ -754,10 +770,46 @@ if (isset($newsId)) {
                 }
             };
 
-            $('#image-upload').on('change', function () {
-                imagesPreview(this, 'div#image-upload-preview');
+            $('#image-upload').on('change', function (e) {
+                const selDiv = $("div#image-upload-preview");
+                selDiv.show();
+
+                let files = e.target.files;
+                let filesArr = Array.prototype.slice.call(files);
+
+                filesArr.forEach(function(f) {
+                    if (!f.type.match("image.*")) {
+                        return;
+                    }
+                    storedFiles.push(f);
+
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        let html = "<div><img style=\"width: 160px; height: auto; margin: 3px\" src=\"" + e.target.result + "\" data-file='"+f.name+"' class='selFile' title='คลิกเพื่อลบ'>" + f.name + "<br clear=\"left\"/></div>";
+                        selDiv.append(html);
+                    };
+                    reader.readAsDataURL(f);
+                });
+
+                //imagesPreview(this, 'div#image-upload-preview');
             });
         });
+
+        function removeFile(e) {
+            let file = $(this).data("file");
+            for (let i = 0; i < storedFiles.length; i++) {
+                if (storedFiles[i].name === file) {
+                    storedFiles.splice(i, 1);
+                    break;
+                }
+            }
+            if (storedFiles.length === 0) {
+                const selDiv = $("div#image-upload-preview");
+                selDiv.hide();
+            }
+
+            $(this).parent().remove();
+        }
 
         $(function () {
             $('#pdf-upload-preview').hide();
@@ -788,7 +840,78 @@ if (isset($newsId)) {
             $('#formAddNews #buttonSave').prop('disabled', true);
             $('#formAddNews #divLoading').show();
 
-            $('#formAddNews').ajaxSubmit({
+            const form = $('#formAddNews')[0];
+            const formData = new FormData(form);
+
+            for (let i = 0, len = storedFiles.length; i < len; i++) {
+                formData.append('imageFiles[]', storedFiles[i]);
+            }
+
+            $.ajax({
+                url: '../api/api.php/<?= (isset($newsId) ? 'update_news' : 'add_news'); ?>',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                success: function(data) {
+                    $('#formAddNews #buttonSave').prop('disabled', false);
+                    $('#formAddNews #divLoading').hide();
+
+                    if (data.error_code === 0) {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?>',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                    <?php
+                                    if (!isset($newsId)) {
+                                    ?>
+                                    window.location.href = 'news.php?news_type=<?php echo $newsType; ?>';
+                                    <?php
+                                    } else {
+                                    ?>
+                                    window.location.reload(true);
+                                    <?php
+                                    }
+                                    ?>
+                                }
+                            }]
+                        });
+                    } else {
+                        BootstrapDialog.show({
+                            title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?> - ผิดพลาด',
+                            message: data.error_message,
+                            buttons: [{
+                                label: 'ปิด',
+                                action: function (self) {
+                                    self.close();
+                                }
+                            }]
+                        });
+                    }
+                },
+                error: function() {
+                    $('#formAddNews #buttonSave').prop('disabled', false);
+                    $('#formAddNews #divLoading').hide();
+
+                    BootstrapDialog.show({
+                        title: '<?php echo(isset($newsId) ? 'แก้ไข' : 'เพิ่ม'); ?> - ผิดพลาด',
+                        message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+                        buttons: [{
+                            label: 'ปิด',
+                            action: function (self) {
+                                self.close();
+                            }
+                        }]
+                    });
+                }
+            });
+
+            $('#formAddNews_NotUsed').ajaxSubmit({
                 dataType: 'json',
                 success: (data, statusText) => {
                     //alert(data.error_message);
