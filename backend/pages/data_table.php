@@ -16,7 +16,7 @@ $headerList = array(
     "training_course_category" => 'หมวดหมู่หลักสูตร'
 );
 $subHeaderList = array(
-    "training_course_category" => 'บริการวิชาการ'
+    "training_course_category" => $serviceTypeText[SERVICE_TYPE_TRAINING]
 );
 $header = $headerList[$tableName];
 $subHeader = $subHeaderList[$tableName];

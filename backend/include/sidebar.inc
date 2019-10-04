@@ -281,7 +281,7 @@
                 </li>
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-mortar-board"></i> <span><?php echo SERVICE_TYPE_TRAINING_TEXT; ?></span>
+                        <i class="fa fa-mortar-board"></i> <span><?php echo SERVICE_TYPE_TRAINING_TEXT_NO_ICON; ?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
@@ -293,7 +293,7 @@
                 </li>
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-male"></i> <span><?php echo SERVICE_TYPE_SOCIAL_TEXT; ?></span>
+                        <i class="fa fa-male"></i> <span><?php echo SERVICE_TYPE_SOCIAL_TEXT_NO_ICON; ?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
@@ -304,7 +304,7 @@
                 </li>
                 <li class="treeview">
                     <a href="#">
-                        <i class="fa fa-car"></i> <span><?php echo SERVICE_TYPE_DRIVING_LICENSE_TEXT; ?></span>
+                        <i class="fa fa-car"></i> <span><?php echo SERVICE_TYPE_DRIVING_LICENSE_TEXT_NO_ICON; ?></span>
                         <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>

@@ -24,22 +24,22 @@ require_once '../components/get_course_registration_data_table.php';
             <section class="content-header">
                 <?php
                 $serviceType = $_GET['service_type'];
-                $serviceTypeText = '';
+                /*$serviceTypeText = '';
                 switch ($serviceType) {
                     case SERVICE_TYPE_TRAINING:
-                        $serviceTypeText = 'บริการวิชาการ';
+                        $serviceTypeText = 'บริการวิชาการ&nbsp;&nbsp;<i class="fa fa-mortar-board"></i>';
                         break;
                     case SERVICE_TYPE_SOCIAL:
-                        $serviceTypeText = 'บริการสังคม';
+                        $serviceTypeText = 'บริการสังคม&nbsp;&nbsp;<i class="fa fa-male"></i>';
                         break;
                     case SERVICE_TYPE_DRIVING_LICENSE:
-                        $serviceTypeText = 'อบรมใบขับขี่';
+                        $serviceTypeText = 'บริการใบขับขี่&nbsp;&nbsp;<i class="fa fa-car"></i>';
                         break;
-                }
+                }*/
                 ?>
                 <h1>
-                    ใบสมัคร
-                    <small><?php echo $serviceTypeText; ?></small>
+                    ส่วนจัดการใบสมัครสำหรับการเงิน
+                    <small><?= $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 

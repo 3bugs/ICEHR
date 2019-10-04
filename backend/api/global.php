@@ -202,9 +202,13 @@ define('SERVICE_TYPE_TRAINING', 'training');
 define('SERVICE_TYPE_SOCIAL', 'social');
 define('SERVICE_TYPE_DRIVING_LICENSE', 'driving-license');
 
-define('SERVICE_TYPE_TRAINING_TEXT', 'บริการวิชาการ');
-define('SERVICE_TYPE_SOCIAL_TEXT', 'บริการสังคม');
-define('SERVICE_TYPE_DRIVING_LICENSE_TEXT', 'บริการใบขับขี่');
+define('SERVICE_TYPE_TRAINING_TEXT', 'บริการวิชาการ&nbsp;&nbsp;<i class="fa fa-mortar-board"></i>');
+define('SERVICE_TYPE_SOCIAL_TEXT', 'บริการสังคม&nbsp;&nbsp;<i class="fa fa-male"></i>');
+define('SERVICE_TYPE_DRIVING_LICENSE_TEXT', 'บริการใบขับขี่&nbsp;&nbsp;<i class="fa fa-car"></i>');
+
+define('SERVICE_TYPE_TRAINING_TEXT_NO_ICON', 'บริการวิชาการ');
+define('SERVICE_TYPE_SOCIAL_TEXT_NO_ICON', 'บริการสังคม');
+define('SERVICE_TYPE_DRIVING_LICENSE_TEXT_NO_ICON', 'บริการใบขับขี่');
 
 $serviceTypeText = array(
     SERVICE_TYPE_TRAINING => SERVICE_TYPE_TRAINING_TEXT,
