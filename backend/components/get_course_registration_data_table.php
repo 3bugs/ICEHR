@@ -2257,7 +2257,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             $row['title'], $row['batch_number']
                         );
                         $courseApplicationFee = (int)$row['application_fee'];
-                        if ($paramCourseId == null && $courseApplicationFee === 0) {
+                        if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE &&($paramCourseId == null && $courseApplicationFee === 0)) {
                             continue;
                         }
 

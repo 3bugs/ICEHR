@@ -194,7 +194,7 @@ $mpdf = new \Mpdf\Mpdf([
                 margin: 0 0 0 70px;
                 border: 0px solid black;
             }
-            
+
             ul, ol {
                 margin-left: 70px;
                 margin-top: 5px;
