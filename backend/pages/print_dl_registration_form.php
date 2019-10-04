@@ -132,6 +132,18 @@ $mpdf = new \Mpdf\Mpdf([
             td {
                 line-height: 140%;
             }
+
+            p {
+                margin: 0 0 0 70px;
+                border: 0px solid black;
+            }
+
+            ul, ol {
+                margin-left: 70px;
+                margin-top: 5px;
+                margin-bottom: 10px;
+                border: 0px solid black;
+            }
         </style>
     </head>
 
@@ -583,15 +595,15 @@ function getPaymentPage($trainee)
                 </td>
             </tr>
 
-            <tr>
+            <!--<tr>
                 <td>
-                    <table width="650px" align="center" border="0" cellpadding="2px" cellspacing="0">
-                        <tr>
+                    <table width="650px" align="center" border="0" cellpadding="2px" cellspacing="0">-->
+                        <!--<tr>
                             <td width="50px">&nbsp;</td>
                             <td width="600px">
-                                <?= str_replace('<li>', '<li>&nbsp;&nbsp;', $paymentInfo['details']); ?>
+                                <?/*= str_replace('<li>', '<li>&nbsp;&nbsp;', $paymentInfo['details']); */?>
                             </td>
-                        </tr>
+                        </tr>-->
                         <!--<tr>
                             <td width="80px">&nbsp;</td>
                             <td width="570px">ชำระเงินโดยโอนเงินเข้า <strong>ธนาคารไทยพาณิชย์</strong> สาขาย่อยท่าพระจันทร์ บัญชีเงินฝากออมทรัพย์</td>
@@ -618,11 +630,12 @@ function getPaymentPage($trainee)
                                 <?/*= thaiNumDigit('และแจ้งโอนเงินผ่านเว็บไซต์ www.icehr.ac.th หรือส่งสำเนาหลักฐานการโอนเงินมาพร้อมกับใบสมัครนี้ทาง โทรสาร 02-225-7517 โทร. 02-613-3820-5', $isThaiDigit); */?>
                             </td>
                         </tr>-->
-                    </table>
+                    <!--</table>
                 </td>
-            </tr>
-
+            </tr>-->
         </table>
+
+        <?= $paymentInfo['details']; ?>
     </div>
     <?php
 }
