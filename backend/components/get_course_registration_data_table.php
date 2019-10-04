@@ -2256,8 +2256,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             '%s รุ่นที่ %d',
                             $row['title'], $row['batch_number']
                         );
-                        $courseApplicationFee = (int)$row['application_fee'];
-                        if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE &&($paramCourseId == null && $courseApplicationFee === 0)) {
+
+                        // กรณีบริการใบขับขี่ จะกำหนด $courseApplicationFee เป็น -1
+                        $courseApplicationFee = is_null($row['application_fee']) ? -1 : (int)$row['application_fee'];
+                        if ($paramCourseId == null && $courseApplicationFee === 0) {
                             continue;
                         }
 
