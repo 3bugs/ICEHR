@@ -320,7 +320,7 @@
                 <li class="header" style="color: yellow; text-align: center">เนื้อหาเว็บไซต์</li>
 
                 <li>
-                    <a href="service.php">
+                    <a href="../pages/service.php">
                         <i class="fa fa-list-alt"></i> <span>บริการ</span>
                     </a>
                 </li>
