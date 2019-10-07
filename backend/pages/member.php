@@ -509,7 +509,7 @@ if ($result = $db->query($sql)) {
                         <!-- /.box -->
 
                         <!--Export-->
-                        <div class="box">
+                        <div class="box" style="display: none">
                             <div class="box-header with-border">
                                 <h3 class="box-title">Export</h3>
 

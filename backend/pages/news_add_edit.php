@@ -96,6 +96,42 @@ if (isset($newsId)) {
                 /*display: none;*/
             }
 
+            .preview-container {
+                position: relative;
+                display: inline;
+                border: 0px solid red;
+            }
+
+            .preview-container .selFile {
+                opacity: 1;
+                transition: .3s ease;
+            }
+
+            .preview-container:hover .selFile {
+                opacity: 0.3;
+                transition: .3s ease;
+            }
+
+            .middle {
+                transition: .3s ease;
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 80px;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            .middle:hover {
+                cursor: pointer;
+            }
+
+            .preview-container:hover .middle {
+                opacity: 1;
+                transition: .3s ease;
+            }
+
             .custom-file-upload {
                 border: 1px solid #ccc;
                 display: inline-block;
@@ -447,7 +483,9 @@ if (isset($newsId)) {
                                                 </div>-->
 
                                                 <input id="image-upload" type="file" accept="image/*" multiple
-                                                       style="width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                       style="color: transparent; width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"/>
+                                                <!--<label for="image-upload"
+                                                       style="background-color: #ffffff; width: 500px; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 60px 10px"/>-->
                                                 <div id="image-upload-preview"
                                                      style="background: #efffd1; padding: 10px;"></div>
                                             </div>
@@ -744,10 +782,12 @@ if (isset($newsId)) {
             }
         }*/
 
-        const storedFiles = [];
+        const storedImageFiles = [];
+        const storedPdfFiles = [];
 
         $(function () {
             $("body").on("click", ".selFile", removeFile);
+            $("body").on("click", ".middle", removeFile);
 
             $('#image-upload-preview').hide();
 
@@ -781,11 +821,18 @@ if (isset($newsId)) {
                     if (!f.type.match("image.*")) {
                         return;
                     }
-                    storedFiles.push(f);
+                    storedImageFiles.push(f);
 
                     let reader = new FileReader();
                     reader.onload = function (e) {
-                        let html = "<div><img style=\"width: 160px; height: auto; margin: 3px\" src=\"" + e.target.result + "\" data-file='"+f.name+"' class='selFile' title='คลิกเพื่อลบ'>" + f.name + "<br clear=\"left\"/></div>";
+                        //let html = "<div class=\"preview-container\"><img style=\"width: 160px; height: auto; margin: 3px; cursor: pointer;\" src=\"" + e.target.result + "\" data-file='" + f.name + "' class='selFile' title='คลิกเพื่อลบ'>&nbsp;&nbsp;" + f.name + "<br clear=\"left\"/><div class=\"middle\" data-file='" + f.name + "'><i class=\"fa fa-times-circle\" title=\"คลิกเพื่อลบ\" style=\"color: #000000; font-size: 30px\"/></div></div>";
+                        let html = `<div class="preview-container">
+                                        <img style="width: 160px; height: auto; margin: 3px; cursor: pointer;" src="${e.target.result}" data-file="${f.name}" class="selFile" title="คลิกเพื่อลบ">
+                                            &nbsp;&nbsp;${f.name}<br clear="left"/>
+                                        <div class="middle" data-file="${f.name}">
+                                            <i class="fa fa-times-circle" title="คลิกเพื่อลบ" style="color: #000000; font-size: 30px"/>
+                                        </div>
+                                    </div>`;
                         selDiv.append(html);
                     };
                     reader.readAsDataURL(f);
@@ -797,16 +844,18 @@ if (isset($newsId)) {
 
         function removeFile(e) {
             let file = $(this).data("file");
-            for (let i = 0; i < storedFiles.length; i++) {
-                if (storedFiles[i].name === file) {
-                    storedFiles.splice(i, 1);
+            for (let i = 0; i < storedImageFiles.length; i++) {
+                if (storedImageFiles[i].name === file) {
+                    storedImageFiles.splice(i, 1);
                     break;
                 }
             }
-            if (storedFiles.length === 0) {
+            if (storedImageFiles.length === 0) {
                 const selDiv = $("div#image-upload-preview");
                 selDiv.hide();
             }
+
+            //alert(storedFiles.length);
 
             $(this).parent().remove();
         }
@@ -843,8 +892,8 @@ if (isset($newsId)) {
             const form = $('#formAddNews')[0];
             const formData = new FormData(form);
 
-            for (let i = 0, len = storedFiles.length; i < len; i++) {
-                formData.append('imageFiles[]', storedFiles[i]);
+            for (let i = 0, len = storedImageFiles.length; i < len; i++) {
+                formData.append('imageFiles[]', storedImageFiles[i]);
             }
 
             $.ajax({

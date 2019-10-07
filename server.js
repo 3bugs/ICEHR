@@ -42,13 +42,13 @@ app
         server.get('/service-training/:id', (req, res) => {
             const actualPage = '/service-training';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-training-register/:id', (req, res) => {
             const actualPage = '/service-training-register';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-training-register', (req, res) => {
@@ -59,13 +59,13 @@ app
         server.get('/service-social/:id', (req, res) => {
             const actualPage = '/service-social';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-social-register/:id', (req, res) => {
             const actualPage = '/service-social-register';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-social-register', (req, res) => {
@@ -76,13 +76,13 @@ app
         server.get('/service-driving-license/:id', (req, res) => {
             const actualPage = '/service-driving-license';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-driving-license-register/:id', (req, res) => {
             const actualPage = '/service-driving-license-register';
             const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/service-driving-license-register', (req, res) => {
@@ -93,7 +93,7 @@ app
         server.get('/academic-paper/:id', (req, res) => {
             const actualPage = '/academic-paper';
             const queryParams = {id: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         /* ********** เอกสารดาวน์โหลด ********** */
@@ -110,26 +110,26 @@ app
             const queryParams = {documentType: documentTypeList[req.params.type]};*/
 
             const queryParams = {documentType: req.params.type};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         /* ********** ข่าว/กิจกรรม/หลักสูตร In-House ที่ผ่านมา ********** */
         server.get('/news/:id', (req, res) => {
             const actualPage = '/news';
             const queryParams = {id: req.params.id};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/reset-password/:token', (req, res) => {
             const actualPage = '/reset-password';
             const queryParams = {token: req.params.token};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         server.get('/upload-slip/:formNumber', (req, res) => {
             const actualPage = '/upload-slip';
             const queryParams = {formNumber: req.params.formNumber};
-            app.render(req, res, actualPage, queryParams)
+            app.render(req, res, actualPage, queryParams);
         });
 
         /*จัดการ POST api call*/

@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import NextHead from "next/head";
 import $ from 'jquery';
 import fetch from "isomorphic-unfetch";
+import { initGA, logPageView } from '../etc/analytics.js';
 
 export default class MainLayout extends React.Component {
     constructor(props, context) {
@@ -74,6 +75,13 @@ export default class MainLayout extends React.Component {
     }
 
     componentDidMount() {
+        //Google Analytics
+        if (!window.GA_INITIALIZED) {
+            initGA();
+            window.GA_INITIALIZED = true;
+        }
+        logPageView();
+
         fetch('/api/get_service_link_contact', {
             method: 'post',
             headers: {

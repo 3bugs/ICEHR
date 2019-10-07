@@ -39,6 +39,7 @@
     "react-dom": "^16.8.6",
     "react-dropzone": "^10.1.6",
     "react-floater": "^0.6.4",
+    "react-ga": "^2.7.0",
     "react-input-mask": "^2.0.4",
     "react-modal": "^3.8.1",
     "react-owl-carousel": "^2.3.1",

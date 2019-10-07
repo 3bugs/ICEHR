@@ -67,10 +67,10 @@ if ($result = $db->query($sql)) {
                                     <thead>
                                     <tr>
                                         <th style="text-align: center">รูปภาพ</th>
-                                        <th style="width: 15%; text-align: center">ชื่อผู้ใช้</th>
-                                        <th style="width: 25%; text-align: center">ชื่อ-นามสกุล</th>
-                                        <th style="width: 25%; text-align: center">ฝ่าย / ตำแหน่ง</th>
-                                        <th style="width: 35%; text-align: center">สิทธิ์</th>
+                                        <th style="width: 20%; text-align: center">ชื่อผู้ใช้</th>
+                                        <th style="width: 40%; text-align: center">ชื่อ-นามสกุล</th>
+                                        <th style="width: 40%; text-align: center">ฝ่าย / ตำแหน่ง</th>
+                                        <!--<th style="width: 35%; text-align: center">สิทธิ์</th>-->
                                         <th style="text-align: center">แสดง</th>
                                         <th style="text-align: center">สถานะ</th>
                                         <th style="text-align: center">จัดการ</th>
@@ -114,7 +114,7 @@ if ($result = $db->query($sql)) {
                                                 </td>
                                                 <td style="vertical-align: top"><?= $userInfo; ?></td>
                                                 <td style="vertical-align: top"><?= $departmentAndPosition; ?></td>
-                                                <td style="vertical-align: top"><?= $permissionTags; ?></td>
+                                                <!--<td style="vertical-align: top"><?/*= $permissionTags; */?></td>-->
 
                                                 <td style="text-align: center; vertical-align: top">
                                                     <span style="display: none">
