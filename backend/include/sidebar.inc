@@ -83,9 +83,9 @@
                         </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li style="margin-left: 20px"><a href="news.php?news_type=in-house"><i class="fa fa-newspaper-o"></i> ข่าวหลักสูตรที่ผ่านมา</a></li>
+                        <li style="margin-left: 20px"><a href="../pages/news.php?news_type=in-house"><i class="fa fa-newspaper-o"></i> ข่าวหลักสูตรที่ผ่านมา</a></li>
                         <li style="margin-left: 20px">
-                            <a href="in_house.php">
+                            <a href="../pages/in_house.php">
                                 <i class="fa fa-server"></i> รายชื่อผู้ติดต่อ
                                 <?php
                                 if ($numRows > 0) {
