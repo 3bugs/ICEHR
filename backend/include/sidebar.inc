@@ -423,7 +423,8 @@
             // Add this code in a central place used\shared by all pages
             // like your _Layout.cshtml in ASP.NET MVC for example
             const url = (location.pathname + location.search).substr(1);
-            $('a[href="' + url + '"]').parents('li,ul').addClass('active');
+            console.log(url);
+            $('a[href="../' + url + '"]').parents('li,ul').addClass('active');
             //alert(url);
         });
     </script>
