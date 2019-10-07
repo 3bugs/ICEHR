@@ -246,12 +246,12 @@ define('SOCIAL_SLUG_IG', 'instagram');
 
 function userHasPermission($userPermissions, $permissionToCheck)
 {
-    return $_SESSION[KEY_SESSION_USER_ROLE] === 'super_admin' || (($userPermissions & (1 << $permissionToCheck)) > 0);
+    return (($userPermissions & (1 << $permissionToCheck)) > 0);
 }
 
 function currentUserHasPermission($permissionToCheck)
 {
-    return userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
+    return $_SESSION[KEY_SESSION_USER_ROLE] === 'super_admin' || userHasPermission($_SESSION[KEY_SESSION_USER_PERMISSION], $permissionToCheck);
 }
 
 function getThaiDate($date)

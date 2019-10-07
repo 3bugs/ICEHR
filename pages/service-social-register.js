@@ -936,8 +936,8 @@ export default class ServiceSocialRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_DISEASE] || fields[REGISTER_TRAINEE_DISEASE].trim().length === 0) {
-            //errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
-            //formIsValid = false;
+            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
+            formIsValid = false;
         }
 
         traineeForm.errors = errors;

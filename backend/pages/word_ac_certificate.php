@@ -161,12 +161,19 @@ foreach ($traineeList as $trainee) {
     $text->setParagraphStyle($paragraphStyle);
 
     // ได้ผ่านการอบรมหลักสูตร
-    //$text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
-    $text = $section->addText($courseText);
+    if ($courseText) {
+        $text = $section->addText($courseText);
+    } else {
+        $text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
+    }
     $fontStyle = new \PhpOffice\PhpWord\Style\Font();
     $fontStyle->setName('IrisUPC');
     $fontStyle->setBold(true);
-    $fontStyle->setSize(floatval($fontSize));
+    if ($fontSize) {
+        $fontStyle->setSize(floatval($fontSize));
+    } else {
+        $fontStyle->setSize(28);
+    }
     $text->setFontStyle($fontStyle);
 
     $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
