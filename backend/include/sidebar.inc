@@ -332,10 +332,10 @@
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
-                        <li><a href="intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
-                        <li><a href="organization.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
-                        <li><a href="committee.php"><i class="fa fa-circle-o"></i> คณะกรรมการ</a></li>
+                        <li><a href="../pages/intro.php?type=about"><i class="fa fa-circle-o"></i> เกี่ยวกับองค์กร</a></li>
+                        <li><a href="../pages/intro.php?type=mission"><i class="fa fa-circle-o"></i> ภารกิจ</a></li>
+                        <li><a href="../pages/organization.php"><i class="fa fa-circle-o"></i> โครงสร้างองค์กร</a></li>
+                        <li><a href="../pages/committee.php"><i class="fa fa-circle-o"></i> คณะกรรมการ</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -346,11 +346,11 @@
                     </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="document_download.php?document_type=training"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
-                        <li><a href="document_download.php?document_type=report"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
-                        <li><a href="document_download.php?document_type=km"><i class="fa fa-circle-o"></i> KM</a></li>
-                        <li><a href="document_download.php?document_type=qa"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
-                        <li><a href="document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
+                        <li><a href="../pages/document_download.php?document_type=training"><i class="fa fa-circle-o"></i> เอกสารการอบรม</a></li>
+                        <li><a href="../pages/document_download.php?document_type=report"><i class="fa fa-circle-o"></i> รายงานผลการดำเนินงาน</a></li>
+                        <li><a href="../pages/document_download.php?document_type=km"><i class="fa fa-circle-o"></i> KM</a></li>
+                        <li><a href="../pages/document_download.php?document_type=qa"><i class="fa fa-circle-o"></i> ประกันคุณภาพ QA</a></li>
+                        <li><a href="../pages/document_download.php?document_type=booklet"><i class="fa fa-circle-o"></i> จุลสาร อินโฟกราฟิค</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -361,37 +361,37 @@
                         </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="news.php?news_type=training"><i class="fa fa-circle-o"></i> ข่าวการฝึกอบรม</a></li>
-                        <li><a href="news.php?news_type=public-relations"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
+                        <li><a href="../pages/news.php?news_type=training"><i class="fa fa-circle-o"></i> ข่าวการฝึกอบรม</a></li>
+                        <li><a href="../pages/news.php?news_type=public-relations"><i class="fa fa-circle-o"></i> ข่าวประชาสัมพันธ์</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="news.php?news_type=activity">
+                    <a href="../pages/news.php?news_type=activity">
                         <i class="fa fa-image"></i> <span>ภาพกิจกรรม</span>
                     </a>
                 </li>
                 <li>
-                    <a href="intro.php?type=banner">
+                    <a href="../pages/intro.php?type=banner">
                         <i class="fa fa-television"></i> <span>แบนเนอร์</span>
                     </a>
                 </li>
                 <li>
-                    <a href="faq.php">
+                    <a href="../pages/faq.php">
                         <i class="fa fa-question-circle-o"></i> <span>คำถามที่พบบ่อย (FAQ)</span>
                     </a>
                 </li>
                 <li>
-                    <a href="contact.php">
+                    <a href="../pages/contact.php">
                         <i class="fa fa-phone-square"></i> <span>ติดต่อ</span>
                     </a>
                 </li>
                 <li>
-                    <a href="intro.php?type=link">
+                    <a href="../pages/intro.php?type=link">
                         <i class="fa fa-link"></i> <span>Link</span>
                     </a>
                 </li>
                 <li>
-                    <a href="intro_page.php">
+                    <a href="../pages/intro_page.php">
                         <i class="fa fa-desktop"></i> <span>Intro Page</span>
                     </a>
                 </li>
