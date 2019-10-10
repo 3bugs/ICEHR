@@ -74,7 +74,7 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-$sql = "SELECT * FROM user";
+$sql = "SELECT * FROM user WHERE status = 'active'";
 if ($result = $db->query($sql)) {
     $userList = array();
     while ($row = $result->fetch_assoc()) {
