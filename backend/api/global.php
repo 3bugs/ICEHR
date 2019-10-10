@@ -291,6 +291,17 @@ function getThaiShortDate($date)
     return "$dayOfMonth $month $year";
 }
 
+function getThaiShortDateFullYear($date)
+{
+    global $monthShortNames;
+
+    $dayOfMonth = (int)date_format($date, 'd');
+    $month = $monthShortNames[(int)date_format($date, 'm') - 1];
+    $year = strval((int)date_format($date, 'Y') + 543);
+
+    return "$dayOfMonth $month $year";
+}
+
 function getThaiShortDateWithDayName($date)
 {
     global $monthShortNames, $dayShortNames;

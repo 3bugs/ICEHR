@@ -40,9 +40,9 @@ switch ($action) {
         doTest();
         break;
     case 'login_user':
-        $username = $db->real_escape_string($_POST['username']);
+        $email = $db->real_escape_string($_POST['email']);
         $password = $db->real_escape_string($_POST['password']);
-        doLoginUser($username, $password);
+        doLoginUser($email, $password);
         break;
     case 'logout_user':
         doLogoutUser();
@@ -387,11 +387,11 @@ function doTest()
     $response['status'] = (int)$row['status'];
 }
 
-function doLoginUser($username, $password)
+function doLoginUser($email, $password)
 {
     global $db, $response;
 
-    $sql = "SELECT * FROM user WHERE username = '$username' AND LOWER(password) = LOWER(MD5('$password'))";
+    $sql = "SELECT * FROM user WHERE email = '$email' AND LOWER(password) = LOWER(MD5('$password'))";
     if ($result = $db->query($sql)) {
         if ($result->num_rows > 0) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -401,19 +401,19 @@ function doLoginUser($username, $password)
             $row = $result->fetch_assoc();
             $user = array();
             $user['id'] = (int)$row['id'];
-            $user['username'] = $row['username'];
+            //$user['username'] = $row['username'];
             $user['first_name'] = $row['first_name'];
             $user['last_name'] = $row['last_name'];
             $user['email'] = $row['email'];
             $user['image_file_name'] = $row['image_file_name'];
             $user['role'] = $row['role'];
-            $response['user'] = $user;
+            //$response['user'] = $user;
 
             createSession($row);
         } else {
             $response[KEY_ERROR_CODE] = ERROR_CODE_LOGIN_FAILED;
-            $response[KEY_ERROR_MESSAGE] = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
-            $response[KEY_ERROR_MESSAGE_MORE] = 'Username: $username, Password: $password';
+            $response[KEY_ERROR_MESSAGE] = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+            $response[KEY_ERROR_MESSAGE_MORE] = 'Email: $email, Password: $password';
         }
         $result->close();
     } else {
@@ -427,7 +427,7 @@ function doLoginUser($username, $password)
 function createSession($user)
 {
     $_SESSION[KEY_SESSION_USER_ID] = (int)$user['id'];
-    $_SESSION[KEY_SESSION_USER_USERNAME] = $user['username'];
+    //$_SESSION[KEY_SESSION_USER_USERNAME] = $user['username'];
     $_SESSION[KEY_SESSION_USER_FIRST_NAME] = $user['first_name'];
     $_SESSION[KEY_SESSION_USER_LAST_NAME] = $user['last_name'];
     $_SESSION[KEY_SESSION_USER_EMAIL] = $user['email'];
@@ -1529,7 +1529,7 @@ function doGetUserByDepartment()
 
     $departmentId = $db->real_escape_string($_POST['departmentId']);
 
-    $sql = "SELECT id, username, title, first_name, last_name, position, image_file_name, sort_index FROM user 
+    $sql = "SELECT id, title, first_name, last_name, email, position, image_file_name, sort_index FROM user 
             WHERE department_id = $departmentId 
             ORDER BY sort_index";
 
@@ -1542,10 +1542,11 @@ function doGetUserByDepartment()
         while ($row = $result->fetch_assoc()) {
             $user = array();
             $user['id'] = (int)$row['id'];
-            $user['username'] = $row['username'];
+            //$user['username'] = $row['username'];
             $user['title'] = $row['title'];
             $user['first_name'] = $row['first_name'];
             $user['last_name'] = $row['last_name'];
+            $user['email'] = $row['email'];
             $user['position'] = $row['position'];
             $user['image_file_name'] = $row['image_file_name'];
             $user['sort_index'] = (int)$row['sort_index'];
@@ -2590,14 +2591,14 @@ function doAddUser()
         return;
     }
 
-    $username = $db->real_escape_string($_POST['username']);
+    $email = $db->real_escape_string($_POST['email']);
 
-    $sql = "SELECT COUNT(username) username_count FROM user WHERE username = '$username'";
+    $sql = "SELECT COUNT(email) email_count FROM user WHERE email = '$email'";
     if ($result = $db->query($sql)) {
         $row = $result->fetch_assoc();
-        if ((int)$row['username_count'] > 0) {
+        if ((int)$row['email_count'] > 0) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
-            $response[KEY_ERROR_MESSAGE] = "ไม่สามารถเพิ่มผู้ใช้งานได้ เนื่องจากมีชื่อ Username '$username' ในระบบแล้ว";
+            $response[KEY_ERROR_MESSAGE] = "ไม่สามารถเพิ่มผู้ใช้งานได้ เนื่องจากมีอีเมล '$email' ในระบบแล้ว";
             $response[KEY_ERROR_MESSAGE_MORE] = '';
             $result->close();
             return;
@@ -2620,7 +2621,7 @@ function doAddUser()
     $position = $db->real_escape_string($_POST['position']);
     $department = $db->real_escape_string($_POST['department']);
 
-    $email = $db->real_escape_string($_POST['email']);
+    //$email = $db->real_escape_string($_POST['email']);
     $phone = $db->real_escape_string($_POST['phone']);
     $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
     $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
@@ -2650,7 +2651,7 @@ function doAddUser()
 
         $sql = "INSERT INTO user (username, password, title, first_name, last_name, position, department_id, sort_index,
                               email, phone, phone_office, phone_extension, show_details, details, image_file_name, permissions) 
-                VALUES ('$username', '$password', '$title', '$firstName', '$lastName', '$position', $department, $nextSortIndex, 
+                VALUES ('NOT_USED', '$password', '$title', '$firstName', '$lastName', '$position', $department, $nextSortIndex, 
                         '$email', '$phone', '$phoneOffice', '$phoneExtension', $showDetails, '$details', '$imageFileName', $permissions)";
         if ($result = $db->query($sql)) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
@@ -2771,7 +2772,7 @@ function doUpdateUser()
 
     $position = $db->real_escape_string($_POST['position']);
 
-    $email = $db->real_escape_string($_POST['email']);
+    //$email = $db->real_escape_string($_POST['email']);
     $phone = $db->real_escape_string($_POST['phone']);
     $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
     $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
@@ -2796,7 +2797,7 @@ function doUpdateUser()
     }
 
     $sql = "UPDATE user SET title = '$title', first_name = '$firstName', last_name = '$lastName', position = '$position', department_id = $departmentId, 
-                sort_index = $sortIndex, email = '$email', phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', 
+                sort_index = $sortIndex, phone = '$phone', phone_office = '$phoneOffice', phone_extension = '$phoneExtension', 
                 show_details = $showDetails, details = '$details', image_file_name = '$imageFileName' {$setPermissions}
                 WHERE id = $userId";
     if ($result = $db->query($sql)) {

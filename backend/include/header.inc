@@ -15,9 +15,10 @@
 
         <?php
         if (isset($_SESSION[KEY_SESSION_USER_ID])) {
-            $username = $_SESSION[KEY_SESSION_USER_USERNAME];
+            //$username = $_SESSION[KEY_SESSION_USER_USERNAME];
             $firstName = $_SESSION[KEY_SESSION_USER_FIRST_NAME];
             $lastName = $_SESSION[KEY_SESSION_USER_LAST_NAME];
+            $email = $_SESSION[KEY_SESSION_USER_EMAIL];
             $displayName = "$firstName $lastName";
             $profileImageUrl = $_SESSION[KEY_SESSION_USER_PROFILE_IMAGE_URL];
             switch ($_SESSION[KEY_SESSION_USER_ROLE]) {
@@ -46,7 +47,7 @@
                                 <img alt="User Image" class="img-circle" src="<?= $profileImageUrl; ?>">
                                 <p>
                                     <?= $displayName; ?>
-                                    <small>(<?= $username; ?>)</small>
+                                    <small>(<?= $email; ?>)</small>
                                 </p>
                             </li>
                             <!-- Menu Footer-->

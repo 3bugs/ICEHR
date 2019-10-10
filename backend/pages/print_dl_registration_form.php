@@ -246,7 +246,7 @@ function getPage($trainee, $licenseType)
                         <tr>
                             <td align="right" width="550px">วันที่/Date</td>
                             <td align="center" width="150px" class="txtDash">
-                                <strong><?= thaiNumDigit(getThaiShortDate(date_create($trainee['created_at'])), $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit(getThaiShortDateFullYear(date_create($trainee['created_at'])), $isThaiDigit); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -340,7 +340,7 @@ function getPage($trainee, $licenseType)
                         <tr>
                             <td width="60px">&nbsp;</td>
                             <td width="630px">
-                                1.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 1) ? 'checked.png' : 'unchecked.png'; ?>">
+                                <?= thaiNumDigit('1.', $isThaiDigit)?>&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 1) ? 'checked.png' : 'unchecked.png'; ?>">
                                 &nbsp;<?= thaiNumDigit(removeLastParenthesis($courseTypeList[0]['title']), $isThaiDigit); ?>
                             </td>
                             <!--<td width="50px">จำนวน</td>
@@ -350,7 +350,7 @@ function getPage($trainee, $licenseType)
                         <tr>
                             <td width="60px">&nbsp;</td>
                             <td width="630px">
-                                2.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 2) ? 'checked.png' : 'unchecked.png'; ?>">
+                                <?= thaiNumDigit('2.', $isThaiDigit)?>&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 2) ? 'checked.png' : 'unchecked.png'; ?>">
                                 &nbsp;<?= thaiNumDigit(removeLastParenthesis($courseTypeList[1]['title']), $isThaiDigit); ?>
                             </td>
                             <!--<td width="50px">จำนวน</td>
@@ -360,7 +360,7 @@ function getPage($trainee, $licenseType)
                         <tr>
                             <td width="60px">&nbsp;</td>
                             <td width="630px">
-                                3.&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 3) ? 'checked.png' : 'unchecked.png'; ?>">
+                                <?= thaiNumDigit('3.', $isThaiDigit)?>&nbsp;&nbsp;<img src="../images/driveTrain/<?= ((int)$trainee['course_type'] === 3) ? 'checked.png' : 'unchecked.png'; ?>">
                                 &nbsp;<?= thaiNumDigit(removeLastParenthesis($courseTypeList[2]['title']), $isThaiDigit); ?>
                             </td>
                             <!--<td width="50px">จำนวน</td>
@@ -413,11 +413,11 @@ function getPage($trainee, $licenseType)
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td>1. ข้าพเจ้ามีคุณสมบัติและไม่มีลักษณะต้องห้ามตามกฎหมายว่าด้วยรถยนต์กำหนด ในการขอรับใบอนุญาตขับรถ</td>
+                            <td><?= thaiNumDigit('1.', $isThaiDigit)?> ข้าพเจ้ามีคุณสมบัติและไม่มีลักษณะต้องห้ามตามกฎหมายว่าด้วยรถยนต์กำหนด ในการขอรับใบอนุญาตขับรถ</td>
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td>2. ข้าพเจ้าได้ทราบแล้วว่า เมื่อผ่านการอบรมภาคทฤษฎีตามที่สมัครแล้ว จะต้องผ่านการทดสอบสมรรถภาพของร่างกาย</td>
+                            <td><?= thaiNumDigit('2.', $isThaiDigit)?> ข้าพเจ้าได้ทราบแล้วว่า เมื่อผ่านการอบรมภาคทฤษฎีตามที่สมัครแล้ว จะต้องผ่านการทดสอบสมรรถภาพของร่างกาย</td>
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
@@ -474,13 +474,13 @@ function getPaymentPage($trainee)
                         <tr>
                             <td align="right" width="480px" style="padding-right: 10px">เลขที่ใบสมัคร</td>
                             <td align="center" width="170px" class="txtDash" style="padding-left: 0">
-                                <strong><?= thaiNumDigit($trainee['form_number'], $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit($trainee['form_number'], false); ?></strong>
                             </td>
                         </tr>
                         <tr>
                             <td align="right" width="480px" style="padding-right: 10px">วันที่</td>
                             <td align="center" width="170px" class="txtDash" style="padding-left: 0">
-                                <strong><?= thaiNumDigit(getThaiShortDate(date_create($trainee['created_at'])), $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit(getThaiShortDate(date_create($trainee['created_at'])), false); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -506,7 +506,7 @@ function getPaymentPage($trainee)
                         <tr>
                             <td width="140px">ประเภทหลักสูตรที่สมัคร</td>
                             <td width="510px" class="txtDash">
-                                <strong><?= thaiNumDigit(removeLastParenthesis($courseTypeList[(int)$trainee['course_type'] - 1]['title']), $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit($courseTypeList[(int)$trainee['course_type'] - 1]['title'], false); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -519,7 +519,7 @@ function getPaymentPage($trainee)
                         <tr>
                             <td width="120px">วัน/เดือน/ปี ที่อบรม</td>
                             <td width="530px" class="txtDash">
-                                <strong><?= thaiNumDigit(getThaiShortDate(date_create($trainee['course_date'])), $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit(getThaiShortDate(date_create($trainee['course_date'])), false); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -532,7 +532,7 @@ function getPaymentPage($trainee)
                         <tr>
                             <td width="85px">สถานที่อบรม</td>
                             <td width="565px" class="txtDash">
-                                <strong><?= thaiNumDigit($trainee['place'], $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit($trainee['place'], false); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -545,7 +545,7 @@ function getPaymentPage($trainee)
                         <tr>
                             <td width="180px">เจ้าหน้าที่ผู้รับผิดชอบหลักสูตร</td>
                             <td width="470px" class="txtDash">
-                                <strong><?= thaiNumDigit("{$trainee['responsible_user_first_name']} {$trainee['responsible_user_last_name']}, โทร. {$trainee['responsible_user_phone_office']}, อีเมล {$trainee['responsible_user_email']}", $isThaiDigit); ?></strong>
+                                <strong><?= thaiNumDigit("{$trainee['responsible_user_first_name']} {$trainee['responsible_user_last_name']}, โทร. {$trainee['responsible_user_phone_office']}, อีเมล {$trainee['responsible_user_email']}", false); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -571,11 +571,11 @@ function getPaymentPage($trainee)
                             <tr>
                                 <td width="480px" <?= $courseType['amount'] == null ? 'colspan="2"' : ''; ?>
                                     style="padding-left: 15px">
-                                    <?= thaiNumDigit(removeLastParenthesis($courseType['title']), $isThaiDigit); ?>
+                                    <?= thaiNumDigit($courseType['title'], false); ?>
                                 </td>
                                 <td width="100px" align="right"
                                     style="padding-right: 15px">
-                                    <strong><?= thaiNumDigit(number_format($courseType['application_fee']), $isThaiDigit) . ' บาท'; ?></strong>
+                                    <strong><?= thaiNumDigit(number_format($courseType['application_fee']), false) . ' บาท'; ?></strong>
                                 </td>
                             </tr>
                             <?php

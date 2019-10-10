@@ -61,18 +61,20 @@ $db->set_charset("utf8");
                             </div>
                             <!-- /.box-header -->
                             <!-- form start -->
-                            <form id="loginForm" role="form" style="margin-top: 20px">
+                            <form id="loginForm" role="form"
+                                  autocomplete="off"
+                                  style="margin-top: 20px">
                                 <div class="box-body">
-                                    <!--ชื่อผู้ใช้-->
+                                    <!--อีเมล-->
                                     <div class="form-group">
-                                        <label for="usernameInput">ชื่อผู้ใช้:</label>
+                                        <label for="emailInput">อีเมล:</label>
                                         <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="fa fa-user"></i>
+                                            <i class="fa fa-envelope"></i>
                                         </span>
-                                            <input type="text" class="form-control" id="usernameInput"
-                                                   placeholder="กรอกชื่อผู้ใช้งาน" required
-                                                   oninvalid="this.setCustomValidity('กรอกชื่อผู้ใช้')"
+                                            <input type="text" class="form-control" id="emailInput"
+                                                   placeholder="กรอกอีเมล" required
+                                                   oninvalid="this.setCustomValidity('กรอกอีเมล')"
                                                    oninput="this.setCustomValidity('')">
                                         </div>
                                     </div>
@@ -131,7 +133,7 @@ $db->set_charset("utf8");
                 $.post(
                     '../api/api.php/login_user',
                     {
-                        username: $('#usernameInput').val(),
+                        email: $('#emailInput').val(),
                         password: $('#passwordInput').val()
                     }
                 ).done(function (data) {

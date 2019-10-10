@@ -562,7 +562,8 @@ if ($result = $db->query($sql)) {
                                 `<li class="ui-state-default">
                                     <span class="ui-icon ui-icon-arrowthick-2-n-s" style="margin-top: 15px"></span>
                                     <img src="<?= UPLOAD_DIR_USER_ASSETS; ?>/${user.image_file_name}" width="50px" style="border-radius: 50%;"/>&nbsp;
-                                    ${user.title} ${user.first_name} ${user.last_name},&nbsp;&nbsp;${user.position},&nbsp;&nbsp;<i class="fa fa-user" style="color: #a0a0a0"></i> ${user.username}
+                                    ${user.title} ${user.first_name} ${user.last_name},&nbsp;&nbsp;${user.position},&nbsp;&nbsp;
+                                    <i class="fa fa-envelope" style="color: #a0a0a0"></i> ${user.email}
                                     <input type="hidden" value="${user.id}"/>
                                 </li>`
                             );

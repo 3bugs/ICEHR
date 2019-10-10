@@ -67,9 +67,10 @@ if ($result = $db->query($sql)) {
                                     <thead>
                                     <tr>
                                         <th style="text-align: center">รูปภาพ</th>
-                                        <th style="width: 20%; text-align: center">ชื่อผู้ใช้</th>
+                                        <!--<th style="width: 20%; text-align: center">ชื่อผู้ใช้</th>-->
                                         <th style="width: 40%; text-align: center">ชื่อ-นามสกุล</th>
                                         <th style="width: 40%; text-align: center">ฝ่าย / ตำแหน่ง</th>
+                                        <th style="width: 20%; text-align: center">อีเมล</th>
                                         <!--<th style="width: 35%; text-align: center">สิทธิ์</th>-->
                                         <th style="text-align: center">แสดง</th>
                                         <th style="text-align: center">สถานะ</th>
@@ -91,8 +92,10 @@ if ($result = $db->query($sql)) {
                                                 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
                                             );
                                             $userInfo = sprintf(
-                                                '%s %s %s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
+                                                '%s%s %s %s%s<br><i class="fa fa-phone" style="color: black"></i> %s<br><i class="fa fa-envelope-o" style="color: black"></i> <a href="mailto:%s">%s</a>',
+                                                (int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID] ? '<strong>' : '',
                                                 $user['title'], $user['first_name'], $user['last_name'],
+                                                (int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID] ? '</strong>' : '',
                                                 $user['phone'], $user['email'], $user['email']
                                             );
                                             $departmentAndPosition = sprintf(
@@ -109,11 +112,13 @@ if ($result = $db->query($sql)) {
                                             ?>
                                             <tr style="">
                                                 <td style="text-align: center; vertical-align: top"><?= $image; ?></td>
-                                                <td style="vertical-align: top; font-family: monospace,serif">
-                                                    <?= $user['username'] . ((int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID] ? '<br/><span class="label label-success"><i class="fa fa-chevron-up" style=""></i>&nbsp;YOU</span>' : ''); ?>
-                                                </td>
+                                                <!--<td style="vertical-align: top; font-family: monospace,serif">
+                                                    <?/*= $user['username'] . ((int)$user['id'] === (int)$_SESSION[KEY_SESSION_USER_ID] ? '<br/><span class="label label-success"><i class="fa fa-chevron-up" style=""></i>&nbsp;YOU</span>' : ''); */?>
+                                                </td>-->
                                                 <td style="vertical-align: top"><?= $userInfo; ?></td>
                                                 <td style="vertical-align: top"><?= $departmentAndPosition; ?></td>
+                                                <td style="vertical-align: top"><?= $user['email']; ?></td>
+
                                                 <!--<td style="vertical-align: top"><?/*= $permissionTags; */?></td>-->
 
                                                 <td style="text-align: center; vertical-align: top">

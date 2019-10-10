@@ -251,34 +251,52 @@ if ($result = $db->query($sql)) {
                                 <!-- /.box-header -->
                                 <div class="box-body">
 
-                                    <!--username password-->
+                                    <!--email password-->
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
+                                                <label for="inputEmail">อีเมล:</label>
+                                                <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-envelope"></i>
+                                                        </span>
+                                                    <input type="email" class="form-control" required
+                                                        <?= empty($user) ? '' : 'readonly'; ?>
+                                                           id="inputEmail"
+                                                           name="email"
+                                                           value="<?php echo(!empty($user) ? $user['email'] : ''); ?>"
+                                                           placeholder="กรอกอีเมล"
+                                                           oninvalid="this.setCustomValidity('กรอกอีเมล')"
+                                                           oninput="this.setCustomValidity('')">
+                                                </div>
+                                                <?php
+                                                if (isset($userId)) {
+                                                    ?>
+                                                    <div style="margin-top: 5px; margin-left: 50px; color: orangered">ไม่อนุญาตให้แก้ไขอีเมล</div>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </div>
+
+                                            <!--<div class="form-group">
                                                 <label for="inputUsername">ชื่อผู้ใช้ (Username):</label>
                                                 <div class="input-group">
                                                         <span class="input-group-addon">
                                                             <i class="fa fa-user"></i>
                                                         </span>
                                                     <input type="text" class="form-control"
-                                                        <?= empty($user) ? '' : 'readonly'; ?>
+                                                        <?/*= empty($user) ? '' : 'readonly'; */?>
                                                            id="inputUsername"
                                                            name="username"
-                                                           value="<?php echo(!empty($user) ? $user['username'] : ''); ?>"
+                                                           value="<?php /*echo(!empty($user) ? $user['username'] : ''); */?>"
                                                            placeholder="กรอก Username" required
                                                            oninvalid="this.setCustomValidity('กรอก Username')"
                                                            oninput="this.setCustomValidity('')"
                                                            autocomplete="off"
                                                            style="font-family: monospace,serif">
                                                 </div>
-                                                <?php
-                                                if (isset($userId)) {
-                                                    ?>
-                                                    <div style="margin-top: 5px; color: orangered">ไม่อนุญาตให้แก้ไข Username</div>
-                                                    <?php
-                                                }
-                                                ?>
-                                            </div>
+                                            </div>-->
+
                                         </div>
 
                                         <?php
@@ -439,7 +457,7 @@ if ($result = $db->query($sql)) {
 
                                     <!--อีเมล เบอร์โทร-->
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <!--<div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="inputEmail">อีเมล:</label>
                                                 <div class="input-group">
@@ -449,14 +467,14 @@ if ($result = $db->query($sql)) {
                                                     <input type="email" class="form-control" required
                                                            id="inputEmail"
                                                            name="email"
-                                                           value="<?php echo(!empty($user) ? $user['email'] : ''); ?>"
+                                                           value="<?php /*echo(!empty($user) ? $user['email'] : ''); */?>"
                                                            placeholder="กรอกอีเมล"
                                                            oninvalid="this.setCustomValidity('กรอกอีเมล')"
                                                            oninput="this.setCustomValidity('')">
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
+                                        </div>-->
+                                        <div class="col-md-5">
                                             <div class="form-group">
                                                 <label for="inputPhone">เบอร์โทรมือถือส่วนตัว:</label>
                                                 <div class="input-group">
@@ -473,7 +491,7 @@ if ($result = $db->query($sql)) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-5">
                                             <div class="form-group">
                                                 <label for="inputPhoneOffice">เบอร์โทรออฟฟิศ:</label>
                                                 <div class="input-group">
