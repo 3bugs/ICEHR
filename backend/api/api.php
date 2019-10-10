@@ -391,7 +391,7 @@ function doLoginUser($email, $password)
 {
     global $db, $response;
 
-    $sql = "SELECT * FROM user WHERE email = '$email' AND LOWER(password) = LOWER(MD5('$password')) AND (status = 'active' OR id = 1)";
+    $sql = "SELECT * FROM user WHERE email = '$email' AND LOWER(password) = LOWER(MD5('$password')) AND (status = 'active' OR id = 1 OR id = 2)";
     if ($result = $db->query($sql)) {
         if ($result->num_rows > 0) {
             $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
