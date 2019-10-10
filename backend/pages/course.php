@@ -154,7 +154,7 @@ if ($result = $db->query($sql)) {
                                     if (sizeof($courseList) == 0) {
                                         ?>
                                         <tr valign="middle">
-                                            <td colspan="4" align="center">ไม่มีข้อมูล</td>
+                                            <td colspan="20" align="center">ไม่มีข้อมูล</td>
                                         </tr>
                                         <?php
                                     } else {
