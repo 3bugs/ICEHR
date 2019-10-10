@@ -10,6 +10,8 @@ header('Pragma: no-cache');
 
 session_start();
 
+$paramEmail = $_GET['email'];
+
 if (isset($_SESSION[KEY_SESSION_USER_ID])) {
     header('Location: index.php');
     exit();
@@ -75,7 +77,8 @@ $db->set_charset("utf8");
                                             <input type="text" class="form-control" id="emailInput"
                                                    placeholder="กรอกอีเมล" required
                                                    oninvalid="this.setCustomValidity('กรอกอีเมล')"
-                                                   oninput="this.setCustomValidity('')">
+                                                   oninput="this.setCustomValidity('')"
+                                                   value="<?= $paramEmail; ?>">
                                         </div>
                                     </div>
                                     <!--รหัสผ่าน-->

@@ -150,28 +150,30 @@ if ($result = $db->query($sql)) {
 
                             <!--รหัสผ่านใหม่-->
                             <div class="form-group">
-                                <label for="inputNewPassword">รหัสผ่านใหม่:</label>
+                                <label for="inputNewPassword">รหัสผ่านใหม่ <span style="color: orangered">(อย่างน้อย 6 ตัวอักษร)</span>:</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-lock"></i>
                                     </span>
                                     <input type="password" class="form-control"
                                            id="inputNewPassword" name="newPassword"
-                                           placeholder="กรอกรหัสผ่านใหม่" required
-                                           oninvalid="this.setCustomValidity('กรอกรหัสผ่านใหม่')"
+                                           minlength="6"
+                                           placeholder="กรอกรหัสผ่านใหม่ ความยาวอย่างน้อย 6 ตัวอักษร" required
+                                           oninvalid="this.setCustomValidity('กรอกรหัสผ่านใหม่ ความยาวอย่างน้อย 6 ตัวอักษร')"
                                            oninput="this.setCustomValidity('')">
                                 </div>
                             </div>
 
                             <!--ยืนยันรหัสผ่านใหม่-->
                             <div class="form-group">
-                                <label for="inputNewPassword">ยืนยันรหัสผ่านใหม่:</label>
+                                <label for="inputNewPassword">ยืนยันรหัสผ่านใหม่ <span style="color: orangered">(กรอกให้ตรงกับช่องข้างบน)</span>:</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-lock"></i>
                                     </span>
                                     <input type="password" class="form-control"
                                            id="inputConfirmNewPassword" name="confirmNewPassword"
+                                           minlength="6"
                                            placeholder="กรอกรหัสผ่านใหม่อีกครั้งเพื่อยืนยัน" required
                                            oninvalid="this.setCustomValidity('กรอกรหัสผ่านใหม่อีกครั้งเพื่อยืนยัน')"
                                            oninput="this.setCustomValidity('')">

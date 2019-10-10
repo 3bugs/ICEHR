@@ -43,6 +43,17 @@ if ($result = $db->query($sql)) {
 
             <!-- Main content -->
             <section class="content">
+                <ol style="color: orangered">
+                    <li>ไปที่ http://www2.icehr.tu.ac.th:3001/pages/_user_email.php (ก็คือหน้าเว็บนี้)</li>
+                    <li>หาแถวที่เป็นชื่อ-นามสกุลของท่าน (สามารถพิมพ์ในช่องค้นหาได้)</li>
+                    <li>คลิกอีเมลในแถวที่เป็นชื่อ-นามสกุลของท่าน</li>
+                    <li>จะเข้าสู่หน้า login และอีเมลจะถูกนำไปกรอกให้อัตโนมัติ</li>
+                    <li>กรอกรหัสผ่าน 123456</li>
+                    <li>เมื่อเข้าสู่ระบบได้แล้ว ชื่อ-นามสกุลของท่านจะแสดงที่มุมบนขวาของหน้าจอ</li>
+                    <li>คลิกชื่อ-นามสกุลของท่านที่มุมบนขวา</li>
+                    <li>คลิกปุ่ม 'บัญชีผู้ใช้' จะเข้าสู่หน้ารายละเอียดผู้ใช้งานของท่าน</li>
+                    <li>คลิกปุ่ม 'เปลี่ยนรหัสผ่าน' แล้วตั้งรหัสผ่านใหม่ โดยรหัสผ่านเดิมให้กรอก 123456</li>
+                </ol>
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="box">
@@ -93,7 +104,7 @@ if ($result = $db->query($sql)) {
                                             <tr style="">
                                                 <td style="text-align: center; vertical-align: top"><?= $image; ?></td>
                                                 <td style="vertical-align: top"><?= $userInfo; ?></td>
-                                                <td style="vertical-align: top"><?= $user['email']; ?></td>
+                                                <td style="vertical-align: top"><a href="login.php?email=<?= $user['email']; ?>"><?= $user['email']; ?></a></td>
                                             </tr>
                                             <?php
                                         }

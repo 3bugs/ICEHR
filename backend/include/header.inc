@@ -52,9 +52,9 @@
                             </li>
                             <!-- Menu Footer-->
                             <li class="user-footer">
-                                <!--<div class="pull-left">
-                                    <a id="changePasswordButton" class="btn btn-default btn-flat" href="#">เปลี่ยนรหัสผ่าน</a>
-                                </div>-->
+                                <div class="pull-left">
+                                    <a id="userProfileButton" class="btn btn-default btn-flat" href="#">บัญชีผู้ใช้</a>
+                                </div>
                                 <div class="pull-right">
                                     <a id="logoutButton" class="btn btn-default btn-flat" href="#">ออกจากระบบ</a>
                                 </div>
@@ -125,8 +125,8 @@
             });
         });
 
-        /*$('#changePasswordButton').click(function (e) {
-
-        });*/
+        $('#userProfileButton').click(function (e) {
+            window.location.href = 'user_add_edit.php?user_id=<?= $_SESSION[KEY_SESSION_USER_ID]; ?>';
+        });
     });
 </script>
