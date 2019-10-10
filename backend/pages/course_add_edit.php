@@ -74,7 +74,13 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-$sql = "SELECT * FROM user WHERE status = 'active' ORDER BY role DESC, department_id, first_name";
+$sql = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone_office, u.position, ud.name AS department_name, ud.sort_index 
+        FROM user u 
+            INNER JOIN user_department ud 
+                ON ud.id = u.department_id 
+        WHERE status = 'active' 
+        ORDER BY u.role DESC, ud.sort_index, u.first_name";
+
 if ($result = $db->query($sql)) {
     $userList = array();
     while ($row = $result->fetch_assoc()) {
@@ -84,6 +90,8 @@ if ($result = $db->query($sql)) {
         $user['last_name'] = $row['last_name'];
         $user['email'] = $row['email'];
         $user['phone_office'] = $row['phone_office'];
+        $user['position'] = $row['position'];
+        $user['department_name'] = $row['department_name'];
 
         array_push($userList, $user);
     }
@@ -609,6 +617,8 @@ if (isset($courseId)) {
                                                             $userLastName = $u['last_name'];
                                                             $userEmail = $u['email'];
                                                             $userPhoneOffice = $u['phone_office'];
+                                                            $userPosition = $u['position'];
+                                                            $userDepartmentName = $u['department_name'];
 
                                                             $selected = '';
                                                             if (!empty($course) && ($course['responsible_user_id'] === $userId)) {
@@ -616,7 +626,7 @@ if (isset($courseId)) {
                                                             }
                                                             ?>
                                                             <option value="<?php echo $userId; ?>" <?php echo $selected; ?>>
-                                                                <?php echo "$userFirstName $userLastName  |  $userEmail  |  $userPhoneOffice"; ?>
+                                                                <?php echo "{$userFirstName} {$userLastName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userDepartmentName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userPosition}"; ?>
                                                             </option>
                                                             <?php
                                                         }
