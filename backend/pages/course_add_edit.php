@@ -74,7 +74,7 @@ if ($result = $db->query($sql)) {
     exit();
 }
 
-$sql = "SELECT * FROM user WHERE status = 'active'";
+$sql = "SELECT * FROM user WHERE status = 'active' ORDER BY role DESC, department_id, first_name";
 if ($result = $db->query($sql)) {
     $userList = array();
     while ($row = $result->fetch_assoc()) {
