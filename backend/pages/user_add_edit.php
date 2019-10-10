@@ -100,7 +100,7 @@ if ($result = $db->query($sql)) {
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;
                     </button>
-                    <h4 class="modal-title">เปลี่ยนรหัสผ่านของบัญชีผู้ใช้ <?= $user['username']; ?> <small><?= "({$user['first_name']} {$user['last_name']})"; ?></small></h4>
+                    <h4 class="modal-title">เปลี่ยนรหัสผ่านของบัญชีผู้ใช้ <?= $user['email']; ?> <small><?= "({$user['first_name']} {$user['last_name']})"; ?></small></h4>
                 </div>
                 <div class="modal-body">
                     <div id="divLoading" style="text-align: center">
