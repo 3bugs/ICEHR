@@ -679,7 +679,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div style="margin-top: 15px; text-align: center">
                                 <?php
                                 if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
-                                    || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_UPDATE))) {
+                                    || ($serviceType === SERVICE_TYPE_TRAINING && currentUserHasPermission(PERMISSION_COURSE_TRAINING_MANAGE_REGISTRATION))) {
                                     ?>
                                     <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
                                         <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
@@ -1077,7 +1077,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div style="margin-top: 15px; text-align: center">
                                 <?php
                                 if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
-                                    || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_UPDATE))) {
+                                    || ($serviceType === SERVICE_TYPE_SOCIAL && currentUserHasPermission(PERMISSION_COURSE_SOCIAL_MANAGE_REGISTRATION))) {
                                     ?>
                                     <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 150px;">
                                         <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึกการแก้ไข
