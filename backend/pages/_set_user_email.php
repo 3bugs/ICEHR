@@ -1,4 +1,7 @@
 <?php
+echo 'ICEHR';
+exit();
+
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
