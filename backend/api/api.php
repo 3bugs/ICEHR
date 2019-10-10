@@ -1530,7 +1530,7 @@ function doGetUserByDepartment()
     $departmentId = $db->real_escape_string($_POST['departmentId']);
 
     $sql = "SELECT id, title, first_name, last_name, email, position, image_file_name, sort_index FROM user 
-            WHERE department_id = $departmentId 
+            WHERE department_id = $departmentId AND status = 'active'
             ORDER BY sort_index";
 
     if ($result = $db->query($sql)) {
