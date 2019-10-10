@@ -2743,7 +2743,9 @@ doGetActivity = (req, res, db) => {
                     }
                     previousId = row['id'];
                 }
-                activityList.push(activity);
+                if (activity != null) {
+                    activityList.push(activity);
+                }
 
                 res.send({
                     error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
