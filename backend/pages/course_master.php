@@ -124,6 +124,16 @@ if ($result = $db->query($sql)) {
                                             ?>
                                         </select>
                                     </div>
+                                    <?php
+                                    if (empty($trainingCourseCategoryList)) {
+                                        ?>
+                                        <div style="margin-top: 30px; text-align: center">
+                                            <span style="color: orangered">ยังไม่มีข้อมูลหมวดหมู่หลักสูตร คุณต้องเพิ่มหมวดหมู่หลักสูตรก่อน</span><br/>
+                                            <a href="data_table.php?table_name=training_course_category">ไปหน้าจัดการหมวดหมู่หลักสูตร</a>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
                                 </div>
                                 <?php
                             }
