@@ -426,16 +426,16 @@ if ($result = $db->query($sql)) {
                                         </div>
                                         <div class="col-md-5">
                                             <div class="form-group">
-                                                <label for="selectDepartment">ฝ่าย:</label>
+                                                <label for="selectDepartment">ฝ่ายงาน:</label>
                                                 <div class="input-group">
                                                 <span class="input-group-addon">
                                                     <i class="fa fa-folder-o"></i>
                                                 </span>
                                                     <select id="selectDepartment" class="form-control" required
                                                             name="department"
-                                                            oninvalid="this.setCustomValidity('เลือกฝ่าย')"
+                                                            oninvalid="this.setCustomValidity('เลือกฝ่ายงาน')"
                                                             oninput="this.setCustomValidity('')">
-                                                        <option value="" disabled selected>-- เลือกฝ่าย --</option>
+                                                        <option value="" disabled selected>-- เลือกฝ่ายงาน --</option>
                                                         <?php
                                                         foreach ($departmentList as $department) {
                                                             $departmentId = (int)$department['id'];
