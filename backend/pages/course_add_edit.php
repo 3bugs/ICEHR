@@ -311,19 +311,19 @@ if (isset($courseId)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    <?php echo(isset($courseId) ? 'แก้ไข' : 'เพิ่ม'); ?>หลักสูตร
-                    <small><?php echo $serviceTypeText[$serviceType]; ?></small>
+                    <?=(isset($courseId) ? 'แก้ไข' : 'เพิ่ม'); ?>หลักสูตร
+                    <small><?= $serviceTypeText[$serviceType]; ?></small>
                 </h1>
             </section>
 
             <!-- Main content -->
             <section class="content">
                 <form id="formAddCourse"
-                      action="../api/api.php/<?php echo(isset($courseId) ? 'update_course' : 'add_course'); ?>"
+                      action="../api/api.php/<?=(isset($courseId) ? 'update_course' : 'add_course'); ?>"
                       method="post">
 
                     <input type="hidden" name="courseId"
-                           value="<?php echo $courseId; ?>"/>
+                           value="<?= $courseId; ?>"/>
 
                     <div class="row">
                         <div class="col-xs-12">
@@ -367,14 +367,24 @@ if (isset($courseId)) {
                                                                 $selected = 'selected';
                                                             }
                                                             ?>
-                                                            <option value="<?php echo $courseMasterId; ?>" <?php echo $selected; ?>>
-                                                                <?php echo $courseMasterTitle; ?>
+                                                            <option value="<?= $courseMasterId; ?>" <?= $selected; ?>>
+                                                                <?= $courseMasterTitle; ?>
                                                             </option>
                                                             <?php
                                                         }
                                                         ?>
                                                     </select>
                                                 </div>
+                                                <?php
+                                                if (empty($courseMasterList)) {
+                                                    ?>
+                                                    <div style="margin-top: 15px; text-align: center">
+                                                        <span style="color: orangered">ยังไม่มีข้อมูลชื่อหลักสูตรของ<?= $serviceTypeText[$serviceType]; ?> คุณต้องเพิ่มชื่อหลักสูตรก่อน</span><br/>
+                                                        <a href="course_master.php?service_type=<?= $serviceType; ?>">ไปหน้าจัดการชื่อหลักสูตร <?= $serviceTypeText[$serviceType]; ?></a>
+                                                    </div>
+                                                    <?php
+                                                }
+                                                ?>
                                             </div>
 
                                         </div>
@@ -391,7 +401,7 @@ if (isset($courseId)) {
                                                         <input type="number" class="form-control"
                                                                id="inputBatchNumber"
                                                                name="batchNumber"
-                                                               value="<?php echo(!empty($course) ? $course['batch_number'] : ''); ?>"
+                                                               value="<?=(!empty($course) ? $course['batch_number'] : ''); ?>"
                                                                placeholder="กรอกเลขรุ่น" required
                                                                oninvalid="this.setCustomValidity('กรอกเลขรุ่น')"
                                                                oninput="this.setCustomValidity('')">
@@ -454,7 +464,7 @@ if (isset($courseId)) {
                                                     <input type="number" class="form-control"
                                                            id="inputTraineeLimit"
                                                            name="traineeLimit"
-                                                           value="<?php echo(!empty($course) ? $course['trainee_limit'] : ''); ?>"
+                                                           value="<?=(!empty($course) ? $course['trainee_limit'] : ''); ?>"
                                                            placeholder="กรอกจำนวนผู้เข้าอบรมที่รับได้" required
                                                            oninvalid="this.setCustomValidity('กรอกจำนวนผู้เข้าอบรมที่รับได้')"
                                                            oninput="this.setCustomValidity('')">
@@ -474,7 +484,7 @@ if (isset($courseId)) {
                                                         <input type="number" class="form-control"
                                                                id="inputApplicationFee"
                                                                name="applicationFee"
-                                                               value="<?php echo(!empty($course) ? $course['application_fee'] : ''); ?>"
+                                                               value="<?=(!empty($course) ? $course['application_fee'] : ''); ?>"
                                                                min="0"
                                                                placeholder="กรอกค่าสมัคร" required
                                                                oninvalid="this.setCustomValidity('กรอกค่าสมัคร')"
@@ -538,7 +548,7 @@ if (isset($courseId)) {
                                                     <input type="text" class="form-control"
                                                            id="inputPlace"
                                                            name="place"
-                                                           value="<?php echo(!empty($course) ? $course['place'] : ''); ?>"
+                                                           value="<?=(!empty($course) ? $course['place'] : ''); ?>"
                                                            placeholder="กรอกสถานที่อบรม" required
                                                            oninvalid="this.setCustomValidity('กรอกสถานที่อบรม')"
                                                            oninput="this.setCustomValidity('')">
@@ -625,8 +635,8 @@ if (isset($courseId)) {
                                                                 $selected = 'selected';
                                                             }
                                                             ?>
-                                                            <option value="<?php echo $userId; ?>" <?php echo $selected; ?>>
-                                                                <?php echo "{$userFirstName} {$userLastName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userDepartmentName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userPosition}"; ?>
+                                                            <option value="<?= $userId; ?>" <?= $selected; ?>>
+                                                                <?= "{$userFirstName} {$userLastName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userDepartmentName}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{$userPosition}"; ?>
                                                             </option>
                                                             <?php
                                                         }
@@ -668,8 +678,8 @@ if (isset($courseId)) {
                                                                     $selected = 'selected';
                                                                 }
                                                                 ?>
-                                                                <option value="<?php echo $trainerId; ?>" <?php echo $selected; ?>>
-                                                                    <?php echo "$trainerFirstName $trainerLastName  |  $trainerPid  |  $trainerEmail  |  $trainerPhone"; ?>
+                                                                <option value="<?= $trainerId; ?>" <?= $selected; ?>>
+                                                                    <?= "$trainerFirstName $trainerLastName  |  $trainerPid  |  $trainerEmail  |  $trainerPhone"; ?>
                                                                 </option>
                                                                 <?php
                                                             }
@@ -720,7 +730,7 @@ if (isset($courseId)) {
                                 <div class="box-body pad">
                                 <textarea id="editor" rows="20" cols="80"
                                           name="details">
-                                    <?php echo(!empty($course) ? $course['details'] : ''); ?>
+                                    <?=(!empty($course) ? $course['details'] : ''); ?>
                                 </textarea>
                                 </div>
                             </div>
@@ -778,7 +788,7 @@ if (isset($courseId)) {
                                                         <input type="text" class="form-control"
                                                                id="inputFeeTitle"
                                                                name="feeTitle[]"
-                                                               value="<?php echo $fee['title']; ?>"
+                                                               value="<?= $fee['title']; ?>"
                                                                placeholder="กรอกข้อความ" required
                                                                oninvalid="this.setCustomValidity('กรอกข้อความสำหรับรายการราคานี้')"
                                                                oninput="this.setCustomValidity('')">
@@ -788,7 +798,7 @@ if (isset($courseId)) {
                                                                style="text-align: right"
                                                                id="inputFeeAmount"
                                                                name="feeAmount[]"
-                                                               value="<?php echo $fee['amount']; ?>"
+                                                               value="<?= $fee['amount']; ?>"
                                                                placeholder="กรอกราคา">
                                                     </td>
                                                     <td style="">
@@ -850,11 +860,11 @@ if (isset($courseId)) {
                                             <?php
                                             if (isset($courseId)) {
                                                 ?>
-                                                <li class="active"><a href="#image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน <strong>(<?php echo sizeof($imageList); ?>)</strong></a></li>
+                                                <li class="active"><a href="#image_tab_1" data-toggle="tab">รูปภาพปัจจุบัน <strong>(<?= sizeof($imageList); ?>)</strong></a></li>
                                                 <?php
                                             }
                                             ?>
-                                            <li <?php echo(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#image_tab_2" data-toggle="tab">เพิ่มรูปภาพ</a></li>
+                                            <li <?=(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#image_tab_2" data-toggle="tab">เพิ่มรูปภาพ</a></li>
                                         </ul>
                                         <div class="tab-content">
                                             <?php
@@ -894,16 +904,16 @@ if (isset($courseId)) {
                                                             <tr>
                                                                 <!--<td><?php /*echo $image['title']; */ ?></td>-->
                                                                 <td style="text-align: center">
-                                                                    <a href="<?php echo(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>" data-lightbox="courseImage">
-                                                                        <img src="<?php echo(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>"
+                                                                    <a href="<?=(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>" data-lightbox="courseImage">
+                                                                        <img src="<?=(UPLOAD_DIR_COURSE_ASSETS . $image['file_name']); ?>"
                                                                              height="120px">
                                                                     </a>
                                                                 </td>
-                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td style="text-align: center"><?=($dateHidden . $displayDateTime); ?></td>
                                                                 <td>
                                                                     <button type="button" class="btn btn-danger"
                                                                             style="margin-left: 6px; margin-right: 6px"
-                                                                            onClick="onClickDeleteAsset(this, <?php echo $image['id']; ?>, 'รูปภาพ')">
+                                                                            onClick="onClickDeleteAsset(this, <?= $image['id']; ?>, 'รูปภาพ')">
                                                                         <span class="fa fa-remove"></span>&nbsp;
                                                                         ลบ
                                                                     </button>
@@ -919,7 +929,7 @@ if (isset($courseId)) {
                                             }
                                             ?>
                                             <!--เพิ่มรูปภาพใหม่-->
-                                            <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="image_tab_2">
+                                            <div class="tab-pane <?=(!isset($courseId) ? 'active' : ''); ?>" id="image_tab_2">
                                                 <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
                                                     <li style="margin-bottom: 10px">ให้ใช้ภาพ JPG ขนาด 600x312 pixel (กว้าง 600 pixel, สูง 312 pixel) <u>ทุกภาพ</u></li>
                                                     <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
@@ -969,11 +979,11 @@ if (isset($courseId)) {
                                             <?php
                                             if (isset($courseId)) {
                                                 ?>
-                                                <li class="active"><a href="#pdf_tab_1" data-toggle="tab">PDF ปัจจุบัน <strong>(<?php echo sizeof($pdfList); ?>)</strong></a></li>
+                                                <li class="active"><a href="#pdf_tab_1" data-toggle="tab">PDF ปัจจุบัน <strong>(<?= sizeof($pdfList); ?>)</strong></a></li>
                                                 <?php
                                             }
                                             ?>
-                                            <li <?php echo(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#pdf_tab_2" data-toggle="tab">เพิ่ม PDF</a></li>
+                                            <li <?=(!isset($courseId) ? 'class="active"' : ''); ?>><a href="#pdf_tab_2" data-toggle="tab">เพิ่ม PDF</a></li>
                                         </ul>
                                         <div class="tab-content">
                                             <?php
@@ -1019,19 +1029,19 @@ if (isset($courseId)) {
                                                             <tr>
                                                                 <!--<td><?php /*echo $image['title']; */ ?></td>-->
                                                                 <td>
-                                                                    <?php echo $pdf['title']; ?>
+                                                                    <?= $pdf['title']; ?>
                                                                 </td>
                                                                 <td style="text-align: center; cursor: pointer"
-                                                                    onClick="window.open('<?php echo(UPLOAD_DIR_COURSE_ASSETS . $pdf['file_name']); ?>', '_blank')">
+                                                                    onClick="window.open('<?=(UPLOAD_DIR_COURSE_ASSETS . $pdf['file_name']); ?>', '_blank')">
                                                                     <a href="javascript:void(0)">
                                                                         <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
                                                                     </a>
                                                                 </td>
-                                                                <td style="text-align: center"><?php echo($dateHidden . $displayDateTime); ?></td>
+                                                                <td style="text-align: center"><?=($dateHidden . $displayDateTime); ?></td>
                                                                 <td>
                                                                     <button type="button" class="btn btn-danger"
                                                                             style="margin-left: 6px; margin-right: 6px"
-                                                                            onClick="onClickDeleteAsset(this, <?php echo $pdf['id']; ?>, 'เอกสาร PDF ')">
+                                                                            onClick="onClickDeleteAsset(this, <?= $pdf['id']; ?>, 'เอกสาร PDF ')">
                                                                         <span class="fa fa-remove"></span>&nbsp;
                                                                         ลบ
                                                                     </button>
@@ -1047,7 +1057,7 @@ if (isset($courseId)) {
                                             }
                                             ?>
                                             <!--เพิ่ม PDF ใหม่-->
-                                            <div class="tab-pane <?php echo(!isset($courseId) ? 'active' : ''); ?>" id="pdf_tab_2">
+                                            <div class="tab-pane <?=(!isset($courseId) ? 'active' : ''); ?>" id="pdf_tab_2">
                                                 <ul style="color: orangered; margin-top: 10px; margin-bottom: 15px">
                                                     <li>คลิกในกรอบสี่เหลี่ยมเพื่อเลือกไฟล์ หรือลากไฟล์มาปล่อยในกรอบสี่เหลี่ยม</li>
                                                     <li>สามารถเลือกได้หลายไฟล์พร้อมกัน</li>
@@ -1121,7 +1131,7 @@ if (isset($courseId)) {
                 autoclose: true
             }).on('changeDate', e => {
                 e.target.setCustomValidity('');
-            }).datepicker('update', '<?php echo(!empty($course) ? $beginDate : ''); ?>');
+            }).datepicker('update', '<?=(!empty($course) ? $beginDate : ''); ?>');
 
             $('#inputEndDate').datepicker({
                 language: 'th',
@@ -1131,7 +1141,7 @@ if (isset($courseId)) {
                 autoclose: true
             }).on('changeDate', e => {
                 e.target.setCustomValidity('');
-            }).datepicker('update', '<?php echo(!empty($course) ? $endDate : ''); ?>');
+            }).datepicker('update', '<?=(!empty($course) ? $endDate : ''); ?>');
 
             CKEDITOR.replace('editor');
         });
@@ -1385,7 +1395,7 @@ if (isset($courseId)) {
 
                     if (data.error_code === 0) {
                         BootstrapDialog.show({
-                            title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
+                            title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
                             message: data.error_message,
                             buttons: [{
                                 label: 'ปิด',
@@ -1394,11 +1404,11 @@ if (isset($courseId)) {
                                     <?php
                                     if (!isset($courseId)) {
                                     ?>
-                                    window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                    window.location.href = 'course.php?service_type=<?= $serviceType; ?>';
                                     <?php
                                     } else {
                                     ?>
-                                    window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                    window.location.href = 'course.php?service_type=<?= $serviceType; ?>';
                                     //window.location.reload(true);
                                     <?php
                                     }
@@ -1408,7 +1418,7 @@ if (isset($courseId)) {
                         });
                     } else {
                         BootstrapDialog.show({
-                            title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                            title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                             message: data.error_message,
                             buttons: [{
                                 label: 'ปิด',
@@ -1426,7 +1436,7 @@ if (isset($courseId)) {
                     console.log(e);
 
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                        title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                         message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server: ' + e,
                         buttons: [{
                             label: 'ปิด',
@@ -1510,9 +1520,9 @@ if (isset($courseId)) {
             $('#formAddCourse #divLoading').show();
 
             $.post(
-                '../api/api.php/<?php echo(isset($courseId) ? 'update_course' : 'add_course'); ?>',
+                '../api/api.php/<?=(isset($courseId) ? 'update_course' : 'add_course'); ?>',
                 {
-                    courseId: <?php echo(isset($courseId) ? "$courseId" : '0'); ?>,
+                    courseId: <?=(isset($courseId) ? "$courseId" : '0'); ?>,
                     courseMasterId: $('#selectCourseMaster').val(),
                     batchNumber: $('#inputBatchNumber').val(),
                     applicationFee: $('#inputApplicationFee').val(),
@@ -1529,7 +1539,7 @@ if (isset($courseId)) {
 
                 if (data.error_code === 0) {
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
+                        title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?>',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -1538,7 +1548,7 @@ if (isset($courseId)) {
                                 <?php
                                 if (!isset($courseId)) {
                                 ?>
-                                window.location.href = 'course.php?service_type=<?php echo $serviceType; ?>';
+                                window.location.href = 'course.php?service_type=<?= $serviceType; ?>';
                                 <?php
                                 } else {
                                 ?>
@@ -1551,7 +1561,7 @@ if (isset($courseId)) {
                     });
                 } else {
                     BootstrapDialog.show({
-                        title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                        title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                         message: data.error_message,
                         buttons: [{
                             label: 'ปิด',
@@ -1566,7 +1576,7 @@ if (isset($courseId)) {
                 $('#formAddCourse #divLoading').hide();
 
                 BootstrapDialog.show({
-                    title: '<?php echo(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
+                    title: '<?=(isset($courseId) ? 'แก้ไขหลักสูตร' : 'เพิ่มหลักสูตร'); ?> - ผิดพลาด',
                     message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
                     buttons: [{
                         label: 'ปิด',
