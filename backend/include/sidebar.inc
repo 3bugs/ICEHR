@@ -216,6 +216,11 @@
                         <i class="fa fa-user-circle"></i> <span>ผู้ใช้งานระบบ</span>
                     </a>
                 </li>
+                <li>
+                    <a href="../pages/user_department.php">
+                        <i class="fa fa-sitemap"></i> <span>ฝ่ายงาน</span>
+                    </a>
+                </li>
 
                 <!--*************************************************************************************************************-->
                 <li class="header" style="color: yellow; text-align: center">รายงาน</li>
@@ -271,7 +276,6 @@
                     </a>
                     <ul class="treeview-menu">
                         <li style="margin-left: 20px"><a href="../pages/data_table.php?table_name=name_title"><i class="fa fa-font"></i>คำนำหน้าชื่อ</a></li>
-                        <li style="margin-left: 20px"><a href="../pages/user_department.php"><i class="fa fa-sitemap"></i>จัดการฝ่ายผู้ใช้งานระบบ</a></li>
                         <li style="margin-left: 20px"><a href="../pages/payment_info.php"><i class="fa fa-money"></i>ข้อมูลการชำระเงิน</a></li>
                     </ul>
                 </li>

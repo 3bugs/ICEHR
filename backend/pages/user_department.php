@@ -279,7 +279,7 @@ if ($result = $db->query($sql)) {
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    ชื่อฝ่าย
+                    ฝ่ายงาน
                     <small>ผู้ใช้งานระบบ</small>
                 </h1>
             </section>
