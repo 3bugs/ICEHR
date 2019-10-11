@@ -2614,15 +2614,15 @@ function doAddUser()
 
     $password = $db->real_escape_string(MD5($_POST['password']));
 
-    $title = $db->real_escape_string($_POST['title']);
-    $firstName = $db->real_escape_string($_POST['firstName']);
-    $lastName = $db->real_escape_string($_POST['lastName']);
+    $title = trim($db->real_escape_string($_POST['title']));
+    $firstName = trim($db->real_escape_string($_POST['firstName']));
+    $lastName = trim($db->real_escape_string($_POST['lastName']));
 
-    $position = $db->real_escape_string($_POST['position']);
+    $position = trim($db->real_escape_string($_POST['position']));
     $department = $db->real_escape_string($_POST['department']);
 
     //$email = $db->real_escape_string($_POST['email']);
-    $phone = $db->real_escape_string($_POST['phone']);
+    $phone = trim($db->real_escape_string($_POST['phone']));
     $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
     $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
 
@@ -2766,14 +2766,14 @@ function doUpdateUser()
         return;
     }
 
-    $title = $db->real_escape_string($_POST['title']);
-    $firstName = $db->real_escape_string($_POST['firstName']);
-    $lastName = $db->real_escape_string($_POST['lastName']);
+    $title = trim($db->real_escape_string($_POST['title']));
+    $firstName = trim($db->real_escape_string($_POST['firstName']));
+    $lastName = trim($db->real_escape_string($_POST['lastName']));
 
-    $position = $db->real_escape_string($_POST['position']);
+    $position = trim($db->real_escape_string($_POST['position']));
 
     //$email = $db->real_escape_string($_POST['email']);
-    $phone = $db->real_escape_string($_POST['phone']);
+    $phone = trim($db->real_escape_string($_POST['phone']));
     $phoneOffice = $db->real_escape_string($_POST['phoneOffice']);
     $phoneExtension = $db->real_escape_string($_POST['phoneExtension']);
 
