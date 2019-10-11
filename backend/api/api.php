@@ -2591,7 +2591,7 @@ function doAddUser()
         return;
     }
 
-    $email = $db->real_escape_string($_POST['email']);
+    $email = trim($db->real_escape_string($_POST['email']));
 
     $sql = "SELECT COUNT(email) email_count FROM user WHERE email = '$email'";
     if ($result = $db->query($sql)) {
