@@ -229,7 +229,7 @@ export default class Personnel extends React.Component {
                                                                              style={{borderRadius: '50%'}}/>
                                                                     </div>
                                                                     <h6>{`${user.title}${user.first_name} ${user.last_name}`}</h6>
-                                                                    <p>{user.department_name}</p>
+                                                                    <p>{user.position}</p>
 
                                                                     {user.show_details === 1 &&
                                                                     <div className="moredetail">

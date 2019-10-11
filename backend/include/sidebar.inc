@@ -127,88 +127,84 @@
                     </a>
                 </li>
 
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-money"></i> <span>การเงิน</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
+                <?php
+                $numRowsTraining = 0;
+                $sql = "SELECT id FROM course_trainee WHERE register_status = 'wait-approve'";
+                if ($result = $db->query($sql)) {
+                    $numRowsTraining = $result->num_rows;
+                    $result->close();
+                }
 
-                            <?php
-                            $numRowsTraining = 0;
-                            $sql = "SELECT id FROM course_trainee WHERE register_status = 'wait-approve'";
-                            if ($result = $db->query($sql)) {
-                                $numRowsTraining = $result->num_rows;
-                                $result->close();
-                            }
+                $numRowsSocial = 0;
+                $sql = "SELECT id FROM course_registration_social WHERE register_status = 'wait-approve'";
+                if ($result = $db->query($sql)) {
+                    $numRowsSocial = $result->num_rows;
+                    $result->close();
+                }
 
-                            $numRowsSocial = 0;
-                            $sql = "SELECT id FROM course_registration_social WHERE register_status = 'wait-approve'";
-                            if ($result = $db->query($sql)) {
-                                $numRowsSocial = $result->num_rows;
-                                $result->close();
-                            }
+                $numRowsDrivingLicense = 0;
+                $sql = "SELECT id FROM course_registration_driving_license WHERE register_status = 'wait-approve'";
+                if ($result = $db->query($sql)) {
+                    $numRowsDrivingLicense = $result->num_rows;
+                    $result->close();
+                }
 
-                            $numRowsDrivingLicense = 0;
-                            $sql = "SELECT id FROM course_registration_driving_license WHERE register_status = 'wait-approve'";
-                            if ($result = $db->query($sql)) {
-                                $numRowsDrivingLicense = $result->num_rows;
-                                $result->close();
-                            }
+                $numRowsAll = $numRowsTraining + $numRowsSocial + $numRowsDrivingLicense;
+                if ($numRowsAll > 0) {
+                    ?>
+                    <!--<small class="label pull-right bg-yellow"><?php /*echo $numRowsAll; */?></small>-->
+                    <?php
+                }
+                ?>
 
-                            $numRowsAll = $numRowsTraining + $numRowsSocial + $numRowsDrivingLicense;
-                            if ($numRowsAll > 0) {
-                                ?>
-                                <small class="label pull-right bg-yellow"><?php echo $numRowsAll; ?></small>
-                                <?php
-                            }
+                <!--*************************************************************************************************************-->
+                <li class="header" style="color: yellow; text-align: center">การเงิน</li>
+
+                <li>
+                    <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_TRAINING; ?>">
+                        <i class="fa fa-mortar-board"></i> <span><?php echo SERVICE_TYPE_TRAINING_TEXT_NO_ICON; ?></span>
+                        <?php
+                        if ($numRowsTraining > 0) {
                             ?>
-                        </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li style="margin-left: 20px">
-                            <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_TRAINING; ?>">
-                                <i class="fa fa-mortar-board"></i>&nbsp;&nbsp;วิชาการ
-                                <?php
-                                if ($numRowsTraining > 0) {
-                                    ?>
-                                    <span class="pull-right-container">
+                            <span class="pull-right-container">
                                         <small class="label pull-right bg-yellow"><?php echo $numRowsTraining; ?></small>
                                     </span>
-                                    <?php
-                                }
-                                ?>
-                            </a>
-                        </li>
-                        <li style="margin-left: 20px">
-                            <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>">
-                                <i class="fa fa-male"></i>&nbsp;&nbsp;สังคม
-                                <?php
-                                if ($numRowsSocial > 0) {
-                                    ?>
-                                    <span class="pull-right-container">
+                            <?php
+                        }
+                        ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_SOCIAL; ?>">
+                        <i class="fa fa-male"></i> <span><?php echo SERVICE_TYPE_SOCIAL_TEXT_NO_ICON; ?></span>
+                        <?php
+                        if ($numRowsSocial > 0) {
+                            ?>
+                            <span class="pull-right-container">
                                         <small class="label pull-right bg-yellow"><?php echo $numRowsSocial; ?></small>
                                     </span>
-                                    <?php
-                                }
-                                ?>
-                            </a>
-                        </li>
-                        <li style="margin-left: 20px">
-                            <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>">
-                                <i class="fa fa-car"></i>&nbsp;&nbsp;ใบขับขี่
-                                <?php
-                                if ($numRowsDrivingLicense > 0) {
-                                    ?>
-                                    <span class="pull-right-container">
+                            <?php
+                        }
+                        ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/course_registration.php?service_type=<?php echo SERVICE_TYPE_DRIVING_LICENSE; ?>">
+                        <i class="fa fa-car"></i> <span><?php echo SERVICE_TYPE_DRIVING_LICENSE_TEXT_NO_ICON; ?></span>
+                        <?php
+                        if ($numRowsDrivingLicense > 0) {
+                            ?>
+                            <span class="pull-right-container">
                                         <small class="label pull-right bg-yellow"><?php echo $numRowsDrivingLicense; ?></small>
                                     </span>
-                                    <?php
-                                }
-                                ?>
-                            </a>
-                        </li>
-                    </ul>
+                            <?php
+                        }
+                        ?>
+                    </a>
                 </li>
+
+                <!--*************************************************************************************************************-->
+                <li class="header" style="color: yellow; text-align: center">สมาชิก / ผู้ใช้งาน</li>
 
                 <li>
                     <a href="../pages/member.php">
