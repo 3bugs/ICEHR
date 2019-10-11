@@ -226,7 +226,7 @@ export default class Personnel extends React.Component {
                                                                     <div className="pic-executive">
                                                                         <img src={`${HOST_BACKEND}/uploads/user_assets/${user.image_file_name}`}
                                                                              className="img-fluid"
-                                                                             style={{borderRadius: '50%'}}/>
+                                                                             style={{borderRadius: '50%', height: '200px'}}/>
                                                                     </div>
                                                                     <h6>{`${user.title}${user.first_name} ${user.last_name}`}</h6>
                                                                     <p>{user.position}</p>
