@@ -270,6 +270,15 @@ if ($result = $db->query($sql)) {
             $('#formAdd #divLoading').hide();
             $('#formEdit #divLoading').hide();
 
+            $('#formAdd').submit(event => {
+                event.preventDefault();
+                doAdd();
+            });
+            $('#formEdit').submit(event => {
+                event.preventDefault();
+                doUpdate();
+            });
+            
             $('#table').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage
@@ -292,14 +301,6 @@ if ($result = $db->query($sql)) {
                         previous: "ก่อนหน้า"
                     },
                 }
-            });
-            $('#formAdd').submit(event => {
-                event.preventDefault();
-                doAdd();
-            });
-            $('#formEdit').submit(event => {
-                event.preventDefault();
-                doUpdate();
             });
         });
 
