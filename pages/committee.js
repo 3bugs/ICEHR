@@ -100,10 +100,10 @@ export default class Organization extends React.Component {
                                         <div className="pic-executive">
                                             <img src={`${HOST_BACKEND}/uploads/user_assets/${committee.image_file_name}`}
                                                  className="img-fluid"
-                                                 style={{borderRadius: '50%'}}/>
+                                                 style={{borderRadius: '50%', height: '200px'}}/>
                                         </div>
-                                        <h6>{`${committee.title}${committee.first_name} ${committee.last_name}`}</h6>
-                                        <p>{committee.department_name}</p>
+                                        <h6 style={{marginBottom: '20px'}}>{`${committee.title}${committee.first_name} ${committee.last_name}`}</h6>
+                                        {/*<p>{committee.department_name}</p>*/}
                                     </div>
                                 ))
                             }
