@@ -124,9 +124,9 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                                     <?php
                                     if (sizeof($documentDownloadList) == 0) {
                                         ?>
-                                        <tr valign="middle">
+                                        <!--<tr valign="middle">
                                             <td colspan="20" align="center">ไม่มีข้อมูล</td>
-                                        </tr>
+                                        </tr>-->
                                         <?php
                                     } else {
                                         foreach ($documentDownloadList as $documentDownload) {

@@ -176,9 +176,9 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
                                     <?php
                                     if (sizeof($serviceList) == 0) {
                                         ?>
-                                        <tr valign="middle">
+                                        <!--<tr valign="middle">
                                             <td colspan="5" align="center">ไม่มีข้อมูล</td>
-                                        </tr>
+                                        </tr>-->
                                         <?php
                                     } else {
                                         foreach ($serviceList as $service) {

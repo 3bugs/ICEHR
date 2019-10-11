@@ -209,9 +209,9 @@ if ($result = $db->query($sql)) {
                                     <?php
                                     if (sizeof($dataList) == 0) {
                                         ?>
-                                        <tr valign="middle">
+                                        <!--<tr valign="middle">
                                             <td colspan="5" align="center">ไม่มีข้อมูล</td>
-                                        </tr>
+                                        </tr>-->
                                         <?php
                                     } else {
                                         foreach ($dataList as $data) {
@@ -278,7 +278,7 @@ if ($result = $db->query($sql)) {
                 event.preventDefault();
                 doUpdate();
             });
-            
+
             $('#table').DataTable({
                 stateSave: true,
                 stateDuration: -1, // sessionStorage

@@ -106,9 +106,9 @@ if ($newsType === 'in-house') {
                                     <?php
                                     if (sizeof($newsList) == 0) {
                                         ?>
-                                        <tr valign="middle">
+                                        <!--<tr valign="middle">
                                             <td colspan="20" align="center">ไม่มีข้อมูล</td>
-                                        </tr>
+                                        </tr>-->
                                         <?php
                                     } else {
                                         foreach ($newsList as $news) {

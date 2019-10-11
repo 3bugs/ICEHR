@@ -873,9 +873,9 @@ function generateTable($memberList, $memberType)
         <?php
         if (sizeof($memberList) == 0) {
             ?>
-            <tr valign="middle">
+            <!--<tr valign="middle">
                 <td colspan="20" align="center">ไม่มีข้อมูล</td>
-            </tr>
+            </tr>-->
             <?php
         } else {
             foreach ($memberList as $member) {
@@ -1013,9 +1013,9 @@ function generateTraineeTable($traineeList)
         <?php
         if (sizeof($traineeList) == 0) {
             ?>
-            <tr valign="middle">
+            <!--<tr valign="middle">
                 <td colspan="20" align="center">ไม่มีข้อมูล</td>
-            </tr>
+            </tr>-->
             <?php
         } else {
             foreach ($traineeList as $trainee) {
