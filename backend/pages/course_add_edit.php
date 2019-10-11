@@ -366,6 +366,10 @@ if (isset($courseId)) {
                                                             if (!empty($course) && ($course['course_master_id'] === $courseMasterId)) {
                                                                 $selected = 'selected';
                                                             }
+                                                            // กรณีเพิ่มหลักสูตรใหม่ของบริการใบขับขี่ ให้เลือกชื่อหลักสูตรอัตโนมัติ (เพราะมีชื่อเดียว)
+                                                            if (empty($course) && ($serviceType === SERVICE_TYPE_DRIVING_LICENSE)) {
+                                                                $selected = 'selected';
+                                                            }
                                                             ?>
                                                             <option value="<?= $courseMasterId; ?>" <?= $selected; ?>>
                                                                 <?= $courseMasterTitle; ?>
@@ -698,7 +702,7 @@ if (isset($courseId)) {
                                                         <input type="checkbox"
                                                                name="showTrainerSignature"
                                                                data-toggle="toggle" <?= $check; ?>>
-                                                        แสดงภาพลายเซ็นในเอกสารที่ print (ปิดตัวเลือกนี้ หากต้องการให้วิทยากรเซ็นเอง)
+                                                        แสดงภาพลายเซ็นในเอกสารที่ print <span style="color: orangered">(ปิดตัวเลือกนี้ หากต้องการให้วิทยากรเซ็นเอง)</span>
                                                     </label>
                                                 </div>
                                             </div>
