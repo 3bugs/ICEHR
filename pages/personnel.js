@@ -222,7 +222,7 @@ export default class Personnel extends React.Component {
                                                     <div className="row">
                                                         {
                                                             department.userList.map((user, index) => (
-                                                                <div className="col-6 col-sm-4 executive-detail">
+                                                                <div className="col-6 col-sm-4 executive-detail" style={{marginTop: '10px'}}>
                                                                     <div className="pic-executive">
                                                                         <img src={`${HOST_BACKEND}/uploads/user_assets/${user.image_file_name}`}
                                                                              className="img-fluid"
