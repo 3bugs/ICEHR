@@ -222,26 +222,28 @@ export default class Personnel extends React.Component {
                                                     <div className="row">
                                                         {
                                                             department.userList.map((user, index) => (
-                                                                <div className="col-6 col-sm-4 executive-detail" style={{marginTop: '10px'}}>
-                                                                    <div className="pic-executive">
+                                                                <div className="col-6 col-sm-4 executive-detail">
+                                                                    <div className="pic-executive" style={{marginTop: '0px'}}>
                                                                         <img src={`${HOST_BACKEND}/uploads/user_assets/${user.image_file_name}`}
                                                                              className="img-fluid"
                                                                              style={{borderRadius: '50%', height: '200px'}}/>
                                                                     </div>
-                                                                    <h6>{`${user.title}${user.first_name} ${user.last_name}`}</h6>
-                                                                    <p>{user.position}</p>
+                                                                    <div style={{marginBottom: '25px'}}>
+                                                                        <h6>{`${user.title}${user.first_name} ${user.last_name}`}</h6>
+                                                                        <p>{user.position}</p>
 
-                                                                    {user.show_details === 1 &&
-                                                                    <div className="moredetail">
-                                                                        <a href={'#user' + user.user_id} className="btn btn-outline-primary inline">รายละเอียด</a>
-                                                                        <div style={{display: 'none'}}>
-                                                                            <div id={'user' + user.user_id} className="detail-inside-box">
-                                                                                <h4>ผลงานที่ผ่านมา </h4>
-                                                                                <div dangerouslySetInnerHTML={{__html: user.details}}/>
+                                                                        {user.show_details === 1 &&
+                                                                        <div className="moredetail">
+                                                                            <a href={'#user' + user.user_id} className="btn btn-outline-primary inline">รายละเอียด</a>
+                                                                            <div style={{display: 'none'}}>
+                                                                                <div id={'user' + user.user_id} className="detail-inside-box">
+                                                                                    <h4>ผลงานที่ผ่านมา </h4>
+                                                                                    <div dangerouslySetInnerHTML={{__html: user.details}}/>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
+                                                                        }
                                                                     </div>
-                                                                    }
                                                                 </div>
                                                             ))
                                                         }
