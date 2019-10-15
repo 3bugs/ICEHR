@@ -656,6 +656,10 @@ a:hover {
 	-webkit-box-orient: vertical;
 }
 
+.academicPaperTitle {
+	margin-right: 240px;
+}
+
 .yeartop {
 	background-color: white;
 	color: black;
@@ -664,7 +668,7 @@ a:hover {
 	position: absolute;
 	height: 50px;
 	line-height: 40px;
-	top: 5px;
+	top: 6px;
 	right: 90px;
 }
 
@@ -1431,6 +1435,9 @@ a:hover {
 	}
 	.stepimg {
 		width: 100%;
+	}
+	.academicPaperTitle {
+		margin-right: 0;
 	}
 	.yeartop {
 		position: relative;

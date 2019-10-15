@@ -2308,7 +2308,7 @@ doGetAcademicPaper = (req, res, db) => {
                 year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
              FROM academic_paper
              WHERE ${whereClause}
-             ORDER BY id DESC
+             ORDER BY year_published DESC
              ${limitClause}`,
         id == null ? [] : [id],
         function (err, results, fields) {
