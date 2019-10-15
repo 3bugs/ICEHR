@@ -218,7 +218,7 @@ export default class ServiceTraining extends React.Component {
                                 </select>
                             </div>
                         </div>
-                        <div className="submitbox"><a href="#" className="btn-submit" onClick={this.handleClickSearch}>ค้นหา</a></div>
+                        <div className="submitbox" style={{marginTop: '15px'}}><a href="#" className="btn-submit" onClick={this.handleClickSearch}>ค้นหา</a></div>
                     </div>
 
                     <div className="container d-block d-sm-none d-md-none d-lg-none d-xl-none">
