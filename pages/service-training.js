@@ -153,7 +153,7 @@ export default class ServiceTraining extends React.Component {
                 </div>
 
                 {/*แถบค้นหาหลักสูตรฝึกอบรม*/}
-                <div className="bg-search-service1">
+                <div className="bg-search-service1" style={{height: '170px'}}>
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
                             <div className="col">
