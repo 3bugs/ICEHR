@@ -92,14 +92,21 @@ export default class CourseDetails extends React.Component {
                 {course != null &&
                 <div className="container">
                     <div className="row text-default">
-                        <div className="col-md-3 text-bold"> ชื่อหลักสูตร / รุ่นที่
-                            <br/> วันที่อบรม
-                            <br/> สถานที่อบรม
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="col-md-4 text-bold">ชื่อหลักสูตร / รุ่นที่</div>
+                                <div className="col-md-8">{course.name}</div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-4 text-bold">วันที่อบรม</div>
+                                <div className="col-md-8">{formatCourseDateLong(course.beginDate, course.endDate)}</div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-4 text-bold">สถานที่อบรม</div>
+                                <div className="col-md-8">{course.place}</div>
+                            </div>
                         </div>
-                        <div className="col-md-6">{course.name}
-                            <br/>{formatCourseDateLong(course.beginDate, course.endDate)}
-                            <br/>{course.place}
-                        </div>
+
                         <div className="col-md-3">
                             <div className="row">
                                 <div className="col">

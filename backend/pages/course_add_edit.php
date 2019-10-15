@@ -37,6 +37,7 @@ if (isset($courseId)) {
             $course['trainee_limit'] = (int)$row['trainee_limit'];
             $course['application_fee'] = (int)$row['application_fee'];
             $course['place'] = $row['place'];
+            $course['place_type'] = (int)$row['place_type'];
             $course['begin_date'] = $row['begin_date'];
             $course['end_date'] = $row['end_date'];
             $course['responsible_user_id'] = (int)$row['responsible_user_id'];
@@ -577,8 +578,8 @@ if (isset($courseId)) {
                                                                     oninvalid="this.setCustomValidity('เลือกประเภทสถานที่')"
                                                                     oninput="this.setCustomValidity('')">
                                                                 <option value="0" disabled selected>-- เลือกประเภทสถานที่ --</option>
-                                                                <option value="1">กรุงเทพมหานคร</option>
-                                                                <option value="2">ภูมิภาค</option>
+                                                                <option value="1" <?= $course['place_type'] === 1 ? 'selected' : '' ?>>กรุงเทพมหานคร</option>
+                                                                <option value="2" <?= $course['place_type'] === 2 ? 'selected' : '' ?>>ภูมิภาค</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -596,8 +597,8 @@ if (isset($courseId)) {
                                                                     oninvalid="this.setCustomValidity('เลือกวิทยาเขต')"
                                                                     oninput="this.setCustomValidity('')">
                                                                 <option value="0" disabled selected>-- เลือกวิทยาเขต --</option>
-                                                                <option value="1">ท่าพระจันทร์</option>
-                                                                <option value="2">ศูนย์รังสิต</option>
+                                                                <option value="1" <?= $course['place_type'] === 1 ? 'selected' : '' ?>>ท่าพระจันทร์</option>
+                                                                <option value="2" <?= $course['place_type'] === 2 ? 'selected' : '' ?>>ศูนย์รังสิต</option>
                                                             </select>
                                                         </div>
                                                     </div>
