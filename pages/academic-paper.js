@@ -47,7 +47,7 @@ class AcademicPaperListItem extends React.Component {
                                     data-target={`#collapse${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}
                                     aria-expanded={show}
                                     aria-controls={`collapse${accordionId + id}` + (isSearchResult ? 'search' : 'normal')}>
-                                <i className="fa" aria-hidden="true"/>
+                                <i className="fa" aria-hidden="true" style={{color: '#fff'}}/>
                                 <div className="academicPaperTitle">{title}</div>
                                 <span className="yeartop">ปีที่เผยแพร่ {yearPublished}</span>
                             </button>
