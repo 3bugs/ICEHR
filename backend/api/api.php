@@ -1761,6 +1761,7 @@ function doUpdateCourse()
     $beginDate = getMySqlDateFormat($db->real_escape_string($_POST['beginDate']));
     $endDate = getMySqlDateFormat($db->real_escape_string($_POST['endDate']));
     $place = $db->real_escape_string($_POST['place']);
+    $placeType = isset($_POST['placeType']) ? $db->real_escape_string($_POST['placeType']) : 'NULL';
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
@@ -1782,11 +1783,11 @@ function doUpdateCourse()
 
     if ($trainerId == null) {
         $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
-            . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
+            . " trainee_limit = $traineeLimit, place = '$place', place_type = $placeType, begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId "
             . " WHERE id = $courseId";
     } else {
         $sql = "UPDATE course SET course_master_id = $courseMasterId, batch_number = $batchNumber, details = '$details', application_fee = $applicationFee, "
-            . " trainee_limit = $traineeLimit, place = '$place', begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId, trainer_id = $trainerId, show_trainer_signature = $showTrainerSignature "
+            . " trainee_limit = $traineeLimit, place = '$place', place_type = $placeType, begin_date = '$beginDate', end_date = '$endDate', responsible_user_id = $responsibleUserId, trainer_id = $trainerId, show_trainer_signature = $showTrainerSignature "
             . " WHERE id = $courseId";
     }
 
