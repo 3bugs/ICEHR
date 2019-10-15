@@ -1606,6 +1606,7 @@ function doAddCourse()
     $beginDate = getMySqlDateFormat($db->real_escape_string($_POST['beginDate']));
     $endDate = getMySqlDateFormat($db->real_escape_string($_POST['endDate']));
     $place = $db->real_escape_string($_POST['place']);
+    $placeType = isset($_POST['placeType']) ? $db->real_escape_string($_POST['placeType']) : 'NULL';
     $responsibleUserId = $db->real_escape_string($_POST['responsibleUserId']);
     $details = $db->real_escape_string($_POST['details']);
 
@@ -1619,11 +1620,11 @@ function doAddCourse()
     $db->query('START TRANSACTION');
 
     if ($trainerId == null) {
-        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id) "
-            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId)";
+        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, place_type, begin_date, end_date, responsible_user_id) "
+            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', $placeType, '$beginDate', '$endDate', $responsibleUserId)";
     } else {
-        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, begin_date, end_date, responsible_user_id, trainer_id, show_trainer_signature) "
-            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', '$beginDate', '$endDate', $responsibleUserId, $trainerId, $showTrainerSignature)";
+        $sql = "INSERT INTO course (course_master_id, batch_number, details, application_fee, trainee_limit, place, place_type, begin_date, end_date, responsible_user_id, trainer_id, show_trainer_signature) "
+            . " VALUES ($courseMasterId, $batchNumber, '$details', $applicationFee, $traineeLimit, '$place', $placeType, '$beginDate', '$endDate', $responsibleUserId, $trainerId, $showTrainerSignature)";
     }
 
     if ($insertCourseResult = $db->query($sql)) {
