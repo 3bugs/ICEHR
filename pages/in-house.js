@@ -10,6 +10,10 @@ import Link from "next/link";
 import {HOST_BACKEND, SERVICE_SOCIAL} from "../etc/constants";
 import Dialog from "../components/Dialog";
 import DatePicker from "react-datepicker";
+import ReactPaginate from "react-paginate";
+import '../pages/pagination.css';
+
+const IN_HOUSE_LIMIT_PER_PAGE = 3;
 
 const TOP_OF_FORM = 'topOfForm';
 //const ORGANIZATION_TYPE_OTHER = '9999';
@@ -102,19 +106,23 @@ export default class InHouse extends React.Component {
                 fields: {},
                 errors: {}
             },
-            nameTitleList: [],
             dialog: {
                 isOpen: false,
                 message: '',
                 textColor: '#000',
                 onCloseCallback: null,
             },
+            inHouseList: [],
+            errorMessage: null,
+            offset: 0,
+            initialPage: 0,
+            firstLoad: true,
         };
     }
 
     static getInitialProps = async function ({req, query}) {
         let nameTitleList = null;
-        let inHouseList = null;
+        //let inHouseList = null;
         let errorMessage = null;
 
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
@@ -125,7 +133,7 @@ export default class InHouse extends React.Component {
         if (resultNameTitle['error']['code'] === 0) {
             nameTitleList = resultNameTitle['dataList'];
 
-            const resInHouse = await fetch(baseUrl + '/api/get_in_house_latest', {
+            /*const resInHouse = await fetch(baseUrl + '/api/get_in_house_latest', {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
@@ -141,17 +149,53 @@ export default class InHouse extends React.Component {
                 nameTitleList = null;
                 inHouseList = null;
                 errorMessage = resultNameTitle['error']['message'];
-            }
+            }*/
         } else {
             nameTitleList = null;
-            inHouseList = null;
+            //inHouseList = null;
             errorMessage = resultNameTitle['error']['message'];
         }
 
-        return {nameTitleList, inHouseList, errorMessage};
+        return {nameTitleList, errorMessage};
     };
 
     componentDidMount() {
+    }
+
+    handlePageClick = data => {
+        let selected = data.selected;
+        let offset = Math.ceil(selected * IN_HOUSE_LIMIT_PER_PAGE);
+
+        this.setState({offset, initialPage: selected}, () => {
+            this.doGetInHouse();
+        });
+    };
+
+    async doGetInHouse() {
+        let inHouseList = null;
+        let errorMessage = null;
+        let pageCount = 0;
+
+        const resInHouse = await fetch('/api/get_in_house', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                limit: IN_HOUSE_LIMIT_PER_PAGE,
+                offset: this.state.offset,
+            }),
+        });
+        const resultInHouse = await resInHouse.json();
+        if (resultInHouse['error']['code'] === 0) {
+            inHouseList = resultInHouse['dataList'];
+            pageCount = Math.ceil(resultInHouse.totalCount / IN_HOUSE_LIMIT_PER_PAGE),
+            errorMessage = null;
+        } else {
+            inHouseList = null;
+            errorMessage = resultInHouse['error']['message'];
+        }
+        this.setState({inHouseList, errorMessage, pageCount});
     }
 
     handleChange = (field, e) => {
@@ -307,8 +351,8 @@ export default class InHouse extends React.Component {
     };
 
     render() {
-        let {formData, dialog} = this.state;
-        const {inHouseList} = this.props;
+        let {formData, dialog, inHouseList, errorMessage} = this.state;
+        //const {inHouseList} = this.props;
 
         return (
             <MainLayout>
@@ -322,9 +366,10 @@ export default class InHouse extends React.Component {
                         </div>
                     </div>
                     <div className="row mt-3">
-                        <div className="col-12 col-md-9">
-                            <h4 className="text-black"><img src="/static/images/inhouse-icon.svg" className="ih-icon"/> หลักสูตร In-House Training ที่ผ่านมาของสถาบัน</h4></div>
-                        <div className="col-12 col-md-3"><a href="#" className="readmore">ดูทั้งหมด</a></div>
+                        <div className="col-12 col-md-12">
+                            <h4 className="text-black"><img src="/static/images/inhouse-icon.svg" className="ih-icon"/> หลักสูตร In-House Training ที่ผ่านมาของสถาบัน</h4>
+                        </div>
+                        {/*<div className="col-12 col-md-3"><a href="#" className="readmore">ดูทั้งหมด</a></div>*/}
                     </div>
                     <div className="row mt-3">
                         {inHouseList &&
@@ -337,7 +382,31 @@ export default class InHouse extends React.Component {
                             ไม่มีข้อมูลหลักสูตร In-House Training ที่ผ่านมา
                         </div>
                         }
+                        {!inHouseList &&
+                        <div style={{color: 'red', textAlign: 'center'}}>
+                            {errorMessage}
+                        </div>
+                        }
                     </div>
+
+                    <div style={{textAlign: 'center', marginTop: '30px'}}>
+                        <ReactPaginate
+                            initialPage={this.state.initialPage}
+                            previousLabel={'<'}
+                            nextLabel={'>'}
+                            breakLabel={'...'}
+                            breakClassName={'break-me'}
+                            pageCount={this.state.pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={'pagination'}
+                            activeClassName={'pagination-active'}
+                            previousClassName={'pagination-older'}
+                            nextClassName={'pagination-newer'}
+                        />
+                    </div>
+
                     <div className="row mt-5">
                         <div className="col">
                             <h4 className="text-black" style={{marginBottom: 0}}>

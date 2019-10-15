@@ -35,7 +35,7 @@ $db->set_charset("utf8");
 
 //usleep(350000); //todo: *****************************************************************************************
 
-if ($_SESSION[KEY_SESSION_USER_ID] === 3) {
+if ($_SESSION[KEY_SESSION_USER_ID] === 3 && $action !== 'logout_user') {
     $response[KEY_ERROR_CODE] = ERROR_CODE_INVALID_ACTION;
     $response[KEY_ERROR_MESSAGE] = 'คุณไม่มีสิทธิ์ในการดำเนินการนี้';
     $response[KEY_ERROR_MESSAGE_MORE] = '';

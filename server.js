@@ -242,6 +242,9 @@ app
                     case 'get_in_house_latest':
                         doGetInHouseLatest(req, res, db);
                         break;
+                    case 'get_in_house':
+                        doGetInHouse(req, res, db);
+                        break;
                     case 'get_news_by_id':
                         doGetNewsById(req, res, db);
                         break;
@@ -2698,6 +2701,51 @@ doGetInHouseLatest = (req, res, db) => {
         }
     );
     db.end();
+};
+
+doGetInHouse = (req, res, db) => {
+    const {offset, limit} = req.body;
+    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+
+    db.query(
+            `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+             FROM news
+             WHERE news_type = ? 
+               AND status = ?
+             ORDER BY created_at DESC
+             ${limitClause}`,
+        ['in-house', 'publish'],
+        function (err, results, fields) {
+            if (err) {
+                res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                });
+                db.end();
+            } else {
+                db.query(
+                    `SELECT COUNT(*) AS totalCount
+                         FROM news
+                         WHERE news_type = ?
+                           AND status = ?`,
+                    ['in-house', 'publish'],
+                    function (err, totalCountResults, fields) {
+                        if (err) {
+                            res.send({
+                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                                dataList: results,
+                                totalCount: totalCountResults[0].totalCount,
+                            });
+                        }
+                    }
+                );
+                db.end();
+            }
+        }
+    );
 };
 
 doGetActivity = (req, res, db) => {
