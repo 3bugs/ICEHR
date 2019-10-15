@@ -80,8 +80,9 @@ class AcademicPaperListItem extends React.Component {
 
                 <style jsx>{`
                     .card-header {
-                        padding-top: 15px;
-                        padding-bottom: 15px;
+                        background-color: rgba(0, 0, 0, 0.03);
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+                        padding: 0.75rem 1.25rem;
                     }
                     
                     .bg-search-service1 .col {
