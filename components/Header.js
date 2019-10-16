@@ -163,7 +163,9 @@ class LoginForm extends React.Component {
         if (this.state.loginUser == null) {
             // แสดง Login modal
             this.setState({
-                errors: {},
+                errors: {
+                    [REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]: 'กรณีไม่มีเลขประจำตัวผู้เสียภาษี ให้ใส่เครื่องหมาย -',
+                },
                 showLoginModal: true,
             });
         } else {
@@ -449,8 +451,9 @@ class LoginForm extends React.Component {
                     errors[REGISTER_ORGANIZATION_ORGANIZATION_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์หน่วยงาน';
                     formIsValid = false;
                 }
-                if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] || fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID].trim().length === 0) {
-                    errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี';
+                if (!fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]
+                    || (fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID].length !== 13 && fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] !== '-')) {
+                    errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี, กรณีไม่มีเลขประจำตัวผู้เสียภาษี ให้ใส่เครื่องหมาย -';
                     formIsValid = false;
                 }
 
@@ -1377,10 +1380,10 @@ class LoginForm extends React.Component {
                                                                             <div className="col-12 col-md-9">
                                                                                 <input
                                                                                     value={this.state.fields[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID] || ''}
-                                                                                    onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID, true)}
+                                                                                    onChange={this.handleChange.bind(this, REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID, false)}
                                                                                     type="text"
                                                                                     maxLength={13}
-                                                                                    placeholder="เลขประจำตัวผู้เสียภาษี"
+                                                                                    placeholder="กรอกเลขประจำตัวผู้เสียภาษี"
                                                                                     className="form-control input-md"/>
                                                                                 <ErrorLabel
                                                                                     value={this.state.errors[REGISTER_ORGANIZATION_ORGANIZATION_TAX_ID]}/>

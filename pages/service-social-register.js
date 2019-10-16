@@ -546,7 +546,7 @@ class TraineeRegisterForm extends React.Component {
                                                 <input value={traineeForm.fields[REGISTER_TRAINEE_DISEASE] || ''}
                                                        onChange={this.handleChange.bind(this, REGISTER_TRAINEE_DISEASE)}
                                                        type="text"
-                                                       placeholder="กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว"
+                                                       placeholder="กรอกโรคประจำตัว, กรณีไม่มีโรคประจำตัว ให้ใส่เครื่องหมาย -"
                                                        className="form-control input-md mt-2"
                                                        disabled={isReadOnly}/>
                                                 <ErrorLabel
@@ -936,7 +936,7 @@ export default class ServiceSocialRegister extends React.Component {
             formIsValid = false;
         }
         if (!fields[REGISTER_TRAINEE_DISEASE] || fields[REGISTER_TRAINEE_DISEASE].trim().length === 0) {
-            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, หรือกรอก - ถ้าหากไม่มีโรคประจำตัว';
+            errors[REGISTER_TRAINEE_DISEASE] = 'กรอกโรคประจำตัว, กรณีไม่มีโรคประจำตัว ให้ใส่เครื่องหมาย -';
             formIsValid = false;
         }
 

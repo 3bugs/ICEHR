@@ -532,7 +532,9 @@ export default class ServiceTrainingRegister extends React.Component {
             },
             receiptForm: {
                 fields: {},
-                errors: {}
+                errors: {
+                    [REGISTER_RECEIPT_TAX_ID]: 'กรณีไม่มีเลขประจำตัวผู้เสียภาษี ให้ใส่เครื่องหมาย -',
+                },
             },
             nameTitleList: [],
             organizationTypeList: [],
@@ -783,7 +785,7 @@ export default class ServiceTrainingRegister extends React.Component {
         let {receiptForm} = this.state;
         let {fields} = receiptForm;
 
-        if (field === REGISTER_RECEIPT_PROVINCE || field === REGISTER_RECEIPT_POSTAL_CODE) {
+        if (field === REGISTER_RECEIPT_PROVINCE || field === REGISTER_RECEIPT_POSTAL_CODE || field === REGISTER_RECEIPT_TAX_ID) {
             fields[field] = e.target.value.trim();
         } else {
             fields[field] = e.target.value;
@@ -1087,8 +1089,9 @@ export default class ServiceTrainingRegister extends React.Component {
             receiptErrors[REGISTER_RECEIPT_ORGANIZATION_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์หน่วยงาน';
             valid = false;
         }
-        if (!receiptFields[REGISTER_RECEIPT_TAX_ID] || receiptFields[REGISTER_RECEIPT_TAX_ID].trim().length !== 13) {
-            receiptErrors[REGISTER_RECEIPT_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี 13 หลัก';
+        if (!receiptFields[REGISTER_RECEIPT_TAX_ID]
+            || (receiptFields[REGISTER_RECEIPT_TAX_ID].trim().length !== 13 && receiptFields[REGISTER_RECEIPT_TAX_ID] !== '-')) {
+            receiptErrors[REGISTER_RECEIPT_TAX_ID] = 'กรุณากรอกเลขประจำตัวผู้เสียภาษี 13 หลัก, กรณีไม่มีเลขประจำตัวผู้เสียภาษี ให้ใส่เครื่องหมาย -';
             valid = false;
         }
         receiptForm.errors = receiptErrors;

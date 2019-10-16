@@ -156,14 +156,14 @@ export default class ServiceTraining extends React.Component {
                 <div className="bg-search-service1" style={{height: '170px'}}>
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
-                            <div className="col">
+                            <div className="col" style={{paddingTop: 0, paddingBottom: 0}}>
                                 <input
                                     value={searchFields[SEARCH_INPUT_TITLE] || ''}
                                     onChange={this.handleInputChange.bind(this, SEARCH_INPUT_TITLE)}
                                     type="text" placeholder="คำค้น"
                                     className="form-control input-md"/>
                             </div>
-                            <div className="col">
+                            <div className="col" style={{paddingTop: 0, paddingBottom: 0}}>
                                 <select
                                     value={searchFields[SEARCH_SELECT_CATEGORY] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_CATEGORY)}
@@ -177,7 +177,7 @@ export default class ServiceTraining extends React.Component {
                                     <option value="9999">( ไม่ระบุหมวดหมู่ )</option>
                                 </select>
                             </div>
-                            <div className="col">
+                            <div className="col" style={{paddingTop: 0, paddingBottom: 0}}>
                                 <select
                                     value={searchFields[SEARCH_SELECT_PLACE_TYPE] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_PLACE_TYPE)}
@@ -188,7 +188,7 @@ export default class ServiceTraining extends React.Component {
                                     <option value="9999">( ไม่ระบุสถานที่ )</option>
                                 </select>
                             </div>
-                            <div className="col">
+                            <div className="col" style={{paddingTop: 0, paddingBottom: 0}}>
                                 <select
                                     value={searchFields[SEARCH_SELECT_YEAR] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_YEAR)}
@@ -203,7 +203,7 @@ export default class ServiceTraining extends React.Component {
                                     <option value="9999">( ไม่ระบุปี )</option>
                                 </select>
                             </div>
-                            <div className="col">
+                            <div className="col" style={{paddingTop: 0, paddingBottom: 0}}>
                                 <select
                                     value={searchFields[SEARCH_SELECT_MONTH] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_MONTH)}
