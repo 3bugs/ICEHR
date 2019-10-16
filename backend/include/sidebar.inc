@@ -395,6 +395,15 @@
                         <i class="fa fa-desktop"></i> <span>Intro Page</span>
                     </a>
                 </li>
+
+                <li class="header" style="color: yellow; text-align: center">External Links</li>
+
+                <li>
+                    <a href="https://analytics.google.com" target="_blank">
+                        <i class="fa fa-bar-chart"></i> <span>Google Analytics</span>
+                    </a>
+                </li>
+
                 <!--<li>
                     <a href="top_menu.php">
                         <i class="fa fa-bars"></i> <span>เมนูด้านบน</span>
