@@ -145,7 +145,7 @@ if ($newsType === 'in-house') {
                                                     <input name="status" type="checkbox"
                                                            class="my-toggle"
                                                            data-toggle="toggle"
-                                                           onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
+                                                           onChange="onChangeStatus(this, <?= $news['id']; ?>, '<?= htmlentities($news['title']); ?>', <?= $userHasPermission; ?>)"
                                                         <?= $news['status'] == 'publish' ? 'checked' : '' ?>>
                                                 </td>
 
@@ -157,7 +157,7 @@ if ($newsType === 'in-house') {
                                                     <input name="status" type="checkbox"
                                                            class="my-toggle"
                                                            data-toggle="toggle"
-                                                           onChange="onChangePin(this, <?= $news['id']; ?>, '<?= $news['title']; ?>', <?= $userHasPermission; ?>)"
+                                                           onChange="onChangePin(this, <?= $news['id']; ?>, '<?= htmlentities($news['title']); ?>', <?= $userHasPermission; ?>)"
                                                         <?= (int)$news['pinned'] === 1 ? 'checked' : '' ?>>
                                                 </td>
 
