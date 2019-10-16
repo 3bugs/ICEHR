@@ -37,7 +37,7 @@ if ($result = $db->query($sql)) {
 
     if (sizeof($traineeList) == 0) {
         header('Content-Type: text/html');
-        echo 'ไม่มีข้อมูลผู้เข้ารับการอบรมที่สถานะการลงทะเบียนสมบูรณ์ในหลักสูตรนี้';
+        echo 'ไม่มีข้อมูลผู้สมัครในหลักสูตรนี้';
         $db->close();
         exit();
     }
