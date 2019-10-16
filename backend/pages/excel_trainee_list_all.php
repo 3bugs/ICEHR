@@ -49,7 +49,7 @@ if ($result = $db->query($sql)) {
 }
 
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment; filename="course_trainee.xls"');
+header('Content-Disposition: attachment; filename="course_trainee_status_all.xls"');
 header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
