@@ -516,20 +516,20 @@ $mpdf = new \Mpdf\Mpdf([
 
                     <tr>
                         <td>
-                            <table width="570px" align="center" cellpadding="5px" cellspacing="0" style="border: 1px solid #666">
+                            <table width="570px" align="center" cellpadding="5px" cellspacing="0">
                                 <?php
                                 foreach ($trainee['fee_list'] as $feeItem) {
                                     ?>
                                     <tr>
                                         <td width="450px" <?= $feeItem['amount'] == null ? 'colspan="2"' : ''; ?>
-                                            style="padding-left: 15px">
+                                            style="padding-left: 15px; border: 1px solid #666">
                                             <?= $feeItem['title']; ?>
                                         </td>
                                         <?php
                                         if ($feeItem['amount'] != null) {
                                             ?>
                                             <td width="120px" align="right"
-                                                style="padding-right: 15px">
+                                                style="padding-right: 15px; border: 1px solid #666">
                                                 <strong><?= number_format($feeItem['amount']) . ' บาท'; ?></strong>
                                             </td>
                                             <?php
