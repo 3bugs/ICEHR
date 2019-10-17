@@ -516,7 +516,7 @@ $mpdf = new \Mpdf\Mpdf([
 
                     <tr>
                         <td>
-                            <table width="570px" align="center" cellpadding="5px" cellspacing="0">
+                            <table width="570px" align="center" cellpadding="5px" cellspacing="0" style="border: 1px solid black">
                                 <?php
                                 foreach ($trainee['fee_list'] as $feeItem) {
                                     ?>
