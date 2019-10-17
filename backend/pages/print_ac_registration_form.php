@@ -516,12 +516,12 @@ $mpdf = new \Mpdf\Mpdf([
 
                     <tr>
                         <td>
-                            <table width="400px" align="center" border="1" cellpadding="5px" cellspacing="0">
+                            <table width="570px" align="center" cellpadding="5px" cellspacing="0" style="border: 1px solid #666">
                                 <?php
                                 foreach ($trainee['fee_list'] as $feeItem) {
                                     ?>
                                     <tr>
-                                        <td width="280px" <?= $feeItem['amount'] == null ? 'colspan="2"' : ''; ?>
+                                        <td width="450px" <?= $feeItem['amount'] == null ? 'colspan="2"' : ''; ?>
                                             style="padding-left: 15px">
                                             <?= $feeItem['title']; ?>
                                         </td>
