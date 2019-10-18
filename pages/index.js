@@ -732,7 +732,7 @@ export default class Index extends React.Component {
 
                         {/*ข่าว*/}
                         <div className="row wow fadeInUp"
-                             style={{border: '0px solid red'}}>
+                             style={{border: '0px solid red', marginTop: '25px'}}>
                             <div className="col">
                                 <div className="tab">
                                     <ul className="tabs"
@@ -794,7 +794,7 @@ export default class Index extends React.Component {
 
                         {/*หัวข้อภาพกิจกรรม*/}
                         <div className="row wow fadeInUp"
-                             style={{border: '0px solid red'}}>
+                             style={{border: '0px solid red', marginTop: '15px'}}>
                             <div className="col text-title-top"
                                  style={{marginBottom: 0, paddingBottom: 0}}>
                                 <h3 style={{marginBottom: 0, paddingBottom: 0}}>ภาพกิจกรรม</h3>
