@@ -37,7 +37,7 @@ export class NewsItem extends React.Component {
                                 <Link href={`/news?id=${data.id}`}
                                       as={`/news/${data.id}`}>
                                     <a href="javascript:void(0)" className="readmore-red">
-                                        อ่านต่อ<img src="/static/images/arrow-more.svg"/>
+                                        อ่านต่อ<img src="/static/images/arrow-more.svg" style={{height: '11px'}}/>
                                     </a>
                                 </Link>
                             </div>
@@ -116,7 +116,7 @@ class ActivityItem extends React.Component {
                                         <Link href={`/news?id=${data.id}`}
                                               as={`/news/${data.id}`}>
                                             <a href="javascript:void(0)" className="readmore-red">
-                                                อ่านต่อ<img src="/static/images/arrow-more.svg"/>
+                                                อ่านต่อ<img src="/static/images/arrow-more.svg" style={{height: '11px'}}/>
                                             </a>
                                         </Link>
                                     </div>
