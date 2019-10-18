@@ -90,12 +90,17 @@ class ActivityItem extends React.Component {
                                 <div className={`flexslider`}>
                                     <ul className="slides">
                                         {
-                                            data.image_list.map(image => (
-                                                <li>
-                                                    <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
-                                                         className="img-fluid" style={{height: '330px', width: 'auto'}}/>
-                                                </li>
-                                            ))
+                                            data.image_list.map((image, index) => {
+                                                if (index < 5) {
+                                                    return (
+                                                        <li>
+                                                            <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
+                                                                 className="img-fluid"
+                                                                 style={{height: '330px', width: 'auto'}}/>
+                                                        </li>
+                                                    );
+                                                }
+                                            })
                                         }
                                     </ul>
                                 </div>
@@ -120,14 +125,19 @@ class ActivityItem extends React.Component {
                                     <div className="col">
                                         <div className="list-event">
                                             {
-                                                data.image_list.map((image, index) => (
-                                                    <li>
-                                                        <a href="javascript:void(0)" className="eventPic" rel={index}>
-                                                            <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
-                                                                 className="img-fluid"/>
-                                                        </a>
-                                                    </li>
-                                                ))
+                                                data.image_list.map((image, index) => {
+                                                    if (index < 5) {
+                                                        return (
+                                                            <li>
+                                                                <a href="javascript:void(0)" className="eventPic" rel={index}>
+                                                                    <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
+                                                                         className="img-fluid"
+                                                                         style={{height: '60px', width: 'auto'}}/>
+                                                                </a>
+                                                            </li>
+                                                        );
+                                                    }
+                                                })
                                             }
                                         </div>
                                     </div>
