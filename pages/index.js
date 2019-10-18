@@ -132,7 +132,7 @@ class ActivityItem extends React.Component {
                                                                 <a href="javascript:void(0)" className="eventPic" rel={index}>
                                                                     <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
                                                                          className="img-fluid"
-                                                                         style={{height: '60px', width: 'auto'}}/>
+                                                                         style={{height: '60px', width: 'auto', marginRight: '2px'}}/>
                                                                 </a>
                                                             </li>
                                                         );
