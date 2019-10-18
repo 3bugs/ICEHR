@@ -93,7 +93,7 @@ class ActivityItem extends React.Component {
                                             data.image_list.map(image => (
                                                 <li>
                                                     <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
-                                                         className="img-fluid"/>
+                                                         className="img-fluid" style={{height: '330px', width: 'auto'}}/>
                                                 </li>
                                             ))
                                         }
