@@ -91,7 +91,7 @@ class ActivityItem extends React.Component {
                                     <ul className="slides">
                                         {
                                             data.image_list.map((image, index) => {
-                                                if (index < 5) {
+                                                if (index < 10) {
                                                     return (
                                                         <li>
                                                             <img src={`${HOST_BACKEND}/uploads/news_assets/${image}`}
@@ -126,7 +126,7 @@ class ActivityItem extends React.Component {
                                         <div className="list-event">
                                             {
                                                 data.image_list.map((image, index) => {
-                                                    if (index < 5) {
+                                                    if (index < 10) {
                                                         return (
                                                             <li>
                                                                 <a href="javascript:void(0)" className="eventPic" rel={index}>
