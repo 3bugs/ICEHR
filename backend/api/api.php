@@ -1978,21 +1978,23 @@ function doUpdateRegisterStatus()
     $traineeId = $db->real_escape_string($_POST['traineeId']);
     $newRegisterStatus = $db->real_escape_string($_POST['registerStatus']);
     $paidAmount = $db->real_escape_string($_POST['paidAmount']);
+    $paymentDate = $_POST['paymentDate'] === 'NULL' ? 'NULL' :
+        "'" . getMySqlDateFormat($db->real_escape_string($_POST['paymentDate'])) . "'";
 
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
             $sql = "UPDATE course_trainee 
-                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount, payment_date = $paymentDate
                 WHERE id = $traineeId ";
             break;
         case SERVICE_TYPE_SOCIAL:
             $sql = "UPDATE course_registration_social 
-                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount, payment_date = $paymentDate
                 WHERE id = $traineeId ";
             break;
         case SERVICE_TYPE_DRIVING_LICENSE:
             $sql = "UPDATE course_registration_driving_license 
-                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount
+                SET register_status = '$newRegisterStatus', paid_amount = $paidAmount, payment_date = $paymentDate
                 WHERE id = $traineeId ";
             break;
     }
@@ -2416,6 +2418,19 @@ function doGetPaymentNotification()
             $paymentNotification['trainee_id'] = (int)$row['trainee_id'];
             $paymentNotification['amount'] = (int)$row['amount'];
             $paymentNotification['transfer_date'] = $row['transfer_date'];
+
+            $beginDatePart = explode('-', $row['transfer_date']);
+            $year = $beginDatePart[0];
+            $month = $beginDatePart[1];
+            $day = $beginDatePart[2];
+            $transferDateThaiFormat = "$day/$month/$year";
+
+            $paymentNotification['transfer_date_thai_format'] = $transferDateThaiFormat;
+
+            $transferDate = $row['transfer_date'];
+            $displayDate = getThaiShortDateWithDayName(date_create($transferDate));
+            $paymentNotification['transfer_date_format'] = $displayDate;
+
             $paymentNotification['slip_file_name'] = $row['slip_file_name'];
             $paymentNotification['created_at'] = $row['created_at'];
 
@@ -2446,6 +2461,28 @@ function doGetPaymentNotification()
         $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
     }
 }
+
+/*function doUpdatePaymentDate() {
+    global $db, $response;
+
+    $id = $db->real_escape_string($_POST['id']);
+    $paymentDate = getMySqlDateFormat($db->real_escape_string($_POST['paymentDate']));
+
+    $sql = "UPDATE payment_notification 
+                SET transfer_date = '{$paymentDate}'
+                WHERE id = $id";
+
+    if ($result = $db->query($sql)) {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+        $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลสำเร็จ';
+        $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล: ' . $db->error;
+        $errMessage = $db->error;
+        $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+    }
+}*/
 
 function doUpdateInHouse()
 {

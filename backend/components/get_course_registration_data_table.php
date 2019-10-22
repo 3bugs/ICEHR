@@ -16,7 +16,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
     switch ($serviceType) {
         case SERVICE_TYPE_TRAINING:
             $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, 
-                           ct.register_status, ct.created_at, ct.course_registration_id, ct.paid_amount, ct.receipt_number,
+                           ct.register_status, ct.created_at, ct.course_registration_id, ct.paid_amount, ct.payment_date , ct.receipt_number,
                            ct.job_position, ct.organization_name, ct.organization_type, ct.organization_type_custom,
                            cr.course_id, cr.coordinator_title, cr.coordinator_first_name, cr.coordinator_last_name, 
                            cr.coordinator_phone, cr.coordinator_email, cr.coordinator_job_position, 
@@ -35,7 +35,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                            cr.occupation, cr.work_place, cr.address, cr.sub_district, cr.district, cr.province, cr.postal_code,
                            cr.contact_name, cr.contact_phone, cr.disease,
                            cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code,
-                           cr.register_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number
+                           cr.register_status, cr.created_at, cr.course_id, cr.paid_amount, cr.payment_date, cr.receipt_number
                     FROM course_registration_social cr  
                     WHERE $whereClause
                     ORDER BY id DESC";
@@ -46,7 +46,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                            cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                            cr.sub_district, cr.district, cr.province, cr.phone, 
                            cr.pid_file_name, cr.pid_file_name_2, cr.pid_file_name_3, cr.pid_file_name_4, cr.pid_file_name_5, 
-                           cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.receipt_number,
+                           cr.register_status, cr.doc_status, cr.created_at, cr.course_id, cr.paid_amount, cr.payment_date, cr.receipt_number,
                            cr.license_type, cr.subject_1_result, cr.subject_2_result, cr.subject_3_result, cr.subject_4_result,
                            cr.certificate_number,
                            ct.id AS course_type_id, ct.title AS course_type_title, ct.application_fee AS fee
@@ -92,6 +92,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $trainee['created_at'] = $row['created_at'];
             $trainee['register_status'] = $row['register_status'];
             $trainee['paid_amount'] = $row['paid_amount'];
+            $trainee['payment_date'] = $row['payment_date'];
             $trainee['receipt_number'] = $row['receipt_number'];
             $trainee['coordinator'] = array(
                 'title' => $row['coordinator_title'],
@@ -1251,6 +1252,81 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         </div>
     </div>
 
+    <div class="modal fade" id="confirmPaymentModal" role="dialog" style="z-index: 1080 !important;">
+        <div class="modal-dialog modal-md">
+            <form id="formConfirmPayment" role="form" autocomplete="off"
+                  style="margin-top: 20px; margin-bottom: 0">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!--<button type="button" class="close" data-dismiss="modal">&times;
+                        </button>-->
+                        <h4 class="modal-title">
+                            ยอดเงินและวันที่โอนเงินจริง
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <div style="color: orangered; text-align: center; margin-top: 5px">
+                            <i class="fa fa-pencil"></i> กรอกข้อมูลจริงตามการตรวจสอบ
+                        </div>
+                        <div style="color: orangered; text-align: center; margin-top: 10px">
+                            ข้อมูลที่แสดงเริ่มต้น (ถ้ามี) คือข้อมูลตามที่ลูกค้ากรอกตอนแจ้งโอนเงิน<br>ซึ่งอาจไม่ใช่ข้อมูลที่ถูกต้อง
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            <input type="hidden" class="form-control"
+                                   id="inputTraineeId" disabled
+                                   oninvalid="this.setCustomValidity('Trainee ID')"
+                                   oninput="this.setCustomValidity('')">
+                        </div>
+
+                        <div class="row">
+                            <!--ยอดเงินจ่ายจริง-->
+                            <div class="form-group col-md-6">
+                                <label for="inputAmountConfirm">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
+                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <strong>฿</strong>
+                                                            </span>
+                                    <input type="number" class="form-control"
+                                           id="inputAmountConfirm"
+                                           placeholder="กรอกยอดเงินที่ลูกค้าจ่ายจริง" required
+                                           oninvalid="this.setCustomValidity('กรอกยอดเงินที่ลูกค้าจ่ายจริง')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                            </div>
+                            <!--วันที่โอนเงิน-->
+                            <div class="form-group col-md-6">
+                                <label for="inputPaymentDateConfirm">วันที่ลูกค้าโอนเงิน:</label>
+                                <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-calendar-check-o"></i>
+                                                            </span>
+                                    <input type="text" class="form-control"
+                                           id="inputPaymentDateConfirm"
+                                           placeholder="ระบุวันที่ลูกค้าโอนเงิน" required
+                                           oninvalid="this.setCustomValidity('ระบุวันที่ลูกค้าโอนเงิน')"
+                                           oninput="this.setCustomValidity('')">
+                                    <span class="input-group-btn">
+                                    <!--<button type="button" class="btn btn-info btn-flat">
+                                        <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึก
+                                    </button>-->
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-info">OK</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Manage register status modal -->
     <div class="modal fade" id="manageRegisterStatusModal" role="dialog">
         <div class="modal-dialog modal-lg">
@@ -1380,7 +1456,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             </div>
                                             <div class="row">
                                                 <!--ราคาเต็ม-->
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-4">
                                                     <label for="inputCourseFee">ราคาปกติ (บาท):</label>
                                                     <div class="input-group">
                                                     <span class="input-group-addon">
@@ -1391,7 +1467,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     </div>
                                                 </div>
                                                 <!--จ่ายจริง-->
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-4">
                                                     <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -1400,8 +1476,23 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                         <input type="text" class="form-control" disabled
                                                                id="inputPaidAmount">
                                                     </div>
-                                                    <div style="color: orangered; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
+                                                <!--วันโอน-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputPaymentDateConfirm">วันที่ลูกค้าโอนเงิน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-calendar-check-o"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputPaymentDateConfirm">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" id="divMessage" style="padding-top: 0">
+                                                <div class="col-md-4"></div>
+                                                <div class="col-md-8" style="color: orangered; margin-top: 0">ยอดเงินจ่ายจริงและวันที่โอนเงิน จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                             </div>
                                             <?php
                                         } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
@@ -1419,7 +1510,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             </div>
                                             <div class="row">
                                                 <!--ราคา-->
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-4">
                                                     <label for="inputCourseFee">ราคา (บาท):</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -1430,7 +1521,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     </div>
                                                 </div>
                                                 <!--จ่ายจริง-->
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-4">
                                                     <label for="inputPaidAmount">ยอดเงินที่ลูกค้าจ่ายจริง (บาท):</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -1439,8 +1530,23 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                         <input type="text" class="form-control" disabled
                                                                id="inputPaidAmount">
                                                     </div>
-                                                    <div style="color: orangered; margin-top: 5px">ยอดเงินจ่ายจริง จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                                 </div>
+                                                <!--วันโอน-->
+                                                <div class="form-group col-md-4">
+                                                    <label for="inputPaymentDateConfirm">วันที่ลูกค้าโอนเงิน:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-calendar-check-o"></i>
+                                                            </span>
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputPaymentDateConfirm">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" style="padding-top: 0">
+                                                <div class="col-md-4"></div>
+                                                <div class="col-md-8" style="color: orangered; margin-top: 0">ยอดเงินจ่ายจริงและวันที่โอนเงิน จะให้กรอกตอนเปลี่ยนสถานะการลงทะเบียนที่ช่องมุมบนขวาเป็น "สมบูรณ์"</div>
                                             </div>
                                             <?php
                                         }
@@ -1466,7 +1572,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                                id="inputMemberName">
                                                     </div>
                                                 </div>
-                                                <!--วัน/เวลาที่แจ้ง-->
+                                                <!--วัน/เวลาที่ส่งหลักฐาน-->
                                                 <div class="form-group col-md-6">
                                                     <label for="inputNotificationDateTime">วันเวลาที่ส่งหลักฐาน:
                                                         <span style="color: orangered; font-weight: normal; display: none">
@@ -1485,7 +1591,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                                             <div class="row">
                                                 <!--เบอร์โทรของผู้แจ้งโอน-->
-                                                <div class="form-group col-md-4">
+                                                <div class="form-group col-md-6">
                                                     <label for="inputMemberPhone">เบอร์โทรผู้แจ้งโอน:</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -1496,7 +1602,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     </div>
                                                 </div>
                                                 <!--อีเมลของผู้แจ้งโอน-->
-                                                <div class="form-group col-md-4">
+                                                <div class="form-group col-md-6">
                                                     <label for="inputMemberEmail">อีเมลผู้แจ้งโอน:</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
@@ -1506,15 +1612,36 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                                id="inputMemberEmail">
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="row">
                                                 <!--ยอดเงินที่แจ้งโอน-->
-                                                <div class="form-group col-md-4">
-                                                    <label for="inputAmount">ยอดเงินที่แจ้งโอน:</label>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputAmount">ยอดเงินที่แจ้งโอน <span style="color: orangered;"><small>(ตามที่ลูกค้ากรอกข้อมูล)</small></span>:</label>
                                                     <div class="input-group">
                                                             <span class="input-group-addon">
                                                                 <strong>฿</strong>
                                                             </span>
                                                         <input type="text" class="form-control" disabled
                                                                id="inputAmount">
+                                                    </div>
+                                                </div>
+                                                <!--วันที่โอนเงิน-->
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputPaymentDate">วันที่โอนเงิน <span style="color: orangered;"><small>(ตามที่ลูกค้ากรอกข้อมูล)</small></span>:</label>
+                                                    <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </span>
+
+                                                        <input type="text" class="form-control" disabled
+                                                               id="inputPaymentDate">
+                                                        <!--<span class="input-group-btn">
+                                                            <button type="button" class="btn btn-info btn-flat"
+                                                                    onClick="updatePaymentDate()">
+                                                                <i class="fa fa-save"></i>&nbsp;&nbsp;บันทึก
+                                                            </button>
+                                                        </span>-->
                                                     </div>
                                                 </div>
                                             </div>
@@ -2244,6 +2371,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $certificateStatus = $trainee['certificate_status'];
 
                 $paidAmount = $trainee['paid_amount'] == null ? '' : number_format($trainee['paid_amount']);
+                $paymentDate = $trainee['payment_date'] == null ? '' : getThaiShortDateWithDayName(date_create($trainee['payment_date']));
 
                 $courseId = $trainee['course_id'];
                 $sql = "SELECT cm.title, c.batch_number, c.begin_date, c.end_date, c.application_fee 
@@ -2380,6 +2508,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                             '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? htmlentities($courseDetails) : htmlentities($trainee['driving_license_course_type'])); ?>',
                                             '<?= (($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) ? number_format((string)$courseApplicationFee) : number_format((string)$trainee['driving_license_course_fee'])); ?>',
                                             '<?= $paidAmount; ?>',
+                                            '<?= $paymentDate; ?>',
                                             '<?= $trainee['pid_file_name']; ?>'
                                             )">
                                 <?= $btnText; ?>
@@ -2767,6 +2896,22 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     $("#formEditDocTraining #inputCoordinatorOrganizationTypeCustom").focus();
                 }
             });
+
+            $('#formConfirmPayment').on('submit', (event) => {
+                event.preventDefault();
+
+                const traineeId = $('#formConfirmPayment #inputTraineeId').val();
+                const paidAmountConfirm = $('#formConfirmPayment #inputAmountConfirm').val();
+                const paymentDateConfirm = $('#formConfirmPayment #inputPaymentDateConfirm').val();
+
+                if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + 'สมบูรณ์' + "' ?"
+                    + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่และยอดเงินที่ลูกค้าจ่ายจริงลงฐานข้อมูลทันที\n----------\n\nยอดเงินที่ลูกค้าจ่ายจริง: '
+                    + formatNumber(paidAmountConfirm) + ' บาท')) {
+
+                    $('#confirmPaymentModal').modal('hide');
+                    doUpdateRegisterStatus(traineeId, 'complete', paidAmountConfirm, paymentDateConfirm);
+                }
+            });
         });
 
         function printReceipt() {
@@ -2877,7 +3022,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             $('#formPrintReceipt #inputCourseName').val(courseName);
             $('#formPrintReceipt #inputCourseFee').val(formatNumber(courseApplicationFee));
             $('#formPrintReceipt #inputPaidAmount').val(paidAmount);
-            $('#formPrintReceipt #inputReceiptNumber').val(receiptNumber);
+            // บังคับให้กรอกเลขที่ใบเสร็จใหม่ เพราะคงไม่มีทางใช้ใบเดิม
+            //$('#formPrintReceipt #inputReceiptNumber').val(receiptNumber);
             $('#formPrintReceipt #buttonPrintReceipt').prop('disabled', !canPrint);
             const divCallout = $('#formPrintReceipt #alertCanNotPrint');
             canPrint ? divCallout.hide() : divCallout.show();
@@ -3388,7 +3534,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             }
         }
 
-        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount, pidFileName) {
+        function onClickStatus(formNumber, traineeId, traineeName, coordinatorName, courseName, courseApplicationFee, paidAmount, paymentDate, pidFileName) {
             doGetPaymentNotification(traineeId);
 
             $('#manageRegisterStatusModal #spanFormNumber').text(formNumber);
@@ -3410,6 +3556,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $('#manageRegisterStatusModal #buttonStatusForPaidCourse').hide();
                 $('#manageRegisterStatusModal #buttonStatusForFreeCourse').show();
                 $('#manageRegisterStatusModal #inputPaidAmount').parent().parent().hide();
+                $('#manageRegisterStatusModal #inputPaymentDateConfirm').parent().parent().hide();
+                $('#manageRegisterStatusModal #divMessage').hide();
 
                 setButtonStatusClassForFreeCourse(registerStatus);
 
@@ -3419,6 +3567,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 $('#manageRegisterStatusModal #buttonStatusForFreeCourse').hide();
                 $('#manageRegisterStatusModal #inputPaidAmount').parent().parent().show();
                 $('#manageRegisterStatusModal #inputPaidAmount').val(paidAmount);
+                $('#manageRegisterStatusModal #inputPaymentDateConfirm').val(paymentDate);
+                $('#manageRegisterStatusModal #divMessage').show();
 
                 setButtonStatusClassForPaidCourse(registerStatus);
 
@@ -3627,6 +3777,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 }*/
 
                 if (newStatus === 'complete') {
+
+                    $('#confirmPaymentModal').modal('show');
+                    return;
+
+                    ////////////////////////////////////////////////////////////////////////////////////////
+
                     const courseFee = $('#manageRegisterStatusModal #inputCourseFee').val();
                     const paidAmount =
                     <?php if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) { ?>
@@ -3651,13 +3807,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                 } else {
                     if (confirm("ยืนยันเปลี่ยนสถานะการลงทะเบียนเป็น '" + text + "' ?"
                         + '\n\nเมื่อกด OK ระบบจะบันทึกสถานะใหม่ลงฐานข้อมูลทันที')) {
-                        doUpdateRegisterStatus(traineeId, newStatus, 'NULL');
+                        doUpdateRegisterStatus(traineeId, newStatus, 'NULL', 'NULL');
                     }
                 }
             }
         }
 
-        function doUpdateRegisterStatus(traineeId, newStatus, paidAmount) {
+        function doUpdateRegisterStatus(traineeId, newStatus, paidAmount, paymentDate) {
             $('#manageRegisterStatusModal #spanLoading').show();
 
             $.post(
@@ -3667,6 +3823,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     traineeId: traineeId,
                     registerStatus: newStatus,
                     paidAmount: paidAmount,
+                    paymentDate: paymentDate,
                 }
             ).done(function (data) {
                 $('#manageRegisterStatusModal #spanLoading').hide();
@@ -3771,9 +3928,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             ).done(function (data) {
                 loadingIcon.hide();
                 if (data.error_code === 0) {
+                    $('#confirmPaymentModal #inputTraineeId').val(traineeId);
+
                     if (data.data_list.length > 0) {
                         const {
-                            member, amount, slip_file_name, created_at, notification_date_format, notification_time_format
+                            id, member, amount, transfer_date_format, transfer_date_thai_format, slip_file_name, created_at, notification_date_format, notification_time_format
                         } = data.data_list[0];
 
                         const inputMemberName = $('#manageRegisterStatusModal #inputMemberName');
@@ -3781,6 +3940,18 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         const inputMemberPhone = $('#manageRegisterStatusModal #inputMemberPhone');
                         const inputMemberEmail = $('#manageRegisterStatusModal #inputMemberEmail');
                         const inputAmount = $('#manageRegisterStatusModal #inputAmount');
+                        const inputPaymentDate = $('#manageRegisterStatusModal #inputPaymentDate');
+
+                        /*inputPaymentDate.datepicker({
+                            language: 'th',
+                            thaiyear: true,
+                            format: 'dd/mm/yyyy',
+                            orientation: 'bottom',
+                            autoclose: true
+                        }).on('changeDate', e => {
+                            e.target.setCustomValidity('');
+                        }).datepicker('update', transfer_date_thai_format);*/
+
                         const imgPaymentSlip = $('#manageRegisterStatusModal #imgPaymentSlip');
                         const imgPaymentSlip2 = $('#manageRegisterStatusModal #imgPaymentSlip2');
                         const imgPaymentSlip3 = $('#manageRegisterStatusModal #imgPaymentSlip3');
@@ -3789,8 +3960,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
 
                         if (member.id === 0) { // user ไม่ได้ login
                             inputMemberName.val('ผู้ใช้ไม่ได้ login');
-                            /*inputMemberPhone.val('');
-                            inputMemberEmail.val('');*/
+                            inputMemberPhone.val('ผู้ใช้ไม่ได้ login');
+                            inputMemberEmail.val('ผู้ใช้ไม่ได้ login');
                         } else {
                             //inputMemberName.val(`${member.title} ${member.first_name} ${member.last_name}  •  ${member.phone}  •  ${member.email}`);
                             inputMemberName.val(`${member.title} ${member.first_name} ${member.last_name}`);
@@ -3799,7 +3970,24 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         }
 
                         inputNotificationDateTime.val(`${notification_date_format}  •  ${notification_time_format}`);
-                        inputAmount.val(amount);
+                        inputAmount.val(formatNumber(amount));
+                        inputPaymentDate.val(transfer_date_format);
+
+                        //*********** confirmPaymentModal ***********
+                        $('#confirmPaymentModal #inputAmountConfirm')[0].setCustomValidity('');
+                        $('#confirmPaymentModal #inputAmountConfirm').val(amount);
+
+                        $('#confirmPaymentModal #inputPaymentDateConfirm')[0].setCustomValidity('');
+                        $('#confirmPaymentModal #inputPaymentDateConfirm').datepicker({
+                            language: 'th',
+                            thaiyear: true,
+                            format: 'dd/mm/yyyy',
+                            orientation: 'bottom',
+                            autoclose: true
+                        }).on('changeDate', e => {
+                            e.target.setCustomValidity('');
+                        }).datepicker('update', transfer_date_thai_format);
+                        //*******************************************
 
                         imgPaymentSlip.parent().attr('href', '../images/ic_no_image.png');
                         imgPaymentSlip.parent().removeAttr('data-lightbox');
@@ -3861,6 +4049,17 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         paymentNotificationDetails.show();
                     } else {
                         noPaymentNotificationAlert.show();
+
+                        $('#confirmPaymentModal #inputAmountConfirm').val('');
+                        $('#confirmPaymentModal #inputPaymentDateConfirm').datepicker({
+                            language: 'th',
+                            thaiyear: true,
+                            format: 'dd/mm/yyyy',
+                            orientation: 'bottom',
+                            autoclose: true
+                        }).on('changeDate', e => {
+                            e.target.setCustomValidity('');
+                        }).datepicker('update', '');
                     }
                 } else {
                     alert(data.error_message);
