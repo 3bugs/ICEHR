@@ -31,28 +31,22 @@ export default class SearchResultTable extends React.Component {
                                         courseList && courseList.length > 0 &&
                                         courseList.map((course, index) => {
                                             return (
-                                                <Link
-                                                    key={index}
-                                                    as={`/service-${serviceType}/${course.id}`}
-                                                    href={`/service-${serviceType}?courseId=${course.id}`}
-                                                >
-                                                    <tr className={'course-row'}
-                                                        onClick={handleCloseSearchResultModal}>
-                                                        <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
-                                                        <td>{course.name}</td>
-                                                        {serviceType === SERVICE_TRAINING &&
-                                                        <td style={{textAlign: 'right'}}>{numberWithCommas(course.applicationFee)}</td>
-                                                        }
-                                                        <td>{course.place}</td>
-                                                        {/*<td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>*/}
-                                                        {course.isCourseFull &&
-                                                        <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
-                                                        }
-                                                        {!course.isCourseFull &&
-                                                        <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
-                                                        }
-                                                    </tr>
-                                                </Link>
+                                                <tr className={'course-row'}
+                                                    onClick={() => handleCloseSearchResultModal(serviceType, course.id)}>
+                                                    <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
+                                                    <td>{course.name}</td>
+                                                    {serviceType === SERVICE_TRAINING &&
+                                                    <td style={{textAlign: 'right'}}>{numberWithCommas(course.applicationFee)}</td>
+                                                    }
+                                                    <td>{course.place}</td>
+                                                    {/*<td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>*/}
+                                                    {course.isCourseFull &&
+                                                    <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
+                                                    }
+                                                    {!course.isCourseFull &&
+                                                    <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
+                                                    }
+                                                </tr>
                                             );
                                         })
                                     }

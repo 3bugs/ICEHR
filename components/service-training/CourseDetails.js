@@ -186,18 +186,18 @@ export default class CourseDetails extends React.Component {
                             <table className="table table-price table-bordered" style={{width: '85%'}}>
                                 <tbody>
                                 {course.fees &&
-                                    course.fees.map(fee => {
-                                        let feeAmountText = fee.amount == null ? null : `${numberWithCommas(fee.amount)} บาท`;
-                                        return (
-                                            <tr>
-                                                <td colSpan={feeAmountText == null ? 2 : 1} style={{}}>{fee.title}</td>
-                                                {
-                                                    feeAmountText != null &&
-                                                    <td style={{whiteSpace: 'nowrap'}}>{feeAmountText}</td>
-                                                }
-                                            </tr>
-                                        )
-                                    })
+                                course.fees.map(fee => {
+                                    let feeAmountText = fee.amount == null ? null : `${numberWithCommas(fee.amount)} บาท`;
+                                    return (
+                                        <tr>
+                                            <td colSpan={feeAmountText == null ? 2 : 1} style={{}}>{fee.title}</td>
+                                            {
+                                                feeAmountText != null &&
+                                                <td style={{whiteSpace: 'nowrap'}}>{feeAmountText}</td>
+                                            }
+                                        </tr>
+                                    )
+                                })
                                 }
                                 {/*{course.service_type === SERVICE_DRIVING_LICENSE &&
 
@@ -287,7 +287,12 @@ export default class CourseDetails extends React.Component {
                                 <div className="row">
                                     <div className="col-md-4  text-black">เบอร์โทร</div>
                                     <div className="col-md-8">
-                                        {course.responsibleUser.phoneOffice}
+                                        {course.responsibleUser.phoneOffice}&nbsp;
+                                        {course.responsibleUser.phoneExtension &&
+                                        <span>
+                                        ต่อ {course.responsibleUser.phoneExtension}
+                                        </span>
+                                        }
                                     </div>
                                 </div>
                                 <div className="row">

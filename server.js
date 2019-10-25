@@ -797,6 +797,7 @@ doGetCourse = (req, res, db) => {
                                  u.first_name,
                                  u.last_name,
                                  u.phone_office,
+                                 u.phone_extension,
                                  u.email
                           FROM course c
                                    INNER JOIN course_master cm
@@ -1028,6 +1029,7 @@ pushCourseIntoDataList = (dataList, row, isCourseFull, regCount) => {
             firstName: row.first_name,
             lastName: row.last_name,
             phoneOffice: row.phone_office,
+            phoneExtension: row.phone_extension,
             email: row.email,
         },
         createdAt: row.created_at,

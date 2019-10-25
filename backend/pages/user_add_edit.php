@@ -115,7 +115,7 @@ if ($result = $db->query($sql)) {
                         <i class="icon fa fa-warning"></i><span id="alertErrorText"></span>
                     </div>
 
-                    <form id="formChangePassword" role="form"
+                    <form id="formChangePassword" role="form" autocomplete="off"
                           action="../api/api.php/change_user_password"
                           method="post"
                           style="margin-top: 0; margin-bottom: 0">

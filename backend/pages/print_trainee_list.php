@@ -43,7 +43,8 @@ if ($result = $db->query($sql)) {
 }
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
-    $sql = "SELECT ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email
+    $sql = "SELECT ct.title, ct.first_name, ct.last_name, ct.job_position, ct.organization_name, ct.phone, ct.email,
+                   cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code, cr.receipt_organization_phone
             FROM course c 
                 INNER JOIN course_registration cr 
                     ON cr.course_id = c.id 
@@ -156,26 +157,35 @@ $mpdf = new \Mpdf\Mpdf([
         <?php
         $i = 0;
 
+        $displayAddress = null;
         foreach ($traineeList as $trainee) {
             $i++;
             switch ($serviceType) {
                 case SERVICE_TYPE_TRAINING:
-                    $displayAddress = $trainee['organization_name'];
+                    //$displayAddress = $trainee['organization_name'];
+
+                    if (strpos($trainee['receipt_province'], 'กรุง') || strpos($trainee['receipt_province'], 'กทม')) {
+                        $displayAddress = "{$trainee['receipt_name']} ที่อยู่ {$trainee['receipt_address']} แขวง{$trainee['receipt_sub_district']} เขต{$trainee['receipt_district']} "
+                            . "กรุงเทพฯ {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
+                    } else {
+                        $displayAddress = "{$trainee['receipt_name']} ที่อยู่ {$trainee['receipt_address']} ต.{$trainee['receipt_sub_district']} อ.{$trainee['receipt_district']} "
+                            . "จ.{$trainee['receipt_province']} {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
+                    }
                     break;
                 case SERVICE_TYPE_SOCIAL:
-                    $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
-                    if (strpos($displayAddress, 'กรุง') || strpos($displayAddress, 'กทม')) {
-                        $displayAddress = str_replace('ต.', 'แขวง', $displayAddress);
-                        $displayAddress = str_replace('อ.', 'เขต', $displayAddress);
-                        $displayAddress = str_replace('จ.', '', $displayAddress);
+                    if (strpos($trainee['province'], 'กรุง') || strpos($trainee['province'], 'กทม')) {
+                        $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                    } else {
+                        $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
                     }
                     break;
                 case SERVICE_TYPE_DRIVING_LICENSE:
-                    $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
-                    if (strpos($displayAddress, 'กรุง') || strpos($displayAddress, 'กทม')) {
-                        $displayAddress = str_replace('ต.', 'แขวง', $displayAddress);
-                        $displayAddress = str_replace('อ.', 'เขต', $displayAddress);
-                        $displayAddress = str_replace('จ.', '', $displayAddress);
+                    if (strpos($trainee['province'], 'กรุง') || strpos($trainee['province'], 'กทม')) {
+                        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} "
+                            . "กรุงเทพฯ {$trainee['postal_code']}";
+                    } else {
+                        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} "
+                            . "จ.{$trainee['province']} {$trainee['postal_code']}";
                     }
                     break;
             }
