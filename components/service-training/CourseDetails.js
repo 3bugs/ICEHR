@@ -286,6 +286,7 @@ export default class CourseDetails extends React.Component {
                                 </div>
                                 <div className="row">
                                     <div className="col-md-4  text-black">เบอร์โทร</div>
+                                    {course.responsibleUser.phoneOffice && (course.responsibleUser.phoneOffice.length > 1) &&
                                     <div className="col-md-8">
                                         {course.responsibleUser.phoneOffice}&nbsp;
                                         {course.responsibleUser.phoneExtension &&
@@ -294,6 +295,13 @@ export default class CourseDetails extends React.Component {
                                         </span>
                                         }
                                     </div>
+                                    }
+
+                                    {(!course.responsibleUser.phoneOffice || (course.responsibleUser.phoneOffice.length <= 1)) &&
+                                    <div className="col-md-8">
+                                        -
+                                    </div>
+                                    }
                                 </div>
                                 <div className="row">
                                     <div className="col-md-4  text-black">อีเมล</div>
