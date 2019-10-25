@@ -170,7 +170,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
     $postalCode = $trainee['receipt_postal_code'];
 
     $isBangkok = false;
-    if (mb_substr($province, 0, 4) == 'กรุง' || substr($province, 0, 2) == 'กท') {
+    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
         $isBangkok = true;
     }
 
@@ -189,7 +189,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
     $province = trim($trainee['province']);
 
     $isBangkok = false;
-    if (substr($province, 0, 4) === 'กรุง' || substr($province, 0, 3) === 'กทม') {
+    if (mb_substr($province, 0, 4) === 'กรุง' || mb_substr($province, 0, 2) === 'กท') {
         $isBangkok = true;
     }
 

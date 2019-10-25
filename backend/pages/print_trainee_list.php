@@ -164,7 +164,7 @@ $mpdf = new \Mpdf\Mpdf([
                 case SERVICE_TYPE_TRAINING:
                     //$displayAddress = $trainee['organization_name'];
 
-                    if (strpos($trainee['receipt_province'], 'กรุง') || strpos($trainee['receipt_province'], 'กทม')) {
+                    if (mb_substr(trim($trainee['receipt_province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['receipt_province']), 0, 2) == 'กท') {
                         $displayAddress = "{$trainee['receipt_name']} ที่อยู่ {$trainee['receipt_address']} แขวง{$trainee['receipt_sub_district']} เขต{$trainee['receipt_district']} "
                             . "กรุงเทพฯ {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
                     } else {
@@ -173,14 +173,14 @@ $mpdf = new \Mpdf\Mpdf([
                     }
                     break;
                 case SERVICE_TYPE_SOCIAL:
-                    if (strpos($trainee['province'], 'กรุง') || strpos($trainee['province'], 'กทม')) {
+                    if (mb_substr(trim($trainee['province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['province']), 0, 2) == 'กท') {
                         $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
                     } else {
                         $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
                     }
                     break;
                 case SERVICE_TYPE_DRIVING_LICENSE:
-                    if (strpos($trainee['province'], 'กรุง') || strpos($trainee['province'], 'กทม')) {
+                    if (mb_substr(trim($trainee['province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['province']), 0, 2) == 'กท') {
                         $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} "
                             . "กรุงเทพฯ {$trainee['postal_code']}";
                     } else {
