@@ -78,7 +78,8 @@ export default class ServiceSocial extends React.Component {
             });
     };
 
-    handleCloseSearchResultModal = e => {
+    handleCloseSearchResultModal = (serviceType, courseId) => {
+        window.location.href = `/service-${serviceType}/${courseId}`;
         this.setState({
             showSearchResultModal: false
         });

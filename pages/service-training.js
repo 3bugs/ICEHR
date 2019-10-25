@@ -100,7 +100,7 @@ export default class ServiceTraining extends React.Component {
     };
 
     handleCloseSearchResultModal = (serviceType, courseId) => {
-        window.location.href = `/service-${serviceType}?courseId=${courseId}`;
+        window.location.href = `/service-${serviceType}/${courseId}`;
         /*this.setState({
             showSearchResultModal: false
         });*/
