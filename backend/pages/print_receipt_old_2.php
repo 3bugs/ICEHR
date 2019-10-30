@@ -151,13 +151,13 @@ $pdf->SetAutoPageBreak(false);
 $pdf->AddPage();
 
 $pdf->SetFont('AngsanaNew', '', 14);
-$pdf->SetXY(75, 21);
+$pdf->SetXY(80, 22);
 //$pdf->SetXY(80,18);
 $pdf->Cell(50, 6, getThaiShortDate(date_create($trainee['payment_date'])), 0, 0, 'L', 0);
-$pdf->SetXY(70, 27);
+$pdf->SetXY(76, 27);
 //$pdf->SetXY(76,24);
 $pdf->Cell(50, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
-$pdf->SetXY(52, 34);
+$pdf->SetXY(60, 34);
 //$pdf->SetXY(60,30);
 
 //$displayAddress = ($serviceType === SERVICE_TYPE_TRAINING ? (' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']) . ', ที่อยู่ ') : '');
@@ -214,23 +214,23 @@ $pdf->MultiCell(400, 6, $courseName, 0, 'L');
 
 $pdf->SetXY(47, 75);
 $pdf->Cell(110, 7, "ค่าลงทะเบียนอบรม", 0, 0, 'L', 0);
-$pdf->Cell(32, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
+$pdf->Cell(25, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
 
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
     if ((int)$trainee['course_fee'] > (int)$trainee['paid_amount']) {
         $pdf->SetXY(47, 83);
         $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);
-        $pdf->Cell(32, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
+        $pdf->Cell(25, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
     }
 
     $pdf->SetXY(47, 91);
     $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
 }
 
-$pdf->SetXY(47, 147);
+$pdf->SetXY(47, 148);
 //$pdf->SetXY(53,135);
 $pdf->Cell(110, 7, '(' . convert($trainee['paid_amount']) . ')', 0, 0, 'L', 0);
-$pdf->Cell(32, 7, number_format($trainee['paid_amount'], 2), 0, 0, 'R', 0);
+$pdf->Cell(25, 7, number_format($trainee['paid_amount'], 2), 0, 0, 'R', 0);
 
 //Send file
 $pdf->Output();
