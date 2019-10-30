@@ -22,9 +22,9 @@ if ($result = $db->query($sql)) {
         $serviceType = $row['service_type'];
         $courseDisplayName = "หลักสูตร {$row['title']}" . ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE ? " รุ่นที่ {$row['batch_number']}" : '');
         if ($row['begin_date'] === $row['end_date']) {
-            $courseDisplayDate = "อบรม" . getThaiDate(date_create($row['begin_date']));
+            $courseDisplayDate = getThaiDate(date_create($row['begin_date']));
         } else {
-            $courseDisplayDate = "อบรม" . getThaiDate(date_create($row['begin_date'])) . ' - ' . getThaiDate(date_create($row['end_date']));
+            $courseDisplayDate = getThaiDate(date_create($row['begin_date'])) . ' - ' . getThaiDate(date_create($row['end_date']));
         }
         $courseDisplayPlace = "ณ {$row['place']}";
         $courseApplicationFee = (int)$row['application_fee'];
@@ -106,7 +106,7 @@ $fontData = $defaultFontConfig['fontdata'];
 
 $mpdf = new \Mpdf\Mpdf([
     'mode' => 'UTF-8',
-    'format' => 'A4-L', //หน้ากระดาษ A4 แนวนอน
+    'format' => 'A4', //ถ้าแนวนอนใช้ A4-L
     'fontDir' => array_merge($fontDirs, [
         __DIR__ . '/../fonts',
     ]),
@@ -124,11 +124,11 @@ $mpdf = new \Mpdf\Mpdf([
     <html lang="th">
     <head>
         <meta charset="utf-8">
-        <title>:: ทำเนียบผู้เข้ารับการอบรม ::</title>
+        <title>:: ใบเซ็นชื่อ ::</title>
 
         <style type="text/css">
             @Page {
-                margin: 40px 80px;
+                margin: 40px 40px;
             }
 
             .txtDash {
@@ -144,22 +144,22 @@ $mpdf = new \Mpdf\Mpdf([
         </style>
     </head>
     <body>
-    <div style="text-align: center; font-size: 34px; font-weight: bold">
-        <img src="../images/logo_icehr.svg"
-             width="250px"
-             style="vertical-align: middle"/>&nbsp;&nbsp;<span>ทำเนียบผู้เข้ารับการอบรม</span>
+    <div style="text-align: center;">
+        <img src="../images/logo_icehr.svg" width="250px" style="vertical-align: middle"/>
     </div>
-    <div style="text-align: center; font-size: 26px; margin: 5px 0;"><?= $courseDisplayName; ?></div>
-    <div style="text-align: center; font-size: 20px;"><?= $courseDisplayDate; ?></div>
-    <div style="text-align: center; font-size: 20px;"><?= $courseDisplayPlace; ?></div>
+    <div style="text-align: center; font-size: 20px; margin: 2px 0;">รายชื่อผู้เข้ารับการอบรม</div>
+    <div style="text-align: center; font-size: 20px; margin: 2px 0;"><strong><?= $courseDisplayName; ?></strong></div>
+    <div style="text-align: center; font-size: 20px; margin: 2px 0;">ณ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์</div>
+    <div style="text-align: center; font-size: 20px; margin: 2px 0;"><?= "{$courseDisplayDate}&nbsp;&nbsp;&nbsp; เวลา 08.30 - 14.30 น."; ?></div>
 
     <table width="100%" align="center" cellspacing="0" cellpadding="5px"
            style="border: 1px solid #000000; margin-top: 10px">
         <tr>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="7%">ลำดับ</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="23%">ชื่อ-นามสกุล / ตำแหน่ง</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="48%">หน่วยงาน / ที่อยู่</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="22%">โทรศัพท์ / อีเมล</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="7%">ลำดับ</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="31%">ชื่อ-นามสกุล</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="21%">เลขที่บัตรประชาชน/<br>เลขที่หนังสือเดินทาง</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="23%">ประเภทบัตร/<br>ประเภทรถ</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="18%">ลายเซ็น</th>
         </tr>
         <?php
         $i = 0;
@@ -167,7 +167,7 @@ $mpdf = new \Mpdf\Mpdf([
         $displayAddress = null;
         foreach ($traineeList as $trainee) {
             $i++;
-            switch ($serviceType) {
+            /*switch ($serviceType) {
                 case SERVICE_TYPE_TRAINING:
                     //$displayAddress = $trainee['organization_name'];
 
@@ -195,21 +195,50 @@ $mpdf = new \Mpdf\Mpdf([
                             . "จ.{$trainee['province']} {$trainee['postal_code']}";
                     }
                     break;
+            }*/
+
+            $licenseType = (int)$trainee['license_type'];
+            $licenseTypeText = '';
+            if (($licenseType & 1) > 0) {
+                $licenseTypeText .= 'รถยนต์/';
             }
+            if (($licenseType & 2) > 0) {
+                $licenseTypeText .= 'จยย./';
+            }
+            if (($licenseType & 4) > 0) {
+                $licenseTypeText .= 'สามล้อ/';
+            }
+            $licenseTypeText = mb_substr($licenseTypeText, 0, -1);
+
+            $pid = trim($trainee['pid']);
             ?>
+
             <tr>
                 <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top"><?= $i; ?></td>
                 <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
-                    <?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?><br>
-                    <?= $trainee['job_position']; ?>
+                    <?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>
+                </td>
+                <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">
+                    <?= strlen($pid) === 13 ? formatPid($pid) : $pid; ?>
                 </td>
                 <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
-                    <?= $displayAddress; ?>
+                    <?= (int)$trainee['course_type'] === 1 ? 'ขอใหม่/' : 'ต่ออายุ/'; ?><?= $licenseTypeText; ?>
                 </td>
-                <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
-                    <?= $trainee['phone']; ?><br>
-                    <?= $trainee['email']; ?>
+                <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">
+                    &nbsp;<?= ''; //ลายเซ็น  ?>
                 </td>
+            </tr>
+            <?php
+        }
+
+        for ($j = 0; $j < 0; $j++) {
+            ?>
+            <tr>
+                <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top"><?= ++$i; ?></td>
+                <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">&nbsp;</td>
+                <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">&nbsp;</td>
+                <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">&nbsp;</td>
+                <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">&nbsp;</td>
             </tr>
             <?php
         }
