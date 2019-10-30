@@ -1018,10 +1018,16 @@ doGetCourse = (req, res, db) => {
 };
 
 pushCourseIntoDataList = (dataList, row, isCourseFull, regCount) => {
+    let courseName = row.title;
+    if ((row.service_type === constants.SERVICE_TRAINING || row.service_type === constants.SERVICE_SOCIAL)
+        && (row.batch_number && row.batch_number > 0)) {
+        courseName += ' รุ่นที่ ' + row.batch_number;
+    }
+
     dataList.push({
         id: row.id,
         serviceType: row.service_type,
-        name: row.title + (row.service_type !== constants.SERVICE_DRIVING_LICENSE ? ' รุ่นที่ ' + row.batch_number : ''),
+        name: courseName,
         details: row.details,
         applicationFee: row.application_fee,
         place: row.place,
