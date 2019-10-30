@@ -1037,7 +1037,7 @@ if (isset($courseId)) {
                                                                     <?= $pdf['title']; ?>
                                                                 </td>
                                                                 <td style="text-align: center; cursor: pointer"
-                                                                    onClick="window.open('<?=(UPLOAD_DIR_COURSE_ASSETS . $pdf['file_name']); ?>', '_blank')">
+                                                                    onClick="window.open('<?=(UPLOAD_DIR_COURSE_ASSETS . urlencode($pdf['file_name'])); ?>', '_blank')">
                                                                     <a href="javascript:void(0)">
                                                                         <span style="font-size: 25px"><i class="fa fa-file-pdf-o"></i></span>
                                                                     </a>

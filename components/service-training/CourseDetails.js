@@ -317,7 +317,7 @@ export default class CourseDetails extends React.Component {
                                         return asset.type === 'pdf';
                                     }).map(asset => (
                                         <div>
-                                            <a href={`${HOST_BACKEND}/uploads/course_assets/${asset.fileName}`}
+                                            <a href={`${HOST_BACKEND}/uploads/course_assets/${encodeURIComponent(asset.fileName)}`}
                                                target="_blank">
                                                 <img src="/static/images/pdf-icon.svg"/>&nbsp;&nbsp;{asset.title}
                                             </a>
