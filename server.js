@@ -5,6 +5,8 @@
 
 //https://medium.com/@mhagemann/create-a-mysql-database-middleware-with-node-js-8-and-async-await-6984a09d49f4
 
+const PORT_NUMBER = 80;
+
 const constants = require('./etc/constants');
 const utils = require('./etc/utils');
 
@@ -153,7 +155,8 @@ app
                     return;
                 }
 
-                console.log('Db connected as id ' + db.threadId);
+                logConnection(req, res, db);
+                //console.log('Db connected as id ' + db.threadId);
 
                 switch (req.params.action) {
                     case 'login_member':
@@ -305,7 +308,8 @@ app
                     return;
                 }
 
-                console.log('Db connected as id ' + db.threadId);
+                logConnection(req, res, db);
+                //console.log('Db connected as id ' + db.threadId);
 
                 switch (req.params.action) {
                     case 'get_trainee_form_pdf':
@@ -381,11 +385,10 @@ app
             return handle(req, res)
         });
 
-        server.listen(80, err => {
+        server.listen(PORT_NUMBER, err => {
             if (err) throw err;
-            console.log('> Ready on http://localhost:80');
+            console.log('> Ready on port: ' + PORT_NUMBER);
         });
-
     })
     .catch(ex => {
         console.error(ex.stack);
@@ -942,7 +945,7 @@ doGetCourse = (req, res, db) => {
                                     );
                                 } else {
                                     db.query(
-                                        `SELECT title, title_en, application_fee
+                                            `SELECT title, title_en, application_fee
                                              FROM driving_license_course_type`,
                                         [],
                                         function (err, results, fields) {
@@ -1317,7 +1320,7 @@ getCourseDrivingLicenseCourseId = (req, res, db) => {
 registerCourse = (req, res, db, serviceType) => {
     let {courseId, trainees} = req.body;
 
-    console.log(`Course ID: ${courseId}`);
+    //console.log(`Course ID: ${courseId}`);
 
     getCourseNumTraineeAvailable(
         db, courseId, (success, data) => {
@@ -2710,7 +2713,7 @@ doGetInHouse = (req, res, db) => {
     const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
     db.query(
-            `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
              WHERE news_type = ? 
                AND status = ?
@@ -2725,7 +2728,7 @@ doGetInHouse = (req, res, db) => {
                 db.end();
             } else {
                 db.query(
-                    `SELECT COUNT(*) AS totalCount
+                        `SELECT COUNT(*) AS totalCount
                          FROM news
                          WHERE news_type = ?
                            AND status = ?`,
@@ -3030,12 +3033,17 @@ doGetIntro = (req, res, db) => {
         placeHolder = placeHolder.concat(i !== 0 ? ',' : '').concat('?');
     }
 
+    const sql = `SELECT id, title, sub_title, details, url, image_file_name, type
+                 FROM intro
+                 WHERE type in (${placeHolder})
+                    AND status = ?
+                 ORDER BY sort_index`;
+
+    console.log(sql);
+    console.log(queryValueList);
+
     db.query(
-            `SELECT id, title, sub_title, details, url, image_file_name, type
-             FROM intro
-             WHERE type in (${placeHolder})
-               AND status = ?
-             ORDER BY sort_index`,
+        sql,
         queryValueList,
         function (err, results, fields) {
             if (err) {
@@ -3168,8 +3176,8 @@ doGetServiceLinkContact = (req, res, db) => {
                 db.query(
                         `SELECT id, title, type, sub_title, details, url, image_file_name
                          FROM intro
-                         WHERE (type = 'link')
-                            OR (type = 'contact')
+                         WHERE ((type = 'link')
+                            OR (type = 'contact'))
                              AND status = ?
                          ORDER BY sort_index`,
                     ['publish'],
@@ -3216,4 +3224,16 @@ doGetServiceLinkContact = (req, res, db) => {
             }
         }
     );
+};
+
+logConnection = (req, res, db) => {
+    let msg = `${req.params.action} FROM ${req.ip} @ ${getCurrentDisplayDateTime()}, DB: ${db.threadId}`;
+    console.log(msg);
+};
+
+getCurrentDisplayDateTime = () => {
+    const today = new Date();
+    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    return date + ' ' + time;
 };
