@@ -156,7 +156,7 @@ $pdf->SetXY(75, 21);
 $pdf->Cell(50, 6, getThaiShortDate(date_create($trainee['payment_date'])), 0, 0, 'L', 0);
 $pdf->SetXY(70, 27);
 //$pdf->SetXY(76,24);
-$pdf->Cell(50, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
+$pdf->Cell(300, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
 $pdf->SetXY(52, 34);
 //$pdf->SetXY(60,30);
 
@@ -199,7 +199,11 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
         $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
     }
 }
-$pdf->MultiCell(300, 5, $displayAddress, 0, 'L');
+
+$pdf->MultiCell(400, 5, $displayAddress, 0, 'L');
+//$pdf->MultiCell(400, 5, '90 อาคารซีดับเบิ้ลยู ทาวเวอร์ เอ ชั้นที่ 33 ถนนรัชดาภิเษก แขวงห้วยขวาง เขตห้วยขวาง กรุงเทพมหานคร 10310 เลขประจำตัวผู้เสียภาษี 3-1006-00317-06-8', 1, 'L');
+//$pdf->MultiCell(400, 5, '11/13 วรวรรณพาร์ค คอนโดมเนียม ซอยงามวงศ์วาน 59 ถนนงามวงศวาน แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900 เลขประจำตัวผู้เสียภาษี 3-1006-00317-06-8', 1, 'L');
+
 $pdf->SetXY(34, 55);
 //$pdf->SetXY(40,53);
 $pdf->Cell(13, 6, '', 0, 0, 'C', 0);
@@ -210,20 +214,24 @@ if (!isset($customCourseName) || trim($customCourseName) === '') {
 } else {
     $courseName = "หลักสูตร$customCourseName";
 }
+
 $pdf->MultiCell(400, 6, $courseName, 0, 'L');
 
-$pdf->SetXY(47, 75);
+$applicationFeeLineTop = $pdf->GetY() + 2; // ตำแหน่ง y หลังจากพิมพ์ชื่อหลักสูตรแล้ว
+
+$pdf->SetXY(47, $applicationFeeLineTop);
 $pdf->Cell(110, 7, "ค่าลงทะเบียนอบรม", 0, 0, 'L', 0);
 $pdf->Cell(32, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
 
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
-    if ((int)$trainee['course_fee'] > (int)$trainee['paid_amount']) {
-        $pdf->SetXY(47, 83);
+    $showDiscount = (int)$trainee['course_fee'] > (int)$trainee['paid_amount'];
+    if ($showDiscount) {
+        $pdf->SetXY(47, $applicationFeeLineTop + 8);
         $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);
         $pdf->Cell(32, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
     }
 
-    $pdf->SetXY(47, 91);
+    $pdf->SetXY(47, $showDiscount ? $applicationFeeLineTop + 16 : $applicationFeeLineTop + 8);
     $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
 }
 

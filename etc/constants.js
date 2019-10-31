@@ -19,9 +19,11 @@ export const longDayNames = [
     'อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'
 ];*/
 
+const prod = process.env.NODE_ENV === 'production';
+
 module.exports = Object.freeze({
-    HOST_BACKEND: 'http://localhost/icehr_backend',
-    //HOST_BACKEND: 'http://www.icehr.tu.ac.th:3001',
+    HOST_BACKEND: prod ? 'http://www.icehr.tu.ac.th:3001' : 'http://localhost/icehr_backend',
+    HOST_FRONTEND_PORT: prod ? 80 : 3000,
 
     //HOST_BACKEND: 'http://202.6.26.3/icehr/backend',
     //HOST_BACKEND: 'http://www2.icehr.tu.ac.th:3001/icehr/backend',

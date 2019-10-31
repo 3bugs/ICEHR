@@ -96,7 +96,7 @@ class TraineeRegisterForm extends React.Component {
             msg = msg.concat(`- ${file.name}\n`);
         });
 
-        alert(`ผิดพลาด: ไฟล์ดังรายชื่อต่อไปนี้มีขนาดใหญ่เกินไป หรือเป็นประเภทไฟล์ที่ไม่รองรับ\n\n${msg}\n*รองรับรูปภาพ, PDF เท่านั้น และขนาดแต่ละไฟล์ต้องไม่เกิน 1 MB`);
+        alert(`ผิดพลาด: ไฟล์ดังรายชื่อต่อไปนี้มีขนาดใหญ่เกินไป หรือเป็นประเภทไฟล์ที่ไม่รองรับ\n\n${msg}\n*รองรับรูปภาพและ PDF เท่านั้น และขนาดแต่ละไฟล์ต้องไม่เกิน 3 MB`);
     };
 
     handleClickFilePreview = (index, e) => {
@@ -441,7 +441,7 @@ class TraineeRegisterForm extends React.Component {
                                                                onDropRejected={this.handleRejectedFiles}
                                                                accept="image/jpeg, image/png, application/pdf"
                                                                minSize={0}
-                                                               maxSize={1048576}>
+                                                               maxSize={3145728}>
                                                         {({getRootProps, getInputProps}) => (
                                                             <section>
                                                                 <div {...getRootProps()}

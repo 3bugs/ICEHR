@@ -29,6 +29,8 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const http = require('http');
 const https = require('https');
+const passwordHash = require('password-hash');
+const dateFormat = require('dateformat');
 
 app
     .prepare()
@@ -140,7 +142,7 @@ app
             const queryParams = { title: req.params.id };
             app.render(req, res, actualPage, queryParams);*/
 
-            let db = mysql.createConnection({
+            const db = mysql.createConnection({
                 host: dbConfig.HOST,
                 port: dbConfig.PORT,
                 user: dbConfig.USER,
@@ -385,9 +387,9 @@ app
             return handle(req, res)
         });
 
-        server.listen(PORT_NUMBER, err => {
+        server.listen(constants.HOST_FRONTEND_PORT, err => {
             if (err) throw err;
-            console.log('> Ready on port: ' + PORT_NUMBER);
+            console.log('> Ready on port: ' + constants.HOST_FRONTEND_PORT);
         });
     })
     .catch(ex => {
@@ -429,9 +431,8 @@ doLoginMember = (req, res, db) => {
     db.query(
             `SELECT *
              FROM member
-             WHERE email = ?
-               AND password = ?`,
-        [inputEmail, inputPassword],
+             WHERE email = ?`,
+        [inputEmail],
 
         function (err, results, fields) {
             if (err) {
@@ -443,33 +444,41 @@ doLoginMember = (req, res, db) => {
                     error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
                 });
             } else {
-                let memberData = {};
-                memberData.id = results[0].id;
-                memberData.title = results[0].title;
-                memberData.firstName = results[0].first_name;
-                memberData.lastName = results[0].last_name;
-                memberData.birthDate = results[0].birth_date;
-                memberData.jobPosition = results[0].job_position;
-                memberData.organizationName = results[0].organization_name;
-                memberData.organizationType = results[0].organization_type;
-                memberData.organizationTypeCustom = results[0].organization_type_custom;
-                memberData.phone = results[0].phone;
-                memberData.email = results[0].email;
-                memberData.memberType = results[0].member_type;
+                const isPasswordCorrect = passwordHash.verify(inputPassword, results[0].password);
 
-                memberData.address = results[0].address;
-                memberData.subDistrict = results[0].sub_district;
-                memberData.district = results[0].district;
-                memberData.province = results[0].province;
-                memberData.postalCode = results[0].postal_code;
-                memberData.organizationPhone = results[0].organization_phone;
-                memberData.taxId = results[0].tax_id;
+                if (isPasswordCorrect) {
+                    let memberData = {};
+                    memberData.id = results[0].id;
+                    memberData.title = results[0].title;
+                    memberData.firstName = results[0].first_name;
+                    memberData.lastName = results[0].last_name;
+                    memberData.birthDate = results[0].birth_date;
+                    memberData.jobPosition = results[0].job_position;
+                    memberData.organizationName = results[0].organization_name;
+                    memberData.organizationType = results[0].organization_type;
+                    memberData.organizationTypeCustom = results[0].organization_type_custom;
+                    memberData.phone = results[0].phone;
+                    memberData.email = results[0].email;
+                    memberData.memberType = results[0].member_type;
 
-                memberData.loginToken = encodeToken(results[0].id);
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    memberData
-                });
+                    memberData.address = results[0].address;
+                    memberData.subDistrict = results[0].sub_district;
+                    memberData.district = results[0].district;
+                    memberData.province = results[0].province;
+                    memberData.postalCode = results[0].postal_code;
+                    memberData.organizationPhone = results[0].organization_phone;
+                    memberData.taxId = results[0].tax_id;
+
+                    memberData.loginToken = encodeToken(results[0].id);
+                    res.send({
+                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                        memberData
+                    });
+                } else {
+                    res.send({
+                        error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
+                    });
+                }
             }
         });
     db.end();
@@ -544,6 +553,7 @@ doForgotPassword = (req, res, db) => {
 /*รีเซ็ตรหัสผ่าน*/
 doResetPassword = (req, res, db) => {
     let {token, newPassword} = req.body;
+    const hashedPassword = passwordHash.generate(newPassword.trim());
 
     const decodedToken = decodeTokenWithTimestamp(token);
     if (decodedToken) {
@@ -558,7 +568,7 @@ doResetPassword = (req, res, db) => {
                     `UPDATE member
                      SET password = ?
                      WHERE id = ?`,
-                [newPassword, id],
+                [hashedPassword, id],
 
                 function (err, results, fields) {
                     if (err) {
@@ -711,6 +721,8 @@ doRegisterMember = (req, res, db) => {
     let inputPhone = req.body.phone;
     let inputEmail = req.body.email;
     let inputPassword = req.body.password;
+    const hashedPassword = passwordHash.generate(inputPassword.trim());
+
     /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
     let inputAddress = req.body.address;
     let inputSubDistrict = req.body.subDistrict;
@@ -754,7 +766,7 @@ doRegisterMember = (req, res, db) => {
                                             address, sub_district, district, province, postal_code, organization_phone, tax_id)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [inputMemberType, inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, jobPosition, organizationName, inputOrganizationType, organizationTypeCustom,
-                        inputPhone.trim(), inputEmail.trim(), inputPassword.trim(), address, subDistrict, district, province, postalCode, organizationPhone, taxId],
+                        inputPhone.trim(), inputEmail.trim(), hashedPassword, address, subDistrict, district, province, postalCode, organizationPhone, taxId],
 
                     function (err, results, fields) {
                         if (err) {
@@ -3044,10 +3056,6 @@ doGetIntro = (req, res, db) => {
                  WHERE type in (${placeHolder})
                     AND status = ?
                  ORDER BY sort_index`;
-
-    console.log(sql);
-    console.log(queryValueList);
-
     db.query(
         sql,
         queryValueList,
@@ -3183,8 +3191,8 @@ doGetServiceLinkContact = (req, res, db) => {
                         `SELECT id, title, type, sub_title, details, url, image_file_name
                          FROM intro
                          WHERE ((type = 'link')
-                            OR (type = 'contact'))
-                             AND status = ?
+                             OR (type = 'contact'))
+                           AND status = ?
                          ORDER BY sort_index`,
                     ['publish'],
                     function (err, results, fields) {
@@ -3233,13 +3241,69 @@ doGetServiceLinkContact = (req, res, db) => {
 };
 
 logConnection = (req, res, db) => {
-    let msg = `${req.params.action} FROM ${req.ip} @ ${getCurrentDisplayDateTime()}, DB: ${db.threadId}`;
+    let msg = `${req.params.action}\n\t\tFROM ${req.ip}\n\t\t@ ${getCurrentDisplayDateTime()}\n\t\tDB: ${db.threadId}`;
     console.log(msg);
 };
 
 getCurrentDisplayDateTime = () => {
-    const today = new Date();
+    return dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
+
+    /*return new Date().toISOString()
+        .replace(/T/, ' ')      // replace T with a space
+        .replace(/\..+/, '');   // delete the dot and everything after*/
+
+    /*const today = new Date();
     const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
     const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    return date + ' ' + time;
+    return date + ' ' + time;*/
 };
+
+updateHashedPassword = () => {
+    const db = mysql.createConnection({
+        host: dbConfig.HOST,
+        port: dbConfig.PORT,
+        user: dbConfig.USER,
+        password: dbConfig.PASSWORD,
+        database: dbConfig.DATABASE,
+    });
+    db.connect(function (err) {
+        if (err) {
+            console.log('****\nERROR: Connect DB in updateHashedPassword()\n*****');
+            return;
+        }
+        db.query(
+            `SELECT email, password FROM member`,
+            [],
+
+            function (err, results, fields) {
+                if (err) {
+                    console.log('****\nERROR: Query DB in updateHashedPassword()\n*****');
+                    return;
+                }
+                results.forEach((member, index) => {
+                    //console.log(member.email);
+                    if (!passwordHash.isHashed(member.password)) {
+                        let hashedPassword = passwordHash.generate(member.password);
+                        db.query(
+                                `UPDATE member
+                                 SET password = ?
+                                 WHERE email = ?`,
+                            [hashedPassword, member.email],
+
+                            function (err, results, fields) {
+                                if (err) {
+                                    console.log('****\nERROR: Update DB in updateHashedPassword()\n*****');
+                                    return;
+                                } else {
+                                    console.log('Update DB successfully');
+                                }
+                            }
+                        );
+                    }
+                });
+            }
+        );
+    });
+};
+
+updateHashedPassword(); //todo: ************************************************
