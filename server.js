@@ -2782,7 +2782,7 @@ doGetActivity = (req, res, db) => {
              FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish' ${limitClause}) n
                  LEFT JOIN news_asset na 
                      ON n.id = na.news_id
-             ORDER BY n.created_at DESC`,
+             ORDER BY n.pinned DESC, n.created_at DESC`,
         id == null ? [] : [id],
         function (err, results, fields) {
             if (err) {
@@ -3306,4 +3306,4 @@ updateHashedPassword = () => {
     });
 };
 
-updateHashedPassword(); //todo: ************************************************
+//updateHashedPassword(); //todo: ************************************************
