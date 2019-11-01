@@ -32,6 +32,13 @@ const https = require('https');
 const passwordHash = require('password-hash');
 const dateFormat = require('dateformat');
 
+process.on('uncaughtException', function (err) {
+    console.log('\n***************************************');
+    console.error(err);
+    console.log("Node.JS NOT Exiting...");
+    console.log('***************************************\n');
+});
+
 app
     .prepare()
     .then(() => {
@@ -2779,10 +2786,13 @@ doGetActivity = (req, res, db) => {
     db.query(
         `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
                     na.file_name
-             FROM (SELECT * FROM news WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish' ${limitClause}) n
+             FROM (SELECT * 
+                        FROM news 
+                        WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish' 
+                        ORDER BY pinned DESC, created_at DESC
+                        ${limitClause}) n
                  LEFT JOIN news_asset na 
-                     ON n.id = na.news_id
-             ORDER BY n.pinned DESC, n.created_at DESC`,
+                     ON n.id = na.news_id`,
         id == null ? [] : [id],
         function (err, results, fields) {
             if (err) {
@@ -3272,7 +3282,8 @@ updateHashedPassword = () => {
             return;
         }
         db.query(
-            `SELECT email, password FROM member`,
+                `SELECT email, password
+                 FROM member`,
             [],
 
             function (err, results, fields) {
