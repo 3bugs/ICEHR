@@ -164,7 +164,7 @@ export default class Index extends React.Component {
     }
 
     static getInitialProps = async ({req, query}) => {
-        console.log('test');
+        //console.log('test');
 
         const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
 

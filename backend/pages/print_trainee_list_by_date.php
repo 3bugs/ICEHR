@@ -109,7 +109,7 @@ $mpdf = new \Mpdf\Mpdf([
         <img src="../images/logo_icehr.svg"
              width="300px"
              style="vertical-align: middle"/><br>
-        <span>รายงานสรุปผู้เข้ารับการอบรม</span>
+        <span>รายงานสรุปผลการอบรมประจำเดือน</span>
     </div>
     <?php
     $courseDisplayName = "หลักสูตร {$courseTitle}";
@@ -129,8 +129,8 @@ $mpdf = new \Mpdf\Mpdf([
     <table width="100%" align="center" cellspacing="0" cellpadding="5px"
            style="border: 1px solid #000000; margin-top: 10px">
         <tr>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="6%">ลำดับ</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="11%">วันที่อบรม</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="6%">ลำดับที่</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="11%">วัน/เดือน/ปี<br>ที่อบรม</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="27%">ชื่อ-นามสกุล<br>ผู้สมัครเข้ารับการอบรม</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="18%">เลขประจำตัว<br>ประชาชน</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="22%">ประเภทใบอนุญาตขับรถ<br>ที่ขอรับ/ต่ออายุ</th>
@@ -176,7 +176,7 @@ $mpdf = new \Mpdf\Mpdf([
             <tr>
                 <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top"><?= thaiNumDigit($i); ?></td>
                 <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">
-                    <?= thaiNumDigit(getThaiShortDate(date_create($trainee['course_date']))); ?>
+                    <?= thaiNumDigit(getThaiShortDateFullYear(date_create($trainee['course_date']))); ?>
                 </td>
                 <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
                     <?= "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}"; ?>

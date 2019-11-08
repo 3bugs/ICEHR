@@ -781,9 +781,23 @@ if ($result = $db->query($sql)) {
                                         ?>
                                         <!--ข้อมูลใบเซ็นชื่อ-->
                                         <div class="btn-group" style="margin-right: 6px">
-                                            <a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?= $courseId; ?>"
-                                               class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ข้อมูลใบเซ็นชื่อ</a>
+                                            <button type="button" class="btn btn-default">ข้อมูลใบเซ็นชื่อ</button>
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a target="_blank" href="excel_dl_trainee_list_all.php?course_id=<?= $courseId; ?>"><i class="fa fa-file-excel-o"></i> Excel</a></li>
+                                                <li><a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?= $courseId; ?>"><i class="fa fa-print"></i> พิมพ์</a></li>
+                                                <!--<li class="divider"></li>
+                                                <li><a href="#">Separated link</a></li>-->
+                                            </ul>
                                         </div>
+
+                                        <!--<div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?/*= $courseId; */?>"
+                                               class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ข้อมูลใบเซ็นชื่อ</a>
+                                        </div>-->
                                         <?php
                                     }
                                     ?>
