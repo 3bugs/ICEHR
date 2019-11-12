@@ -10,6 +10,7 @@
       <w>flexslider</w>
       <w>fontdata</w>
       <w>fpdf</w>
+      <w>gmail</w>
       <w>heavent</w>
       <w>htmlentities</w>
       <w>icehr</w>
@@ -17,6 +18,7 @@
       <w>lightbox</w>
       <w>mpdf</w>
       <w>owlcarousel</w>
+      <w>smtp</w>
     </words>
   </dictionary>
 </component>

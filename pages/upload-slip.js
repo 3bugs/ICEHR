@@ -399,7 +399,7 @@ export default class UploadSlip extends React.Component {
                                                    onDropRejected={this.handleRejectedFiles}
                                                    accept="image/jpeg, image/png, application/pdf"
                                                    minSize={0}
-                                                   maxSize={1048576}>
+                                                   maxSize={100000000}>
                                             {({getRootProps, getInputProps}) => (
                                                 <section>
                                                     <div {...getRootProps()}

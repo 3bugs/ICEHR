@@ -441,7 +441,7 @@ class TraineeRegisterForm extends React.Component {
                                                                onDropRejected={this.handleRejectedFiles}
                                                                accept="image/jpeg, image/png, application/pdf"
                                                                minSize={0}
-                                                               maxSize={3145728}>
+                                                               maxSize={100000000}>
                                                         {({getRootProps, getInputProps}) => (
                                                             <section>
                                                                 <div {...getRootProps()}
