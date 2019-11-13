@@ -100,10 +100,14 @@ export default class ServiceTraining extends React.Component {
     };
 
     handleCloseSearchResultModal = (serviceType, courseId) => {
-        window.location.href = `/service-${serviceType}/${courseId}`;
-        /*this.setState({
-            showSearchResultModal: false
-        });*/
+        // ถ้ามีการคลิกแถวหลักสูตรในผลการค้นหา จะ redirect ไปยังหน้ารายละเอียดหลักสูตรนั้น
+        if (courseId) {
+            window.location.href = `/service-${serviceType}/${courseId}`;
+        } else { // กรณีปิด dialog ผลการค้นหา โดยไม่ได้คลิกหลักสูตรไหน
+            this.setState({
+                showSearchResultModal: false
+            });
+        }
     };
 
     render() {

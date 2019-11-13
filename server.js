@@ -1127,7 +1127,7 @@ doSearchCourse = (req, res, db) => {
         }
     }
 
-    const whereServiceType = 'cm.service_type = ?'
+    const whereServiceType = 'cm.service_type = ?';
     let whereTitle = 'TRUE';
     let whereCategory = 'TRUE';
     let wherePlaceType = 'TRUE';
@@ -1186,9 +1186,13 @@ doSearchCourse = (req, res, db) => {
                 let count = 0;
                 results.forEach((row, index) => {
                     checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
+                        let courseName = row.title;
+                        if (row.batch_number && row.batch_number > 0) {
+                            courseName += ` รุ่นที่ ${row.batch_number}`;
+                        }
                         dataList.push({
                             id: row.id,
-                            name: `${row.title} รุ่นที่ ${row.batch_number}`,
+                            name: courseName,
                             details: row.details,
                             applicationFee: row.application_fee,
                             place: row.place,
