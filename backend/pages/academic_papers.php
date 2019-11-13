@@ -44,7 +44,7 @@ if ($result = $db->query($sql)) {
             }
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <!-- Abstract Modal (บทคัดย่อ) -->
     <div class="modal fade" id="abstractModal" role="dialog">

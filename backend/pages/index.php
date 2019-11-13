@@ -25,7 +25,7 @@ $db->set_charset("utf8");
     <head>
         <?php require_once('../include/head.inc'); ?>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
     <div class="wrapper">
         <?php
         if (isset($_SESSION[KEY_SESSION_USER_ID])) {

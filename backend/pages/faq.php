@@ -30,7 +30,7 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
         <style>
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <!-- Answer Modal (คำตอบ) -->
     <div class="modal fade" id="answerModal" role="dialog">

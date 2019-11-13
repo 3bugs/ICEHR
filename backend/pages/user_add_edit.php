@@ -90,7 +90,7 @@ if ($result = $db->query($sql)) {
             }
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <!-- Change password modal -->
     <div class="modal fade" id="changePasswordModal" role="dialog">

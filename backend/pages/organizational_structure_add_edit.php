@@ -82,7 +82,7 @@ function pathUrl($dir = __DIR__){
         <script src="../bower_components/dropzone-master/dropzone.js"></script>
         <link rel="stylesheet" href="../bower_components/dropzone-master/dropzone.css">
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>

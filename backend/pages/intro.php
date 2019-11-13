@@ -79,7 +79,7 @@ $userHasPermission = currentUserHasPermission(PERMISSION_MANAGE_WEB_CONTENT);
             }
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <!-- Sort Modal -->
     <div class="modal fade" id="sortItemModal" role="dialog">

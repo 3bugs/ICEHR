@@ -72,7 +72,7 @@ if (isset($trainerId)) {
             }
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <div class="wrapper">
         <?php require_once('../include/header.inc'); ?>

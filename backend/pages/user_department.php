@@ -45,7 +45,7 @@ if ($result = $db->query($sql)) {
             }
         </style>
     </head>
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-blue sidebar-mini fixed">
 
     <!-- Sort Department Modal -->
     <div class="modal fade" id="sortDepartmentModal" role="dialog">
