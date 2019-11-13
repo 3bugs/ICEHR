@@ -78,7 +78,7 @@ $mpdf = new \Mpdf\Mpdf([
             ]
         ],
     'default_font' => 'dbheavent',
-    'default_font_size' => 13,
+    'default_font_size' => 12,
 ]);
 ?>
     <!DOCTYPE html>
@@ -131,9 +131,9 @@ $mpdf = new \Mpdf\Mpdf([
         <tr>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="6%">ลำดับที่</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="11%">วัน/เดือน/ปี<br>ที่อบรม</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="24%">ชื่อ-นามสกุล<br>ผู้สมัครเข้ารับการอบรม</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="25%">ชื่อ-นามสกุล<br>ผู้สมัครเข้ารับการอบรม</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="18%">เลขประจำตัว<br>ประชาชน</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="25%">ประเภทใบอนุญาตขับรถ<br>ที่ขอรับ/ต่ออายุ</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="24%">ประเภทใบอนุญาตขับรถ<br>ที่ขอรับ/ต่ออายุ</th>
             <th style="border: 0.1pt solid #a0a0a0; vertical-align: top" width="16%">เลขที่หนังสือรับรอง<br>การผ่านการอบรม</th>
         </tr>
         <?php
