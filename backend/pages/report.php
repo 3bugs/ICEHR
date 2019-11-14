@@ -142,10 +142,16 @@ require_once '../include/head_php.inc';
                                             <div class="form-group">
                                                 <label for="button">&nbsp;</label>
                                                 <div class="input-group">
-                                                    <button id="button" type="submit"
+                                                    <button id="buttonPrint" type="submit"
                                                             class="btn btn-info">
                                                         <span class="fa fa-print"></span>&nbsp;
                                                         พิมพ์
+                                                    </button>
+                                                    <button id="buttonExcel" type="submit"
+                                                            class="btn btn-success"
+                                                            style="margin-left: 5px">
+                                                        <span class="fa fa-file-word-o"></span>&nbsp;
+                                                        Excel
                                                     </button>
                                                     <span id="divLoading" style="text-align: center; margin-bottom: 10px;">
                                                 <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
@@ -281,11 +287,25 @@ require_once '../include/head_php.inc';
         $(document).ready(function () {
             $('#formDlTraineeListByDate #divLoading').hide();
 
+            let buttonPressed;
+
+            $('#buttonPrint').click(function () {
+                buttonPressed = $(this).attr('id');
+            });
+            $('#buttonExcel').click(function () {
+                buttonPressed = $(this).attr('id');
+            });
+
             $('#formDlTraineeListByDate').submit(event => {
                 event.preventDefault();
+
                 const selectMonthValue = $('#formDlTraineeListByDate #selectMonth').val();
                 const selectYearValue = $('#formDlTraineeListByDate #selectYear').val();
-                window.open(`print_trainee_list_by_date.php?month=${selectMonthValue}&year=${selectYearValue}`, '_blank');
+                if (buttonPressed === 'buttonPrint') {
+                    window.open(`print_trainee_list_by_date.php?month=${selectMonthValue}&year=${selectYearValue}`, '_blank');
+                } else if (buttonPressed === 'buttonExcel') {
+                    window.open(`word_trainee_list_by_date.php?month=${selectMonthValue}&year=${selectYearValue}`, '_blank');
+                }
             });
 
             $('#formMemberListByDate #divLoading').hide();
