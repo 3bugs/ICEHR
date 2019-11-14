@@ -151,7 +151,7 @@ require_once '../include/head_php.inc';
                                                             class="btn btn-success"
                                                             style="margin-left: 5px">
                                                         <span class="fa fa-file-word-o"></span>&nbsp;
-                                                        Excel
+                                                        Word
                                                     </button>
                                                     <span id="divLoading" style="text-align: center; margin-bottom: 10px;">
                                                 <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
