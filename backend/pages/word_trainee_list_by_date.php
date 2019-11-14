@@ -241,7 +241,10 @@ $phpWord->addParagraphStyle(
     )
 );
 
-$text = $section->addText("\n\n\n\n\n");
+$text = $section->addText('');
+$text = $section->addText('');
+$text = $section->addText('');
+$text = $section->addText('');
 $text = $section->addText("(ผู้ช่วยศาสตราจารย์ ดร.ศุภชัย ศรีสุชาติ)\nผู้อำนวยการสถาบันเสริมศึกษาและทรัพยากรมนุษย์", 'fStyleBody', 'pStyleSigning');
 
 // Saving the document as OOXML file...
