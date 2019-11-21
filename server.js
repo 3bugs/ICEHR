@@ -3123,6 +3123,7 @@ doGetUser = (req, res, db) => {
                     u.details,
                     u.show_details,
                     u.image_file_name,
+                    u.phone_office,
                     u.phone_extension
              FROM user_department ud
                       INNER JOIN user u

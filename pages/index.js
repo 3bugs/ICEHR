@@ -653,12 +653,14 @@ export default class Index extends React.Component {
                                         <div style={{border: '0px solid #ccc'}}>
                                             <img src={HOST_BACKEND + '/uploads/intro_assets/' + banner.image_file_name}
                                                  style={{cursor: 'pointer'}}/>
+                                            {false &&
                                             <div className="text_banner">
                                                 <div className="border-left-1"></div>
                                                 <h1>{banner.title}</h1>
                                                 <h4>{banner.sub_title}</h4>
                                                 <div dangerouslySetInnerHTML={{__html: banner.details}}/>
                                             </div>
+                                            }
                                         </div>
                                     </a>
                                 ))

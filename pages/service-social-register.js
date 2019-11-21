@@ -338,7 +338,7 @@ class TraineeRegisterForm extends React.Component {
                                                 <label className="not-required mt-2">วันเกิด</label>
                                             </div>
                                             <div className="col-md-9">
-                                                <div style={{width: '48.5%'}} className="mt-2">
+                                                <div style={{width: '47.5%'}} className="mt-2">
                                                     <DatePicker
                                                         selected={traineeForm.fields[REGISTER_TRAINEE_BIRTH_DATE] || ''}
                                                         onChange={this.handleChange.bind(this, REGISTER_TRAINEE_BIRTH_DATE)}
@@ -398,6 +398,15 @@ class TraineeRegisterForm extends React.Component {
                                                     value={traineeForm.errors[REGISTER_TRAINEE_WORK_PLACE]}/>
                                             </div>
                                         </div>
+
+                                        {!isReadOnly &&
+                                        <div className="row" style={{marginTop: 20}}>
+                                            <div className="offset-md-3 col-md-9" style={{color: 'red'}}>
+                                                กรณีที่ไม่มีข้อมูลที่อยู่ ให้ใส่เครื่องหมาย -
+                                            </div>
+                                        </div>
+                                        }
+
                                         <div className="row">
                                             <div className="col-md-3">
                                                 <label className="mt-2">ที่อยู่ปัจจุบัน</label>
@@ -474,7 +483,8 @@ class TraineeRegisterForm extends React.Component {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="row">
+
+                                        <div className="row" style={{marginTop: 20}}>
                                             <div className="col-md-3">
                                                 <label className="mt-2">เบอร์โทรศัพท์</label>
                                             </div>
@@ -493,20 +503,27 @@ class TraineeRegisterForm extends React.Component {
                                             <div className="col-md-3">
                                                 <label className="not-required mt-2">อีเมล</label>
                                             </div>
-                                            <div className="col-md-9">
-                                                <input value={traineeForm.fields[REGISTER_TRAINEE_EMAIL] || ''}
-                                                       onChange={this.handleChange.bind(this, REGISTER_TRAINEE_EMAIL)}
-                                                       type="email"
-                                                       onKeyDown={e => {
-                                                           if (e.key === ' ') {
-                                                               e.preventDefault();
-                                                           }
-                                                       }}
-                                                       placeholder={isReadOnly ? '' : "อีเมล"}
-                                                       className="form-control-2 input-md mt-2"
-                                                       disabled={isReadOnly}/>
-                                                <ErrorLabel
-                                                    value={traineeForm.errors[REGISTER_TRAINEE_EMAIL]}/>
+                                            <div className="col-md-9" style={{border: '0px solid red'}}>
+                                                <div className="row">
+                                                    <div className="col-md-6">
+                                                        <input value={traineeForm.fields[REGISTER_TRAINEE_EMAIL] || ''}
+                                                               onChange={this.handleChange.bind(this, REGISTER_TRAINEE_EMAIL)}
+                                                               type="email"
+                                                               onKeyDown={e => {
+                                                                   if (e.key === ' ') {
+                                                                       e.preventDefault();
+                                                                   }
+                                                               }}
+                                                               placeholder={isReadOnly ? '' : "อีเมล"}
+                                                               className="form-control input-md mt-2"
+                                                               disabled={isReadOnly}/>
+                                                        <ErrorLabel
+                                                            value={traineeForm.errors[REGISTER_TRAINEE_EMAIL]}/>
+                                                    </div>
+                                                    <div className="col-md-6" style={{color: 'red', paddingTop: '20px', paddingBottom: '20px'}}>
+                                                        กรณีที่ไม่มีอีเมล ไม่ต้องใส่ข้อความใดๆ
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="row">
@@ -606,7 +623,7 @@ class TraineeRegisterForm extends React.Component {
                     
                     .form-control-2 {
                         display: block;
-                        width: 48.5%;
+                        width: 47.5%;
                         padding: 0.375rem 0.75rem;
                         line-height: 1.5;
                         color: #252525;
@@ -906,12 +923,16 @@ export default class ServiceSocialRegister extends React.Component {
             errors[REGISTER_TRAINEE_PROVINCE] = 'กรุณากรอกจังหวัด';
             formIsValid = false;
         }
-        if (!fields[REGISTER_TRAINEE_POSTAL_CODE]
-            || (fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length !== 5)
-            || !isPositiveInteger(fields[REGISTER_TRAINEE_POSTAL_CODE])) {
+
+        if (!((fields[REGISTER_TRAINEE_POSTAL_CODE]
+            && (fields[REGISTER_TRAINEE_POSTAL_CODE].trim().length === 5)
+            && isPositiveInteger(fields[REGISTER_TRAINEE_POSTAL_CODE]))
+            || (fields[REGISTER_TRAINEE_POSTAL_CODE]
+                && fields[REGISTER_TRAINEE_POSTAL_CODE].trim() === '-'))) {
             errors[REGISTER_TRAINEE_POSTAL_CODE] = 'กรุณากรอกเลขรหัสไปรษณีย์ 5 หลัก';
             formIsValid = false;
         }
+
         if (!fields[REGISTER_TRAINEE_PHONE] || fields[REGISTER_TRAINEE_PHONE].trim().length === 0) {
             errors[REGISTER_TRAINEE_PHONE] = 'กรุณากรอกเบอร์โทรศัพท์';
             formIsValid = false;
@@ -1250,15 +1271,15 @@ export default class ServiceSocialRegister extends React.Component {
                         </div>
 
                         {this.state.endRegisterFlow &&
-                            <div style={{textAlign: 'center', fontSize: '1.5rem', marginTop: '50px', color: '#008000'}}>
-                                ลงทะเบียนสำเร็จ<br/>
-                                <a className="btn btn-dark"
-                                   style={{marginTop: '10px', marginRight: 0, padding: '5px 20px'}}
-                                   href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${SERVICE_SOCIAL}&trainee_id=${this.state.courseRegId}&payment=1&user=1`}
-                                   target="_blank">
-                                    {this.props.course.applicationFee > 0 ? 'ใบสมัคร/รายละเอียดการชำระเงิน' : 'ใบสมัคร'}
-                                </a>
-                            </div>
+                        <div style={{textAlign: 'center', fontSize: '1.5rem', marginTop: '50px', color: '#008000'}}>
+                            ลงทะเบียนสำเร็จ<br/>
+                            <a className="btn btn-dark"
+                               style={{marginTop: '10px', marginRight: 0, padding: '5px 20px'}}
+                               href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${SERVICE_SOCIAL}&trainee_id=${this.state.courseRegId}&payment=1&user=1`}
+                               target="_blank">
+                                {this.props.course.applicationFee > 0 ? 'ใบสมัคร/รายละเอียดการชำระเงิน' : 'ใบสมัคร'}
+                            </a>
+                        </div>
                         }
 
                         <Element name={TOP_OF_FORM}>

@@ -2750,7 +2750,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                         ?>
                                         <li><a href="javascript:void(0)"
                                                onClick="onClickPrintAcCertificate('<?= $formNumber; ?>', <?= $traineeId; ?>)">
-                                                <i class="fa fa-print"></i>ใบรับรองการผ่านการอบรม
+                                                <i class="fa fa-file-word-o"></i>ใบรับรองการผ่านการอบรม
                                             </a>
                                         </li>
                                         <?php

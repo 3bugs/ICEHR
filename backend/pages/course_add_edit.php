@@ -580,6 +580,7 @@ if (isset($courseId)) {
                                                                 <option value="0" disabled selected>-- เลือกประเภทสถานที่ --</option>
                                                                 <option value="1" <?= $course['place_type'] === 1 ? 'selected' : '' ?>>กรุงเทพมหานคร</option>
                                                                 <option value="2" <?= $course['place_type'] === 2 ? 'selected' : '' ?>>ภูมิภาค</option>
+                                                                <option value="99" <?= $course['place_type'] === 99 ? 'selected' : '' ?>>อื่นๆ</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -598,7 +599,10 @@ if (isset($courseId)) {
                                                                     oninput="this.setCustomValidity('')">
                                                                 <option value="0" disabled selected>-- เลือกวิทยาเขต --</option>
                                                                 <option value="1" <?= $course['place_type'] === 1 ? 'selected' : '' ?>>ท่าพระจันทร์</option>
-                                                                <option value="2" <?= $course['place_type'] === 2 ? 'selected' : '' ?>>ศูนย์รังสิต</option>
+                                                                <option value="2" <?= $course['place_type'] === 2 ? 'selected' : '' ?>>รังสิต</option>
+                                                                <option value="3" <?= $course['place_type'] === 3 ? 'selected' : '' ?>>พัทยา</option>
+                                                                <option value="4" <?= $course['place_type'] === 4 ? 'selected' : '' ?>>ลำปาง</option>
+                                                                <option value="99" <?= $course['place_type'] === 99 ? 'selected' : '' ?>>อื่นๆ</option>
                                                             </select>
                                                         </div>
                                                     </div>

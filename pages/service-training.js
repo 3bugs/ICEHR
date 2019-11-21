@@ -187,9 +187,10 @@ export default class ServiceTraining extends React.Component {
                                     value={searchFields[SEARCH_SELECT_PLACE_TYPE] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_PLACE_TYPE)}
                                     className="form-control">
-                                    <option value="0" disabled selected>กรุงเทพ/ภูมิภาค</option>
+                                    <option value="0" disabled selected>สถานที่</option>
                                     <option value="1">กรุงเทพมหานคร</option>
                                     <option value="2">ภูมิภาค</option>
+                                    <option value="99">อื่นๆ</option>
                                     <option value="9999">( ไม่ระบุสถานที่ )</option>
                                 </select>
                             </div>

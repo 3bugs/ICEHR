@@ -777,6 +777,14 @@ if ($result = $db->query($sql)) {
                                                class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;ข้อมูลใบเซ็นชื่อ</a>
                                         </div>
                                         <?php
+                                    } else if ($course['service_type'] === SERVICE_TYPE_SOCIAL) {
+                                        ?>
+                                        <!--ข้อมูลใบเซ็นชื่อ-->
+                                        <div class="btn-group" style="margin-right: 6px">
+                                            <a target="_blank" href="excel_trainee_list_all.php?course_id=<?= $courseId; ?>"
+                                               class="btn btn-default"><i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;ข้อมูลใบเซ็นชื่อ</a>
+                                        </div>
+                                        <?php
                                     } else if ($course['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
                                         ?>
                                         <!--ข้อมูลใบเซ็นชื่อ-->
@@ -795,7 +803,7 @@ if ($result = $db->query($sql)) {
                                         </div>
 
                                         <!--<div class="btn-group" style="margin-right: 6px">
-                                            <a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?/*= $courseId; */?>"
+                                            <a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?/*= $courseId; */ ?>"
                                                class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ข้อมูลใบเซ็นชื่อ</a>
                                         </div>-->
                                         <?php

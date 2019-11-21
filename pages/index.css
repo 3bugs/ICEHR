@@ -256,7 +256,7 @@ hr {
     position: relative;
 }
 
-.owl-topbanner .owl-item::before {
+.owl-topbanner_not-used .owl-item::before {
     content: "";
     position: absolute;
     left: 0;

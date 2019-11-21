@@ -215,7 +215,10 @@ $mpdf = new \Mpdf\Mpdf([
             $isCourseFree = TRUE;
         }
         if ($i === 0) {
-            $courseDisplayName = "หลักสูตร '{$trainee['course_title']}' รุ่นที่ {$trainee['course_batch_number']}";
+            $courseDisplayName = "หลักสูตร '{$trainee['course_title']}'";
+            if ($trainee['course_batch_number'] && ((int)$trainee['course_batch_number'] > 0)) {
+                $courseDisplayName .= " รุ่นที่ {$trainee['course_batch_number']}";
+            }
         }
         ?>
         <div <?= ($i++ !== 0) ? 'style="page-break-before: always"' : ''; ?>>
@@ -293,7 +296,7 @@ $mpdf = new \Mpdf\Mpdf([
                         <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
                             <tr>
                                 <td width="650px" align="center" class="txtDash">
-                                    <strong><?= "{$trainee['course_title']} รุ่นที่ {$trainee['course_batch_number']}"; ?></strong>
+                                    <strong><?= "{$trainee['course_title']}" . (($trainee['course_batch_number'] && (int)$trainee['course_batch_number'] > 0) ? " รุ่นที่ {$trainee['course_batch_number']}" : ''); ?></strong>
                                 </td>
                             </tr>
                         </table>

@@ -79,10 +79,14 @@ export default class ServiceSocial extends React.Component {
     };
 
     handleCloseSearchResultModal = (serviceType, courseId) => {
-        window.location.href = `/service-${serviceType}/${courseId}`;
-        this.setState({
-            showSearchResultModal: false
-        });
+        // ถ้ามีการคลิกแถวหลักสูตรในผลการค้นหา จะ redirect ไปยังหน้ารายละเอียดหลักสูตรนั้น
+        if (courseId) {
+            window.location.href = `/service-${serviceType}/${courseId}`;
+        } else {
+            this.setState({
+                showSearchResultModal: false
+            });
+        }
     };
 
     render() {
@@ -170,9 +174,12 @@ export default class ServiceSocial extends React.Component {
                                     value={searchFields[SEARCH_SELECT_PLACE_TYPE] || '0'}
                                     onChange={this.handleInputChange.bind(this, SEARCH_SELECT_PLACE_TYPE)}
                                     className="form-control">
-                                    <option value="0" disabled selected>ท่าพระจันทร์/ศูนย์รังสิต</option>
+                                    <option value="0" disabled selected>สถานที่</option>
                                     <option value="1">ท่าพระจันทร์</option>
-                                    <option value="2">ศูนย์รังสิต</option>
+                                    <option value="2">รังสิต</option>
+                                    <option value="3">พัทยา</option>
+                                    <option value="4">ลำปาง</option>
+                                    <option value="99">อื่นๆ</option>
                                     <option value="9999">( ไม่ระบุสถานที่ )</option>
                                 </select>
                             </div>
@@ -206,7 +213,9 @@ export default class ServiceSocial extends React.Component {
                                 </select>
                             </div>
                         </div>
-                        <div className="submitbox" style={{marginTop: '15px'}}><a href="#" className="btn-submit" onClick={this.handleClickSearch}>ค้นหา</a></div>
+                        <div className="submitbox" style={{marginTop: '15px'}}>
+                            <a href="#" className="btn-submit" onClick={this.handleClickSearch}>ค้นหา</a>
+                        </div>
                     </div>
 
                     <div className="container d-block d-sm-none d-md-none d-lg-none d-xl-none">
