@@ -283,16 +283,18 @@ function generateSheet($memberList, $memberType, $sheet)
         $sheet->setCellValueByColumnAndRow(8, $row, is_null($member['organization_type_name']) ? $member['organization_type_custom'] : $member['organization_type_name'])->getStyleByColumnAndRow(8, $row)->getAlignment()->setVertical('top');
 
         if ($memberType === MEMBER_TYPE_ORGANIZATION) {
-            $province = $member['province'];
+
+            $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $member['province']));
             $isBangkok = false;
-            if (mb_substr($province, 0, 4) == 'กรุง' || substr($province, 0, 2) == 'กท') {
+            if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
                 $isBangkok = true;
+                $province = 'กรุงเทพมหานคร';
             }
 
             if ($isBangkok) {
-                $displayAddress = "{$member['address']} แขวง{$member['sub_district']} เขต{$member['district']} กรุงเทพฯ {$member['postal_code']}";
+                $displayAddress = "{$member['address']} แขวง{$member['sub_district']} เขต{$member['district']} {$province} {$member['postal_code']}";
             } else {
-                $displayAddress = "{$member['address']} ต.{$member['sub_district']} อ.{$member['district']} จ.{$member['province']} {$member['postal_code']}";
+                $displayAddress = "{$member['address']} ต.{$member['sub_district']} อ.{$member['district']} จ.{$province} {$member['postal_code']}";
             }
             $sheet->setCellValueByColumnAndRow(9, $row, $displayAddress)->getStyleByColumnAndRow(9, $row)->getAlignment()->setVertical('top');
 
@@ -409,10 +411,12 @@ function generateTraineeSheet($traineeList, $sheet)
         $sheet->setCellValueByColumnAndRow(6, $row, $jobPosition ? $jobPosition : '-')->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
         $sheet->setCellValueByColumnAndRow(7, $row, $organizationName ? $organizationName : '-')->getStyleByColumnAndRow(7, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
 
-        $province = trim($trainee['province']);
+        $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+
         $isBangkok = false;
         if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
             $isBangkok = true;
+            $province = 'กรุงเทพมหานคร';
         }
 
         $displayAddress = null;
@@ -421,21 +425,21 @@ function generateTraineeSheet($traineeList, $sheet)
         } else {
             if ($isBangkok) {
                 if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
-                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province} {$trainee['postal_code']}";
                 } else {
-                    $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                    $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province} {$trainee['postal_code']}";
                 }
             } else {
                 if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
-                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$province} {$trainee['postal_code']}";
                 } else {
-                    $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                    $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$province} {$trainee['postal_code']}";
                 }
             }
         }
         $sheet->setCellValueByColumnAndRow(8, $row, $displayAddress)->getStyleByColumnAndRow(8, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
 
-        $sheet->setCellValueByColumnAndRow(9, $row, $trainee['province'])->getStyleByColumnAndRow(9, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+        $sheet->setCellValueByColumnAndRow(9, $row, $province)->getStyleByColumnAndRow(9, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
         $sheet->setCellValueByColumnAndRow(10, $row, $trainee['course_title'])->getStyleByColumnAndRow(10, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
         $sheet->setCellValueByColumnAndRow(11, $row, $trainee['batch_number'])->getStyleByColumnAndRow(11, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
         $sheet->setCellValueByColumnAndRow(12, $row, $serviceTypeText)->getStyleByColumnAndRow(12, $row)->getAlignment()->setVertical('top')->setHorizontal('center');

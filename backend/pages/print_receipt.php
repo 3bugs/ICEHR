@@ -186,15 +186,17 @@ if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCI
         $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt_tax_id']) < 13 ? '-' : formatPid($trainee['receipt_tax_id']));
     }
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
-    $province = trim($trainee['province']);
+    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+    //$province = trim($trainee['province']);
 
     $isBangkok = false;
     if (mb_substr($province, 0, 4) === 'กรุง' || mb_substr($province, 0, 2) === 'กท') {
         $isBangkok = true;
+        $province = 'กรุงเทพมหานคร';
     }
 
     if ($isBangkok) {
-        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพมหานคร";
+        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province}";
     } else {
         $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
     }

@@ -164,28 +164,34 @@ $mpdf = new \Mpdf\Mpdf([
                 case SERVICE_TYPE_TRAINING:
                     //$displayAddress = $trainee['organization_name'];
 
-                    if (mb_substr(trim($trainee['receipt_province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['receipt_province']), 0, 2) == 'กท') {
+                    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['receipt_province']));
+
+                    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
                         $displayAddress = "{$trainee['receipt_name']} ที่อยู่ {$trainee['receipt_address']} แขวง{$trainee['receipt_sub_district']} เขต{$trainee['receipt_district']} "
-                            . "กรุงเทพฯ {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
+                            . "กรุงเทพมหานคร {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
                     } else {
                         $displayAddress = "{$trainee['receipt_name']} ที่อยู่ {$trainee['receipt_address']} ต.{$trainee['receipt_sub_district']} อ.{$trainee['receipt_district']} "
-                            . "จ.{$trainee['receipt_province']} {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
+                            . "จ.{$province} {$trainee['receipt_postal_code']} โทร. {$trainee['receipt_organization_phone']}";
                     }
                     break;
                 case SERVICE_TYPE_SOCIAL:
-                    if (mb_substr(trim($trainee['province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['province']), 0, 2) == 'กท') {
-                        $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+
+                    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
+                        $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพมหานคร {$trainee['postal_code']}";
                     } else {
-                        $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                        $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$province} {$trainee['postal_code']}";
                     }
                     break;
                 case SERVICE_TYPE_DRIVING_LICENSE:
-                    if (mb_substr(trim($trainee['province']), 0, 4) == 'กรุง' || mb_substr(trim($trainee['province']), 0, 2) == 'กท') {
+                    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+
+                    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
                         $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} "
-                            . "กรุงเทพฯ {$trainee['postal_code']}";
+                            . "กรุงเทพมหานคร {$trainee['postal_code']}";
                     } else {
                         $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} "
-                            . "จ.{$trainee['province']} {$trainee['postal_code']}";
+                            . "จ.{$province} {$trainee['postal_code']}";
                     }
                     break;
             }

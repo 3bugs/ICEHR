@@ -179,10 +179,12 @@ foreach ($traineeList as $trainee) {
 
     $fullAddress = $trainee['full_address'];
 
-    $province = trim($trainee['province']);
+    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+    //$province = trim($trainee['province']);
     $isBangkok = false;
     if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
         $isBangkok = true;
+        $province = 'กรุงเทพมหานคร';
     }
 
     $displayAddress = null;
@@ -190,9 +192,9 @@ foreach ($traineeList as $trainee) {
         $displayAddress = '-';
     } else {
         if ($isBangkok) {
-            $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+            $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} $province {$trainee['postal_code']}";
         } else {
-            $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+            $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$province} {$trainee['postal_code']}";
         }
     }
 
