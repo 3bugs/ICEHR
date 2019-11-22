@@ -155,11 +155,14 @@ $mpdf = new \Mpdf\Mpdf([
     <table width="100%" align="center" cellspacing="0" cellpadding="5px"
            style="border: 1px solid #000000; margin-top: 10px">
         <tr>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="7%">ลำดับ</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="31%">ชื่อ-นามสกุล</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="21%">เลขที่บัตรประชาชน/<br>เลขที่หนังสือเดินทาง</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="23%">ประเภทบัตร/<br>ประเภทรถ</th>
-            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="18%">ลายเซ็น</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="5%">ลำดับ</th>
+            <!--<th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="31%">ชื่อ-นามสกุล</th>-->
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="5%">คำนำหน้า</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="15%">ชื่อ</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="15%">นามสกุล</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="20%">เลขที่บัตรประชาชน/<br>เลขที่หนังสือเดินทาง</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="24%">ประเภทบัตร/<br>ประเภทรถ</th>
+            <th style="border: 0.1pt solid #a0a0a0; vertical-align: middle" width="16%">ลายเซ็น</th>
         </tr>
         <?php
         $i = 0;
@@ -216,7 +219,13 @@ $mpdf = new \Mpdf\Mpdf([
             <tr>
                 <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top"><?= $i; ?></td>
                 <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
-                    <?= "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}"; ?>
+                    <?= "{$trainee['title']}"; ?>
+                </td>
+                <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
+                    <?= "{$trainee['first_name']}"; ?>
+                </td>
+                <td style="border: 0.1pt solid #a0a0a0; vertical-align: top">
+                    <?= "{$trainee['last_name']}"; ?>
                 </td>
                 <td style="border: 0.1pt solid #a0a0a0; text-align: center; vertical-align: top">
                     <?= strlen($pid) === 13 ? formatPid($pid) : $pid; ?>

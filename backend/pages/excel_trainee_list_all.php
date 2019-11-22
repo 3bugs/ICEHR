@@ -109,7 +109,7 @@ header('Cache-Control: max-age=0');
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->mergeCells("A1:J1");
+$sheet->mergeCells("A1:K1");
 $sheet->freezePane('A3');
 
 $sheet->setTitle(date("d-m-Y"));
@@ -126,6 +126,7 @@ $sheet->getColumnDimension('G')->setAutoSize(true);
 $sheet->getColumnDimension('H')->setAutoSize(true);
 $sheet->getColumnDimension('I')->setAutoSize(true);
 $sheet->getColumnDimension('J')->setAutoSize(true);
+$sheet->getColumnDimension('K')->setAutoSize(true);
 
 /*$trainee = $traineeList[0];
 $serviceType = $trainee['service_type'];
@@ -147,14 +148,15 @@ $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 $row = 2;
 $sheet->setCellValueByColumnAndRow(1, $row, 'ลำดับ')->getStyleByColumnAndRow(1, $row)->getAlignment()->setHorizontal('center');;
 $sheet->setCellValueByColumnAndRow(2, $row, 'คำนำหน้าชื่อ')->getStyleByColumnAndRow(2, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(3, $row, 'ชื่อ-นามสกุล')->getStyleByColumnAndRow(3, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(4, $row, 'เบอร์โทร')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(5, $row, 'อีเมล')->getStyleByColumnAndRow(5, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(6, $row, 'ตำแหน่งงาน/อาชีพ')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(7, $row, 'ชื่อหน่วยงาน/สถานที่ทำงาน')->getStyleByColumnAndRow(7, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(8, $row, 'ที่อยู่')->getStyleByColumnAndRow(8, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(9, $row, 'วันที่สมัคร')->getStyleByColumnAndRow(9, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(10, $row, 'สถานะใบสมัคร')->getStyleByColumnAndRow(10, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(3, $row, 'ชื่อ')->getStyleByColumnAndRow(3, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(4, $row, 'นามสกุล')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(5, $row, 'เบอร์โทร')->getStyleByColumnAndRow(5, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(6, $row, 'อีเมล')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(7, $row, 'ตำแหน่งงาน/อาชีพ')->getStyleByColumnAndRow(7, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(8, $row, 'ชื่อหน่วยงาน/สถานที่ทำงาน')->getStyleByColumnAndRow(8, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(9, $row, 'ที่อยู่')->getStyleByColumnAndRow(9, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(10, $row, 'วันที่สมัคร')->getStyleByColumnAndRow(10, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(11, $row, 'สถานะใบสมัคร')->getStyleByColumnAndRow(11, $row)->getAlignment()->setHorizontal('center');
 
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
@@ -202,20 +204,22 @@ foreach ($traineeList as $trainee) {
     $sheet->setCellValueByColumnAndRow(1, $row, ($row - START_ROW) + 1)->getStyleByColumnAndRow(1, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
     // คำนำหน้าชื่อ
     $sheet->setCellValueByColumnAndRow(2, $row, $trainee['title'])->getStyleByColumnAndRow(2, $row)->getAlignment()->setVertical('top');
-    // ชื่อ-นามสกุล
-    $sheet->setCellValueByColumnAndRow(3, $row, $displayName)->getStyleByColumnAndRow(3, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    // ชื่อ
+    $sheet->setCellValueByColumnAndRow(3, $row, $firstName)->getStyleByColumnAndRow(3, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    // นามสกุล
+    $sheet->setCellValueByColumnAndRow(4, $row, $lastName)->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // เบอร์โทร
-    $sheet->setCellValueByColumnAndRow(4, $row, $phone)->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(5, $row, $phone)->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // อีเมล
-    $sheet->setCellValueByColumnAndRow(5, $row, $email ? $email : '-')->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(6, $row, $email ? $email : '-')->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // ตำแหน่งงาน/อาชีพ
-    $sheet->setCellValueByColumnAndRow(6, $row, $jobPosition ? $jobPosition : '-')->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(7, $row, $jobPosition ? $jobPosition : '-')->getStyleByColumnAndRow(7, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // ชื่อหน่วยงาน/สถานที่ทำงาน
-    $sheet->setCellValueByColumnAndRow(7, $row, $organizationName ? $organizationName : '-')->getStyleByColumnAndRow(7, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(8, $row, $organizationName ? $organizationName : '-')->getStyleByColumnAndRow(8, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // ที่อยู่
-    $sheet->setCellValueByColumnAndRow(8, $row, $displayAddress)->getStyleByColumnAndRow(8, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(9, $row, $displayAddress)->getStyleByColumnAndRow(9, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
     // วันที่สมัคร
-    $sheet->setCellValueByColumnAndRow(9, $row, $trainee['created_at'])->getStyleByColumnAndRow(9, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(10, $row, $trainee['created_at'])->getStyleByColumnAndRow(10, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
     $registerStatusText = null;
     switch ($trainee['register_status']) {
@@ -233,7 +237,7 @@ foreach ($traineeList as $trainee) {
             break;
     }
     // สถานะใบสมัคร
-    $sheet->setCellValueByColumnAndRow(10, $row, $registerStatusText)->getStyleByColumnAndRow(10, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(11, $row, $registerStatusText)->getStyleByColumnAndRow(11, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
     $row++;

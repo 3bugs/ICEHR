@@ -107,7 +107,7 @@ header('Cache-Control: max-age=0');
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
-$sheet->mergeCells("A1:E1");
+$sheet->mergeCells("A1:G1");
 
 $sheet->freezePane('A3');
 
@@ -119,6 +119,9 @@ $sheet->getColumnDimension('A')->setAutoSize(true);
 $sheet->getColumnDimension('B')->setAutoSize(true);
 $sheet->getColumnDimension('C')->setAutoSize(true);
 $sheet->getColumnDimension('D')->setAutoSize(true);
+$sheet->getColumnDimension('E')->setAutoSize(true);
+$sheet->getColumnDimension('F')->setAutoSize(true);
+$sheet->getColumnDimension('G')->setAutoSize(true);
 
 $header = "รายชื่อผู้เข้ารับการอบรม\n{$courseDisplayName}\nณ สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์ ท่าพระจันทร์\n{$courseDisplayDate}   เวลา 08.30 - 14.30 น.";
 $row = 1;
@@ -127,10 +130,12 @@ $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
 $row = 2;
 $sheet->setCellValueByColumnAndRow(1, $row, 'ลำดับ')->getStyleByColumnAndRow(1, $row)->getAlignment()->setHorizontal('center');;
-$sheet->setCellValueByColumnAndRow(2, $row, 'ชื่อ-นามสกุล')->getStyleByColumnAndRow(2, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(3, $row, 'เลขที่บัตรประชาชน/เลขที่หนังสือเดินทาง')->getStyleByColumnAndRow(3, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(4, $row, 'ประเภทบัตร/ประเภทรถ')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
-$sheet->setCellValueByColumnAndRow(5, $row, 'ลายเซ็น')->getStyleByColumnAndRow(5, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(2, $row, 'คำนำหน้าชื่อ')->getStyleByColumnAndRow(2, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(3, $row, 'ชื่อ')->getStyleByColumnAndRow(3, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(4, $row, 'นามสกุล')->getStyleByColumnAndRow(4, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(5, $row, 'เลขที่บัตรประชาชน/เลขที่หนังสือเดินทาง')->getStyleByColumnAndRow(5, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(6, $row, 'ประเภทบัตร/ประเภทรถ')->getStyleByColumnAndRow(6, $row)->getAlignment()->setHorizontal('center');
+$sheet->setCellValueByColumnAndRow(7, $row, 'ลายเซ็น')->getStyleByColumnAndRow(7, $row)->getAlignment()->setHorizontal('center');
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
 define('START_ROW', 3);
@@ -139,12 +144,14 @@ $income = 0;
 foreach ($traineeList as $trainee) {
     $sheet->setCellValueByColumnAndRow(1, $row, ($row - START_ROW) + 1)->getStyleByColumnAndRow(1, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
-    $displayName = "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}";
-    $sheet->setCellValueByColumnAndRow(2, $row, $displayName)->getStyleByColumnAndRow(2, $row)->getAlignment()->setVertical('top');
+    //$displayName = "{$trainee['title']} {$trainee['first_name']} {$trainee['last_name']}";
+    $sheet->setCellValueByColumnAndRow(2, $row, $trainee['title'])->getStyleByColumnAndRow(2, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(3, $row, $trainee['first_name'])->getStyleByColumnAndRow(3, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+    $sheet->setCellValueByColumnAndRow(4, $row, $trainee['last_name'])->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
 
     $pid = trim($trainee['pid']);
     $pid = strlen($pid) === 13 ? formatPid($pid) : $pid;
-    $sheet->setCellValueByColumnAndRow(3, $row, $pid)->getStyleByColumnAndRow(3, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(5, $row, $pid)->getStyleByColumnAndRow(5, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
     $licenseType = (int)$trainee['license_type'];
     $licenseTypeText = '';
@@ -158,7 +165,7 @@ foreach ($traineeList as $trainee) {
         $licenseTypeText .= 'สามล้อ/';
     }
     $licenseTypeText = mb_substr($licenseTypeText, 0, -1);
-    $sheet->setCellValueByColumnAndRow(4, $row, ((int)$trainee['course_type'] === 1 ? 'ขอใหม่/' : 'ต่ออายุ/') . $licenseTypeText)->getStyleByColumnAndRow(4, $row)->getAlignment()->setVertical('top');
+    $sheet->setCellValueByColumnAndRow(6, $row, ((int)$trainee['course_type'] === 1 ? 'ขอใหม่/' : 'ต่ออายุ/') . $licenseTypeText)->getStyleByColumnAndRow(6, $row)->getAlignment()->setVertical('top');
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
     $row++;
