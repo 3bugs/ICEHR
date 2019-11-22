@@ -23,7 +23,13 @@ if ($result = $db->query($sql)) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $serviceType = $row['service_type'];
-        $courseDisplayName = "หลักสูตร {$row['title']}" . ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE ? " รุ่นที่ {$row['batch_number']}" : '');
+        $courseDisplayName = "หลักสูตร {$row['title']}";
+        if ($serviceType !== SERVICE_TYPE_DRIVING_LICENSE
+            && $row['batch_number']
+            && ((int)$row['batch_number'] > 0)) {
+            $courseDisplayName .= " รุ่นที่ {$row['batch_number']}";
+        }
+        
         if ($row['begin_date'] === $row['end_date']) {
             $courseDisplayDate = "อบรม" . getThaiDate(date_create($row['begin_date']));
         } else {
