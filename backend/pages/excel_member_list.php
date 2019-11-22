@@ -129,8 +129,8 @@ if ($result = $db->query($sql)) {
 /*สังคม*/
 $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.birth_date, TIMESTAMPDIFF(YEAR, cr.birth_date, CURDATE()) AS age, 
                cr.phone, cr.email, cr.occupation AS job_position, cr.work_place AS organization_name, DATE_FORMAT(cr.created_at, '%d/%m/%Y') AS created_at,
-               CONCAT_WS(' ', cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code) AS full_address,
-               cr.receipt_address AS address, cr.receipt_sub_district AS sub_district, cr.receipt_district AS district, cr.receipt_province AS province, cr.receipt_postal_code AS postal_code,
+               CONCAT_WS(' ', cr.address, cr.sub_district, cr.district, cr.province, cr.postal_code) AS full_address,
+               cr.address AS address, cr.sub_district AS sub_district, cr.district AS district, cr.province AS province, cr.postal_code AS postal_code,
                c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
         FROM course_registration_social cr  
             INNER JOIN course c 
@@ -415,17 +415,22 @@ function generateTraineeSheet($traineeList, $sheet)
             $isBangkok = true;
         }
 
-        if ($isBangkok) {
-            if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
-                $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
-            } else {
-                $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
-            }
+        $displayAddress = null;
+        if (!$trainee['address'] || ($trainee['address'] && trim($trainee['address']) === '-')) {
+            $displayAddress = '-';
         } else {
-            if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
-                $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+            if ($isBangkok) {
+                if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
+                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                } else {
+                    $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+                }
             } else {
-                $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                if ($trainee['service_type'] === SERVICE_TYPE_DRIVING_LICENSE) {
+                    $displayAddress = "{$trainee['address']} หมู่ที่ {$trainee['moo']} ซ.{$trainee['soi']} ถ.{$trainee['road']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                } else {
+                    $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+                }
             }
         }
         $sheet->setCellValueByColumnAndRow(8, $row, $displayAddress)->getStyleByColumnAndRow(8, $row)->getAlignment()->setVertical('top')->setHorizontal('left');

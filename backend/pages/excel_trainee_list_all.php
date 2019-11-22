@@ -186,10 +186,14 @@ foreach ($traineeList as $trainee) {
     }
 
     $displayAddress = null;
-    if ($isBangkok) {
-        $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+    if (!$trainee['address'] || ($trainee['address'] && trim($trainee['address']) === '-')) {
+        $displayAddress = '-';
     } else {
-        $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+        if ($isBangkok) {
+            $displayAddress = "{$trainee['address']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} กรุงเทพฯ {$trainee['postal_code']}";
+        } else {
+            $displayAddress = "{$trainee['address']} ต.{$trainee['sub_district']} อ.{$trainee['district']} จ.{$trainee['province']} {$trainee['postal_code']}";
+        }
     }
 
     // ลำดับ
