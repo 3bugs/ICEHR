@@ -181,7 +181,7 @@ foreach ($traineeList as $trainee) {
 
     $province = trim($trainee['province']);
     $isBangkok = false;
-    if (mb_substr($province, 0, 4) == 'กรุง' || substr($province, 0, 2) == 'กท') {
+    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
         $isBangkok = true;
     }
 

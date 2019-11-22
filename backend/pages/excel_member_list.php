@@ -112,7 +112,7 @@ $sql = "SELECT ct.title, ct.first_name, ct.last_name, ct.birth_date, TIMESTAMPDI
                 ON c.id = cr.course_id 
             INNER JOIN course_master cm 
                 ON cm.id = c.course_master_id 
-        WHERE $whereDateTrainee
+        WHERE $whereDateTrainee AND ct.register_status <> 'cancel'
         ORDER BY c.begin_date DESC, c.id, ct.first_name, ct.last_name";
 if ($result = $db->query($sql)) {
     while ($row = $result->fetch_assoc()) {
@@ -137,7 +137,7 @@ $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.birth_date, TIMESTAMPDI
                 ON c.id = cr.course_id 
             INNER JOIN course_master cm 
                 ON cm.id = c.course_master_id 
-        WHERE $whereDateTrainee 
+        WHERE $whereDateTrainee AND cr.register_status <> 'cancel'
         ORDER BY c.begin_date DESC, c.id, cr.first_name, cr.last_name";
 if ($result = $db->query($sql)) {
     while ($row = $result->fetch_assoc()) {
@@ -161,7 +161,7 @@ $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.phone, DATE_FORMAT(cr.c
                 ON c.id = cr.course_id 
             INNER JOIN course_master cm 
                 ON cm.id = c.course_master_id 
-        WHERE $whereDateTrainee 
+        WHERE $whereDateTrainee AND cr.register_status <> 'cancel'
         ORDER BY c.begin_date DESC, c.id, cr.first_name, cr.last_name";
 if ($result = $db->query($sql)) {
     while ($row = $result->fetch_assoc()) {
@@ -411,7 +411,7 @@ function generateTraineeSheet($traineeList, $sheet)
 
         $province = trim($trainee['province']);
         $isBangkok = false;
-        if (mb_substr($province, 0, 4) == 'กรุง' || substr($province, 0, 2) == 'กท') {
+        if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
             $isBangkok = true;
         }
 
