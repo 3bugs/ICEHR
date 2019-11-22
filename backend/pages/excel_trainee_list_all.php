@@ -70,9 +70,9 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
     $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name,
                    cr.birth_date, TIMESTAMPDIFF(YEAR, cr.birth_date, CURDATE()) AS age,
                    cr.phone, cr.email, cr.occupation AS job_position, cr.work_place AS organization_name,
-                   CONCAT_WS(' ', cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code) AS full_address,
-                   cr.receipt_address AS address, cr.receipt_sub_district AS sub_district, cr.receipt_district AS district, 
-                   cr.receipt_province AS province, cr.receipt_postal_code AS postal_code,
+                   CONCAT_WS(' ', cr.address, cr.sub_district, cr.district, cr.province, cr.postal_code) AS full_address,
+                   cr.address AS address, cr.sub_district AS sub_district, cr.district AS district, 
+                   cr.province AS province, cr.postal_code AS postal_code,
                    cr.register_status, DATE_FORMAT(cr.created_at, '%d/%m/%Y') AS created_at
             FROM course_registration_social cr 
             WHERE cr.course_id = $courseId AND cr.register_status <> 'cancel' 
