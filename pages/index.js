@@ -491,34 +491,34 @@ export default class Index extends React.Component {
         }).owlCarousel({
             loop: true, //margin:20,
             //navText: ["<img src='images/chevron_leftgrey.png'>","<img src='images/chevron_rightgrey.png'>"],
-            nav: false
-            , dots: true
-            , rewind: true
-            , autoplay: false
-            , autoplayTimeout: 5000
-            , smartSpeed: 800
-            , stagePadding: bannersp
-            , slideBy: 1
-            , responsive: {
+            nav: false,
+            dots: true,
+            rewind: true,
+            autoplay: true,
+            autoplayTimeout: 10000,
+            smartSpeed: 800,
+            stagePadding: bannersp,
+            slideBy: 1,
+            responsive: {
                 0: {
-                    items: 1
-                    , margin: 10
+                    items: 1,
+                    margin: 10
                     //slideBy: 3
-                }
-                , 500: {
+                },
+                500: {
                     items: 1
-                }
-                , 768: {
-                    margin: 15
-                    , items: 1
-                }
-                , 992: {
-                    margin: 15
-                    , items: 1
-                }
-                , 1025: {
-                    margin: 15
-                    , items: 1
+                },
+                768: {
+                    margin: 15,
+                    items: 1
+                },
+                992: {
+                    margin: 15,
+                    items: 1
+                },
+                1025: {
+                    margin: 15,
+                    items: 1
                 }
             }
         });
