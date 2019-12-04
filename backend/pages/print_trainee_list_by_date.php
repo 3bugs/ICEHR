@@ -169,7 +169,7 @@ $mpdf = new \Mpdf\Mpdf([
                     } else {
                         $firstLine = false;
                     }
-                    $displayLicenseType .= $licenseType['text'] . ($traineeCourseType === 1 ? 'ชั่วคราว' : '');
+                    $displayLicenseType .= ($traineeCourseType !== 1 ? 'ต่ออายุ ' : '') . $licenseType['text'] . ($traineeCourseType === 1 ? 'ชั่วคราว' : '');
                 }
             }
             ?>
