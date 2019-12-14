@@ -196,7 +196,7 @@ $mpdf = new \Mpdf\Mpdf([
         ?>
     </table>
 
-    <div style="text-align: center; margin-left: 300px; margin-top: 60px; font-size: 14pt">
+    <div style="text-align: center; margin-left: 300px; margin-top: 80px; font-size: 14pt">
         (ผู้ช่วยศาสตราจารย์ ดร.ศุภชัย ศรีสุชาติ)<br>
         ผู้อำนวยการสถาบันเสริมศึกษาและทรัพยากรมนุษย์
     </div>
