@@ -117,6 +117,14 @@ $academyName = 'สถาบันเสริมศึกษาและทร�
 $academyAddress = thaiNumDigit('เลขที่ 2 ถนนพระจันทร์ แขวงพระบรมมหาราชวัง เขตพระนคร กรุงเทพมหานคร');
 $traineeCountText = 'จำนวนผู้เข้ารับการอบรมทั้งหมด ' . sizeof($traineeList) . ' คน';
 
+$section->addImage(
+    dirname(__FILE__) . '/../images/logo_icehr.png',
+    array(
+        'height' => 60,
+        'align' => 'center'
+    )
+);
+
 $text = $section->addText($title, 'fStyleTitle', 'pStyleTitle');
 $text = $section->addText($courseDisplayName, 'fStyleTitle', 'pStyleTitle');
 $text = $section->addText($courseDisplayDate, 'fStyleTitleUnderline', 'pStyleTitle');
@@ -211,7 +219,7 @@ foreach ($traineeList as $trainee) {
             } else {
                 $firstLine = false;
             }
-            $displayLicenseType .= $licenseType['text'] . ($traineeCourseType === 1 ? 'ชั่วคราว' : '');
+            $displayLicenseType .= ($traineeCourseType !== 1 ? 'ต่ออายุ ' : '') . $licenseType['text'] . ($traineeCourseType === 1 ? 'ชั่วคราว' : '');
         }
     }
 
