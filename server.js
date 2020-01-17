@@ -1077,21 +1077,21 @@ checkIfCourseFull = (db, courseId, serviceType, callback) => {
                                        ON c.id = cr.course_id
                             INNER JOIN course_trainee ct
                                        ON cr.id = ct.course_registration_id
-                   WHERE c.id = ?`;
+                   WHERE c.id = ? AND ct.register_status != 'cancel'`;
             break;
         case constants.SERVICE_SOCIAL:
             sql = `SELECT c.trainee_limit
                    FROM course c
                             INNER JOIN course_registration_social cr
                                        ON c.id = cr.course_id
-                   WHERE c.id = ?`;
+                   WHERE c.id = ? AND cr.register_status != 'cancel'`;
             break;
         case constants.SERVICE_DRIVING_LICENSE:
             sql = `SELECT c.trainee_limit
                    FROM course c
                             INNER JOIN course_registration_driving_license cr
                                        ON c.id = cr.course_id
-                   WHERE c.id = ?`;
+                   WHERE c.id = ? AND cr.register_status != 'cancel'`;
             break;
     }
 
