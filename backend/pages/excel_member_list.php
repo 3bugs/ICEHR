@@ -105,7 +105,8 @@ $sql = "SELECT ct.title, ct.first_name, ct.last_name, ct.birth_date, TIMESTAMPDI
                DATE_FORMAT(cr.created_at, '%d/%m/%Y') AS created_at,
                CONCAT_WS(' ', cr.receipt_address, cr.receipt_sub_district, cr.receipt_district, cr.receipt_province, cr.receipt_postal_code) AS full_address,
                cr.receipt_address AS address, cr.receipt_sub_district AS sub_district, cr.receipt_district AS district, cr.receipt_province AS province, cr.receipt_postal_code AS postal_code,
-               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+               c.id AS course_id, DATE_FORMAT(c.begin_date, '%d/%m/%Y') AS course_begin_date, DATE_FORMAT(c.end_date, '%d/%m/%Y') AS course_end_date, DATEDIFF(c.end_date, c.begin_date) AS course_day,
+               c.place AS course_place, cm.title AS course_title, c.batch_number, cm.service_type
         FROM course_trainee ct 
             INNER JOIN course_registration cr 
                 ON cr.id = ct.course_registration_id 
@@ -134,7 +135,8 @@ $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.birth_date, TIMESTAMPDI
                cr.phone, cr.email, cr.occupation AS job_position, cr.work_place AS organization_name, DATE_FORMAT(cr.created_at, '%d/%m/%Y') AS created_at,
                CONCAT_WS(' ', cr.address, cr.sub_district, cr.district, cr.province, cr.postal_code) AS full_address,
                cr.address AS address, cr.sub_district AS sub_district, cr.district AS district, cr.province AS province, cr.postal_code AS postal_code,
-               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+               c.id AS course_id, DATE_FORMAT(c.begin_date, '%d/%m/%Y') AS course_begin_date, DATE_FORMAT(c.end_date, '%d/%m/%Y') AS course_end_date, DATEDIFF(c.end_date, c.begin_date) AS course_day,
+               c.place AS course_place, cm.title AS course_title, c.batch_number, cm.service_type
         FROM course_registration_social cr  
             INNER JOIN course c 
                 ON c.id = cr.course_id 
@@ -158,7 +160,8 @@ if ($result = $db->query($sql)) {
 $sql = "SELECT cr.title, cr.first_name, cr.last_name, cr.phone, DATE_FORMAT(cr.created_at, '%d/%m/%Y') AS created_at,
                CONCAT_WS(' ', cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province) AS full_address, 
                cr.address, cr.moo, cr.soi, cr.road, cr.sub_district, cr.district, cr.province,
-               c.id AS course_id, cm.title AS course_title, c.batch_number, cm.service_type
+               c.id AS course_id, DATE_FORMAT(c.begin_date, '%d/%m/%Y') AS course_begin_date, DATE_FORMAT(c.end_date, '%d/%m/%Y') AS course_end_date, DATEDIFF(c.end_date, c.begin_date) AS course_day,
+               c.place AS course_place, cm.title AS course_title, c.batch_number, cm.service_type
         FROM course_registration_driving_license cr  
             INNER JOIN course c 
                 ON c.id = cr.course_id 
@@ -323,7 +326,7 @@ function generateTraineeSheet($traineeList, $sheet)
         return;
     }
 
-    $sheet->mergeCells("A1:N1");
+    $sheet->mergeCells("A1:P1");
 
     $sheet->setCellValueByColumnAndRow(1, 1, $titleTrainee)->getStyleByColumnAndRow(1, 1)->getAlignment()->setVertical('top')->setHorizontal('left');
 
@@ -346,6 +349,8 @@ function generateTraineeSheet($traineeList, $sheet)
     $sheet->getColumnDimension('L')->setAutoSize(true);
     $sheet->getColumnDimension('M')->setAutoSize(true);
     $sheet->getColumnDimension('N')->setAutoSize(true);
+    $sheet->getColumnDimension('O')->setAutoSize(true);
+    $sheet->getColumnDimension('P')->setAutoSize(true);
 
     $row = 2;
     $sheet->setCellValueByColumnAndRow(1, $row, 'ลำดับ')->getStyleByColumnAndRow(1, $row)->getAlignment()->setHorizontal('center');;
@@ -361,7 +366,9 @@ function generateTraineeSheet($traineeList, $sheet)
     $sheet->setCellValueByColumnAndRow(11, $row, 'ชื่อหลักสูตรที่สมัคร')->getStyleByColumnAndRow(11, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(12, $row, 'รุ่นที่')->getStyleByColumnAndRow(12, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(13, $row, 'ประเภท')->getStyleByColumnAndRow(13, $row)->getAlignment()->setHorizontal('center');
-    $sheet->setCellValueByColumnAndRow(14, $row, 'วันที่สมัคร')->getStyleByColumnAndRow(14, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(14, $row, 'วันที่อบรม')->getStyleByColumnAndRow(14, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(15, $row, 'สถานที่อบรม')->getStyleByColumnAndRow(15, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(16, $row, 'วันที่สมัคร')->getStyleByColumnAndRow(16, $row)->getAlignment()->setHorizontal('center');
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
 
@@ -456,7 +463,9 @@ function generateTraineeSheet($traineeList, $sheet)
         $sheet->setCellValueByColumnAndRow(11, $row, $trainee['course_title'])->getStyleByColumnAndRow(11, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
         $sheet->setCellValueByColumnAndRow(12, $row, $trainee['batch_number'])->getStyleByColumnAndRow(12, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
         $sheet->setCellValueByColumnAndRow(13, $row, $serviceTypeText)->getStyleByColumnAndRow(13, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
-        $sheet->setCellValueByColumnAndRow(14, $row, $trainee['created_at'])->getStyleByColumnAndRow(14, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
+        $sheet->setCellValueByColumnAndRow(14, $row, $trainee['course_place'])->getStyleByColumnAndRow(14, $row)->getAlignment()->setVertical('top')->setHorizontal('left');
+        $sheet->setCellValueByColumnAndRow(15, $row, $trainee['course_begin_date'])->getStyleByColumnAndRow(15, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
+        $sheet->setCellValueByColumnAndRow(16, $row, $trainee['created_at'])->getStyleByColumnAndRow(16, $row)->getAlignment()->setVertical('top')->setHorizontal('center');
 
         /*if ($memberType === MEMBER_TYPE_ORGANIZATION) {
             $province = $trainee['province'];
