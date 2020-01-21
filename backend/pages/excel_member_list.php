@@ -366,8 +366,8 @@ function generateTraineeSheet($traineeList, $sheet)
     $sheet->setCellValueByColumnAndRow(11, $row, 'ชื่อหลักสูตรที่สมัคร')->getStyleByColumnAndRow(11, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(12, $row, 'รุ่นที่')->getStyleByColumnAndRow(12, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(13, $row, 'ประเภท')->getStyleByColumnAndRow(13, $row)->getAlignment()->setHorizontal('center');
-    $sheet->setCellValueByColumnAndRow(14, $row, 'วันที่อบรม')->getStyleByColumnAndRow(14, $row)->getAlignment()->setHorizontal('center');
-    $sheet->setCellValueByColumnAndRow(15, $row, 'สถานที่อบรม')->getStyleByColumnAndRow(15, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(14, $row, 'สถานที่อบรม')->getStyleByColumnAndRow(14, $row)->getAlignment()->setHorizontal('center');
+    $sheet->setCellValueByColumnAndRow(15, $row, 'วันที่อบรม')->getStyleByColumnAndRow(15, $row)->getAlignment()->setHorizontal('center');
     $sheet->setCellValueByColumnAndRow(16, $row, 'วันที่สมัคร')->getStyleByColumnAndRow(16, $row)->getAlignment()->setHorizontal('center');
 
     $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
