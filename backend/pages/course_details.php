@@ -759,8 +759,15 @@ if ($result = $db->query($sql)) {
 
                                     <!--ทำเนียบผู้เข้ารับการอบรม-->
                                     <div class="btn-group" style="margin-right: 6px">
-                                        <a target="_blank" href="print_trainee_list.php?course_id=<?= $courseId; ?>"
-                                           class="btn btn-default"><i class="fa fa-print"></i>&nbsp;&nbsp;ทำเนียบผู้เข้ารับการอบรม</a>
+                                        <button type="button" class="btn btn-default">ทำเนียบผู้เข้ารับการอบรม</button>
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a target="_blank" href="excel_class_directory.php?course_id=<?= $courseId; ?>"><i class="fa fa-file-excel-o"></i> Excel</a></li>
+                                            <li><a target="_blank" href="print_trainee_list.php?course_id=<?= $courseId; ?>"><i class="fa fa-print"></i> พิมพ์</a></li>
+                                        </ul>
                                     </div>
 
                                     <?php
