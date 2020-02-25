@@ -367,7 +367,7 @@ export default class InHouse extends React.Component {
                     </div>
                     <div className="row mt-3">
                         <div className="col-12 col-md-12">
-                            <h4 className="text-black"><img src="/static/images/inhouse-icon.svg" className="ih-icon"/> หลักสูตร In-House Training ที่ผ่านมาของสถาบัน</h4>
+                            <h4 className="text-black"><img src="/static/images/inhouse-icon.svg" className="ih-icon"/> หลักสูตร In-house Training ที่ผ่านมาของสถาบัน</h4>
                         </div>
                         {/*<div className="col-12 col-md-3"><a href="#" className="readmore">ดูทั้งหมด</a></div>*/}
                     </div>
@@ -379,7 +379,7 @@ export default class InHouse extends React.Component {
                         }
                         {inHouseList && inHouseList.length === 0 &&
                         <div className="col-12" style={{textAlign: 'center'}}>
-                            ไม่มีข้อมูลหลักสูตร In-House Training ที่ผ่านมา
+                            ไม่มีข้อมูลหลักสูตร In-house Training ที่ผ่านมา
                         </div>
                         }
                         {!inHouseList &&
