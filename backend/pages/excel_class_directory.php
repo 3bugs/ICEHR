@@ -111,7 +111,7 @@ $sheet->getColumnDimension('B')->setAutoSize(true);
 $sheet->getColumnDimension('C')->setAutoSize(true);
 $sheet->getColumnDimension('D')->setAutoSize(true);
 
-$header = "{$courseDisplayName}\n{$courseDisplayDate}\n{$courseDisplayPlace}";
+$header = "ทำเนียบผู้เข้ารับการอบรม\n{$courseDisplayName}\n{$courseDisplayDate}\n{$courseDisplayPlace}";
 $row = 1;
 $sheet->setCellValueByColumnAndRow(1, $row, $header)->getStyleByColumnAndRow(1, $row)->getAlignment()->setHorizontal('center');;
 $sheet->getRowDimension($row)->setRowHeight(-1); // set auto height
