@@ -1173,7 +1173,7 @@ doSearchCourse = (req, res, db) => {
              FROM course c
                       INNER JOIN course_master cm
                                  ON c.course_master_id = cm.id
-            WHERE c.status = 'normal' AND ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
+            WHERE c.status = 'normal' AND c.begin_date >= CURDATE() AND ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
         searchValueArray,
         function (err, results, fields) {
             if (err) {
