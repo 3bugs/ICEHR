@@ -467,7 +467,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-envelope-o"></i>
                                                     </span>
-                                                    <input type="email" class="form-control" required
+                                                    <input type="text" class="form-control" required
                                                            id="inputCoordinatorEmail" name="coordinatorEmail"
                                                            oninvalid="this.setCustomValidity('กรอกอีเมลที่มีรูปแบบถูกต้อง')"
                                                            oninput="this.setCustomValidity('')">
