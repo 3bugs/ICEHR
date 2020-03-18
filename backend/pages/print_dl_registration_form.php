@@ -283,37 +283,35 @@ function getPage($trainee, $licenseType)
                     <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                         <tr>
                             <td width="240px">ที่อยู่บ้านเลขที่ตามบัตรประชาชน/Address</td>
-                            <td width="130px" class="txtDash"><strong><?= thaiNumDigit($trainee['address'], $isThaiDigit); ?></strong></td>
+                            <td width="355px" class="txtDash"><strong><?= thaiNumDigit($trainee['address'], $isThaiDigit); ?></strong></td>
                             <td width="55px">หมู่/Moo</td>
                             <td width="50px" class="txtDash"><strong><?= thaiNumDigit($trainee['moo'], $isThaiDigit); ?></strong></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
+                        <tr>
                             <td width="55px">ซอย/Soi</td>
-                            <td width="170px" class="txtDash"><strong><?= thaiNumDigit($trainee['soi'], $isThaiDigit); ?></strong></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
-                        <tr>
+                            <td width="287px" class="txtDash"><strong><?= thaiNumDigit($trainee['soi'], $isThaiDigit); ?></strong></td>
                             <td width="70px">ถนน/Road</td>
-                            <td width="240px" class="txtDash"><strong><?= thaiNumDigit($trainee['road'], $isThaiDigit); ?></strong></td>
+                            <td width="288px" class="txtDash"><strong><?= thaiNumDigit($trainee['road'], $isThaiDigit); ?></strong></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
+                        <tr>
                             <td width="150px">แขวง/ตำบล/Sub-District</td>
-                            <td width="240px" class="txtDash"><strong><?= thaiNumDigit($trainee['sub_district'], $isThaiDigit); ?></strong></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
-                        <tr>
+                            <td width="217px" class="txtDash"><strong><?= thaiNumDigit($trainee['sub_district'], $isThaiDigit); ?></strong></td>
                             <td width="115px">เขต/อำเภอ/District</td>
-                            <td width="240px" class="txtDash"><strong><?= $trainee['district']; ?></strong></td>
-                            <td width="105px">จังหวัด/Province</td>
-                            <td width="240px" class="txtDash"><strong><?= $trainee['province']; ?></strong></td>
+                            <td width="218px" class="txtDash"><strong><?= $trainee['district']; ?></strong></td>
                         </tr>
                     </table>
                 </td>
@@ -323,8 +321,10 @@ function getPage($trainee, $licenseType)
                 <td>
                     <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 5px;">
                         <tr>
+                            <td width="105px">จังหวัด/Province</td>
+                            <td width="245px" class="txtDash"><strong><?= $trainee['province']; ?></strong></td>
                             <td width="105px">โทรมือถือ/Phone</td>
-                            <td width="595px" class="txtDash"><strong><?= thaiNumDigit($trainee['phone'], $isThaiDigit); ?></strong></td>
+                            <td width="245px" class="txtDash"><strong><?= thaiNumDigit($trainee['phone'], $isThaiDigit); ?></strong></td>
                         </tr>
                     </table>
                 </td>
