@@ -281,7 +281,7 @@ $mpdf = new \Mpdf\Mpdf([
 
                 <tr>
                     <td>
-                        <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 15px;">
+                        <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 25px;">
                             <tr>
                                 <td width="80px">&nbsp;</td>
                                 <td width="350px">มีความประสงค์ขอสมัครเข้ารับการอบรมในหลักสูตร</td>
@@ -342,7 +342,7 @@ $mpdf = new \Mpdf\Mpdf([
                     </td>
                 </tr>
 
-                <tr>
+                <!--<tr>
                     <td>
                         <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 70px;">
                             <tr>
@@ -351,7 +351,7 @@ $mpdf = new \Mpdf\Mpdf([
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>
-                                <td align="center">( <?= "{$trainee['title']}{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; ?> )</td>
+                                <td align="center">( <?/*= "{$trainee['title']}{$trainee['first_name']}&nbsp;{$trainee['last_name']}"; */?> )</td>
                             </tr>
                         </table>
                         <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 15px;">
@@ -361,7 +361,7 @@ $mpdf = new \Mpdf\Mpdf([
                             </tr>
                         </table>
                     </td>
-                </tr>
+                </tr>-->
 
                 <?php
                 if (($serviceType === SERVICE_TYPE_TRAINING && $trainee['coordinator_first_name'] != null)
@@ -369,7 +369,7 @@ $mpdf = new \Mpdf\Mpdf([
                     ?>
                     <tr>
                         <td>
-                            <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 60px;">
+                            <table width="650px" align="center" border="0" cellpadding="0" cellspacing="0" style="padding-top: 25px;">
                                 <tr>
                                     <td width="80px">&nbsp;</td>
                                     <?php

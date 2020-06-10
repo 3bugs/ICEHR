@@ -1457,7 +1457,7 @@ a:hover {
 		margin-top: 10px;
 		margin-left: 10px;
 	}
-	
+
 	.regisfo2 label, .regisfo label{
 		padding-top: 0px;
 	}
@@ -1465,7 +1465,7 @@ a:hover {
 }
 
 @media (max-width: 767.98px) {
-	
+
 	.regisfo .col-md-4,
 	.regisfo2 .col-md-4{
 		padding: 15px;
@@ -1650,4 +1650,73 @@ a:hover {
 .modal-search-result {
 	width: 100%;
 	max-width: 1200px;
+}
+
+@-webkit-keyframes spinner-border {
+	to {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes spinner-border {
+	to {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+
+.spinner-border {
+	display: inline-block;
+	width: 1.6rem;
+	height: 1.6rem;
+	vertical-align: text-bottom;
+	border: 0.2em solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	-webkit-animation: spinner-border .75s linear infinite;
+	animation: spinner-border .75s linear infinite;
+}
+
+.spinner-border-sm {
+	width: 1rem;
+	height: 1rem;
+	border-width: 0.2em;
+}
+
+@-webkit-keyframes spinner-grow {
+	0% {
+		-webkit-transform: scale(0);
+		transform: scale(0);
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+@keyframes spinner-grow {
+	0% {
+		-webkit-transform: scale(0);
+		transform: scale(0);
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+.spinner-grow {
+	display: inline-block;
+	width: 2rem;
+	height: 2rem;
+	vertical-align: text-bottom;
+	background-color: currentColor;
+	border-radius: 50%;
+	opacity: 0;
+	-webkit-animation: spinner-grow .75s linear infinite;
+	animation: spinner-grow .75s linear infinite;
+}
+
+.spinner-grow-sm {
+	width: 1rem;
+	height: 1rem;
 }

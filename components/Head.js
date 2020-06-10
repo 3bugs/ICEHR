@@ -22,6 +22,7 @@ export default class Head extends React.Component {
                     <meta name="robot" content="index, follow"/>
                     <meta charSet="utf-8"/>
 
+                    {/*<link rel="stylesheet" href="/static/bootstrap-4.4.1-dist/css/bootstrap.css"/>*/}
                     <link rel="stylesheet" href="/static/css/bootstrap.css"/>
                     <link rel="stylesheet" href="/static/css/layout.css" media="screen,projection"/>
                     <link rel="shortcut icon" href="/static/images/favicon.ico"/>
@@ -40,6 +41,7 @@ export default class Head extends React.Component {
                     <script src="/static/js/jquery.min.js"/>
                     <script src="/static/js/jquery-ui.js"/>
                     <script src="/static/js/popper.min.js"/>
+                    {/*<script src="/static/bootstrap-4.4.1-dist/js/bootstrap.min.js"/>*/}
                     <script src="/static/js/bootstrap.min.js"/>
 
                     <script src="/static/owlcarousel/owl.carousel.min.js" defer/>
