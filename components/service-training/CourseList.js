@@ -7,170 +7,179 @@ import {Element, scroller} from 'react-scroll';
 
 export default class CourseList extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            courseList: [],
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      courseList: [],
+      errorMessage: null,
+      offset: 0,
+      initialPage: 0,
+      firstLoad: true,
+    };
+  }
+
+  componentDidMount() {
+    //this.doGetCourse(false);
+  }
+
+  doGetCourse = () => {
+    console.log('CourseList componentDidMount() - ' + Math.random());
+
+    const {serviceType} = this.props;
+
+    fetch('/api/get_course', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        serviceType: serviceType,
+        limit: LIMIT_PER_PAGE,
+        offset: this.state.offset,
+      }),
+    })
+      .then(result => result.json())
+      .then(result => {
+        if (result['error']['code'] === 0) {
+          this.setState({
+            courseList: result.dataList,
+            pageCount: Math.ceil(result.totalCount / LIMIT_PER_PAGE),
             errorMessage: null,
-            offset: 0,
-            initialPage: 0,
-            firstLoad: true,
-        };
-    }
-
-    componentDidMount() {
-        //this.doGetCourse(false);
-    }
-
-    doGetCourse = () => {
-        console.log('CourseList componentDidMount() - ' + Math.random());
-
-        const {serviceType} = this.props;
-
-        fetch('/api/get_course', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                serviceType: serviceType,
-                limit: LIMIT_PER_PAGE,
-                offset: this.state.offset,
-            }),
-        })
-            .then(result => result.json())
-            .then(result => {
-                if (result['error']['code'] === 0) {
-                    this.setState({
-                        courseList: result.dataList,
-                        pageCount: Math.ceil(result.totalCount / LIMIT_PER_PAGE),
-                        errorMessage: null,
-                    }, () => {
-                        if (!this.state.firstLoad) {
-                            scroller.scrollTo('topOfTable', {
-                                duration: 500,
-                                smooth: true,
-                                offset: -80,
-                            });
-                        } else {
-                            this.setState({
-                                firstLoad: false,
-                            });
-                        }
-                    });
-                } else {
-                    this.setState({
-                        courseList: null,
-                        errorMessage: result['error']['message'],
-                    });
-                }
-            })
-            .catch(error => {
-                //alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
-                this.setState({
-                    courseList: null,
-                    errorMessage: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error,
-                });
-            });
-    };
-
-    handlePageClick = data => {
-        let selected = data.selected;
-        let offset = Math.ceil(selected * LIMIT_PER_PAGE);
-
-        this.setState({offset, initialPage: selected}, () => {
-            this.doGetCourse();
+          }, () => {
+            if (!this.state.firstLoad) {
+              scroller.scrollTo('topOfTable', {
+                duration: 500,
+                smooth: true,
+                offset: -80,
+              });
+            } else {
+              this.setState({
+                firstLoad: false,
+              });
+            }
+          });
+        } else {
+          this.setState({
+            courseList: null,
+            errorMessage: result['error']['message'],
+          });
+        }
+      })
+      .catch(error => {
+        //alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error);
+        this.setState({
+          courseList: null,
+          errorMessage: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server\n\n' + error,
         });
-    };
+      });
+  };
 
-    render() {
-        const {serviceType} = this.props;
-        /*let endPoint = 'service-';
-        switch (serviceType) {
-            case SERVICE_TRAINING:
-                endPoint += 'training';
-                break;
-            case SERVICE_SOCIAL:
-                endPoint += 'social';
-                break;
-        }*/
+  handlePageClick = data => {
+    let selected = data.selected;
+    let offset = Math.ceil(selected * LIMIT_PER_PAGE);
 
-        return (
-            <div>
-                <div className="container">
-                    <div className="row">
-                        <div className="col">
-                            <Element name={'topOfTable'}>
-                                <table className="table responsive-table table-forservice">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" style={{width: '15%'}}>วันที่อบรม</th>
-                                        <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '35%' : '40%'}}>ชื่อหลักสูตร / รุ่นที่</th>
-                                        <th scope="col" style={{width: '10%'}}>ค่าลงทะเบียน</th>
-                                        <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '30%' : '35%'}}>สถานที่อบรม</th>
-                                        <th scope="col" style={{width: '10%'}}>สถานะ</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        this.state.courseList &&
-                                        this.state.courseList.map((course, index) => {
-                                            return (
-                                                <Link
-                                                    key={index}
-                                                    as={`/service-${serviceType}/${course.id}`}
-                                                    href={`/service-${serviceType}?courseId=${course.id}`}
-                                                >
-                                                    <tr className={'course-row'}>
-                                                        <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
-                                                        <td>{course.name}</td>
-                                                        <td style={{textAlign: 'center'}}>{(course.applicationFee == null || course.applicationFee === 0) ? 'ฟรี' : numberWithCommas(course.applicationFee)}</td>
-                                                        <td>{course.place}</td>
-                                                        {course.isCourseFull &&
-                                                        <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
-                                                        }
-                                                        {!course.isCourseFull &&
-                                                        <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
-                                                        }
-                                                    </tr>
-                                                </Link>
-                                            );
-                                        })
-                                    }
-                                    {
-                                        !this.state.courseList &&
-                                        <tr className={'course-row'}>
-                                            <td colSpan={5} style={{textAlign: 'center', color: 'red', padding: '20px'}}>
-                                                {this.state.errorMessage}
-                                            </td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </Element>
-                        </div>
-                    </div>
+    this.setState({offset, initialPage: selected}, () => {
+      this.doGetCourse();
+    });
+  };
 
-                    <div style={{textAlign: 'center'}}>
-                        <ReactPaginate
-                            initialPage={this.state.initialPage}
-                            previousLabel={'<'}
-                            nextLabel={'>'}
-                            breakLabel={'...'}
-                            breakClassName={'break-me'}
-                            pageCount={this.state.pageCount}
-                            marginPagesDisplayed={2}
-                            pageRangeDisplayed={5}
-                            onPageChange={this.handlePageClick}
-                            containerClassName={'pagination'}
-                            activeClassName={'pagination-active'}
-                            previousClassName={'pagination-older'}
-                            nextClassName={'pagination-newer'}
-                        />
-                    </div>
-                </div>
+  render() {
+    const {serviceType} = this.props;
+    /*let endPoint = 'service-';
+    switch (serviceType) {
+        case SERVICE_TRAINING:
+            endPoint += 'training';
+            break;
+        case SERVICE_SOCIAL:
+            endPoint += 'social';
+            break;
+    }*/
 
-                <style jsx>{`
+    return (
+      <div>
+        <div className="container">
+          <div className="row">
+            <div className="col">
+              <Element name={'topOfTable'}>
+                <table className="table responsive-table table-forservice">
+                  <thead>
+                  <tr>
+                    <th scope="col" style={{width: '15%'}}>วันที่อบรม</th>
+                    <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '35%' : '40%'}}>ชื่อหลักสูตร / รุ่นที่</th>
+                    <th scope="col" style={{width: '10%'}}>ค่าลงทะเบียน</th>
+                    <th scope="col" style={{width: this.props.serviceType === SERVICE_TRAINING ? '30%' : '35%'}}>สถานที่อบรม</th>
+                    <th scope="col" style={{width: '10%'}}>สถานะ</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {
+                    this.state.courseList &&
+                    this.state.courseList.map((course, index) => {
+                      return (
+                        <Link
+                          key={index}
+                          as={`/service-${serviceType}/${course.id}`}
+                          href={`/service-${serviceType}?courseId=${course.id}`}
+                        >
+                          <tr className={'course-row'}>
+                            <td>
+                              {formatCourseDateShort(course.beginDate, course.endDate)}<br/>
+                              {course.isOnline === 1 &&
+                              <div style={{display: 'flex',}}>
+                                <small style={{display: 'flex', alignItems: 'center', color: 'white', backgroundColor: '#b50303', padding: '0px 6px', borderRadius: 3, marginBottom: 5}}>
+                                  <i className="fa fa-play-circle" style={{marginBottom: 2, border: '0px solid blue'}}></i>&nbsp;อบรมออนไลน์
+                                </small>
+                              </div>
+                              }
+                            </td>
+                            <td>{course.name}</td>
+                            <td style={{textAlign: 'center'}}>{(course.applicationFee == null || course.applicationFee === 0) ? 'ฟรี' : numberWithCommas(course.applicationFee)}</td>
+                            <td>{course.place}</td>
+                            {course.isCourseFull &&
+                            <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
+                            }
+                            {!course.isCourseFull &&
+                            <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
+                            }
+                          </tr>
+                        </Link>
+                      );
+                    })
+                  }
+                  {
+                    !this.state.courseList &&
+                    <tr className={'course-row'}>
+                      <td colSpan={5} style={{textAlign: 'center', color: 'red', padding: '20px'}}>
+                        {this.state.errorMessage}
+                      </td>
+                    </tr>
+                  }
+                  </tbody>
+                </table>
+              </Element>
+            </div>
+          </div>
+
+          <div style={{textAlign: 'center'}}>
+            <ReactPaginate
+              initialPage={this.state.initialPage}
+              previousLabel={'<'}
+              nextLabel={'>'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={this.state.pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={this.handlePageClick}
+              containerClassName={'pagination'}
+              activeClassName={'pagination-active'}
+              previousClassName={'pagination-older'}
+              nextClassName={'pagination-newer'}
+            />
+          </div>
+        </div>
+
+        <style jsx>{`
                     td {
                         text-align: left;
                     }
@@ -239,7 +248,7 @@ export default class CourseList extends React.Component {
                     
                     /* End Responsive Table Style */                
                 `}</style>
-            </div>
-        );
-    }
+      </div>
+    );
+  }
 }

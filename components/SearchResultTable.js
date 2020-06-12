@@ -5,65 +5,74 @@ import {formatCourseDateShort, numberWithCommas} from "../etc/utils";
 
 export default class SearchResultTable extends React.Component {
 
-    render() {
-        const {serviceType, courseList, handleCloseSearchResultModal} = this.props;
+  render() {
+    const {serviceType, courseList, handleCloseSearchResultModal} = this.props;
 
-        return (
-            <div>
-                <div className="container">
-                    <div className="row">
-                        <div className="col">
-                            <Element name={'topOfTable'}>
-                                <table className="table responsive-table table-forservice">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" style={{width: '15%'}}>วันที่อบรม</th>
-                                        <th scope="col" style={{width: serviceType === SERVICE_TRAINING ? '35%' : '40%'}}>ชื่อหลักสูตร / รุ่นที่</th>
-                                        {serviceType === SERVICE_TRAINING &&
-                                        <th scope="col" style={{width: '10%'}}>ค่าลงทะเบียน</th>
-                                        }
-                                        <th scope="col" style={{width: serviceType === SERVICE_TRAINING ? '30%' : '35%'}}>สถานที่อบรม</th>
-                                        <th scope="col" style={{width: '10%'}}>สถานะ</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        courseList && courseList.length > 0 &&
-                                        courseList.map((course, index) => {
-                                            return (
-                                                <tr className={'course-row'}
-                                                    onClick={() => handleCloseSearchResultModal(serviceType, course.id)}>
-                                                    <td>{formatCourseDateShort(course.beginDate, course.endDate)}</td>
-                                                    <td>{course.name}</td>
-                                                    {serviceType === SERVICE_TRAINING &&
-                                                    <td style={{textAlign: 'right'}}>{numberWithCommas(course.applicationFee)}</td>
-                                                    }
-                                                    <td>{course.place}</td>
-                                                    {/*<td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>*/}
-                                                    {course.isCourseFull &&
-                                                    <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
-                                                    }
-                                                    {!course.isCourseFull &&
-                                                    <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
-                                                    }
-                                                </tr>
-                                            );
-                                        })
-                                    }
-                                    {
-                                        courseList && courseList.length === 0 &&
-                                        <tr>
-                                            <td colSpan={20} style={{color: 'red', textAlign: 'center'}}>ไม่มีข้อมูล</td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </Element>
-                        </div>
-                    </div>
-                </div>
+    return (
+      <div>
+        <div className="container">
+          <div className="row">
+            <div className="col">
+              <Element name={'topOfTable'}>
+                <table className="table responsive-table table-forservice">
+                  <thead>
+                  <tr>
+                    <th scope="col" style={{width: '15%'}}>วันที่อบรม</th>
+                    <th scope="col" style={{width: serviceType === SERVICE_TRAINING ? '35%' : '40%'}}>ชื่อหลักสูตร / รุ่นที่</th>
+                    {serviceType === SERVICE_TRAINING &&
+                    <th scope="col" style={{width: '10%'}}>ค่าลงทะเบียน</th>
+                    }
+                    <th scope="col" style={{width: serviceType === SERVICE_TRAINING ? '30%' : '35%'}}>สถานที่อบรม</th>
+                    <th scope="col" style={{width: '10%'}}>สถานะ</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {
+                    courseList && courseList.length > 0 &&
+                    courseList.map((course, index) => {
+                      return (
+                        <tr className={'course-row'}
+                            onClick={() => handleCloseSearchResultModal(serviceType, course.id)}>
+                          <td>
+                            {formatCourseDateShort(course.beginDate, course.endDate)}
+                            {course.isOnline === 1 &&
+                            <div style={{display: 'flex',}}>
+                              <small style={{display: 'flex', alignItems: 'center', color: 'white', backgroundColor: '#b50303', padding: '0px 6px', borderRadius: 3, marginBottom: 5}}>
+                                <i className="fa fa-play-circle" style={{marginBottom: 2, border: '0px solid blue'}}></i>&nbsp;อบรมออนไลน์
+                              </small>
+                            </div>
+                            }
+                          </td>
+                          <td>{course.name}</td>
+                          {serviceType === SERVICE_TRAINING &&
+                          <td style={{textAlign: 'right'}}>{numberWithCommas(course.applicationFee)}</td>
+                          }
+                          <td>{course.place}</td>
+                          {/*<td style={{textAlign: 'center'}}>เปิดรับสมัคร</td>*/}
+                          {course.isCourseFull &&
+                          <td style={{textAlign: 'center', color: 'red', whiteSpace: 'nowrap'}} nowrap={true}>เต็มแล้ว</td>
+                          }
+                          {!course.isCourseFull &&
+                          <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>เปิดรับสมัคร</td>
+                          }
+                        </tr>
+                      );
+                    })
+                  }
+                  {
+                    courseList && courseList.length === 0 &&
+                    <tr>
+                      <td colSpan={20} style={{color: 'red', textAlign: 'center'}}>ไม่มีข้อมูล</td>
+                    </tr>
+                  }
+                  </tbody>
+                </table>
+              </Element>
+            </div>
+          </div>
+        </div>
 
-                <style jsx>{`
+        <style jsx>{`
                     td {
                         text-align: left;
                     }
@@ -132,7 +141,7 @@ export default class SearchResultTable extends React.Component {
                     
                     /* End Responsive Table Style */                
                 `}</style>
-            </div>
-        )
-    }
+      </div>
+    )
+  }
 }

@@ -1304,7 +1304,14 @@ export default class ServiceTrainingRegister extends React.Component {
                     <div className="col-12">
                       <div className="row">
                         <div className="col-sm-3 text-black ">ชื่อหลักสูตร / รุ่นที่</div>
-                        <div className="col-sm-9 text-gray">{this.props.course.name}</div>
+                        <div className="col-sm-9 text-gray">
+                          {this.props.course.name}&nbsp;&nbsp;
+                          {this.props.course.isOnline === 1 &&
+                          <span style={{display: 'inline-block'}}>
+                            <small style={{color: 'white', backgroundColor: '#b50303', padding: '2px 6px', borderRadius: 3}}>อบรมออนไลน์</small>
+                          </span>
+                          }
+                        </div>
                       </div>
                       <div className="row">
                         <div className="col-sm-3 text-black ">วันที่อบรม</div>

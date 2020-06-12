@@ -33,1133 +33,1138 @@ const passwordHash = require('password-hash');
 const dateFormat = require('dateformat');
 
 process.on('uncaughtException', function (err) {
-    console.log('\n***************************************');
-    console.error(err);
-    console.log("Node.JS NOT Exiting...");
-    console.log('***************************************\n');
+  console.log('\n***************************************');
+  console.error(err);
+  console.log("Node.JS NOT Exiting...");
+  console.log('***************************************\n');
 });
 
 app
-    .prepare()
-    .then(() => {
-        const server = express();
+  .prepare()
+  .then(() => {
+    const server = express();
 
-        server.use(bodyParser.json());       // to support JSON-encoded bodies
-        server.use(bodyParser.urlencoded({   // to support URL-encoded bodies
-            extended: true
-        }));
+    server.use(bodyParser.json());       // to support JSON-encoded bodies
+    server.use(bodyParser.urlencoded({   // to support URL-encoded bodies
+      extended: true
+    }));
 
-        /* ********** บริการวิชาการ (ฝึกอบรม) ********** */
-        server.get('/service-training/:id', (req, res) => {
-            const actualPage = '/service-training';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-training-register/:id', (req, res) => {
-            const actualPage = '/service-training-register';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-training-register', (req, res) => {
-            res.status(404).end();
-        });
-
-        /* ********** บริการสังคม ********** */
-        server.get('/service-social/:id', (req, res) => {
-            const actualPage = '/service-social';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-social-register/:id', (req, res) => {
-            const actualPage = '/service-social-register';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-social-register', (req, res) => {
-            res.status(404).end();
-        });
-
-        /* ********** บริการอบรมสอบใบขับขี่ ********** */
-        server.get('/service-driving-license/:id', (req, res) => {
-            const actualPage = '/service-driving-license';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-driving-license-register/:id', (req, res) => {
-            const actualPage = '/service-driving-license-register';
-            const queryParams = {courseId: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/service-driving-license-register', (req, res) => {
-            res.status(404).end();
-        });
-
-        /* ********** งานวิจัยและวิชาการ ********** */
-        server.get('/academic-paper/:id', (req, res) => {
-            const actualPage = '/academic-paper';
-            const queryParams = {id: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        /* ********** เอกสารดาวน์โหลด ********** */
-        server.get('/document-download/:type', (req, res) => {
-            const actualPage = '/document-download';
-
-            /*const documentTypeList = {
-                training: 'training_documents',
-                report: 'performance_report',
-                km: 'km',
-                qa: 'qa_quality_assurance',
-                booklet: 'pamphlet/infographic',
-            };
-            const queryParams = {documentType: documentTypeList[req.params.type]};*/
-
-            const queryParams = {documentType: req.params.type};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        /* ********** ข่าว/กิจกรรม/หลักสูตร In-House ที่ผ่านมา ********** */
-        server.get('/news/:id', (req, res) => {
-            const actualPage = '/news';
-            const queryParams = {id: req.params.id};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/reset-password/:token', (req, res) => {
-            const actualPage = '/reset-password';
-            const queryParams = {token: req.params.token};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get('/upload-slip/:formNumber', (req, res) => {
-            const actualPage = '/upload-slip';
-            const queryParams = {formNumber: req.params.formNumber};
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        /*จัดการ POST api call*/
-        server.post('/api/:action', (req, res) => {
-            /*const actualPage = '/post';
-            const queryParams = { title: req.params.id };
-            app.render(req, res, actualPage, queryParams);*/
-
-            const db = mysql.createConnection({
-                host: dbConfig.HOST,
-                port: dbConfig.PORT,
-                user: dbConfig.USER,
-                password: dbConfig.PASSWORD,
-                database: dbConfig.DATABASE,
-            });
-            db.connect(function (err) {
-                if (err) {
-                    res.send({
-                        error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error connect db: ' + err.stack),
-                    });
-                    return;
-                }
-
-                logConnection(req, res, db);
-                //console.log('Db connected as id ' + db.threadId);
-
-                switch (req.params.action) {
-                    case 'login_member':
-                        doLoginMember(req, res, db);
-                        break;
-                    case 'register_member':
-                        doRegisterMember(req, res, db);
-                        break;
-                    case 'forgot_password':
-                        doForgotPassword(req, res, db);
-                        break;
-                    case 'reset_password':
-                        doResetPassword(req, res, db);
-                        break;
-                    case 'update_member':
-                        doUpdateMember(req, res, db);
-                        break;
-                    case 'logout_member':
-                        break;
-                    case 'get_course':
-                        doGetCourse(req, res, db);
-                        break;
-                    case 'search_course':
-                        doSearchCourse(req, res, db);
-                        break;
-                    case 'register_course':
-                        registerCourse(req, res, db, constants.SERVICE_TRAINING);
-                        break;
-                    case 'register_course_social':
-                        registerCourse(req, res, db, constants.SERVICE_SOCIAL);
-                        //doRegisterCourseSocial(req, res, db);
-                        break;
-                    case 'register_course_driving_license':
-                        registerCourseDrivingLicense(req, res, db);
-                        //registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
-                        //doRegisterCourseDrivingLicense(req, res, db);
-                        break;
-                    case 'register_in_house':
-                        doRegisterInHouse(req, res, db);
-                        break;
-                    case 'get_name_title':
-                        doGetNameTitle(req, res, db);
-                        break;
-                    case 'get_organization_type':
-                        doGetOrganizationType(req, res, db);
-                        break;
-                    case 'get_registration_list_by_member':
-                        doGetRegistrationListByMember(req, res, db);
-                        break;
-                    case 'get_trainee_by_form_number':
-                        doGetTraineeByFormNumber(req, res, db);
-                        break;
-                    case 'get_registration_by_member_id':
-                        doGetRegistrationByMemberId(req, res, db);
-                        break;
-                    case 'add_transfer_notification':
-                        doAddTransferNotification(req, res, db);
-                        break;
-                    case 'get_academic_paper':
-                        doGetAcademicPaper(req, res, db);
-                        break;
-                    case 'search_academic_paper':
-                        doSearchAcademicPaper(req, res, db);
-                        break;
-                    case 'add_academic_paper_download':
-                        doAddAcademicPaperDownload(req, res, db);
-                        break;
-                    case 'get_training_course_category':
-                        doGetTrainingCourseCategory(req, res, db);
-                        break;
-                    case 'get_driving_license_course_type':
-                        doGetDrivingLicenseCourseType(req, res, db);
-                        break;
-                    case 'get_document_download':
-                        doGetDocumentDownload(req, res, db);
-                        break;
-                    case 'update_document_download_count':
-                        doUpdateDocumentDownloadCount(req, res, db);
-                        break;
-                    case 'get_news':
-                        doGetNews(req, res, db);
-                        break;
-                    case 'get_news_latest':
-                        doGetNewsLatest(req, res, db);
-                        break;
-                    case 'get_in_house_latest':
-                        doGetInHouseLatest(req, res, db);
-                        break;
-                    case 'get_in_house':
-                        doGetInHouse(req, res, db);
-                        break;
-                    case 'get_news_by_id':
-                        doGetNewsById(req, res, db);
-                        break;
-                    case 'get_activity':
-                        doGetActivity(req, res, db);
-                        break;
-                    case 'get_faq':
-                        doGetFaq(req, res, db);
-                        break;
-                    case 'get_course_num_trainee_available':
-                        doGetCourseNumTraineeAvailable(req, res, db);
-                        break;
-                    case 'get_intro':
-                        doGetIntro(req, res, db);
-                        break;
-                    case 'get_service':
-                        doGetService(req, res, db);
-                        break;
-                    case 'get_service_link_contact':
-                        doGetServiceLinkContact(req, res, db);
-                        break;
-                    case 'get_user':
-                        doGetUser(req, res, db);
-                        break;
-                    case 'get_committee':
-                        doGetCommittee(req, res, db);
-                        break;
-
-                    default:
-                        //res.status(404).end();
-                        res.send({
-                            error: new Error(1, 'Invalid API endpoint', ''),
-                            dataList: null
-                        });
-                        break;
-                }
-                //db.end();
-            });
-        });
-
-        /*จัดการ GET api call*/
-        server.get('/api/:action', (req, res) => {
-            /*const actualPage = '/post';
-            const queryParams = { title: req.params.id };
-            app.render(req, res, actualPage, queryParams);*/
-
-            let db = mysql.createConnection({
-                host: dbConfig.HOST,
-                user: dbConfig.USER,
-                password: dbConfig.PASSWORD,
-                database: dbConfig.DATABASE,
-            });
-            db.connect(function (err) {
-                if (err) {
-                    res.send({
-                        error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error connect db: ' + err.stack),
-                    });
-                    return;
-                }
-
-                logConnection(req, res, db);
-                //console.log('Db connected as id ' + db.threadId);
-
-                switch (req.params.action) {
-                    case 'get_trainee_form_pdf':
-                        doGetTraineeFormPdf(req, res, db);
-                        break;
-                    default:
-                        res.status(404).end();
-                        /*res.send({
-                            error: new Error(1, 'Invalid API endpoint', ''),
-                            dataList: null
-                        });*/
-                        break;
-                }
-                //db.end();
-            });
-        });
-
-        const docDefinition = {
-            content: ['This will show up in the file created สวัสดี']
-        };
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        /*ทดสอบการสร้าง PDF*/
-        server.get('/test-pdf', (req, res) => {
-            pdf.generateRegistrationFormTrainingPdf(
-                'AC-2019-0099',
-                {
-                    courseTitle: 'การเขียนอีเมลภาษาอังกฤษสู่ความสำเร็จยุค THAILAND 4.0',
-                    courseBatchNumber: 15,
-                    coursePlace: 'ม.ธรรมศาสตร์ ท่าพระจันทร์ กรุงเทพฯ',
-                    courseBeginDate: '2019-05-01',
-                    courseEndDate: '2019-05-03',
-                    courseDetails: '',
-                    courseResponsibleUserId: 1
-                },
-                [
-                    {
-                        traineeTitle: 'นาย',
-                        traineeFirstName: 'พร้อมเลิศ',
-                        traineeLastName: 'หล่อวิจิตร',
-                        traineePhone: '085-058-1776',
-                        traineeEmail: 'promlert@gmail.com',
-                    },
-                    {
-                        traineeTitle: 'นาง',
-                        traineeFirstName: 'จิตริณีย์',
-                        traineeLastName: 'หล่อวิจิตร',
-                        traineePhone: '086-999-1827',
-                        traineeEmail: 'chitrinee_l@gmail.com',
-                    },
-                    {
-                        traineeTitle: 'นาย',
-                        traineeFirstName: 'บัลลพ',
-                        traineeLastName: 'หล่อวิจิตร',
-                        traineePhone: '099-999-9999',
-                        traineeEmail: 'banlop2553@gmail.com',
-                    },
-                ],
-                {},
-                (success, message) => {
-                    res.send(message);
-                });
-        });
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        /*default สำหรับ post*/
-        server.post('*', (req, res) => {
-            res.status(404).end();
-        });
-
-        /*default สำหรับ get*/
-        server.get('*', (req, res) => {
-            return handle(req, res)
-        });
-
-        server.listen(constants.HOST_FRONTEND_PORT, err => {
-            if (err) throw err;
-            console.log('> Ready on port: ' + constants.HOST_FRONTEND_PORT);
-        });
-    })
-    .catch(ex => {
-        console.error(ex.stack);
-        process.exit(1);
+    /* ********** บริการวิชาการ (ฝึกอบรม) ********** */
+    server.get('/service-training/:id', (req, res) => {
+      const actualPage = '/service-training';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
     });
 
+    server.get('/service-training-register/:id', (req, res) => {
+      const actualPage = '/service-training-register';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/service-training-register', (req, res) => {
+      res.status(404).end();
+    });
+
+    /* ********** บริการสังคม ********** */
+    server.get('/service-social/:id', (req, res) => {
+      const actualPage = '/service-social';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/service-social-register/:id', (req, res) => {
+      const actualPage = '/service-social-register';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/service-social-register', (req, res) => {
+      res.status(404).end();
+    });
+
+    /* ********** บริการอบรมสอบใบขับขี่ ********** */
+    server.get('/service-driving-license/:id', (req, res) => {
+      const actualPage = '/service-driving-license';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/service-driving-license-register/:id', (req, res) => {
+      const actualPage = '/service-driving-license-register';
+      const queryParams = {courseId: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/service-driving-license-register', (req, res) => {
+      res.status(404).end();
+    });
+
+    /* ********** งานวิจัยและวิชาการ ********** */
+    server.get('/academic-paper/:id', (req, res) => {
+      const actualPage = '/academic-paper';
+      const queryParams = {id: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    /* ********** เอกสารดาวน์โหลด ********** */
+    server.get('/document-download/:type', (req, res) => {
+      const actualPage = '/document-download';
+
+      /*const documentTypeList = {
+          training: 'training_documents',
+          report: 'performance_report',
+          km: 'km',
+          qa: 'qa_quality_assurance',
+          booklet: 'pamphlet/infographic',
+      };
+      const queryParams = {documentType: documentTypeList[req.params.type]};*/
+
+      const queryParams = {documentType: req.params.type};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    /* ********** ข่าว/กิจกรรม/หลักสูตร In-House ที่ผ่านมา ********** */
+    server.get('/news/:id', (req, res) => {
+      const actualPage = '/news';
+      const queryParams = {id: req.params.id};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/reset-password/:token', (req, res) => {
+      const actualPage = '/reset-password';
+      const queryParams = {token: req.params.token};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/upload-slip/:formNumber', (req, res) => {
+      const actualPage = '/upload-slip';
+      const queryParams = {formNumber: req.params.formNumber};
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    /*จัดการ POST api call*/
+    server.post('/api/:action', (req, res) => {
+      /*const actualPage = '/post';
+      const queryParams = { title: req.params.id };
+      app.render(req, res, actualPage, queryParams);*/
+
+      const db = mysql.createConnection({
+        host: dbConfig.HOST,
+        port: dbConfig.PORT,
+        user: dbConfig.USER,
+        password: dbConfig.PASSWORD,
+        database: dbConfig.DATABASE,
+      });
+      db.connect(function (err) {
+        if (err) {
+          res.send({
+            error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error connect db: ' + err.stack),
+          });
+          return;
+        }
+
+        logConnection(req, res, db);
+        //console.log('Db connected as id ' + db.threadId);
+
+        switch (req.params.action) {
+          case 'login_member':
+            doLoginMember(req, res, db);
+            break;
+          case 'register_member':
+            doRegisterMember(req, res, db);
+            break;
+          case 'forgot_password':
+            doForgotPassword(req, res, db);
+            break;
+          case 'reset_password':
+            doResetPassword(req, res, db);
+            break;
+          case 'update_member':
+            doUpdateMember(req, res, db);
+            break;
+          case 'logout_member':
+            break;
+          case 'get_course':
+            doGetCourse(req, res, db);
+            break;
+          case 'search_course':
+            doSearchCourse(req, res, db);
+            break;
+          case 'register_course':
+            registerCourse(req, res, db, constants.SERVICE_TRAINING);
+            break;
+          case 'register_course_social':
+            registerCourse(req, res, db, constants.SERVICE_SOCIAL);
+            //doRegisterCourseSocial(req, res, db);
+            break;
+          case 'register_course_driving_license':
+            registerCourseDrivingLicense(req, res, db);
+            //registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
+            //doRegisterCourseDrivingLicense(req, res, db);
+            break;
+          case 'register_in_house':
+            doRegisterInHouse(req, res, db);
+            break;
+          case 'get_name_title':
+            doGetNameTitle(req, res, db);
+            break;
+          case 'get_organization_type':
+            doGetOrganizationType(req, res, db);
+            break;
+          case 'get_registration_list_by_member':
+            doGetRegistrationListByMember(req, res, db);
+            break;
+          case 'get_trainee_by_form_number':
+            doGetTraineeByFormNumber(req, res, db);
+            break;
+          case 'get_registration_by_member_id':
+            doGetRegistrationByMemberId(req, res, db);
+            break;
+          case 'add_transfer_notification':
+            doAddTransferNotification(req, res, db);
+            break;
+          case 'get_academic_paper':
+            doGetAcademicPaper(req, res, db);
+            break;
+          case 'search_academic_paper':
+            doSearchAcademicPaper(req, res, db);
+            break;
+          case 'add_academic_paper_download':
+            doAddAcademicPaperDownload(req, res, db);
+            break;
+          case 'get_training_course_category':
+            doGetTrainingCourseCategory(req, res, db);
+            break;
+          case 'get_driving_license_course_type':
+            doGetDrivingLicenseCourseType(req, res, db);
+            break;
+          case 'get_document_download':
+            doGetDocumentDownload(req, res, db);
+            break;
+          case 'update_document_download_count':
+            doUpdateDocumentDownloadCount(req, res, db);
+            break;
+          case 'get_news':
+            doGetNews(req, res, db);
+            break;
+          case 'get_news_latest':
+            doGetNewsLatest(req, res, db);
+            break;
+          case 'get_in_house_latest':
+            doGetInHouseLatest(req, res, db);
+            break;
+          case 'get_in_house':
+            doGetInHouse(req, res, db);
+            break;
+          case 'get_news_by_id':
+            doGetNewsById(req, res, db);
+            break;
+          case 'get_activity':
+            doGetActivity(req, res, db);
+            break;
+          case 'get_faq':
+            doGetFaq(req, res, db);
+            break;
+          case 'get_course_num_trainee_available':
+            doGetCourseNumTraineeAvailable(req, res, db);
+            break;
+          case 'get_intro':
+            doGetIntro(req, res, db);
+            break;
+          case 'get_service':
+            doGetService(req, res, db);
+            break;
+          case 'get_service_link_contact':
+            doGetServiceLinkContact(req, res, db);
+            break;
+          case 'get_user':
+            doGetUser(req, res, db);
+            break;
+          case 'get_committee':
+            doGetCommittee(req, res, db);
+            break;
+
+          default:
+            //res.status(404).end();
+            res.send({
+              error: new Error(1, 'Invalid API endpoint', ''),
+              dataList: null
+            });
+            break;
+        }
+        //db.end();
+      });
+    });
+
+    /*จัดการ GET api call*/
+    server.get('/api/:action', (req, res) => {
+      /*const actualPage = '/post';
+      const queryParams = { title: req.params.id };
+      app.render(req, res, actualPage, queryParams);*/
+
+      let db = mysql.createConnection({
+        host: dbConfig.HOST,
+        user: dbConfig.USER,
+        password: dbConfig.PASSWORD,
+        database: dbConfig.DATABASE,
+      });
+      db.connect(function (err) {
+        if (err) {
+          res.send({
+            error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error connect db: ' + err.stack),
+          });
+          return;
+        }
+
+        logConnection(req, res, db);
+        //console.log('Db connected as id ' + db.threadId);
+
+        switch (req.params.action) {
+          case 'get_trainee_form_pdf':
+            doGetTraineeFormPdf(req, res, db);
+            break;
+          default:
+            res.status(404).end();
+            /*res.send({
+                error: new Error(1, 'Invalid API endpoint', ''),
+                dataList: null
+            });*/
+            break;
+        }
+        //db.end();
+      });
+    });
+
+    const docDefinition = {
+      content: ['This will show up in the file created สวัสดี']
+    };
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    /*ทดสอบการสร้าง PDF*/
+    server.get('/test-pdf', (req, res) => {
+      pdf.generateRegistrationFormTrainingPdf(
+        'AC-2019-0099',
+        {
+          courseTitle: 'การเขียนอีเมลภาษาอังกฤษสู่ความสำเร็จยุค THAILAND 4.0',
+          courseBatchNumber: 15,
+          coursePlace: 'ม.ธรรมศาสตร์ ท่าพระจันทร์ กรุงเทพฯ',
+          courseBeginDate: '2019-05-01',
+          courseEndDate: '2019-05-03',
+          courseDetails: '',
+          courseResponsibleUserId: 1
+        },
+        [
+          {
+            traineeTitle: 'นาย',
+            traineeFirstName: 'พร้อมเลิศ',
+            traineeLastName: 'หล่อวิจิตร',
+            traineePhone: '085-058-1776',
+            traineeEmail: 'promlert@gmail.com',
+          },
+          {
+            traineeTitle: 'นาง',
+            traineeFirstName: 'จิตริณีย์',
+            traineeLastName: 'หล่อวิจิตร',
+            traineePhone: '086-999-1827',
+            traineeEmail: 'chitrinee_l@gmail.com',
+          },
+          {
+            traineeTitle: 'นาย',
+            traineeFirstName: 'บัลลพ',
+            traineeLastName: 'หล่อวิจิตร',
+            traineePhone: '099-999-9999',
+            traineeEmail: 'banlop2553@gmail.com',
+          },
+        ],
+        {},
+        (success, message) => {
+          res.send(message);
+        });
+    });
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    /*default สำหรับ post*/
+    server.post('*', (req, res) => {
+      res.status(404).end();
+    });
+
+    /*default สำหรับ get*/
+    server.get('*', (req, res) => {
+      return handle(req, res)
+    });
+
+    server.listen(constants.HOST_FRONTEND_PORT, err => {
+      if (err) throw err;
+      console.log('> Ready on port: ' + constants.HOST_FRONTEND_PORT);
+    });
+  })
+  .catch(ex => {
+    console.error(ex.stack);
+    process.exit(1);
+  });
+
 encodeToken = (id) => {
-    return jwt.sign({id: id}, SECRET_KEY);
+  return jwt.sign({id: id}, SECRET_KEY);
 };
 
 decodeToken = (token) => {
-    try {
-        let decoded = jwt.verify(token, SECRET_KEY);
-        return decoded.id;
-    } catch (err) {
-        return INVALID_TOKEN;
-    }
+  try {
+    let decoded = jwt.verify(token, SECRET_KEY);
+    return decoded.id;
+  } catch (err) {
+    return INVALID_TOKEN;
+  }
 };
 
 encodeTokenWithTimestamp = (id) => {
-    return jwt.sign({id: id, timestamp: Date.now()}, SECRET_KEY);
+  return jwt.sign({id: id, timestamp: Date.now()}, SECRET_KEY);
 };
 
 decodeTokenWithTimestamp = (token) => {
-    try {
-        let decoded = jwt.verify(token, SECRET_KEY);
-        return decoded;
-    } catch (err) {
-        return null;
-    }
+  try {
+    let decoded = jwt.verify(token, SECRET_KEY);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
 };
 
 /*login สมาชิก*/
 doLoginMember = (req, res, db) => {
-    let inputEmail = req.body.email;
-    let inputPassword = req.body.password;
+  let inputEmail = req.body.email;
+  let inputPassword = req.body.password;
 
-    db.query(
-            `SELECT *
-             FROM member
-             WHERE email = ?`,
-        [inputEmail],
+  db.query(
+      `SELECT *
+       FROM member
+       WHERE email = ?`,
+    [inputEmail],
 
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
-                });
-            } else if (results.length === 0) {
-                res.send({
-                    error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
-                });
-            } else {
-                const isPasswordCorrect = passwordHash.verify(inputPassword, results[0].password);
-
-                if (isPasswordCorrect) {
-                    let memberData = {};
-                    memberData.id = results[0].id;
-                    memberData.title = results[0].title;
-                    memberData.firstName = results[0].first_name;
-                    memberData.lastName = results[0].last_name;
-                    memberData.birthDate = results[0].birth_date;
-                    memberData.jobPosition = results[0].job_position;
-                    memberData.organizationName = results[0].organization_name;
-                    memberData.organizationType = results[0].organization_type;
-                    memberData.organizationTypeCustom = results[0].organization_type_custom;
-                    memberData.phone = results[0].phone;
-                    memberData.email = results[0].email;
-                    memberData.memberType = results[0].member_type;
-
-                    memberData.address = results[0].address;
-                    memberData.subDistrict = results[0].sub_district;
-                    memberData.district = results[0].district;
-                    memberData.province = results[0].province;
-                    memberData.postalCode = results[0].postal_code;
-                    memberData.organizationPhone = results[0].organization_phone;
-                    memberData.taxId = results[0].tax_id;
-
-                    memberData.loginToken = encodeToken(results[0].id);
-                    res.send({
-                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                        memberData
-                    });
-                } else {
-                    res.send({
-                        error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
-                    });
-                }
-            }
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
         });
-    db.end();
+      } else if (results.length === 0) {
+        res.send({
+          error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
+        });
+      } else {
+        const isPasswordCorrect = passwordHash.verify(inputPassword, results[0].password);
+
+        if (isPasswordCorrect) {
+          let memberData = {};
+          memberData.id = results[0].id;
+          memberData.title = results[0].title;
+          memberData.firstName = results[0].first_name;
+          memberData.lastName = results[0].last_name;
+          memberData.birthDate = results[0].birth_date;
+          memberData.jobPosition = results[0].job_position;
+          memberData.organizationName = results[0].organization_name;
+          memberData.organizationType = results[0].organization_type;
+          memberData.organizationTypeCustom = results[0].organization_type_custom;
+          memberData.phone = results[0].phone;
+          memberData.email = results[0].email;
+          memberData.memberType = results[0].member_type;
+
+          memberData.address = results[0].address;
+          memberData.subDistrict = results[0].sub_district;
+          memberData.district = results[0].district;
+          memberData.province = results[0].province;
+          memberData.postalCode = results[0].postal_code;
+          memberData.organizationPhone = results[0].organization_phone;
+          memberData.taxId = results[0].tax_id;
+
+          memberData.loginToken = encodeToken(results[0].id);
+          res.send({
+            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+            memberData
+          });
+        } else {
+          res.send({
+            error: new Error(1, 'อีเมล หรือรหัสผ่าน ไม่ถูกต้อง', ''),
+          });
+        }
+      }
+    });
+  db.end();
 };
 
 /*ลืมรหัสผ่าน*/
 doForgotPassword = (req, res, db) => {
-    let inputEmail = req.body.email;
+  let inputEmail = req.body.email;
 
-    db.query(
-            `SELECT id, email
-             FROM member
-             WHERE email = ?`,
-        [inputEmail],
+  db.query(
+      `SELECT id, email
+       FROM member
+       WHERE email = ?`,
+    [inputEmail],
 
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else if (results.length === 0) {
-                res.send({
-                    error: new Error(1, `ไม่พบอีเมล ${inputEmail} ในระบบ กรุณาตรวจสอบความถูกต้องของอีเมลที่กรอก`, ''),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
-                });
-
-                const nodeMailer = require('nodemailer');
-
-                let transporter = nodeMailer.createTransport({
-                    host: 'smtp.gmail.com',
-                    port: 465,
-                    secure: true, // true for 465, false for other ports
-                    auth: {
-                        user: 'icehr.tu@gmail.com',
-                        pass: 'wgyhexikkwevucwq'
-                    }
-                });
-
-                const memberId = results[0].id;
-                const token = encodeTokenWithTimestamp(memberId);
-                const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
-                const resetPasswordUrl = `${baseUrl}/reset-password/${token}`;
-
-                transporter.sendMail({
-                    from: 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.<icehr.tu@gmail.com>', // sender address
-                    to: inputEmail, // list of receivers
-                    subject: 'รีเซ็ตรหัสผ่าน', // Subject line
-                    html: 'เรียนท่านสมาชิก<br><br>ได้มีการขอรีเซ็ตรหัสผ่านของบัญชีผู้ใช้งานของท่านที่เว็บไซต์ "สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์" (www.icehr.tu.ac.th) กรุณากด link ข้างล่างนี้เพื่อดำเนินการรีเซ็ตและตั้งรหัสผ่านใหม่ *ภายใน 15 นาที*<br><br>' +
-                        `<a href="${resetPasswordUrl}">${resetPasswordUrl}</a><br><br>` +
-                        'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์<br>' +
-                        'http://www.icehr.tu.ac.th/<br>' +
-                        'โทร. 02-613-3820-3',
-                    //html: '<b>Test</b> HTML message' // html body
-                }, (err, info) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log(info);
-                        /*res.send({
-                            error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
-                        });*/
-                    }
-                });
-            }
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
         });
-    db.end();
+      } else if (results.length === 0) {
+        res.send({
+          error: new Error(1, `ไม่พบอีเมล ${inputEmail} ในระบบ กรุณาตรวจสอบความถูกต้องของอีเมลที่กรอก`, ''),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
+        });
+
+        const nodeMailer = require('nodemailer');
+
+        let transporter = nodeMailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: 'icehr.tu@gmail.com',
+            pass: 'wgyhexikkwevucwq'
+          }
+        });
+
+        const memberId = results[0].id;
+        const token = encodeTokenWithTimestamp(memberId);
+        const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+        const resetPasswordUrl = `${baseUrl}/reset-password/${token}`;
+
+        transporter.sendMail({
+          from: 'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มธ.<icehr.tu@gmail.com>', // sender address
+          to: inputEmail, // list of receivers
+          subject: 'รีเซ็ตรหัสผ่าน', // Subject line
+          html: 'เรียนท่านสมาชิก<br><br>ได้มีการขอรีเซ็ตรหัสผ่านของบัญชีผู้ใช้งานของท่านที่เว็บไซต์ "สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์" (www.icehr.tu.ac.th) กรุณากด link ข้างล่างนี้เพื่อดำเนินการรีเซ็ตและตั้งรหัสผ่านใหม่ *ภายใน 15 นาที*<br><br>' +
+            `<a href="${resetPasswordUrl}">${resetPasswordUrl}</a><br><br>` +
+            'สถาบันเสริมศึกษาและทรัพยากรมนุษย์ มหาวิทยาลัยธรรมศาสตร์<br>' +
+            'http://www.icehr.tu.ac.th/<br>' +
+            'โทร. 02-613-3820-3',
+          //html: '<b>Test</b> HTML message' // html body
+        }, (err, info) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(info);
+            /*res.send({
+                error: new Error(0, 'ระบบได้ส่ง Link ที่ใช้รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล', ''),
+            });*/
+          }
+        });
+      }
+    });
+  db.end();
 };
 
 /*รีเซ็ตรหัสผ่าน*/
 doResetPassword = (req, res, db) => {
-    let {token, newPassword} = req.body;
-    const hashedPassword = passwordHash.generate(newPassword.trim());
+  let {token, newPassword} = req.body;
+  const hashedPassword = passwordHash.generate(newPassword.trim());
 
-    const decodedToken = decodeTokenWithTimestamp(token);
-    if (decodedToken) {
-        const {id, timestamp} = decodedToken;
-        const timeSecondDiff = Date.now() - timestamp;
-        if (timeSecondDiff > 15 * 60 * 1000) { // ต้องเปลี่ยนรหัสผ่านภายใน 15 นาที นับตั้งแต่แจ้งลืมรหัสผ่าน
-            res.send({
-                error: new Error(1, 'ไม่สามารถรีเซ็ตรหัสผ่านได้ เนื่องจากเกินเวลา 15 นาที กรุณาแจ้งลืมรหัสผ่านใหม่', ''),
-            });
-        } else {
-            db.query(
-                    `UPDATE member
-                     SET password = ?
-                     WHERE id = ?`,
-                [hashedPassword, id],
-
-                function (err, results, fields) {
-                    if (err) {
-                        res.send({
-                            error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
-                        });
-                    } else {
-                        res.send({
-                            error: new Error(0, 'รีเซ็ตรหัสผ่านสำเร็จ คุณสามารถเข้าสู่ระบบด้วยอีเมลเดิมและรหัสผ่านที่เพิ่งตั้งใหม่', ''),
-                        });
-                    }
-                });
-        }
+  const decodedToken = decodeTokenWithTimestamp(token);
+  if (decodedToken) {
+    const {id, timestamp} = decodedToken;
+    const timeSecondDiff = Date.now() - timestamp;
+    if (timeSecondDiff > 15 * 60 * 1000) { // ต้องเปลี่ยนรหัสผ่านภายใน 15 นาที นับตั้งแต่แจ้งลืมรหัสผ่าน
+      res.send({
+        error: new Error(1, 'ไม่สามารถรีเซ็ตรหัสผ่านได้ เนื่องจากเกินเวลา 15 นาที กรุณาแจ้งลืมรหัสผ่านใหม่', ''),
+      });
     } else {
-        res.send({
-            error: new Error(1, 'Token ไม่ถูกต้อง! ถ้าหากคุณก๊อปปี link ที่ใช้รีเซ็ตรหัสผ่านมาจากอีเมล กรุณาตรวจสอบว่าได้ก๊อปปี link มาครบถ้วนสมบูรณ์', ''),
+      db.query(
+          `UPDATE member
+           SET password = ?
+           WHERE id = ?`,
+        [hashedPassword, id],
+
+        function (err, results, fields) {
+          if (err) {
+            res.send({
+              error: new Error(1, 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error run query: ' + err.stack),
+            });
+          } else {
+            res.send({
+              error: new Error(0, 'รีเซ็ตรหัสผ่านสำเร็จ คุณสามารถเข้าสู่ระบบด้วยอีเมลเดิมและรหัสผ่านที่เพิ่งตั้งใหม่', ''),
+            });
+          }
         });
     }
+  } else {
+    res.send({
+      error: new Error(1, 'Token ไม่ถูกต้อง! ถ้าหากคุณก๊อปปี link ที่ใช้รีเซ็ตรหัสผ่านมาจากอีเมล กรุณาตรวจสอบว่าได้ก๊อปปี link มาครบถ้วนสมบูรณ์', ''),
+    });
+  }
 };
 
 /*อ่านข้อมูลสมาชิก*/
 doUpdateMember = (req, res, db) => {
-    let inputId = req.body.id;
-    let inputMemberType = req.body.memberType;
-    let inputTitle = req.body.title;
-    let inputFirstName = req.body.firstName;
-    let inputLastName = req.body.lastName;
-    let inputBirthDate = req.body.birthDate;
-    let inputJobPosition = req.body.jobPosition;
-    let inputOrganizationName = req.body.organizationName;
-    let inputOrganizationType = req.body.organizationType;
-    let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
-    let inputPhone = req.body.phone;
-    //let inputEmail = req.body.email;
-    //let inputPassword = req.body.password;
-    /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
-    let inputAddress = req.body.address;
-    let inputSubDistrict = req.body.subDistrict;
-    let inputDistrict = req.body.district;
-    let inputProvince = req.body.province;
-    let inputPostalCode = req.body.postalCode;
-    let inputOrganizationPhone = req.body.organizationPhone;
-    let inputTaxId = req.body.taxId;
+  let inputId = req.body.id;
+  let inputMemberType = req.body.memberType;
+  let inputTitle = req.body.title;
+  let inputFirstName = req.body.firstName;
+  let inputLastName = req.body.lastName;
+  let inputBirthDate = req.body.birthDate;
+  let inputJobPosition = req.body.jobPosition;
+  let inputOrganizationName = req.body.organizationName;
+  let inputOrganizationType = req.body.organizationType;
+  let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
+  let inputPhone = req.body.phone;
+  //let inputEmail = req.body.email;
+  //let inputPassword = req.body.password;
+  /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
+  let inputAddress = req.body.address;
+  let inputSubDistrict = req.body.subDistrict;
+  let inputDistrict = req.body.district;
+  let inputProvince = req.body.province;
+  let inputPostalCode = req.body.postalCode;
+  let inputOrganizationPhone = req.body.organizationPhone;
+  let inputTaxId = req.body.taxId;
 
-    let jobPosition = inputJobPosition == null ? null : inputJobPosition.trim();
-    let organizationName = inputOrganizationName == null ? null : inputOrganizationName.trim();
-    let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
-    let address = inputAddress == null ? null : inputAddress.trim();
-    let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
-    let district = inputDistrict == null ? null : inputDistrict.trim();
-    let province = inputProvince == null ? null : inputProvince.trim();
-    let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
-    let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
-    let taxId = inputTaxId == null ? null : inputTaxId.trim();
+  let jobPosition = inputJobPosition == null ? null : inputJobPosition.trim();
+  let organizationName = inputOrganizationName == null ? null : inputOrganizationName.trim();
+  let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
+  let address = inputAddress == null ? null : inputAddress.trim();
+  let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
+  let district = inputDistrict == null ? null : inputDistrict.trim();
+  let province = inputProvince == null ? null : inputProvince.trim();
+  let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
+  let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
+  let taxId = inputTaxId == null ? null : inputTaxId.trim();
 
-    db.query(
-            `UPDATE member
-             set member_type              = ?,
-                 title                    = ?,
-                 first_name               = ?,
-                 last_name                = ?,
-                 birth_date               = ?,
-                 job_position             = ?,
-                 phone                    = ?,
-                 organization_name        = ?,
-                 organization_type        = ?,
-                 organization_type_custom = ?,
-                 address                  = ?,
-                 sub_district             = ?,
-                 district                 = ?,
-                 province                 = ?,
-                 postal_code              = ?,
-                 organization_phone       = ?,
-                 tax_id                   = ?
-             WHERE id = ?`,
-        [inputMemberType, inputTitle, inputFirstName, inputLastName, inputBirthDate, jobPosition, inputPhone.trim(),
-            organizationName, inputOrganizationType, organizationTypeCustom, address, subDistrict, district, province, postalCode,
-            organizationPhone, taxId, inputId],
+  db.query(
+      `UPDATE member
+       set member_type              = ?,
+           title                    = ?,
+           first_name               = ?,
+           last_name                = ?,
+           birth_date               = ?,
+           job_position             = ?,
+           phone                    = ?,
+           organization_name        = ?,
+           organization_type        = ?,
+           organization_type_custom = ?,
+           address                  = ?,
+           sub_district             = ?,
+           district                 = ?,
+           province                 = ?,
+           postal_code              = ?,
+           organization_phone       = ?,
+           tax_id                   = ?
+       WHERE id = ?`,
+    [inputMemberType, inputTitle, inputFirstName, inputLastName, inputBirthDate, jobPosition, inputPhone.trim(),
+      organizationName, inputOrganizationType, organizationTypeCustom, address, subDistrict, district, province, postalCode,
+      organizationPhone, taxId, inputId],
 
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                /*query ข้อมูลกลับมา เพื่อส่งไปอัพเดท local storage*/
-                db.query(
-                        `SELECT *
-                         FROM member
-                         WHERE id = ?`,
-                    [inputId],
-
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
-                            });
-                        } else if (results.length === 0) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ!', ''),
-                            });
-                        } else {
-                            let memberData = {};
-                            memberData.id = results[0].id;
-                            memberData.title = results[0].title;
-                            memberData.firstName = results[0].first_name;
-                            memberData.lastName = results[0].last_name;
-                            memberData.birthDate = results[0].birth_date;
-                            memberData.jobPosition = results[0].job_position;
-                            memberData.organizationName = results[0].organization_name;
-                            memberData.organizationType = results[0].organization_type;
-                            memberData.organizationTypeCustom = results[0].organization_type_custom;
-                            memberData.phone = results[0].phone;
-                            memberData.email = results[0].email;
-                            memberData.memberType = results[0].member_type;
-
-                            memberData.address = results[0].address;
-                            memberData.subDistrict = results[0].sub_district;
-                            memberData.district = results[0].district;
-                            memberData.province = results[0].province;
-                            memberData.postalCode = results[0].postal_code;
-                            memberData.organizationPhone = results[0].organization_phone;
-                            memberData.taxId = results[0].tax_id;
-
-                            memberData.loginToken = encodeToken(results[0].id);
-                            res.send({
-                                error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
-                                memberData
-                            });
-                        }
-                    }
-                );
-                db.end();
-            }
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
         });
-    //db.end();
+      } else {
+        /*query ข้อมูลกลับมา เพื่อส่งไปอัพเดท local storage*/
+        db.query(
+            `SELECT *
+             FROM member
+             WHERE id = ?`,
+          [inputId],
+
+          function (err, results, fields) {
+            if (err) {
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
+              });
+            } else if (results.length === 0) {
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ!', ''),
+              });
+            } else {
+              let memberData = {};
+              memberData.id = results[0].id;
+              memberData.title = results[0].title;
+              memberData.firstName = results[0].first_name;
+              memberData.lastName = results[0].last_name;
+              memberData.birthDate = results[0].birth_date;
+              memberData.jobPosition = results[0].job_position;
+              memberData.organizationName = results[0].organization_name;
+              memberData.organizationType = results[0].organization_type;
+              memberData.organizationTypeCustom = results[0].organization_type_custom;
+              memberData.phone = results[0].phone;
+              memberData.email = results[0].email;
+              memberData.memberType = results[0].member_type;
+
+              memberData.address = results[0].address;
+              memberData.subDistrict = results[0].sub_district;
+              memberData.district = results[0].district;
+              memberData.province = results[0].province;
+              memberData.postalCode = results[0].postal_code;
+              memberData.organizationPhone = results[0].organization_phone;
+              memberData.taxId = results[0].tax_id;
+
+              memberData.loginToken = encodeToken(results[0].id);
+              res.send({
+                error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                memberData
+              });
+            }
+          }
+        );
+        db.end();
+      }
+    });
+  //db.end();
 };
 
 /*register สมาชิก*/
 doRegisterMember = (req, res, db) => {
-    let inputMemberType = req.body.memberType;
-    let inputTitle = req.body.title;
-    let inputFirstName = req.body.firstName;
-    let inputLastName = req.body.lastName;
-    let inputBirthDate = req.body.birthDate;
-    let inputJobPosition = req.body.jobPosition;
-    let inputOrganizationName = req.body.organizationName;
-    let inputOrganizationType = req.body.organizationType;
-    let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
-    let inputPhone = req.body.phone;
-    let inputEmail = req.body.email;
-    let inputPassword = req.body.password;
-    const hashedPassword = passwordHash.generate(inputPassword.trim());
+  let inputMemberType = req.body.memberType;
+  let inputTitle = req.body.title;
+  let inputFirstName = req.body.firstName;
+  let inputLastName = req.body.lastName;
+  let inputBirthDate = req.body.birthDate;
+  let inputJobPosition = req.body.jobPosition;
+  let inputOrganizationName = req.body.organizationName;
+  let inputOrganizationType = req.body.organizationType;
+  let inputOrganizationTypeCustom = req.body.organizationTypeCustom;
+  let inputPhone = req.body.phone;
+  let inputEmail = req.body.email;
+  let inputPassword = req.body.password;
+  const hashedPassword = passwordHash.generate(inputPassword.trim());
 
-    /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
-    let inputAddress = req.body.address;
-    let inputSubDistrict = req.body.subDistrict;
-    let inputDistrict = req.body.district;
-    let inputProvince = req.body.province;
-    let inputPostalCode = req.body.postalCode;
-    let inputOrganizationPhone = req.body.organizationPhone;
-    let inputTaxId = req.body.taxId;
+  /*ฟีลด์ข้างล่างนี้จะมีเฉพาะสมัครสมาชิกแบบองค์กร/บริษัท*/
+  let inputAddress = req.body.address;
+  let inputSubDistrict = req.body.subDistrict;
+  let inputDistrict = req.body.district;
+  let inputProvince = req.body.province;
+  let inputPostalCode = req.body.postalCode;
+  let inputOrganizationPhone = req.body.organizationPhone;
+  let inputTaxId = req.body.taxId;
 
-    db.query(
-            `SELECT *
-             FROM member
-             WHERE email = ?`,
-        [inputEmail],
+  db.query(
+      `SELECT *
+       FROM member
+       WHERE email = ?`,
+    [inputEmail],
 
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
-                });
-                db.end();
-            } else if (results.length > 0) {
-                res.send({
-                    error: new Error(1, `ไม่สามารถสมัครสมาชิกได้ เนื่องจากมีอีเมล ${inputEmail} ในระบบแล้ว`, '')
-                });
-                db.end();
-            } else {
-                let jobPosition = inputJobPosition == null ? null : inputJobPosition.trim();
-                let organizationName = inputOrganizationName == null ? null : inputOrganizationName.trim();
-                let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
-                let address = inputAddress == null ? null : inputAddress.trim();
-                let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
-                let district = inputDistrict == null ? null : inputDistrict.trim();
-                let province = inputProvince == null ? null : inputProvince.trim();
-                let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
-                let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
-                let taxId = inputTaxId == null ? null : inputTaxId.trim();
-
-                db.query(
-                        `INSERT INTO member(member_type, title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
-                                            address, sub_district, district, province, postal_code, organization_phone, tax_id)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [inputMemberType, inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, jobPosition, organizationName, inputOrganizationType, organizationTypeCustom,
-                        inputPhone.trim(), inputEmail.trim(), hashedPassword, address, subDistrict, district, province, postalCode, organizationPhone, taxId],
-
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล', 'error run query: ' + err.stack),
-                            });
-                            console.log(err.stack);
-                        } else {
-                            res.send({
-                                error: new Error(0, 'สมัครสมาชิกสำเร็จ', ''),
-                            });
-                        }
-                    });
-                db.end();
-            }
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลบัญชีผู้ใช้งาน', 'error run query: ' + err.stack),
         });
-};
+        db.end();
+      } else if (results.length > 0) {
+        res.send({
+          error: new Error(1, `ไม่สามารถสมัครสมาชิกได้ เนื่องจากมีอีเมล ${inputEmail} ในระบบแล้ว`, '')
+        });
+        db.end();
+      } else {
+        let jobPosition = inputJobPosition == null ? null : inputJobPosition.trim();
+        let organizationName = inputOrganizationName == null ? null : inputOrganizationName.trim();
+        let organizationTypeCustom = inputOrganizationTypeCustom == null ? null : inputOrganizationTypeCustom.trim();
+        let address = inputAddress == null ? null : inputAddress.trim();
+        let subDistrict = inputSubDistrict == null ? null : inputSubDistrict.trim();
+        let district = inputDistrict == null ? null : inputDistrict.trim();
+        let province = inputProvince == null ? null : inputProvince.trim();
+        let postalCode = inputPostalCode == null ? null : inputPostalCode.trim();
+        let organizationPhone = inputOrganizationPhone == null ? null : inputOrganizationPhone.trim();
+        let taxId = inputTaxId == null ? null : inputTaxId.trim();
 
-doGetCourse = (req, res, db) => {
-    const inputServiceType = req.body.serviceType;
-    const inputCourseId = req.body.courseId;
-    const inputMonth = req.body.month;
-    const inputYear = req.body.year;
-    const inputOffset = req.body.offset;
-    const inputLimit = req.body.limit;
+        db.query(
+            `INSERT INTO member(member_type, title, first_name, last_name, birth_date, job_position, organization_name, organization_type, organization_type_custom, phone, email, password,
+                                address, sub_district, district, province, postal_code, organization_phone, tax_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [inputMemberType, inputTitle.trim(), inputFirstName.trim(), inputLastName.trim(), inputBirthDate, jobPosition, organizationName, inputOrganizationType, organizationTypeCustom,
+            inputPhone.trim(), inputEmail.trim(), hashedPassword, address, subDistrict, district, province, postalCode, organizationPhone, taxId],
 
-    /*
-    * SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
-    . " FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id "
-    . " ORDER BY c.begin_date";
-    * */
-
-    const selectClause = `SELECT c.id,
-                                 c.batch_number,
-                                 c.details,
-                                 c.application_fee,
-                                 c.begin_date,
-                                 c.end_date,
-                                 c.place,
-                                 c.trainee_limit,
-                                 cm.title,
-                                 cm.service_type,
-                                 u.first_name,
-                                 u.last_name,
-                                 u.phone_office,
-                                 u.phone_extension,
-                                 u.email
-                          FROM course c
-                                   INNER JOIN course_master cm
-                                              ON c.course_master_id = cm.id
-                                   INNER JOIN user u
-                                              ON c.responsible_user_id = u.id`;
-    let whereClause = " WHERE c.status = 'normal' AND cm.service_type = ? ";
-
-    if (inputCourseId == null) {
-        if ((inputMonth == null || inputYear == null)) {
-            whereClause += ' AND c.begin_date >= ? ';
-        }
-    } else {
-        whereClause += ' AND c.id = ? ';
-    }
-
-    const monthString = ('0' + inputMonth).slice(-2);
-    const yearString = String(inputYear);
-    const monthYearString = `${yearString}-${monthString}-%`;
-
-    if (inputMonth != null && inputYear != null) {
-        whereClause += ' AND c.begin_date LIKE ? ';
-    }
-
-    const orderClause = ' ORDER BY c.begin_date ';
-    const limitClause = (inputOffset == null || inputLimit == null) ? '' : ` LIMIT ${inputOffset}, ${inputLimit} `;
-    const sql = selectClause + whereClause + orderClause + limitClause;
-
-    const today = utils.getDateFormatFromDateObject(new Date());
-
-    db.query(
-        sql,
-        inputCourseId == null
-            ? ((inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType, monthYearString])
-            : [inputServiceType, inputCourseId],
-
-        function (err, results, fields) {
+          function (err, results, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล', 'error run query: ' + err.stack),
+              });
+              console.log(err.stack);
             } else {
-                /*
-                * ถ้าจะแปลง js date ไปเป็น mysql date format ใช้ .toISOString().slice(0, 19).replace('T', ' ')
-                * */
-
-                const dataList = [];
-
-                /////////////////////////////////////////////////////////////////////////////////////////////////////
-                if (inputCourseId == null) { // course list
-                    results.forEach(row => {
-                        checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
-                            pushCourseIntoDataList(dataList, row, isCourseFull, regCount);
-                        });
-                    });
-                } else { // course details
-                    results.forEach(row => {
-                        pushCourseIntoDataList(dataList, row, null, null);
-                    });
-                }
-                /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                /*if (dataList.length === 0) {
-                    res.send({
-                        error: new Error(1, 'dataList.length === 0 !!!!!', null),
-                    });
-                    db.end();
-                    return;
-                }*/
-
-                /*ถ้าเป็นหน้า course details จะ query ตารางราคา, assets ด้วย*/
-                if (dataList.length > 0 && inputCourseId != null) {
-                    db.query(
-                            `SELECT title, file_name, type, created_at
-                             FROM course_asset
-                             WHERE course_id = ?`,
-                        [inputCourseId],
-                        function (err, results, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                                });
-                                db.end();
-                            } else {
-                                const assetList = [];
-                                results.forEach(row => {
-                                    const fileName = row.file_name;
-                                    let prefixPosition = fileName.indexOf('-');
-                                    let extensionPosition = fileName.lastIndexOf('.');
-                                    let title = fileName.substring(prefixPosition + 1, extensionPosition);
-
-                                    assetList.push({
-                                        title: title, //row.title
-                                        fileName: fileName,
-                                        type: row.type,
-                                        createdAt: row.created_at,
-                                    });
-                                });
-
-                                dataList[0].assets = assetList;
-
-                                if (inputServiceType === constants.SERVICE_TRAINING || inputServiceType === constants.SERVICE_SOCIAL) {
-                                    db.query(
-                                            `SELECT title, amount, created_at
-                                             FROM course_fee
-                                             WHERE course_id = ?`,
-                                        [inputCourseId],
-                                        function (err, results, fields) {
-                                            if (err) {
-                                                res.send({
-                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
-                                                });
-                                                db.end();
-
-                                            } else {
-                                                const feeList = [];
-                                                results.forEach(row => {
-                                                    feeList.push({
-                                                        title: row.title,
-                                                        amount: row.amount,
-                                                        createdAt: row.created_at,
-                                                    });
-                                                });
-
-                                                dataList[0].fees = feeList;
-
-                                                checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
-                                                    dataList[0].isCourseFull = isCourseFull;
-                                                    dataList[0].regCount = regCount;
-
-                                                    res.send({
-                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                                        //sql,
-                                                        monthYearString,
-                                                        dataList
-                                                    });
-                                                    db.end();
-                                                });
-                                            }
-                                        }
-                                    );
-                                } else {
-                                    db.query(
-                                            `SELECT title, title_en, application_fee
-                                             FROM driving_license_course_type`,
-                                        [],
-                                        function (err, results, fields) {
-                                            if (err) {
-                                                res.send({
-                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
-                                                });
-                                                db.end();
-
-                                            } else {
-                                                const feeList = [];
-                                                results.forEach(row => {
-                                                    feeList.push({
-                                                        title: row.title,
-                                                        titleEn: row.title_en,
-                                                        amount: row.application_fee,
-                                                    });
-                                                });
-
-                                                dataList[0].fees = feeList;
-
-                                                checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
-                                                    dataList[0].isCourseFull = isCourseFull;
-                                                    dataList[0].regCount = regCount;
-
-                                                    res.send({
-                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                                        //sql,
-                                                        monthYearString,
-                                                        dataList
-                                                    });
-                                                    db.end();
-                                                });
-                                            }
-                                        }
-                                    );
-                                }
-                                //db.end();
-                            }
-                        }
-                    );
-                    //db.end();
-                } else if (inputCourseId == null) {
-                    db.query(
-                            `SELECT COUNT(*) AS totalCount
-                             FROM course c
-                                      INNER JOIN course_master cm
-                                                 ON c.course_master_id = cm.id
-                             WHERE cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
-                        (inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType],
-                        function (err, totalCountResults, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (4)', 'error run query: ' + err.stack),
-                                });
-                            } else {
-                                res.send({
-                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                    dataList,
-                                    totalCount: totalCountResults[0].totalCount,
-                                });
-                            }
-                        }
-                    );
-                    db.end();
-                }
+              res.send({
+                error: new Error(0, 'สมัครสมาชิกสำเร็จ', ''),
+              });
             }
-        }
-    );
-};
-
-pushCourseIntoDataList = (dataList, row, isCourseFull, regCount) => {
-    let courseName = row.title;
-    if ((row.service_type === constants.SERVICE_TRAINING || row.service_type === constants.SERVICE_SOCIAL)
-        && (row.batch_number && row.batch_number > 0)) {
-        courseName += ' รุ่นที่ ' + row.batch_number;
-    }
-
-    dataList.push({
-        id: row.id,
-        serviceType: row.service_type,
-        name: courseName,
-        details: row.details,
-        applicationFee: row.application_fee,
-        place: row.place,
-        beginDate: row.begin_date,
-        endDate: row.end_date,
-        traineeLimit: row.trainee_limit,
-        responsibleUser: {
-            firstName: row.first_name,
-            lastName: row.last_name,
-            phoneOffice: row.phone_office,
-            phoneExtension: row.phone_extension,
-            email: row.email,
-        },
-        createdAt: row.created_at,
-        isCourseFull: isCourseFull,
-        regCount: regCount,
+          });
+        db.end();
+      }
     });
 };
 
-checkIfCourseFull = (db, courseId, serviceType, callback) => {
-    let sql = null;
+doGetCourse = (req, res, db) => {
+  const inputServiceType = req.body.serviceType;
+  const inputCourseId = req.body.courseId;
+  const inputMonth = req.body.month;
+  const inputYear = req.body.year;
+  const inputOffset = req.body.offset;
+  const inputLimit = req.body.limit;
 
-    switch (serviceType) {
-        case constants.SERVICE_TRAINING:
-            sql = `SELECT c.trainee_limit
-                   FROM course c
-                            INNER JOIN course_registration cr
-                                       ON c.id = cr.course_id
-                            INNER JOIN course_trainee ct
-                                       ON cr.id = ct.course_registration_id
-                   WHERE c.id = ? AND ct.register_status != 'cancel'`;
-            break;
-        case constants.SERVICE_SOCIAL:
-            sql = `SELECT c.trainee_limit
-                   FROM course c
-                            INNER JOIN course_registration_social cr
-                                       ON c.id = cr.course_id
-                   WHERE c.id = ? AND cr.register_status != 'cancel'`;
-            break;
-        case constants.SERVICE_DRIVING_LICENSE:
-            sql = `SELECT c.trainee_limit
-                   FROM course c
-                            INNER JOIN course_registration_driving_license cr
-                                       ON c.id = cr.course_id
-                   WHERE c.id = ? AND cr.register_status != 'cancel'`;
-            break;
+  /*
+  * SELECT c.id, c.batch_number, c.details, c.begin_date, c.end_date, c.place, cm.title "
+  . " FROM course c INNER JOIN course_master cm ON c.course_master_id = cm.id "
+  . " ORDER BY c.begin_date";
+  * */
+
+  const selectClause = `SELECT c.id,
+                               c.batch_number,
+                               c.details,
+                               c.application_fee,
+                               c.begin_date,
+                               c.end_date,
+                               c.place,
+                               c.trainee_limit,
+                               c.is_online,
+                               cm.title,
+                               cm.service_type,
+                               u.first_name,
+                               u.last_name,
+                               u.phone_office,
+                               u.phone_extension,
+                               u.email
+                        FROM course c
+                                 INNER JOIN course_master cm
+                                            ON c.course_master_id = cm.id
+                                 INNER JOIN user u
+                                            ON c.responsible_user_id = u.id`;
+  let whereClause = " WHERE c.status = 'normal' AND cm.service_type = ? ";
+
+  if (inputCourseId == null) {
+    if ((inputMonth == null || inputYear == null)) {
+      whereClause += ' AND c.begin_date >= ? ';
     }
+  } else {
+    whereClause += ' AND c.id = ? ';
+  }
 
-    db.query(
-        sql,
-        [courseId],
-        function (err, results, fields) {
-            if (err) {
-                callback(false, null); // ถ้าเกิด error ให้ return ว่า course ยังไม่เต็มไปก่อน
-            } else {
-                if (results.length > 0) {
-                    const traineeLimit = results[0].trainee_limit;
-                    const regCount = results.length;
-                    if (regCount >= traineeLimit) {
-                        callback(true, regCount); // เต็มแล้ว
-                    } else {
-                        callback(false, regCount); // ยังไม่เต็ม
-                    }
-                } else {
-                    callback(false, 0); // ถ้า query แล้วไม่ได้ result เลย แสดงว่ายังไม่มีคนสมัครคอร์สนั้น
-                }
-            }
+  const monthString = ('0' + inputMonth).slice(-2);
+  const yearString = String(inputYear);
+  const monthYearString = `${yearString}-${monthString}-%`;
+
+  if (inputMonth != null && inputYear != null) {
+    whereClause += ' AND c.begin_date LIKE ? ';
+  }
+
+  const orderClause = ' ORDER BY c.begin_date ';
+  const limitClause = (inputOffset == null || inputLimit == null) ? '' : ` LIMIT ${inputOffset}, ${inputLimit} `;
+  const sql = selectClause + whereClause + orderClause + limitClause;
+
+  const today = utils.getDateFormatFromDateObject(new Date());
+
+  db.query(
+    sql,
+    inputCourseId == null
+      ? ((inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType, monthYearString])
+      : [inputServiceType, inputCourseId],
+
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        /*
+        * ถ้าจะแปลง js date ไปเป็น mysql date format ใช้ .toISOString().slice(0, 19).replace('T', ' ')
+        * */
+
+        const dataList = [];
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (inputCourseId == null) { // course list
+          results.forEach(row => {
+            checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
+              pushCourseIntoDataList(dataList, row, isCourseFull, regCount);
+            });
+          });
+        } else { // course details
+          results.forEach(row => {
+            pushCourseIntoDataList(dataList, row, null, null);
+          });
         }
-    );
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /*if (dataList.length === 0) {
+            res.send({
+                error: new Error(1, 'dataList.length === 0 !!!!!', null),
+            });
+            db.end();
+            return;
+        }*/
+
+        /*ถ้าเป็นหน้า course details จะ query ตารางราคา, assets ด้วย*/
+        if (dataList.length > 0 && inputCourseId != null) {
+          db.query(
+              `SELECT title, file_name, type, created_at
+               FROM course_asset
+               WHERE course_id = ?`,
+            [inputCourseId],
+            function (err, results, fields) {
+              if (err) {
+                res.send({
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                });
+                db.end();
+              } else {
+                const assetList = [];
+                results.forEach(row => {
+                  const fileName = row.file_name;
+                  let prefixPosition = fileName.indexOf('-');
+                  let extensionPosition = fileName.lastIndexOf('.');
+                  let title = fileName.substring(prefixPosition + 1, extensionPosition);
+
+                  assetList.push({
+                    title: title, //row.title
+                    fileName: fileName,
+                    type: row.type,
+                    createdAt: row.created_at,
+                  });
+                });
+
+                dataList[0].assets = assetList;
+
+                if (inputServiceType === constants.SERVICE_TRAINING || inputServiceType === constants.SERVICE_SOCIAL) {
+                  db.query(
+                      `SELECT title, amount, created_at
+                       FROM course_fee
+                       WHERE course_id = ?`,
+                    [inputCourseId],
+                    function (err, results, fields) {
+                      if (err) {
+                        res.send({
+                          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                        });
+                        db.end();
+
+                      } else {
+                        const feeList = [];
+                        results.forEach(row => {
+                          feeList.push({
+                            title: row.title,
+                            amount: row.amount,
+                            createdAt: row.created_at,
+                          });
+                        });
+
+                        dataList[0].fees = feeList;
+
+                        checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
+                          dataList[0].isCourseFull = isCourseFull;
+                          dataList[0].regCount = regCount;
+
+                          res.send({
+                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                            //sql,
+                            monthYearString,
+                            dataList
+                          });
+                          db.end();
+                        });
+                      }
+                    }
+                  );
+                } else {
+                  db.query(
+                      `SELECT title, title_en, application_fee
+                       FROM driving_license_course_type`,
+                    [],
+                    function (err, results, fields) {
+                      if (err) {
+                        res.send({
+                          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                        });
+                        db.end();
+
+                      } else {
+                        const feeList = [];
+                        results.forEach(row => {
+                          feeList.push({
+                            title: row.title,
+                            titleEn: row.title_en,
+                            amount: row.application_fee,
+                          });
+                        });
+
+                        dataList[0].fees = feeList;
+
+                        checkIfCourseFull(db, dataList[0].id, dataList[0].serviceType, (isCourseFull, regCount) => {
+                          dataList[0].isCourseFull = isCourseFull;
+                          dataList[0].regCount = regCount;
+
+                          res.send({
+                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                            //sql,
+                            monthYearString,
+                            dataList
+                          });
+                          db.end();
+                        });
+                      }
+                    }
+                  );
+                }
+                //db.end();
+              }
+            }
+          );
+          //db.end();
+        } else if (inputCourseId == null) {
+          db.query(
+              `SELECT COUNT(*) AS totalCount
+               FROM course c
+                        INNER JOIN course_master cm
+                                   ON c.course_master_id = cm.id
+               WHERE cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
+            (inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType],
+            function (err, totalCountResults, fields) {
+              if (err) {
+                res.send({
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (4)', 'error run query: ' + err.stack),
+                });
+              } else {
+                res.send({
+                  error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                  dataList,
+                  totalCount: totalCountResults[0].totalCount,
+                });
+              }
+            }
+          );
+          db.end();
+        }
+      }
+    }
+  );
+};
+
+pushCourseIntoDataList = (dataList, row, isCourseFull, regCount) => {
+  let courseName = row.title;
+  if ((row.service_type === constants.SERVICE_TRAINING || row.service_type === constants.SERVICE_SOCIAL)
+    && (row.batch_number && row.batch_number > 0)) {
+    courseName += ' รุ่นที่ ' + row.batch_number;
+  }
+
+  dataList.push({
+    id: row.id,
+    serviceType: row.service_type,
+    name: courseName,
+    details: row.details,
+    applicationFee: row.application_fee,
+    place: row.place,
+    beginDate: row.begin_date,
+    endDate: row.end_date,
+    traineeLimit: row.trainee_limit,
+    responsibleUser: {
+      firstName: row.first_name,
+      lastName: row.last_name,
+      phoneOffice: row.phone_office,
+      phoneExtension: row.phone_extension,
+      email: row.email,
+    },
+    createdAt: row.created_at,
+    isCourseFull: isCourseFull,
+    regCount: regCount,
+    isOnline: row.is_online,
+  });
+};
+
+checkIfCourseFull = (db, courseId, serviceType, callback) => {
+  let sql = null;
+
+  switch (serviceType) {
+    case constants.SERVICE_TRAINING:
+      sql = `SELECT c.trainee_limit
+             FROM course c
+                      INNER JOIN course_registration cr
+                                 ON c.id = cr.course_id
+                      INNER JOIN course_trainee ct
+                                 ON cr.id = ct.course_registration_id
+             WHERE c.id = ?
+               AND ct.register_status != 'cancel'`;
+      break;
+    case constants.SERVICE_SOCIAL:
+      sql = `SELECT c.trainee_limit
+             FROM course c
+                      INNER JOIN course_registration_social cr
+                                 ON c.id = cr.course_id
+             WHERE c.id = ?
+               AND cr.register_status != 'cancel'`;
+      break;
+    case constants.SERVICE_DRIVING_LICENSE:
+      sql = `SELECT c.trainee_limit
+             FROM course c
+                      INNER JOIN course_registration_driving_license cr
+                                 ON c.id = cr.course_id
+             WHERE c.id = ?
+               AND cr.register_status != 'cancel'`;
+      break;
+  }
+
+  db.query(
+    sql,
+    [courseId],
+    function (err, results, fields) {
+      if (err) {
+        callback(false, null); // ถ้าเกิด error ให้ return ว่า course ยังไม่เต็มไปก่อน
+      } else {
+        if (results.length > 0) {
+          const traineeLimit = results[0].trainee_limit;
+          const regCount = results.length;
+          if (regCount >= traineeLimit) {
+            callback(true, regCount); // เต็มแล้ว
+          } else {
+            callback(false, regCount); // ยังไม่เต็ม
+          }
+        } else {
+          callback(false, 0); // ถ้า query แล้วไม่ได้ result เลย แสดงว่ายังไม่มีคนสมัครคอร์สนั้น
+        }
+      }
+    }
+  );
 };
 
 doSearchCourse = (req, res, db) => {
-    const {serviceType} = req.body;
-    let {searchTitle, searchCategory, searchPlaceType, searchMonth, searchYear} = req.body.searchFields;
-    if (searchTitle != null) {
-        if (searchTitle.trim() === '') {
-            searchTitle = null;
-        }
+  const {serviceType} = req.body;
+  let {searchTitle, searchCategory, searchPlaceType, searchMonth, searchYear} = req.body.searchFields;
+  if (searchTitle != null) {
+    if (searchTitle.trim() === '') {
+      searchTitle = null;
     }
+  }
 
-    const whereServiceType = 'cm.service_type = ?';
-    let whereTitle = 'TRUE';
-    let whereCategory = 'TRUE';
-    let wherePlaceType = 'TRUE';
-    let whereMonth = 'TRUE';
-    let whereYear = 'TRUE';
+  const whereServiceType = 'cm.service_type = ?';
+  let whereTitle = 'TRUE';
+  let whereCategory = 'TRUE';
+  let wherePlaceType = 'TRUE';
+  let whereMonth = 'TRUE';
+  let whereYear = 'TRUE';
 
-    const searchValueArray = [];
-    searchValueArray.push(serviceType);
+  const searchValueArray = [];
+  searchValueArray.push(serviceType);
 
-    if (searchTitle) {
-        whereTitle = 'cm.title LIKE ?';
-        searchValueArray.push(`%${searchTitle}%`);
-    }
-    if (searchCategory && searchCategory !== '9999') {
-        whereCategory = 'cm.category = ?';
-        searchValueArray.push(`${searchCategory}`);
-    }
-    if (searchPlaceType && searchPlaceType !== '9999') {
-        wherePlaceType = 'c.place_type = ?';
-        searchValueArray.push(`${searchPlaceType}`);
-    }
-    if (searchMonth && searchMonth !== '9999') {
-        whereMonth = 'MONTH(c.begin_date) = ?';
-        searchValueArray.push(`${searchMonth}`);
-    }
-    if (searchYear && searchYear !== '9999') {
-        whereYear = 'YEAR(c.begin_date) = ?';
-        searchValueArray.push(`${searchYear}`);
-    }
+  if (searchTitle) {
+    whereTitle = 'cm.title LIKE ?';
+    searchValueArray.push(`%${searchTitle}%`);
+  }
+  if (searchCategory && searchCategory !== '9999') {
+    whereCategory = 'cm.category = ?';
+    searchValueArray.push(`${searchCategory}`);
+  }
+  if (searchPlaceType && searchPlaceType !== '9999') {
+    wherePlaceType = 'c.place_type = ?';
+    searchValueArray.push(`${searchPlaceType}`);
+  }
+  if (searchMonth && searchMonth !== '9999') {
+    whereMonth = 'MONTH(c.begin_date) = ?';
+    searchValueArray.push(`${searchMonth}`);
+  }
+  if (searchYear && searchYear !== '9999') {
+    whereYear = 'YEAR(c.begin_date) = ?';
+    searchValueArray.push(`${searchYear}`);
+  }
 
-    db.query(
-        `SELECT c.id,
+  db.query(
+    `SELECT c.id,
                     c.batch_number,
                     c.details,
                     c.application_fee,
@@ -1167,6 +1172,7 @@ doSearchCourse = (req, res, db) => {
                     c.end_date,
                     c.place,
                     c.place_type,
+                    c.is_online,
                     cm.title,
                     cm.category,
                     cm.service_type
@@ -1174,152 +1180,153 @@ doSearchCourse = (req, res, db) => {
                       INNER JOIN course_master cm
                                  ON c.course_master_id = cm.id
             WHERE c.status = 'normal' AND c.begin_date >= CURDATE() AND ${whereServiceType} AND ${whereTitle} AND ${whereCategory} AND ${wherePlaceType} AND ${whereMonth} AND ${whereYear}`,
-        searchValueArray,
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-                db.end();
-            } else {
-                const dataList = [];
-                let count = 0;
-                results.forEach((row, index) => {
-                    checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
-                        let courseName = row.title;
-                        if (row.batch_number && row.batch_number > 0) {
-                            courseName += ` รุ่นที่ ${row.batch_number}`;
-                        }
-                        dataList.push({
-                            id: row.id,
-                            name: courseName,
-                            details: row.details,
-                            applicationFee: row.application_fee,
-                            place: row.place,
-                            beginDate: row.begin_date,
-                            endDate: row.end_date,
-                            createdAt: row.created_at,
-                            isCourseFull: isCourseFull,
-                            regCount: regCount,
-                        });
-
-                        if (++count === results.length) {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                dataList,
-                            });
-                            db.end();
-                        }
-                    });
-                });
+    searchValueArray,
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        const dataList = [];
+        let count = 0;
+        results.forEach((row, index) => {
+          checkIfCourseFull(db, row.id, row.service_type, (isCourseFull, regCount) => {
+            let courseName = row.title;
+            if (row.batch_number && row.batch_number > 0) {
+              courseName += ` รุ่นที่ ${row.batch_number}`;
             }
-        }
-    );
-    //db.end();
+            dataList.push({
+              id: row.id,
+              name: courseName,
+              details: row.details,
+              applicationFee: row.application_fee,
+              place: row.place,
+              beginDate: row.begin_date,
+              endDate: row.end_date,
+              createdAt: row.created_at,
+              isCourseFull: isCourseFull,
+              regCount: regCount,
+              isOnline: row.is_online,
+            });
+
+            if (++count === results.length) {
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                dataList,
+              });
+              db.end();
+            }
+          });
+        });
+      }
+    }
+  );
+  //db.end();
 };
 
 doGetCourseNumTraineeAvailable = (req, res, db) => {
-    const {courseId} = req.body;
+  const {courseId} = req.body;
 
-    getCourseNumTraineeAvailable(
-        db, courseId, (success, data) => {
-            if (success) {
-                res.send({
-                    error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
-                });
-            } else {
-                res.send({
-                    error: new Error(1, data, ''),
-                });
-            }
-        }
-    );
+  getCourseNumTraineeAvailable(
+    db, courseId, (success, data) => {
+      if (success) {
+        res.send({
+          error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
+        });
+      } else {
+        res.send({
+          error: new Error(1, data, ''),
+        });
+      }
+    }
+  );
 };
 
 getCourseNumTraineeAvailable = (db, courseId, callback) => {
-    let registrationTable = null;
+  let registrationTable = null;
 
-    //
+  //
 
-    db.query(
-            `SELECT cm.service_type
-             FROM course c
-                      INNER JOIN course_master cm
-                                 ON c.course_master_id = cm.id
-             WHERE c.id = ?`,
-        [courseId],
-        function (err, results, fields) {
+  db.query(
+      `SELECT cm.service_type
+       FROM course c
+                INNER JOIN course_master cm
+                           ON c.course_master_id = cm.id
+       WHERE c.id = ?`,
+    [courseId],
+    function (err, results, fields) {
+      if (err) {
+        callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (1)');
+      } else {
+        const serviceType = results[0]['service_type'];
+        switch (serviceType) {
+          case constants.SERVICE_TRAINING:
+            registrationTable = 'course_registration';
+            break;
+          case constants.SERVICE_SOCIAL:
+            registrationTable = 'course_registration_social';
+            break;
+          case constants.SERVICE_DRIVING_LICENSE:
+            registrationTable = 'course_registration_driving_license';
+            break;
+        }
+
+        db.query(
+            `SELECT trainee_limit
+             FROM course
+             WHERE id = ?`,
+          [courseId],
+          function (err, results, fields) {
             if (err) {
-                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (1)');
+              callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (2)');
             } else {
-                const serviceType = results[0]['service_type'];
-                switch (serviceType) {
-                    case constants.SERVICE_TRAINING:
-                        registrationTable = 'course_registration';
-                        break;
-                    case constants.SERVICE_SOCIAL:
-                        registrationTable = 'course_registration_social';
-                        break;
-                    case constants.SERVICE_DRIVING_LICENSE:
-                        registrationTable = 'course_registration_driving_license';
-                        break;
-                }
+              if (results.length > 0) {
+                const traineeLimit = results[0]['trainee_limit'];
 
-                db.query(
-                        `SELECT trainee_limit
-                         FROM course
-                         WHERE id = ?`,
-                    [courseId],
-                    function (err, results, fields) {
-                        if (err) {
-                            callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (2)');
-                        } else {
-                            if (results.length > 0) {
-                                const traineeLimit = results[0]['trainee_limit'];
-
-                                if (serviceType === constants.SERVICE_SOCIAL || serviceType === constants.SERVICE_DRIVING_LICENSE) {
-                                    db.query(
-                                        `SELECT COUNT(id) AS trainee_count 
+                if (serviceType === constants.SERVICE_SOCIAL || serviceType === constants.SERVICE_DRIVING_LICENSE) {
+                  db.query(
+                    `SELECT COUNT(id) AS trainee_count 
                              FROM ${registrationTable}
                              WHERE course_id = ? AND register_status <> ?`,
-                                        [courseId, 'cancel'],
-                                        function (err, results, fields) {
-                                            if (err) {
-                                                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (3)');
-                                            } else {
-                                                const traineeCount = results[0]['trainee_count'];
-                                                callback(true, traineeLimit - traineeCount);
-                                            }
-                                        }
-                                    );
-                                } else if (serviceType === constants.SERVICE_TRAINING) {
-                                    db.query(
-                                            `SELECT COUNT(*) AS trainee_count
-                                             FROM course_registration cr
-                                                      INNER JOIN course_trainee ct
-                                                                 ON cr.id = ct.course_registration_id
-                                             WHERE cr.course_id = ?
-                                               AND ct.register_status <> ?`,
-                                        [courseId, 'cancel'],
-                                        function (err, results, fields) {
-                                            if (err) {
-                                                callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (4):');
-                                            } else {
-                                                const traineeCount = results[0]['trainee_count'];
-                                                callback(true, traineeLimit - traineeCount);
-                                            }
-                                        }
-                                    );
-                                }
-                            } else {
-                                callback(false, 'ไม่พบข้อมูลหลักสูตร');
-                            }
-                        }
+                    [courseId, 'cancel'],
+                    function (err, results, fields) {
+                      if (err) {
+                        callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (3)');
+                      } else {
+                        const traineeCount = results[0]['trainee_count'];
+                        callback(true, traineeLimit - traineeCount);
+                      }
                     }
-                );
+                  );
+                } else if (serviceType === constants.SERVICE_TRAINING) {
+                  db.query(
+                      `SELECT COUNT(*) AS trainee_count
+                       FROM course_registration cr
+                                INNER JOIN course_trainee ct
+                                           ON cr.id = ct.course_registration_id
+                       WHERE cr.course_id = ?
+                         AND ct.register_status <> ?`,
+                    [courseId, 'cancel'],
+                    function (err, results, fields) {
+                      if (err) {
+                        callback(false, 'เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล (4):');
+                      } else {
+                        const traineeCount = results[0]['trainee_count'];
+                        callback(true, traineeLimit - traineeCount);
+                      }
+                    }
+                  );
+                }
+              } else {
+                callback(false, 'ไม่พบข้อมูลหลักสูตร');
+              }
             }
-        }
-    );
+          }
+        );
+      }
+    }
+  );
 };
 
 /*const upload = multer().single();
@@ -1347,758 +1354,792 @@ getCourseDrivingLicenseCourseId = (req, res, db) => {
 };*/
 
 registerCourse = (req, res, db, serviceType) => {
-    let {courseId, trainees} = req.body;
+  let {courseId, trainees} = req.body;
 
-    //console.log(`Course ID: ${courseId}`);
+  //console.log(`Course ID: ${courseId}`);
 
-    getCourseNumTraineeAvailable(
-        db, courseId, (success, data) => {
-            if (success) {
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                /*res.send({
-                    error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
-                });
-                db.end();
-                return;*/
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  getCourseNumTraineeAvailable(
+    db, courseId, (success, data) => {
+      if (success) {
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /*res.send({
+            error: new Error(0, `หลักสูตรนี้เหลือที่ว่าง ${data} ที่`, ''),
+        });
+        db.end();
+        return;*/
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                const available = data; //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
-                if (available > 0) { //คอร์สยังไม่เต็ม
-                    //สำหรับวิชาการ ต้องเช็คต่อว่า จำนวนที่สมัครเข้ามา รับได้หรือไม่ (วิชาการ สามารถกรอกใบสมัครได้ครั้งละมากกว่า 1 คน)
-                    if (serviceType === constants.SERVICE_TRAINING && trainees.length > available) {
-                        res.send({
-                            error: new Error(1, 'ขออภัย ไม่สามารถรับสมัครได้ เนื่องจากจำนวนผู้สมัครที่ท่านกรอกใบสมัครเข้ามา มีมากกว่าจำนวนที่รับได้ในตอนนี้', ''),
-                        });
-                        db.end();
-                    } else {
-                        //สมัครได้
-                        switch (serviceType) {
-                            case constants.SERVICE_TRAINING:
-                                doRegisterCourse(req, res, db);
-                                break;
-                            case constants.SERVICE_SOCIAL:
-                                doRegisterCourseSocial(req, res, db);
-                                break;
-                            case constants.SERVICE_DRIVING_LICENSE:
-                                //doRegisterCourseDrivingLicense(req, res, db);
-                                break;
-                        }
-                    }
-                } else { //คอร์สเต็มแล้ว
-                    res.send({
-                        error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
-                    });
-                    db.end();
-                }
-            } else {
-                res.send({
-                    error: new Error(1, data, ''),
-                });
-                db.end();
+        const available = data; //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
+        if (available > 0) { //คอร์สยังไม่เต็ม
+          //สำหรับวิชาการ ต้องเช็คต่อว่า จำนวนที่สมัครเข้ามา รับได้หรือไม่ (วิชาการ สามารถกรอกใบสมัครได้ครั้งละมากกว่า 1 คน)
+          if (serviceType === constants.SERVICE_TRAINING && trainees.length > available) {
+            res.send({
+              error: new Error(1, 'ขออภัย ไม่สามารถรับสมัครได้ เนื่องจากจำนวนผู้สมัครที่ท่านกรอกใบสมัครเข้ามา มีมากกว่าจำนวนที่รับได้ในตอนนี้', ''),
+            });
+            db.end();
+          } else {
+            //สมัครได้
+            switch (serviceType) {
+              case constants.SERVICE_TRAINING:
+                doRegisterCourse(req, res, db);
+                break;
+              case constants.SERVICE_SOCIAL:
+                doRegisterCourseSocial(req, res, db);
+                break;
+              case constants.SERVICE_DRIVING_LICENSE:
+                //doRegisterCourseDrivingLicense(req, res, db);
+                break;
             }
+          }
+        } else { //คอร์สเต็มแล้ว
+          res.send({
+            error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
+          });
+          db.end();
         }
-    );
+      } else {
+        res.send({
+          error: new Error(1, data, ''),
+        });
+        db.end();
+      }
+    }
+  );
 };
 
 doRegisterCourse = (req, res, db) => {
-    const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
-    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+  const {loginToken, courseId, trainees, coordinator, receipt} = req.body;
+  const memberId = loginToken === null ? 0 : decodeToken(loginToken);
 
-    let {
-        coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
-        coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
-    } = coordinator;
-    const {
-        receiptName, receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
-        receiptPostalCode, receiptOrganizationPhone, receiptTaxId
-    } = receipt;
+  let {
+    coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
+    coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom, coordinatorPhone, coordinatorEmail
+  } = coordinator;
+  const {
+    receiptName, receiptAddress, receiptSubDistrict, receiptDistrict, receiptProvince,
+    receiptPostalCode, receiptOrganizationPhone, receiptTaxId
+  } = receipt;
 
-    coordinatorTitle = coordinatorTitle == null ? null : coordinatorTitle.trim();
-    coordinatorFirstName = coordinatorFirstName == null ? null : coordinatorFirstName.trim();
-    coordinatorLastName = coordinatorLastName == null ? null : coordinatorLastName.trim();
-    coordinatorJobPosition = coordinatorJobPosition == null ? null : coordinatorJobPosition.trim();
-    coordinatorOrganizationName = coordinatorOrganizationName == null ? null : coordinatorOrganizationName.trim();
-    coordinatorOrganizationTypeCustom = coordinatorOrganizationTypeCustom == null ? null : coordinatorOrganizationTypeCustom.trim();
-    coordinatorPhone = coordinatorPhone == null ? null : coordinatorPhone.trim();
-    coordinatorEmail = coordinatorEmail == null ? null : coordinatorEmail.trim();
+  coordinatorTitle = coordinatorTitle == null ? null : coordinatorTitle.trim();
+  coordinatorFirstName = coordinatorFirstName == null ? null : coordinatorFirstName.trim();
+  coordinatorLastName = coordinatorLastName == null ? null : coordinatorLastName.trim();
+  coordinatorJobPosition = coordinatorJobPosition == null ? null : coordinatorJobPosition.trim();
+  coordinatorOrganizationName = coordinatorOrganizationName == null ? null : coordinatorOrganizationName.trim();
+  coordinatorOrganizationTypeCustom = coordinatorOrganizationTypeCustom == null ? null : coordinatorOrganizationTypeCustom.trim();
+  coordinatorPhone = coordinatorPhone == null ? null : coordinatorPhone.trim();
+  coordinatorEmail = coordinatorEmail == null ? null : coordinatorEmail.trim();
 
-    db.query(
-            `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_birth_date, coordinator_job_position,
-                                              coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
-                                              receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
-            coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom,
-            coordinatorPhone, coordinatorEmail, receiptName.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(),
-            receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
+  db.query(
+      `INSERT INTO course_registration (course_id, member_id, coordinator_title, coordinator_first_name, coordinator_last_name, coordinator_birth_date, coordinator_job_position,
+                                        coordinator_organization_name, coordinator_organization_type, coordinator_organization_type_custom, coordinator_phone, coordinator_email,
+                                        receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code, receipt_organization_phone, receipt_tax_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [courseId, memberId, coordinatorTitle, coordinatorFirstName, coordinatorLastName, coordinatorBirthDate, coordinatorJobPosition,
+      coordinatorOrganizationName, coordinatorOrganizationType, coordinatorOrganizationTypeCustom,
+      coordinatorPhone, coordinatorEmail, receiptName.trim(), receiptAddress.trim(), receiptSubDistrict.trim(), receiptDistrict.trim(), receiptProvince.trim(),
+      receiptPostalCode.trim(), receiptOrganizationPhone.trim(), receiptTaxId.trim()],
 
-        function (err, results, fields) {
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        console.log(err.stack);
+        db.end();
+      } else {
+        let insertCourseRegId = results.insertId;
+
+        /*เลขที่ใบสมัคร รูปแบบ AC-2019-0001*/
+        const formNumber = constants.SERVICE_PREFIX_TRAINING + '-' + new Date().getFullYear() + '-' + ('000' + insertCourseRegId).slice(-4);
+        db.query(
+            `UPDATE course_registration
+             SET form_number = ?
+             WHERE id = ?`,
+          [formNumber, insertCourseRegId],
+
+          function (err, results, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                console.log(err.stack);
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+              });
+              console.log(err.stack);
+              db.end();
             } else {
-                let insertCourseRegId = results.insertId;
+              let placeHolder = '';
+              const data = [];
+              for (let i = 0; i < trainees.length; i++) {
+                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
 
-                /*เลขที่ใบสมัคร รูปแบบ AC-2019-0001*/
-                const formNumber = constants.SERVICE_PREFIX_TRAINING + '-' + new Date().getFullYear() + '-' + ('000' + insertCourseRegId).slice(-4);
-                db.query(
-                        `UPDATE course_registration
-                         SET form_number = ?
-                         WHERE id = ?`,
-                    [formNumber, insertCourseRegId],
+                const {
+                  traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeJobPosition,
+                  traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
+                } = trainees[i];
 
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                            console.log(err.stack);
-                            db.end();
-                        } else {
-                            let placeHolder = '';
-                            const data = [];
-                            for (let i = 0; i < trainees.length; i++) {
-                                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+                const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
+                trainees[i].traineeFormNumber = traineeFormNumber;
 
-                                const {
-                                    traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeJobPosition,
-                                    traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
-                                } = trainees[i];
+                //console.log(traineeFirstName);
 
-                                const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
-                                trainees[i].traineeFormNumber = traineeFormNumber;
+                data.push(insertCourseRegId);
+                data.push(traineeFormNumber);
+                data.push(traineeTitle.trim());
+                data.push(traineeFirstName.trim());
+                data.push(traineeLastName.trim());
+                data.push(traineeBirthDate);
+                data.push(traineeJobPosition.trim());
+                data.push(traineeOrganizationName.trim());
+                data.push(traineeOrganizationType);
+                data.push(traineeOrganizationTypeCustom == null ? null : traineeOrganizationTypeCustom.trim());
+                data.push(traineePhone.trim());
+                data.push(traineeEmail.trim());
+              }
+              placeHolder = placeHolder.substring(0, placeHolder.length - 1);
 
-                                //console.log(traineeFirstName);
+              db.query(
+                  `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
+                                              organization_type_custom, phone, email)
+                   VALUES ` + placeHolder,
+                data,
+                function (err, results, fields) {
+                  if (err) {
+                    res.send({
+                      error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (3)', 'error run query: ' + err.stack),
+                    });
+                    console.log(err.stack);
+                  } else {
+                    // constants.HOST_BACKEND
+                    // /pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1
 
-                                data.push(insertCourseRegId);
-                                data.push(traineeFormNumber);
-                                data.push(traineeTitle.trim());
-                                data.push(traineeFirstName.trim());
-                                data.push(traineeLastName.trim());
-                                data.push(traineeBirthDate);
-                                data.push(traineeJobPosition.trim());
-                                data.push(traineeOrganizationName.trim());
-                                data.push(traineeOrganizationType);
-                                data.push(traineeOrganizationTypeCustom == null ? null : traineeOrganizationTypeCustom.trim());
-                                data.push(traineePhone.trim());
-                                data.push(traineeEmail.trim());
-                            }
-                            placeHolder = placeHolder.substring(0, placeHolder.length - 1);
-
-                            db.query(
-                                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
-                                                                organization_type_custom, phone, email)
-                                     VALUES ` + placeHolder,
-                                data,
-                                function (err, results, fields) {
-                                    if (err) {
-                                        res.send({
-                                            error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (3)', 'error run query: ' + err.stack),
-                                        });
-                                        console.log(err.stack);
-                                    } else {
-                                        // constants.HOST_BACKEND
-                                        // /pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1
-
-                                        const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${insertCourseRegId}&payment=1&user=1&email=1`;
-                                        if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                                            https.get(sendMailUrl);
-                                        } else {
-                                            http.get(sendMailUrl);
-                                        }
-
-                                        res.send({
-                                            error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                                            courseRegId: insertCourseRegId,
-                                        });
-
-                                        // สร้างอาร์เรย์ของหมายเลขใบสมัครแต่ละคน
-                                        /*const traineeFormNumberList = [];
-                                        for (let i = 0; i < trainees.length; i++) {
-                                            const trainee = trainees[i];
-                                            traineeFormNumberList.push(trainee.traineeFormNumber);
-                                        }
-
-                                        pdf.generateTraineeForm_Training(traineeFormNumberList, (success, message) => {
-                                            if (success) {
-                                                res.send({
-                                                    error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                                                });
-                                            } else {
-                                                res.send({
-                                                    error: new Error(1, message, ''),
-                                                });
-                                            }
-                                        });*/
-                                    }
-                                });
-                            db.end();
-                        }
+                    const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${insertCourseRegId}&payment=1&user=1&email=1`;
+                    if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                      https.get(sendMailUrl);
+                    } else {
+                      http.get(sendMailUrl);
                     }
-                );
+
+                    res.send({
+                      error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                      courseRegId: insertCourseRegId,
+                    });
+
+                    // สร้างอาร์เรย์ของหมายเลขใบสมัครแต่ละคน
+                    /*const traineeFormNumberList = [];
+                    for (let i = 0; i < trainees.length; i++) {
+                        const trainee = trainees[i];
+                        traineeFormNumberList.push(trainee.traineeFormNumber);
+                    }
+
+                    pdf.generateTraineeForm_Training(traineeFormNumberList, (success, message) => {
+                        if (success) {
+                            res.send({
+                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                            });
+                        } else {
+                            res.send({
+                                error: new Error(1, message, ''),
+                            });
+                        }
+                    });*/
+                  }
+                });
+              db.end();
             }
-        }
-    );
+          }
+        );
+      }
+    }
+  );
 };
 
 doRegisterCourseSocial = (req, res, db) => {
-    const {loginToken, courseId, traineeData, receipt} = req.body;
-    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+  const {loginToken, courseId, traineeData, receipt} = req.body;
+  const memberId = loginToken === null ? 0 : decodeToken(loginToken);
 
-    const {
-        traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
-        traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease,
-        traineeNewsSourceWeb, traineeNewsSourceEmail, traineeNewsSourceBrochure, traineeNewsSourceOnline, traineeNewsSourceMouth
-    } = traineeData;
+  const {
+    traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+    traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease,
+    traineeNewsSourceWeb, traineeNewsSourceEmail, traineeNewsSourceBrochure, traineeNewsSourceOnline, traineeNewsSourceMouth
+  } = traineeData;
 
-    const {
-        registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode
-    } = receipt;
+  const {
+    registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode
+  } = receipt;
 
-    /*ใช้แต่ละ bit เก็บค่า news source แต่ละค่า*/
-    const newsSource = (traineeNewsSourceWeb ? 1 : 0) + (traineeNewsSourceEmail ? 2 : 0) + (traineeNewsSourceBrochure ? 4 : 0)
-        + (traineeNewsSourceOnline ? 8 : 0) + (traineeNewsSourceMouth ? 16 : 0);
+  /*ใช้แต่ละ bit เก็บค่า news source แต่ละค่า*/
+  const newsSource = (traineeNewsSourceWeb ? 1 : 0) + (traineeNewsSourceEmail ? 2 : 0) + (traineeNewsSourceBrochure ? 4 : 0)
+    + (traineeNewsSourceOnline ? 8 : 0) + (traineeNewsSourceMouth ? 16 : 0);
 
-    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+  /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
-    db.query(
-            `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district,
-                                                     province, postal_code, phone, email, contact_name, contact_phone, disease, news_source,
-                                                     receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
-            traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource,
-            registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode],
+  db.query(
+      `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district,
+                                               province, postal_code, phone, email, contact_name, contact_phone, disease, news_source,
+                                               receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+      traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource,
+      registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode],
 
-        function (err, results, fields) {
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        console.log(err.stack);
+        db.end();
+      } else {
+        let insertId = results.insertId;
+
+        /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
+        const formNumber = constants.SERVICE_PREFIX_SOCIAL + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+        db.query(
+            `UPDATE course_registration_social
+             SET form_number = ?
+             WHERE id = ?`,
+          [formNumber, insertId],
+
+          function (err, results, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                console.log(err.stack);
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+              });
+              console.log(err.stack);
             } else {
-                let insertId = results.insertId;
+              const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${constants.SERVICE_SOCIAL}&trainee_id=${insertId}&payment=1&user=1&email=1`;
+              if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                https.get(sendMailUrl);
+              } else {
+                http.get(sendMailUrl);
+              }
 
-                /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
-                const formNumber = constants.SERVICE_PREFIX_SOCIAL + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
-                db.query(
-                        `UPDATE course_registration_social
-                         SET form_number = ?
-                         WHERE id = ?`,
-                    [formNumber, insertId],
-
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                            console.log(err.stack);
-                        } else {
-                            const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${constants.SERVICE_SOCIAL}&trainee_id=${insertId}&payment=1&user=1&email=1`;
-                            if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                                https.get(sendMailUrl);
-                            } else {
-                                http.get(sendMailUrl);
-                            }
-
-                            res.send({
-                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                                courseRegId: insertId,
-                            });
-                            console.log('ลงทะเบียนสำเร็จ');
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                courseRegId: insertId,
+              });
+              console.log('ลงทะเบียนสำเร็จ');
             }
-        }
-    );
+          }
+        );
+        db.end();
+      }
+    }
+  );
 };
 
 const pidImageStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'backend/uploads/slip_images')
-    },
-    filename: function (req, file, cb) {
-        const fileName = Date.now() + '-' + file.originalname;
-        cb(null, fileName);
-    }
+  destination: function (req, file, cb) {
+    cb(null, 'backend/uploads/slip_images')
+  },
+  filename: function (req, file, cb) {
+    const fileName = Date.now() + '-' + file.originalname;
+    cb(null, fileName);
+  }
 });
 
 const uploadPidImage = multer({storage: pidImageStorage}).array('traineeImageFilePid', 5);
 
 registerCourseDrivingLicense = (req, res, db) => {
-    uploadPidImage(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
+  uploadPidImage(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      res.send({
+        error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+      });
+      return;
+    } else if (err) {
+      res.send({
+        error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+      });
+      return;
+    }
+
+    const {courseId} = req.body;
+
+    getCourseNumTraineeAvailable(
+      db, courseId, (success, data) => {
+        if (success) {
+          if (data > 0) { //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
+            doRegisterCourseDrivingLicense(req, res, db);
+          } else {
             res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+              error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
             });
-            return;
-        } else if (err) {
-            res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
-            });
-            return;
+            db.end();
+          }
+        } else {
+          res.send({
+            error: new Error(1, data, ''),
+          });
+          db.end();
         }
-
-        const {courseId} = req.body;
-
-        getCourseNumTraineeAvailable(
-            db, courseId, (success, data) => {
-                if (success) {
-                    if (data > 0) { //data ก็คือจำนวนที่ว่างที่เหลือของคอร์ส (กรณี success)
-                        doRegisterCourseDrivingLicense(req, res, db);
-                    } else {
-                        res.send({
-                            error: new Error(1, 'ขออภัย หลักสูตรนี้มีผู้สมัครเต็มจำนวนแล้ว', ''),
-                        });
-                        db.end();
-                    }
-                } else {
-                    res.send({
-                        error: new Error(1, data, ''),
-                    });
-                    db.end();
-                }
-            }
-        );
-    });
+      }
+    );
+  });
 };
 
 doRegisterCourseDrivingLicense = (req, res, db) => {
-    const {
-        loginToken, courseId,
-        traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-        traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode,
-        traineePhone, traineeSelectedCourseType, traineeSelectedLicenseTypeCar, traineeSelectedLicenseTypeBicycle, traineeSelectedLicenseTypeTricycle
-    } = req.body;
+  const {
+    loginToken, courseId,
+    traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
+    traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode,
+    traineePhone, traineeSelectedCourseType, traineeSelectedLicenseTypeCar, traineeSelectedLicenseTypeBicycle, traineeSelectedLicenseTypeTricycle
+  } = req.body;
 
-    console.log('Login Token: ' + loginToken);
-    console.log('1: ' + loginToken == null);
-    console.log('2: ' + loginToken === null);
-    console.log(typeof loginToken);
+  console.log('Login Token: ' + loginToken);
+  console.log('1: ' + loginToken == null);
+  console.log('2: ' + loginToken === null);
+  console.log(typeof loginToken);
 
-    // ถ้า user ไม่ได้ login, ค่า loginToken จะส่งมาเป็นสตริงว่าง
-    const memberId = loginToken === '' ? 0 : decodeToken(loginToken);
+  // ถ้า user ไม่ได้ login, ค่า loginToken จะส่งมาเป็นสตริงว่าง
+  const memberId = loginToken === '' ? 0 : decodeToken(loginToken);
 
-    /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
-    const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
+  /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
+  const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
 
-    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+  /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
-    //const {filename} = req.file;
-    const filename = [];
-    let i;
-    for (i = 0; i < req.files.length; i++) {
-        filename.push(req.files[i].filename);
-    }
-    for (; i < 5; i++) {
-        filename.push(null);
-    }
+  //const {filename} = req.file;
+  const filename = [];
+  let i;
+  for (i = 0; i < req.files.length; i++) {
+    filename.push(req.files[i].filename);
+  }
+  for (; i < 5; i++) {
+    filename.push(null);
+  }
 
-    db.query(
-            `INSERT INTO course_registration_driving_license
-             (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-              province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5,
-              course_type, license_type)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-            traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename[0], filename[1], filename[2], filename[3], filename[4],
-            traineeSelectedCourseType, licenseType],
+  db.query(
+      `INSERT INTO course_registration_driving_license
+       (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
+        province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5,
+        course_type, license_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
+      traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename[0], filename[1], filename[2], filename[3], filename[4],
+      traineeSelectedCourseType, licenseType],
 
-        function (err, results, fields) {
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        console.log(err.stack);
+        db.end();
+      } else {
+        let insertId = results.insertId;
+
+        /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
+        const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+        db.query(
+            `UPDATE course_registration_driving_license
+             SET form_number = ?
+             WHERE id = ?`,
+          [formNumber, insertId],
+
+          function (err, results, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                console.log(err.stack);
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+              });
+              console.log(err.stack);
             } else {
-                let insertId = results.insertId;
+              const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${insertId}&payment=1&user=1&email=1`;
+              if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                https.get(sendMailUrl);
+              } else {
+                http.get(sendMailUrl);
+              }
 
-                /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
-                const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
-                db.query(
-                        `UPDATE course_registration_driving_license
-                         SET form_number = ?
-                         WHERE id = ?`,
-                    [formNumber, insertId],
-
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                            console.log(err.stack);
-                        } else {
-                            const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${insertId}&payment=1&user=1&email=1`;
-                            if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                                https.get(sendMailUrl);
-                            } else {
-                                http.get(sendMailUrl);
-                            }
-
-                            res.send({
-                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                                courseRegId: insertId,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                courseRegId: insertId,
+              });
             }
-        }
-    );
+          }
+        );
+        db.end();
+      }
+    }
+  );
 };
 
 doRegisterInHouse = (req, res, db) => {
-    const {loginToken, formData} = req.body;
-    const memberId = loginToken === null ? 0 : decodeToken(loginToken);
+  const {loginToken, formData} = req.body;
+  const memberId = loginToken === null ? 0 : decodeToken(loginToken);
 
-    const {
-        fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail,
-        fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark,
-    } = formData;
+  const {
+    fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail,
+    fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark,
+  } = formData;
 
-    db.query(
-            `INSERT INTO in_house (member_id, title, first_name, last_name, organization_name, phone, email, course, num_day, num_trainee, place, remark)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [memberId, fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail, fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark],
+  db.query(
+      `INSERT INTO in_house (member_id, title, first_name, last_name, organization_name, phone, email, course, num_day, num_trainee, place, remark)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [memberId, fieldTitle, fieldFirstName, fieldLastName, fieldOrganizationName, fieldPhone, fieldEmail, fieldCourse, fieldNumDay, fieldNumTrainee, fieldPlace, fieldRemark],
 
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
-                });
-                console.log(err.stack);
-                db.end();
-            } else {
-                res.send({
-                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ สถาบันจะติดต่อท่านตามข้อมูลที่ได้รับ', ''),
-                });
-                db.end();
-            }
-        }
-    );
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+        });
+        console.log(err.stack);
+        db.end();
+      } else {
+        res.send({
+          error: new Error(0, 'บันทึกข้อมูลสำเร็จ สถาบันจะติดต่อท่านตามข้อมูลที่ได้รับ', ''),
+        });
+        db.end();
+      }
+    }
+  );
 };
 
 doGetNameTitle = (req, res, db) => {
-    db.query(
-        'SELECT * FROM name_title',
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลคำนำหน้าชื่อ', 'error run query: ' + err.stack),
-                });
-            } else {
-                let dataList = [];
-                results.forEach(row => {
-                    const {id, title} = row;
-                    dataList.push({id, title});
-                });
+  db.query(
+    'SELECT * FROM name_title',
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลคำนำหน้าชื่อ', 'error run query: ' + err.stack),
+        });
+      } else {
+        let dataList = [];
+        results.forEach(row => {
+          const {id, title} = row;
+          dataList.push({id, title});
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetOrganizationType = (req, res, db) => {
-    db.query(
-        'SELECT * FROM organization_type ORDER BY id',
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลประเภทหน่วยงาน', 'error run query: ' + err.stack),
-                });
-            } else {
-                let dataList = [];
-                results.forEach(row => {
-                    const {id, name} = row;
-                    dataList.push({id, name});
-                });
+  db.query(
+    'SELECT * FROM organization_type ORDER BY id',
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลประเภทหน่วยงาน', 'error run query: ' + err.stack),
+        });
+      } else {
+        let dataList = [];
+        results.forEach(row => {
+          const {id, name} = row;
+          dataList.push({id, name});
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetRegistrationListByMember = (req, res, db) => {
-    const {memberId} = req.body;
+  const {memberId} = req.body;
 
-    db.query(
-            `SELECT cm.title       AS courseTitle,
-                    c.batch_number AS courseBatchNumber,
-                    cr.id          AS registrationId,
-                    cr.course_id   AS courseId,
-                    cr.form_number AS registrationFormNumber,
-                    cr.created_at  AS registrationDateTime,
-                    ct.id          AS traineeId,
-                    ct.form_number AS traineeFormNumber,
-                    ct.first_name  AS traineeFirstName,
-                    ct.last_name   AS traineeLastName
-             FROM course_registration cr
-                      INNER JOIN course_trainee ct
-                                 ON ct.course_registration_id = cr.id
-                      INNER JOIN course c
-                                 ON cr.course_id = c.id
-                      INNER JOIN course_master cm
-                                 ON c.course_master_id = cm.id
-             WHERE cr.member_id = ?
-             ORDER BY registrationId DESC, traineeId`,
-        [memberId],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-            } else {
-                const dataList = [];
-                let reg;
-                let previousRegistrationId = 0;
-                results.forEach(row => {
-                    const {
-                        courseId, courseTitle, courseBatchNumber,
-                        registrationId, registrationFormNumber, registrationDateTime,
-                        traineeId, traineeFormNumber, traineeFirstName, traineeLastName
-                    } = row;
+  db.query(
+      `SELECT cm.title       AS courseTitle,
+              c.batch_number AS courseBatchNumber,
+              cr.id          AS registrationId,
+              cr.course_id   AS courseId,
+              cr.form_number AS registrationFormNumber,
+              cr.created_at  AS registrationDateTime,
+              ct.id          AS traineeId,
+              ct.form_number AS traineeFormNumber,
+              ct.first_name  AS traineeFirstName,
+              ct.last_name   AS traineeLastName
+       FROM course_registration cr
+                INNER JOIN course_trainee ct
+                           ON ct.course_registration_id = cr.id
+                INNER JOIN course c
+                           ON cr.course_id = c.id
+                INNER JOIN course_master cm
+                           ON c.course_master_id = cm.id
+       WHERE cr.member_id = ?
+       ORDER BY registrationId DESC, traineeId`,
+    [memberId],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+      } else {
+        const dataList = [];
+        let reg;
+        let previousRegistrationId = 0;
+        results.forEach(row => {
+          const {
+            courseId, courseTitle, courseBatchNumber,
+            registrationId, registrationFormNumber, registrationDateTime,
+            traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+          } = row;
 
-                    if (registrationId !== previousRegistrationId) {
-                        previousRegistrationId = registrationId;
+          if (registrationId !== previousRegistrationId) {
+            previousRegistrationId = registrationId;
 
-                        reg = {
-                            courseId, courseTitle, courseBatchNumber,
-                            registrationId, registrationFormNumber, registrationDateTime,
-                            traineeList: [{
-                                traineeId, traineeFormNumber, traineeFirstName, traineeLastName
-                            }],
-                        };
-                        dataList.push(reg);
-                    } else {
-                        reg.traineeList.push({
-                            traineeId, traineeFormNumber, traineeFirstName, traineeLastName
-                        });
-                    }
-                });
+            reg = {
+              courseId, courseTitle, courseBatchNumber,
+              registrationId, registrationFormNumber, registrationDateTime,
+              traineeList: [{
+                traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+              }],
+            };
+            dataList.push(reg);
+          } else {
+            reg.traineeList.push({
+              traineeId, traineeFormNumber, traineeFirstName, traineeLastName
+            });
+          }
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetTraineeByFormNumber = (req, res, db) => {
-    const {formNumber} = req.body;
+  const {formNumber} = req.body;
 
-    db.query( // หาในบริการวิชาการก่อน
-            `SELECT cm.title           AS courseTitle,
-                    c.batch_number     AS courseBatchNumber,
-                    c.place            AS coursePlace,
-                    c.begin_date       AS courseBeginDate,
-                    c.end_date         AS courseEndDate,
-                    ct.form_number     AS formNumber,
-                    ct.id              AS traineeId,
-                    ct.title           AS traineeTitle,
-                    ct.first_name      AS traineeFirstName,
-                    ct.last_name       AS traineeLastName,
-                    ct.register_status AS registerStatus
-             FROM course_registration cr
-                      INNER JOIN course_trainee ct
-                                 ON ct.course_registration_id = cr.id
-                      INNER JOIN course c
-                                 ON cr.course_id = c.id
-                      INNER JOIN course_master cm
-                                 ON c.course_master_id = cm.id
-             WHERE ct.form_number = ?`,
-        [formNumber],
-        function (err, results, fields) {
-            if (err) {
+  db.query( // หาในบริการวิชาการก่อน
+      `SELECT cm.title           AS courseTitle,
+              c.batch_number     AS courseBatchNumber,
+              c.place            AS coursePlace,
+              c.begin_date       AS courseBeginDate,
+              c.end_date         AS courseEndDate,
+              ct.form_number     AS formNumber,
+              ct.id              AS traineeId,
+              ct.title           AS traineeTitle,
+              ct.first_name      AS traineeFirstName,
+              ct.last_name       AS traineeLastName,
+              ct.register_status AS registerStatus
+       FROM course_registration cr
+                INNER JOIN course_trainee ct
+                           ON ct.course_registration_id = cr.id
+                INNER JOIN course c
+                           ON cr.course_id = c.id
+                INNER JOIN course_master cm
+                           ON c.course_master_id = cm.id
+       WHERE ct.form_number = ?`,
+    [formNumber],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        if (results.length > 0) {
+          const {
+            courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+            formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
+          } = results[0];
+
+          res.send({
+            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+            data: {
+              course: {
+                title: courseTitle,
+                batchNumber: courseBatchNumber,
+                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
+                beginDate: courseBeginDate,
+                endDate: courseEndDate,
+                place: coursePlace,
+              },
+              trainee: {
+                id: traineeId,
+                title: traineeTitle,
+                firstName: traineeFirstName,
+                lastName: traineeLastName,
+              },
+              formNumber,
+              registerStatus,
+            }
+          });
+          db.end();
+        } else {
+          db.query( // ถ้าหาในบริการวิชาการไม่เจอ ก็ไปหาในใบขับขี่ต่อ
+              `SELECT cm.title             AS courseTitle,
+                      c.batch_number       AS courseBatchNumber,
+                      c.place              AS coursePlace,
+                      c.begin_date         AS courseBeginDate,
+                      c.end_date           AS courseEndDate,
+                      ct.title             AS courseType,
+                      crdl.form_number     AS formNumber,
+                      crdl.id              AS traineeId,
+                      crdl.title           AS traineeTitle,
+                      crdl.first_name      AS traineeFirstName,
+                      crdl.last_name       AS traineeLastName,
+                      crdl.register_status AS registerStatus
+               FROM course_registration_driving_license crdl
+                        INNER JOIN course c
+                                   ON crdl.course_id = c.id
+                        INNER JOIN course_master cm
+                                   ON c.course_master_id = cm.id
+                        INNER JOIN driving_license_course_type ct
+                                   ON crdl.course_type = ct.id
+               WHERE crdl.form_number = ?`,
+            [formNumber],
+            function (err, results, fields) {
+              if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
                 });
-                db.end();
-            } else {
+              } else {
                 if (results.length > 0) {
-                    const {
-                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
-                    } = results[0];
+                  const {
+                    courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+                    formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, courseType, registerStatus
+                  } = results[0];
 
-                    res.send({
-                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                        data: {
-                            course: {
+                  res.send({
+                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                    data: {
+                      course: {
+                        title: courseTitle,
+                        batchNumber: courseBatchNumber,
+                        name: `${courseTitle}`,
+                        beginDate: courseBeginDate,
+                        endDate: courseEndDate,
+                        place: coursePlace,
+                        type: courseType,
+                      },
+                      trainee: {
+                        id: traineeId,
+                        title: traineeTitle,
+                        firstName: traineeFirstName,
+                        lastName: traineeLastName,
+                      },
+                      formNumber,
+                      registerStatus,
+                    }
+                  });
+                } else {
+                  db.query( // ถ้าหาในบริการวิชาการและใบขับขี่ไม่เจอ ก็ไปหาในสังคม
+                      `SELECT cm.title           AS courseTitle,
+                              c.batch_number     AS courseBatchNumber,
+                              c.place            AS coursePlace,
+                              c.begin_date       AS courseBeginDate,
+                              c.end_date         AS courseEndDate,
+                              cr.form_number     AS formNumber,
+                              cr.id              AS traineeId,
+                              cr.title           AS traineeTitle,
+                              cr.first_name      AS traineeFirstName,
+                              cr.last_name       AS traineeLastName,
+                              cr.register_status AS registerStatus
+                       FROM course_registration_social cr
+                                INNER JOIN course c
+                                           ON cr.course_id = c.id
+                                INNER JOIN course_master cm
+                                           ON c.course_master_id = cm.id
+                       WHERE cr.form_number = ?`,
+                    [formNumber],
+                    function (err, results, fields) {
+                      if (err) {
+                        res.send({
+                          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                        });
+                      } else {
+                        if (results.length > 0) {
+                          const {
+                            courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
+                            formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
+                          } = results[0];
+
+                          res.send({
+                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                            data: {
+                              course: {
                                 title: courseTitle,
                                 batchNumber: courseBatchNumber,
                                 name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
                                 beginDate: courseBeginDate,
                                 endDate: courseEndDate,
                                 place: coursePlace,
-                            },
-                            trainee: {
+                              },
+                              trainee: {
                                 id: traineeId,
                                 title: traineeTitle,
                                 firstName: traineeFirstName,
                                 lastName: traineeLastName,
-                            },
-                            formNumber,
-                            registerStatus,
-                        }
-                    });
-                    db.end();
-                } else {
-                    db.query( // ถ้าหาในบริการวิชาการไม่เจอ ก็ไปหาในใบขับขี่ต่อ
-                            `SELECT cm.title             AS courseTitle,
-                                    c.batch_number       AS courseBatchNumber,
-                                    c.place              AS coursePlace,
-                                    c.begin_date         AS courseBeginDate,
-                                    c.end_date           AS courseEndDate,
-                                    ct.title             AS courseType,
-                                    crdl.form_number     AS formNumber,
-                                    crdl.id              AS traineeId,
-                                    crdl.title           AS traineeTitle,
-                                    crdl.first_name      AS traineeFirstName,
-                                    crdl.last_name       AS traineeLastName,
-                                    crdl.register_status AS registerStatus
-                             FROM course_registration_driving_license crdl
-                                      INNER JOIN course c
-                                                 ON crdl.course_id = c.id
-                                      INNER JOIN course_master cm
-                                                 ON c.course_master_id = cm.id
-                                      INNER JOIN driving_license_course_type ct
-                                                 ON crdl.course_type = ct.id
-                             WHERE crdl.form_number = ?`,
-                        [formNumber],
-                        function (err, results, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                                });
-                            } else {
-                                if (results.length > 0) {
-                                    const {
-                                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, courseType, registerStatus
-                                    } = results[0];
-
-                                    res.send({
-                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                        data: {
-                                            course: {
-                                                title: courseTitle,
-                                                batchNumber: courseBatchNumber,
-                                                name: `${courseTitle}`,
-                                                beginDate: courseBeginDate,
-                                                endDate: courseEndDate,
-                                                place: coursePlace,
-                                                type: courseType,
-                                            },
-                                            trainee: {
-                                                id: traineeId,
-                                                title: traineeTitle,
-                                                firstName: traineeFirstName,
-                                                lastName: traineeLastName,
-                                            },
-                                            formNumber,
-                                            registerStatus,
-                                        }
-                                    });
-                                } else {
-                                    db.query( // ถ้าหาในบริการวิชาการและใบขับขี่ไม่เจอ ก็ไปหาในสังคม
-                                            `SELECT cm.title           AS courseTitle,
-                                                    c.batch_number     AS courseBatchNumber,
-                                                    c.place            AS coursePlace,
-                                                    c.begin_date       AS courseBeginDate,
-                                                    c.end_date         AS courseEndDate,
-                                                    cr.form_number     AS formNumber,
-                                                    cr.id              AS traineeId,
-                                                    cr.title           AS traineeTitle,
-                                                    cr.first_name      AS traineeFirstName,
-                                                    cr.last_name       AS traineeLastName,
-                                                    cr.register_status AS registerStatus
-                                             FROM course_registration_social cr
-                                                      INNER JOIN course c
-                                                                 ON cr.course_id = c.id
-                                                      INNER JOIN course_master cm
-                                                                 ON c.course_master_id = cm.id
-                                             WHERE cr.form_number = ?`,
-                                        [formNumber],
-                                        function (err, results, fields) {
-                                            if (err) {
-                                                res.send({
-                                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
-                                                });
-                                            } else {
-                                                if (results.length > 0) {
-                                                    const {
-                                                        courseTitle, courseBatchNumber, coursePlace, courseBeginDate, courseEndDate,
-                                                        formNumber, traineeId, traineeTitle, traineeFirstName, traineeLastName, registerStatus
-                                                    } = results[0];
-
-                                                    res.send({
-                                                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                                        data: {
-                                                            course: {
-                                                                title: courseTitle,
-                                                                batchNumber: courseBatchNumber,
-                                                                name: `${courseTitle} รุ่นที่ ${courseBatchNumber}`,
-                                                                beginDate: courseBeginDate,
-                                                                endDate: courseEndDate,
-                                                                place: coursePlace,
-                                                            },
-                                                            trainee: {
-                                                                id: traineeId,
-                                                                title: traineeTitle,
-                                                                firstName: traineeFirstName,
-                                                                lastName: traineeLastName,
-                                                            },
-                                                            formNumber,
-                                                            registerStatus,
-                                                        }
-                                                    });
-                                                } else {
-                                                    res.send({
-                                                        error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
-                                                    });
-                                                }
-                                            }
-                                        }
-                                    );
-                                    db.end();
-                                }
+                              },
+                              formNumber,
+                              registerStatus,
                             }
+                          });
+                        } else {
+                          res.send({
+                            error: new Error(1, `ไม่พบข้อมูลใบสมัครเลขที่ ${formNumber}`, ''),
+                          });
                         }
-                    );
-                    //db.end();
+                      }
+                    }
+                  );
+                  db.end();
                 }
+              }
             }
+          );
+          //db.end();
         }
-    );
+      }
+    }
+  );
 };
 
 doGetRegistrationByMemberId = (req, res, db) => {
-    const {memberId} = req.body;
+  const {memberId} = req.body;
 
-    db.query( // วิชาการ
+  db.query( // วิชาการ
+      `SELECT cm.title           AS courseTitle,
+              cm.service_type    AS serviceType,
+              c.id               AS courseId,
+              c.batch_number     AS courseBatchNumber,
+              c.place            AS coursePlace,
+              c.begin_date       AS courseBeginDate,
+              c.end_date         AS courseEndDate,
+              c.application_fee  AS courseApplicationFee,
+              ct.form_number     AS formNumber,
+              ct.id              AS traineeId,
+              ct.title           AS traineeTitle,
+              ct.first_name      AS traineeFirstName,
+              ct.last_name       AS traineeLastName,
+              ct.register_status AS registerStatus,
+              cr.created_at      AS registerDate
+       FROM course_registration cr
+                INNER JOIN course_trainee ct
+                           ON ct.course_registration_id = cr.id
+                INNER JOIN course c
+                           ON cr.course_id = c.id
+                INNER JOIN course_master cm
+                           ON c.course_master_id = cm.id
+       WHERE cr.member_id = ?
+       ORDER BY cr.created_at DESC, ct.id`,
+    [memberId],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+
+        db.query( // สังคม
             `SELECT cm.title           AS courseTitle,
                     cm.service_type    AS serviceType,
                     c.id               AS courseId,
@@ -2107,408 +2148,374 @@ doGetRegistrationByMemberId = (req, res, db) => {
                     c.begin_date       AS courseBeginDate,
                     c.end_date         AS courseEndDate,
                     c.application_fee  AS courseApplicationFee,
-                    ct.form_number     AS formNumber,
-                    ct.id              AS traineeId,
-                    ct.title           AS traineeTitle,
-                    ct.first_name      AS traineeFirstName,
-                    ct.last_name       AS traineeLastName,
-                    ct.register_status AS registerStatus,
+                    cr.form_number     AS formNumber,
+                    cr.id              AS traineeId,
+                    cr.title           AS traineeTitle,
+                    cr.first_name      AS traineeFirstName,
+                    cr.last_name       AS traineeLastName,
+                    cr.register_status AS registerStatus,
                     cr.created_at      AS registerDate
-             FROM course_registration cr
-                      INNER JOIN course_trainee ct
-                                 ON ct.course_registration_id = cr.id
+             FROM course_registration_social cr
                       INNER JOIN course c
                                  ON cr.course_id = c.id
                       INNER JOIN course_master cm
                                  ON c.course_master_id = cm.id
              WHERE cr.member_id = ?
-             ORDER BY cr.created_at DESC, ct.id`,
-        [memberId],
-        function (err, results, fields) {
+             ORDER BY cr.created_at DESC`,
+          [memberId],
+          function (err, socialResults, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
+              db.end();
             } else {
+              results = results.concat(socialResults);
 
-                db.query( // สังคม
-                        `SELECT cm.title           AS courseTitle,
-                                cm.service_type    AS serviceType,
-                                c.id               AS courseId,
-                                c.batch_number     AS courseBatchNumber,
-                                c.place            AS coursePlace,
-                                c.begin_date       AS courseBeginDate,
-                                c.end_date         AS courseEndDate,
-                                c.application_fee  AS courseApplicationFee,
-                                cr.form_number     AS formNumber,
-                                cr.id              AS traineeId,
-                                cr.title           AS traineeTitle,
-                                cr.first_name      AS traineeFirstName,
-                                cr.last_name       AS traineeLastName,
-                                cr.register_status AS registerStatus,
-                                cr.created_at      AS registerDate
-                         FROM course_registration_social cr
-                                  INNER JOIN course c
-                                             ON cr.course_id = c.id
-                                  INNER JOIN course_master cm
-                                             ON c.course_master_id = cm.id
-                         WHERE cr.member_id = ?
-                         ORDER BY cr.created_at DESC`,
-                    [memberId],
-                    function (err, socialResults, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                            db.end();
-                        } else {
-                            results = results.concat(socialResults);
+              db.query( // ใบขับขี่
+                  `SELECT cm.title           AS courseTitle,
+                          cm.service_type    AS serviceType,
+                          c.id               AS courseId,
+                          c.batch_number     AS courseBatchNumber,
+                          c.place            AS coursePlace,
+                          c.begin_date       AS courseBeginDate,
+                          c.end_date         AS courseEndDate,
+                          c.application_fee  AS courseApplicationFee,
+                          cr.form_number     AS formNumber,
+                          cr.id              AS traineeId,
+                          cr.title           AS traineeTitle,
+                          cr.first_name      AS traineeFirstName,
+                          cr.last_name       AS traineeLastName,
+                          cr.register_status AS registerStatus,
+                          cr.created_at      AS registerDate
+                   FROM course_registration_driving_license cr
+                            INNER JOIN course c
+                                       ON cr.course_id = c.id
+                            INNER JOIN course_master cm
+                                       ON c.course_master_id = cm.id
+                   WHERE cr.member_id = ?
+                   ORDER BY cr.created_at DESC`,
+                [memberId],
+                function (err, drivingLicenseResults, fields) {
+                  if (err) {
+                    res.send({
+                      error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
+                    });
+                    db.end();
+                  } else {
+                    results = results.concat(drivingLicenseResults);
 
-                            db.query( // ใบขับขี่
-                                    `SELECT cm.title           AS courseTitle,
-                                            cm.service_type    AS serviceType,
-                                            c.id               AS courseId,
-                                            c.batch_number     AS courseBatchNumber,
-                                            c.place            AS coursePlace,
-                                            c.begin_date       AS courseBeginDate,
-                                            c.end_date         AS courseEndDate,
-                                            c.application_fee  AS courseApplicationFee,
-                                            cr.form_number     AS formNumber,
-                                            cr.id              AS traineeId,
-                                            cr.title           AS traineeTitle,
-                                            cr.first_name      AS traineeFirstName,
-                                            cr.last_name       AS traineeLastName,
-                                            cr.register_status AS registerStatus,
-                                            cr.created_at      AS registerDate
-                                     FROM course_registration_driving_license cr
-                                              INNER JOIN course c
-                                                         ON cr.course_id = c.id
-                                              INNER JOIN course_master cm
-                                                         ON c.course_master_id = cm.id
-                                     WHERE cr.member_id = ?
-                                     ORDER BY cr.created_at DESC`,
-                                [memberId],
-                                function (err, drivingLicenseResults, fields) {
-                                    if (err) {
-                                        res.send({
-                                            error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (3)', 'error run query: ' + err.stack),
-                                        });
-                                        db.end();
-                                    } else {
-                                        results = results.concat(drivingLicenseResults);
+                    results.sort((a, b) => {
+                      if (a.registerDate > b.registerDate) return -1;
+                      if (a.registerDate < b.registerDate) return 1;
+                      if (a.traineeId < b.traineeId) return -1;
+                      if (a.traineeId > b.traineeId) return 1;
+                      return 0;
+                    });
 
-                                        results.sort((a, b) => {
-                                            if (a.registerDate > b.registerDate) return -1;
-                                            if (a.registerDate < b.registerDate) return 1;
-                                            if (a.traineeId < b.traineeId) return -1;
-                                            if (a.traineeId > b.traineeId) return 1;
-                                            return 0;
-                                        });
-
-                                        res.send({
-                                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                            dataList: results,
-                                        });
-                                    }
-                                }
-                            ); // ใบขับขี่
-                        }
-                    }
-                ); // สังคม
+                    res.send({
+                      error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                      dataList: results,
+                    });
+                  }
+                }
+              ); // ใบขับขี่
             }
-        }
-    ); // วิชาการ
+          }
+        ); // สังคม
+      }
+    }
+  ); // วิชาการ
 };
 
 const slipImageStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'backend/uploads/slip_images')
-    },
-    filename: function (req, file, cb) {
-        const fileName = Date.now() + '-' + file.originalname;
-        cb(null, fileName);
-    }
+  destination: function (req, file, cb) {
+    cb(null, 'backend/uploads/slip_images')
+  },
+  filename: function (req, file, cb) {
+    const fileName = Date.now() + '-' + file.originalname;
+    cb(null, fileName);
+  }
 });
 
 const uploadSlipImage = multer({storage: slipImageStorage}).array('file', 5);
 
 doAddTransferNotification = (req, res, db) => {
-    uploadSlipImage(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
-            res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
-            });
-            return;
-        } else if (err) {
-            res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
-            });
-            return;
-        }
+  uploadSlipImage(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      res.send({
+        error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+      });
+      return;
+    } else if (err) {
+      res.send({
+        error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
+      });
+      return;
+    }
 
-        const {formNumber, memberId, traineeId, amount, transferDate} = req.body;
-        const serviceTypePrefix = formNumber.substring(0, 2).toUpperCase();
+    const {formNumber, memberId, traineeId, amount, transferDate} = req.body;
+    const serviceTypePrefix = formNumber.substring(0, 2).toUpperCase();
 
-        let serviceType = null;
-        let sql = null;
+    let serviceType = null;
+    let sql = null;
 
-        if (serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING) {
-            serviceType = constants.SERVICE_TRAINING;
-            sql = `UPDATE course_trainee
-                   SET register_status = 'wait-approve'
-                   WHERE id = ?
-                     AND register_status <> 'complete'`;
-        } else if (serviceTypePrefix === constants.SERVICE_PREFIX_SOCIAL) {
-            serviceType = constants.SERVICE_SOCIAL;
-            sql = `UPDATE course_registration_social
-                   SET register_status = 'wait-approve'
-                   WHERE id = ?
-                     AND register_status <> 'complete'`;
-        } else if (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE) {
-            serviceType = constants.SERVICE_DRIVING_LICENSE;
-            sql = `UPDATE course_registration_driving_license
-                   SET register_status = 'wait-approve'
-                   WHERE id = ?
-                     AND register_status <> 'complete'`;
-        }
+    if (serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING) {
+      serviceType = constants.SERVICE_TRAINING;
+      sql = `UPDATE course_trainee
+             SET register_status = 'wait-approve'
+             WHERE id = ?
+               AND register_status <> 'complete'`;
+    } else if (serviceTypePrefix === constants.SERVICE_PREFIX_SOCIAL) {
+      serviceType = constants.SERVICE_SOCIAL;
+      sql = `UPDATE course_registration_social
+             SET register_status = 'wait-approve'
+             WHERE id = ?
+               AND register_status <> 'complete'`;
+    } else if (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE) {
+      serviceType = constants.SERVICE_DRIVING_LICENSE;
+      sql = `UPDATE course_registration_driving_license
+             SET register_status = 'wait-approve'
+             WHERE id = ?
+               AND register_status <> 'complete'`;
+    }
 
-        /*let serviceType = serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING // AC
-            ? constants.SERVICE_TRAINING
-            : (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE // DL
-                ? constants.SERVICE_DRIVING_LICENSE
-                : null);*/
+    /*let serviceType = serviceTypePrefix === constants.SERVICE_PREFIX_TRAINING // AC
+        ? constants.SERVICE_TRAINING
+        : (serviceTypePrefix === constants.SERVICE_PREFIX_DRIVING_LICENSE // DL
+            ? constants.SERVICE_DRIVING_LICENSE
+            : null);*/
 
-        //const {filename} = req.file;
+    //const {filename} = req.file;
 
-        let valuePlaceHolders = '';
-        const valueList = [];
-        for (let i = 0; i < req.files.length; i++) {
-            if (i !== 0) {
-                valuePlaceHolders += ',';
-            }
-            valuePlaceHolders += '(?, ?, ?, ?, ?, ?)';
+    let valuePlaceHolders = '';
+    const valueList = [];
+    for (let i = 0; i < req.files.length; i++) {
+      if (i !== 0) {
+        valuePlaceHolders += ',';
+      }
+      valuePlaceHolders += '(?, ?, ?, ?, ?, ?)';
 
-            valueList.push(memberId);
-            valueList.push(traineeId);
-            valueList.push(serviceType);
-            valueList.push(amount);
-            valueList.push(transferDate);
-            valueList.push(req.files[i].filename);
-        }
+      valueList.push(memberId);
+      valueList.push(traineeId);
+      valueList.push(serviceType);
+      valueList.push(amount);
+      valueList.push(transferDate);
+      valueList.push(req.files[i].filename);
+    }
 
-        db.query(
-            `INSERT INTO payment_notification
+    db.query(
+      `INSERT INTO payment_notification
                      (member_id, trainee_id, service_type, amount, transfer_date, slip_file_name)
                  VALUES ${valuePlaceHolders}`,
-            valueList,
+      valueList,
+      function (err, results, fields) {
+        if (err) {
+          res.send({
+            error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+          });
+          db.end();
+        } else {
+          db.query(
+            sql,
+            [traineeId],
             function (err, results, fields) {
-                if (err) {
-                    res.send({
-                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-                    });
-                    db.end();
-                } else {
-                    db.query(
-                        sql,
-                        [traineeId],
-                        function (err, results, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-                                });
-                            } else {
-                                res.send({
-                                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
-                                    //debug: `ชื่อไฟล์ ${filename}, ยอดโอน ${amount} บาท, โอนเมื่อ ${transferDate}`,
-                                });
-                            }
-                        }
-                    );
-                    db.end();
-                }
+              if (err) {
+                res.send({
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                });
+              } else {
+                res.send({
+                  error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+                  //debug: `ชื่อไฟล์ ${filename}, ยอดโอน ${amount} บาท, โอนเมื่อ ${transferDate}`,
+                });
+              }
             }
-        );
-    })
+          );
+          db.end();
+        }
+      }
+    );
+  })
 };
 
 doGetAcademicPaper = (req, res, db) => {
-    const {id, offset, limit} = req.body;
-    const whereClause = id == null ? 'TRUE' : 'id = ?';
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {id, offset, limit} = req.body;
+  const whereClause = id == null ? 'TRUE' : 'id = ?';
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
+  db.query(
+    `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
                 year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
              FROM academic_paper
              WHERE ${whereClause}
              ORDER BY year_published DESC
              ${limitClause}`,
-        id == null ? [] : [id],
-        function (err, results, fields) {
-            if (err) {
+    id == null ? [] : [id],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        if (id == null) {
+          db.query(
+              `SELECT COUNT(*) AS totalCount
+               FROM academic_paper`,
+            [],
+            function (err, totalCountResults, fields) {
+              if (err) {
                 res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
                 });
-                db.end();
-            } else {
-                if (id == null) {
-                    db.query(
-                            `SELECT COUNT(*) AS totalCount
-                             FROM academic_paper`,
-                        [],
-                        function (err, totalCountResults, fields) {
-                            if (err) {
-                                res.send({
-                                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                                });
-                            } else {
-                                res.send({
-                                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                    dataList: results,
-                                    totalCount: totalCountResults[0].totalCount,
-                                });
-                            }
-                        }
-                    );
-                    db.end();
-                } else {
-                    res.send({
-                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                        dataList: results
-                    });
-                    db.end();
-                }
+              } else {
+                res.send({
+                  error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                  dataList: results,
+                  totalCount: totalCountResults[0].totalCount,
+                });
+              }
             }
+          );
+          db.end();
+        } else {
+          res.send({
+            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+            dataList: results
+          });
+          db.end();
         }
-    );
-    //db.end();
+      }
+    }
+  );
+  //db.end();
 };
 
 doSearchAcademicPaper = (req, res, db) => {
-    const {searchTitle, searchYearPublished, searchName} = req.body.searchFields;
+  const {searchTitle, searchYearPublished, searchName} = req.body.searchFields;
 
-    const whereTitle = searchTitle ? 'title LIKE ?' : 'TRUE';
-    const whereYearPublished = searchYearPublished ? 'year_published LIKE ?' : 'TRUE';
-    const whereName = searchName ? '(first_name LIKE ? || last_name LIKE ?)' : 'TRUE';
+  const whereTitle = searchTitle ? 'title LIKE ?' : 'TRUE';
+  const whereYearPublished = searchYearPublished ? 'year_published LIKE ?' : 'TRUE';
+  const whereName = searchName ? '(first_name LIKE ? || last_name LIKE ?)' : 'TRUE';
 
-    const searchValueArray = [];
-    if (searchTitle) {
-        searchValueArray.push(`%${searchTitle}%`);
-    }
-    if (searchYearPublished) {
-        searchValueArray.push(`%${searchYearPublished}%`);
-    }
-    if (searchName) {
-        searchValueArray.push(`%${searchName}%`);
-        searchValueArray.push(`%${searchName}%`);
-    }
+  const searchValueArray = [];
+  if (searchTitle) {
+    searchValueArray.push(`%${searchTitle}%`);
+  }
+  if (searchYearPublished) {
+    searchValueArray.push(`%${searchYearPublished}%`);
+  }
+  if (searchName) {
+    searchValueArray.push(`%${searchName}%`);
+    searchValueArray.push(`%${searchName}%`);
+  }
 
-    db.query(
-        `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
+  db.query(
+    `SELECT id, title, file_name AS fileName, first_name AS firstName, last_name AS lastName, 
                 year_published AS yearPublished, abstract, fund_source AS fundSource, created_at AS createdAt
              FROM academic_paper
              WHERE ${whereTitle} AND ${whereYearPublished} AND ${whereName}
              ORDER BY id DESC`,
-        searchValueArray,
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: results
-                });
-            }
-        }
-    );
-    db.end();
+    searchValueArray,
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList: results
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doAddAcademicPaperDownload = (req, res, db) => {
-    const {id, fields} = req.body;
+  const {id, fields} = req.body;
 
-    db.query(
-            `INSERT INTO academic_paper_download (academic_paper_id, first_name, last_name, organization_name, job_position, occupation, email, use_purpose)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, fields.firstName, fields.lastName, fields.organizationName, fields.jobPosition, fields.occupation, fields.email, fields.use],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+      `INSERT INTO academic_paper_download (academic_paper_id, first_name, last_name, organization_name, job_position, occupation, email, use_purpose)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [id, fields.firstName, fields.lastName, fields.organizationName, fields.jobPosition, fields.occupation, fields.email, fields.use],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetTrainingCourseCategory = (req, res, db) => {
-    db.query(
-        'SELECT * FROM training_course_category',
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลหมวดหมู่หลักสูตร', 'error run query: ' + err.stack),
-                });
-            } else {
-                let dataList = [];
-                results.forEach(row => {
-                    const {id, title} = row;
-                    dataList.push({id, title});
-                });
+  db.query(
+    'SELECT * FROM training_course_category',
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลหมวดหมู่หลักสูตร', 'error run query: ' + err.stack),
+        });
+      } else {
+        let dataList = [];
+        results.forEach(row => {
+          const {id, title} = row;
+          dataList.push({id, title});
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetDrivingLicenseCourseType = (req, res, db) => {
-    db.query(
-        'SELECT id, title, title_en, application_fee FROM driving_license_course_type',
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลประเภทหลักสูตรการอบรมใบขับขี่', 'error run query: ' + err.stack),
-                });
-            } else {
-                let dataList = [];
-                results.forEach(row => {
-                    const {id, title} = row;
-                    const titleEn = row.title_en;
-                    const applicationFee = row.application_fee;
-                    dataList.push({id, title, titleEn, applicationFee});
-                });
+  db.query(
+    'SELECT id, title, title_en, application_fee FROM driving_license_course_type',
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูลประเภทหลักสูตรการอบรมใบขับขี่', 'error run query: ' + err.stack),
+        });
+      } else {
+        let dataList = [];
+        results.forEach(row => {
+          const {id, title} = row;
+          const titleEn = row.title_en;
+          const applicationFee = row.application_fee;
+          dataList.push({id, title, titleEn, applicationFee});
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetDocumentDownload = (req, res, db) => {
-    const {documentType, offset, limit} = req.body;
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {documentType, offset, limit} = req.body;
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT id,
+  db.query(
+    `SELECT id,
                     title,
                     short_description,
                     file_path,
@@ -2520,275 +2527,275 @@ doGetDocumentDownload = (req, res, db) => {
              WHERE document_type = ? AND status = ?
             ORDER BY created_at DESC
         ${limitClause}`,
-        [documentType, 'publish'],
-        function (err, results, fields) {
+    [documentType, 'publish'],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        db.query(
+            `SELECT COUNT(*) AS totalCount
+             FROM document_download
+             WHERE document_type = ?
+               AND status = ?`,
+          [documentType, 'publish'],
+          function (err, totalCountResults, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                db.query(
-                        `SELECT COUNT(*) AS totalCount
-                         FROM document_download
-                         WHERE document_type = ?
-                           AND status = ?`,
-                    [documentType, 'publish'],
-                    function (err, totalCountResults, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                dataList: results,
-                                totalCount: totalCountResults[0].totalCount,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                dataList: results,
+                totalCount: totalCountResults[0].totalCount,
+              });
             }
-        }
-    );
-    //db.end();
+          }
+        );
+        db.end();
+      }
+    }
+  );
+  //db.end();
 };
 
 doGetFaq = (req, res, db) => {
-    const {offset, limit} = req.body;
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {offset, limit} = req.body;
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT id,
+  db.query(
+    `SELECT id,
                     title,
                     details
              FROM faq
              WHERE status = ?
              ORDER BY created_at DESC
         ${limitClause}`,
-        ['publish'],
-        function (err, results, fields) {
+    ['publish'],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        db.query(
+            `SELECT COUNT(*) AS totalCount
+             FROM faq
+             WHERE status = ?`,
+          ['publish'],
+          function (err, totalCountResults, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                db.query(
-                        `SELECT COUNT(*) AS totalCount
-                         FROM faq
-                         WHERE status = ?`,
-                    ['publish'],
-                    function (err, totalCountResults, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                dataList: results,
-                                totalCount: totalCountResults[0].totalCount,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                dataList: results,
+                totalCount: totalCountResults[0].totalCount,
+              });
             }
-        }
-    );
-    //db.end();
+          }
+        );
+        db.end();
+      }
+    }
+  );
+  //db.end();
 };
 
 doUpdateDocumentDownloadCount = (req, res, db) => {
-    const {id} = req.body;
+  const {id} = req.body;
 
-    db.query(
-            `UPDATE document_download
-             SET download = download + 1
-             WHERE id = ?`,
-        [id],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+      `UPDATE document_download
+       SET download = download + 1
+       WHERE id = ?`,
+    [id],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'บันทึกข้อมูลสำเร็จ', ''),
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetNews = (req, res, db) => {
-    const {newsType, offset, limit} = req.body;
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {newsType, offset, limit} = req.body;
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+  db.query(
+    `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
              WHERE news_type = ?
                AND status = ?
              ORDER BY pinned DESC, created_at DESC
              ${limitClause}`,
-        [newsType, 'publish'],
-        function (err, results, fields) {
+    [newsType, 'publish'],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        db.query(
+            `SELECT COUNT(*) AS totalCount
+             FROM news
+             WHERE news_type = ?
+               AND status = ?`,
+          [newsType, 'publish'],
+          function (err, totalCountResults, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                db.query(
-                        `SELECT COUNT(*) AS totalCount
-                         FROM news
-                         WHERE news_type = ?
-                           AND status = ?`,
-                    [newsType, 'publish'],
-                    function (err, totalCountResults, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                dataList: results,
-                                totalCount: totalCountResults[0].totalCount,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                dataList: results,
+                totalCount: totalCountResults[0].totalCount,
+              });
             }
-        }
-    );
+          }
+        );
+        db.end();
+      }
+    }
+  );
 };
 
 doGetNewsLatest = (req, res, db) => {
-    db.query(
+  db.query(
+      `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+       FROM news
+       WHERE news_type = ?
+         AND status = ?
+       ORDER BY pinned DESC, created_at DESC
+       LIMIT 0, 4`,
+    ['training', 'publish'],
+    function (err, resultsTrainingNews, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        db.query(
             `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
              WHERE news_type = ?
                AND status = ?
              ORDER BY pinned DESC, created_at DESC
              LIMIT 0, 4`,
-        ['training', 'publish'],
-        function (err, resultsTrainingNews, fields) {
+          ['public-relations', 'publish'],
+          function (err, resultsPublicRelationsNews, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                db.query(
-                        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
-                         FROM news
-                         WHERE news_type = ?
-                           AND status = ?
-                         ORDER BY pinned DESC, created_at DESC
-                         LIMIT 0, 4`,
-                    ['public-relations', 'publish'],
-                    function (err, resultsPublicRelationsNews, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                trainingNewsList: resultsTrainingNews,
-                                publicRelationsNewsList: resultsPublicRelationsNews,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                trainingNewsList: resultsTrainingNews,
+                publicRelationsNewsList: resultsPublicRelationsNews,
+              });
             }
-        }
-    );
+          }
+        );
+        db.end();
+      }
+    }
+  );
 };
 
 doGetInHouseLatest = (req, res, db) => {
-    db.query(
-            `SELECT id, title, short_description, details, image_file_name, news_date, news_type
-             FROM news
-             WHERE news_type = ?
-             ORDER BY created_at DESC
-             LIMIT 0, 3`,
-        ['in-house'],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: results,
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+      `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+       FROM news
+       WHERE news_type = ?
+       ORDER BY created_at DESC
+       LIMIT 0, 3`,
+    ['in-house'],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList: results,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetInHouse = (req, res, db) => {
-    const {offset, limit} = req.body;
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {offset, limit} = req.body;
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT id, title, short_description, details, image_file_name, news_date, news_type
+  db.query(
+    `SELECT id, title, short_description, details, image_file_name, news_date, news_type
              FROM news
              WHERE news_type = ? 
                AND status = ?
              ORDER BY created_at DESC
              ${limitClause}`,
-        ['in-house', 'publish'],
-        function (err, results, fields) {
+    ['in-house', 'publish'],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+        db.end();
+      } else {
+        db.query(
+            `SELECT COUNT(*) AS totalCount
+             FROM news
+             WHERE news_type = ?
+               AND status = ?`,
+          ['in-house', 'publish'],
+          function (err, totalCountResults, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-                db.end();
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                db.query(
-                        `SELECT COUNT(*) AS totalCount
-                         FROM news
-                         WHERE news_type = ?
-                           AND status = ?`,
-                    ['in-house', 'publish'],
-                    function (err, totalCountResults, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                dataList: results,
-                                totalCount: totalCountResults[0].totalCount,
-                            });
-                        }
-                    }
-                );
-                db.end();
+              res.send({
+                error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                dataList: results,
+                totalCount: totalCountResults[0].totalCount,
+              });
             }
-        }
-    );
+          }
+        );
+        db.end();
+      }
+    }
+  );
 };
 
 doGetActivity = (req, res, db) => {
-    const {id, offset, limit} = req.body;
-    const whereClause = id == null ? 'TRUE' : 'id = ?';
-    const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
+  const {id, offset, limit} = req.body;
+  const whereClause = id == null ? 'TRUE' : 'id = ?';
+  const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
-    db.query(
-        `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
+  db.query(
+    `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
                     na.file_name
              FROM (SELECT * 
                         FROM news 
@@ -2797,123 +2804,123 @@ doGetActivity = (req, res, db) => {
                         ${limitClause}) n
                  LEFT JOIN news_asset na 
                      ON n.id = na.news_id`,
-        id == null ? [] : [id],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
-            } else {
-                let previousId = 0;
-                const activityList = [];
-                let activity = null;
-                for (let i = 0; i < results.length; i++) {
-                    const row = results[i];
-                    if (row['id'] !== previousId) {
-                        if (previousId !== 0) {
-                            activityList.push(activity);
-                        }
-                        activity = {
-                            id: row['id'],
-                            title: row['title'],
-                            short_description: row['short_description'],
-                            details: row['details'],
-                            image_file_name: row['image_file_name'],
-                            news_date: row['news_date'],
-                            news_type: row['news_type'],
-                        };
-                        activity['image_list'] = (row['file_name'] == null ? [] : [row['file_name']]);
-                    } else {
-                        activity['image_list'].push(row['file_name']);
-                    }
-                    previousId = row['id'];
-                }
-                if (activity != null) {
-                    activityList.push(activity);
-                }
-
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    activityList: activityList,
-                    count: results.length,
-                });
+    id == null ? [] : [id],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+      } else {
+        let previousId = 0;
+        const activityList = [];
+        let activity = null;
+        for (let i = 0; i < results.length; i++) {
+          const row = results[i];
+          if (row['id'] !== previousId) {
+            if (previousId !== 0) {
+              activityList.push(activity);
             }
+            activity = {
+              id: row['id'],
+              title: row['title'],
+              short_description: row['short_description'],
+              details: row['details'],
+              image_file_name: row['image_file_name'],
+              news_date: row['news_date'],
+              news_type: row['news_type'],
+            };
+            activity['image_list'] = (row['file_name'] == null ? [] : [row['file_name']]);
+          } else {
+            activity['image_list'].push(row['file_name']);
+          }
+          previousId = row['id'];
         }
-    );
-    db.end();
+        if (activity != null) {
+          activityList.push(activity);
+        }
+
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          activityList: activityList,
+          count: results.length,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetNewsById = (req, res, db) => {
-    const {id} = req.body;
+  const {id} = req.body;
 
-    db.query(
-            `SELECT n.id,
-                    n.title,
-                    n.short_description,
-                    n.details,
-                    n.image_file_name,
-                    n.news_date,
-                    n.news_type,
-                    na.file_name,
-                    na.type AS asset_type
-             FROM news n
-                      LEFT JOIN news_asset na
-                                ON n.id = na.news_id
-             WHERE n.id = ?`,
-        [id],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+  db.query(
+      `SELECT n.id,
+              n.title,
+              n.short_description,
+              n.details,
+              n.image_file_name,
+              n.news_date,
+              n.news_type,
+              na.file_name,
+              na.type AS asset_type
+       FROM news n
+                LEFT JOIN news_asset na
+                          ON n.id = na.news_id
+       WHERE n.id = ?`,
+    [id],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        if (results.length > 0) {
+          let news = {
+            id: results[0].id,
+            title: results[0].title,
+            details: results[0].details,
+            newsDate: results[0].news_date,
+            newsType: results[0].news_type,
+            imageFileName: results[0].image_file_name,
+          };
+
+          const imageList = [];
+          const pdfList = [];
+          results.forEach(row => {
+            if (row.file_name != null) {
+              if (row.asset_type === 'image') {
+                imageList.push(row.file_name);
+              } else {
+                const fileName = row.file_name;
+                let prefixPosition = fileName.indexOf('-');
+                let extensionPosition = fileName.lastIndexOf('.');
+                let title = fileName.substring(prefixPosition + 1, extensionPosition);
+
+                pdfList.push({
+                  title: title, //row.title
+                  fileName: fileName,
+                  //type: row.asset_type,
+                  createdAt: row.created_at,
                 });
-            } else {
-                if (results.length > 0) {
-                    let news = {
-                        id: results[0].id,
-                        title: results[0].title,
-                        details: results[0].details,
-                        newsDate: results[0].news_date,
-                        newsType: results[0].news_type,
-                        imageFileName: results[0].image_file_name,
-                    };
-
-                    const imageList = [];
-                    const pdfList = [];
-                    results.forEach(row => {
-                        if (row.file_name != null) {
-                            if (row.asset_type === 'image') {
-                                imageList.push(row.file_name);
-                            } else {
-                                const fileName = row.file_name;
-                                let prefixPosition = fileName.indexOf('-');
-                                let extensionPosition = fileName.lastIndexOf('.');
-                                let title = fileName.substring(prefixPosition + 1, extensionPosition);
-
-                                pdfList.push({
-                                    title: title, //row.title
-                                    fileName: fileName,
-                                    //type: row.asset_type,
-                                    createdAt: row.created_at,
-                                });
-                            }
-                        }
-                    });
-                    news['imageList'] = imageList;
-                    news['pdfList'] = pdfList;
-
-                    res.send({
-                        error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                        news: news,
-                    });
-                } else {
-                    res.send({
-                        error: new Error(1, 'ไม่พบข้อมูล', ''),
-                    });
-                }
+              }
             }
+          });
+          news['imageList'] = imageList;
+          news['pdfList'] = pdfList;
+
+          res.send({
+            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+            news: news,
+          });
+        } else {
+          res.send({
+            error: new Error(1, 'ไม่พบข้อมูล', ''),
+          });
         }
-    );
-    db.end();
+      }
+    }
+  );
+  db.end();
 };
 
 /*doGetRegistrationListByMember = (req, res, db) => {
@@ -2991,335 +2998,335 @@ doGetNewsById = (req, res, db) => {
 };*/
 
 doGetTraineeFormPdf = (req, res, db) => {
-    //const {courseRegId} = req.body;
+  //const {courseRegId} = req.body;
 
-    /*traineeId ไว้สำหรับสร้าง PDF รายบุคคลที่หลังบ้าน*/
-    const {courseRegId, traineeId, download} = req.query;
+  /*traineeId ไว้สำหรับสร้าง PDF รายบุคคลที่หลังบ้าน*/
+  const {courseRegId, traineeId, download} = req.query;
 
-    db.query(
-            `SELECT cr.form_number AS regFormNumber, ct.form_number
-             FROM course_registration cr
-                      INNER JOIN course_trainee ct
-                                 ON ct.course_registration_id = cr.id
-             WHERE cr.id = ?`,
-        [courseRegId],
+  db.query(
+      `SELECT cr.form_number AS regFormNumber, ct.form_number
+       FROM course_registration cr
+                INNER JOIN course_trainee ct
+                           ON ct.course_registration_id = cr.id
+       WHERE cr.id = ?`,
+    [courseRegId],
 
-        function (err, results, fields) {
-            if (err) {
-                res.status(500).end();
-                console.log(err.stack);
-            } else {
-                const {regFormNumber} = results[0];
-                const traineeFormNumberList = [];
-                results.forEach(row => {
-                    traineeFormNumberList.push(row.form_number);
+    function (err, results, fields) {
+      if (err) {
+        res.status(500).end();
+        console.log(err.stack);
+      } else {
+        const {regFormNumber} = results[0];
+        const traineeFormNumberList = [];
+        results.forEach(row => {
+          traineeFormNumberList.push(row.form_number);
+        });
+
+        const pdfFilePath = `${__dirname}/static/public/${regFormNumber}.pdf`;
+
+        if (download && fs.existsSync(pdfFilePath)) {
+          //มี pdf แล้ว
+          console.log(`${pdfFilePath} exists.`);
+          res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
+            console.log('Error download.');
+          });
+        } else {
+          pdf.generateTraineeForm_Training(traineeFormNumberList, download, (success, result) => {
+            if (success) {
+              if (download) {
+                res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
+                  console.log('Error download.');
                 });
-
-                const pdfFilePath = `${__dirname}/static/public/${regFormNumber}.pdf`;
-
-                if (download && fs.existsSync(pdfFilePath)) {
-                    //มี pdf แล้ว
-                    console.log(`${pdfFilePath} exists.`);
-                    res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
-                        console.log('Error download.');
-                    });
-                } else {
-                    pdf.generateTraineeForm_Training(traineeFormNumberList, download, (success, result) => {
-                        if (success) {
-                            if (download) {
-                                res.download(pdfFilePath, `${regFormNumber}.pdf`, err => {
-                                    console.log('Error download.');
-                                });
-                            } else {
-                                res.setHeader('Content-Type', 'application/pdf');
-                                res.send(result);
-                            }
-                        } else {
-                            res.status(500).end();
-                        }
-                    });
-                }
+              } else {
+                res.setHeader('Content-Type', 'application/pdf');
+                res.send(result);
+              }
+            } else {
+              res.status(500).end();
             }
+          });
         }
-    );
-    db.end();
+      }
+    }
+  );
+  db.end();
 };
 
 doGetIntro = (req, res, db) => {
-    /*ถ้าเอาประเภทเดียวก็ส่ง type เป็น string แต่ถ้าเอาหลายประเภทก็ส่งเป็น array มา*/
-    const {type} = req.body;
+  /*ถ้าเอาประเภทเดียวก็ส่ง type เป็น string แต่ถ้าเอาหลายประเภทก็ส่งเป็น array มา*/
+  const {type} = req.body;
 
-    let typeCount = 1;
-    let queryValueList = null;
-    if (Array.isArray(type)) {
-        typeCount = type.length;
-        queryValueList = type;
-    } else {
-        typeCount = 1;
-        queryValueList = [type];
-    }
-    queryValueList.push('publish');
+  let typeCount = 1;
+  let queryValueList = null;
+  if (Array.isArray(type)) {
+    typeCount = type.length;
+    queryValueList = type;
+  } else {
+    typeCount = 1;
+    queryValueList = [type];
+  }
+  queryValueList.push('publish');
 
-    let placeHolder = '';
-    for (let i = 0; i < typeCount; i++) {
-        placeHolder = placeHolder.concat(i !== 0 ? ',' : '').concat('?');
-    }
+  let placeHolder = '';
+  for (let i = 0; i < typeCount; i++) {
+    placeHolder = placeHolder.concat(i !== 0 ? ',' : '').concat('?');
+  }
 
-    const sql = `SELECT id, title, sub_title, details, url, image_file_name, type
+  const sql = `SELECT id, title, sub_title, details, url, image_file_name, type
                  FROM intro
                  WHERE type in (${placeHolder})
                     AND status = ?
                  ORDER BY sort_index`;
-    db.query(
-        sql,
-        queryValueList,
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: results,
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+    sql,
+    queryValueList,
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList: results,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetService = (req, res, db) => {
-    db.query(
-            `SELECT id, title, details, slug, url, icon_file_name
-             FROM service
-             WHERE status = 1`,
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    serviceList: results,
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+      `SELECT id, title, details, slug, url, icon_file_name
+       FROM service
+       WHERE status = 1`,
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          serviceList: results,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetUser = (req, res, db) => {
-    db.query(
-            `SELECT ud.id   AS department_id,
-                    u.id    AS user_id,
-                    ud.name AS department_name,
-                    u.title,
-                    u.first_name,
-                    u.last_name,
-                    u.position,
-                    u.details,
-                    u.show_details,
-                    u.image_file_name,
-                    u.phone_office,
-                    u.phone_extension
-             FROM user_department ud
-                      INNER JOIN user u
-                                 ON ud.id = u.department_id
-             WHERE u.show_on_web = 1
-               AND status <> 'deleted'
-             ORDER BY ud.sort_index, u.sort_index`,
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                const departmentList = [];
-                let currentDepartment = null;
-                let previousDepartmentId = null;
-                results.forEach(row => {
-                    if (previousDepartmentId !== row.department_id) {
-                        previousDepartmentId = row.department_id;
+  db.query(
+      `SELECT ud.id   AS department_id,
+              u.id    AS user_id,
+              ud.name AS department_name,
+              u.title,
+              u.first_name,
+              u.last_name,
+              u.position,
+              u.details,
+              u.show_details,
+              u.image_file_name,
+              u.phone_office,
+              u.phone_extension
+       FROM user_department ud
+                INNER JOIN user u
+                           ON ud.id = u.department_id
+       WHERE u.show_on_web = 1
+         AND status <> 'deleted'
+       ORDER BY ud.sort_index, u.sort_index`,
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        const departmentList = [];
+        let currentDepartment = null;
+        let previousDepartmentId = null;
+        results.forEach(row => {
+          if (previousDepartmentId !== row.department_id) {
+            previousDepartmentId = row.department_id;
 
-                        currentDepartment = {
-                            departmentName: row.department_name,
-                            departmentId: row.department_id,
-                            userList: [row],
-                        };
-                        departmentList.push(currentDepartment);
-                    } else {
-                        currentDepartment.userList.push(row);
-                    }
-                });
+            currentDepartment = {
+              departmentName: row.department_name,
+              departmentId: row.department_id,
+              userList: [row],
+            };
+            departmentList.push(currentDepartment);
+          } else {
+            currentDepartment.userList.push(row);
+          }
+        });
 
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: departmentList,
-                });
-            }
-        }
-    );
-    db.end();
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList: departmentList,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetCommittee = (req, res, db) => {
-    db.query(
-            `SELECT id, title, first_name, last_name, position, image_file_name
-             FROM committee
-             ORDER BY sort_index`,
-        [],
-        function (err, results, fields) {
-            if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
-                });
-            } else {
-                res.send({
-                    error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                    dataList: results,
-                });
-            }
-        }
-    );
-    db.end();
+  db.query(
+      `SELECT id, title, first_name, last_name, position, image_file_name
+       FROM committee
+       ORDER BY sort_index`,
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล', 'error run query: ' + err.stack),
+        });
+      } else {
+        res.send({
+          error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+          dataList: results,
+        });
+      }
+    }
+  );
+  db.end();
 };
 
 doGetServiceLinkContact = (req, res, db) => {
-    db.query(
-            `SELECT id, title, details, slug, url, icon_file_name
-             FROM service
-             WHERE status = 1`,
-        [],
-        function (err, results, fields) {
+  db.query(
+      `SELECT id, title, details, slug, url, icon_file_name
+       FROM service
+       WHERE status = 1`,
+    [],
+    function (err, results, fields) {
+      if (err) {
+        res.send({
+          error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
+        });
+      } else {
+        const serviceList = results;
+
+        db.query(
+            `SELECT id, title, type, sub_title, details, url, image_file_name
+             FROM intro
+             WHERE ((type = 'link')
+                 OR (type = 'contact'))
+               AND status = ?
+             ORDER BY sort_index`,
+          ['publish'],
+          function (err, results, fields) {
             if (err) {
-                res.send({
-                    error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
-                });
+              res.send({
+                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+              });
             } else {
-                const serviceList = results;
+              const linkList = results.filter(item => {
+                return item.type === 'link';
+              });
+              const contactList = results.filter(item => {
+                return item.type === 'contact';
+              });
 
-                db.query(
-                        `SELECT id, title, type, sub_title, details, url, image_file_name
-                         FROM intro
-                         WHERE ((type = 'link')
-                             OR (type = 'contact'))
-                           AND status = ?
-                         ORDER BY sort_index`,
-                    ['publish'],
-                    function (err, results, fields) {
-                        if (err) {
-                            res.send({
-                                error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                            });
-                        } else {
-                            const linkList = results.filter(item => {
-                                return item.type === 'link';
-                            });
-                            const contactList = results.filter(item => {
-                                return item.type === 'contact';
-                            });
+              db.query(
+                  `SELECT id, title, slug, url
+                   FROM contact_social
+                   WHERE url <> ?`,
+                [''],
+                function (err, results, fields) {
+                  if (err) {
+                    res.send({
+                      error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
+                    });
+                  } else {
+                    const socialList = results;
 
-                            db.query(
-                                    `SELECT id, title, slug, url
-                                     FROM contact_social
-                                     WHERE url <> ?`,
-                                [''],
-                                function (err, results, fields) {
-                                    if (err) {
-                                        res.send({
-                                            error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
-                                        });
-                                    } else {
-                                        const socialList = results;
-
-                                        res.send({
-                                            error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
-                                            serviceList,
-                                            linkList,
-                                            contactList,
-                                            socialList,
-                                        });
-                                    }
-                                }
-                            );
-                            db.end();
-                        }
-                    }
-                );
+                    res.send({
+                      error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
+                      serviceList,
+                      linkList,
+                      contactList,
+                      socialList,
+                    });
+                  }
+                }
+              );
+              db.end();
             }
-        }
-    );
+          }
+        );
+      }
+    }
+  );
 };
 
 logConnection = (req, res, db) => {
-    let msg = `${req.params.action}\n\t\tFROM ${req.ip}\n\t\t@ ${getCurrentDisplayDateTime()}\n\t\tDB: ${db.threadId}`;
-    console.log(msg);
+  let msg = `${req.params.action}\n\t\tFROM ${req.ip}\n\t\t@ ${getCurrentDisplayDateTime()}\n\t\tDB: ${db.threadId}`;
+  console.log(msg);
 };
 
 getCurrentDisplayDateTime = () => {
-    return dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
+  return dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
 
-    /*return new Date().toISOString()
-        .replace(/T/, ' ')      // replace T with a space
-        .replace(/\..+/, '');   // delete the dot and everything after*/
+  /*return new Date().toISOString()
+      .replace(/T/, ' ')      // replace T with a space
+      .replace(/\..+/, '');   // delete the dot and everything after*/
 
-    /*const today = new Date();
-    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    return date + ' ' + time;*/
+  /*const today = new Date();
+  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  return date + ' ' + time;*/
 };
 
 updateHashedPassword = () => {
-    const db = mysql.createConnection({
-        host: dbConfig.HOST,
-        port: dbConfig.PORT,
-        user: dbConfig.USER,
-        password: dbConfig.PASSWORD,
-        database: dbConfig.DATABASE,
-    });
-    db.connect(function (err) {
+  const db = mysql.createConnection({
+    host: dbConfig.HOST,
+    port: dbConfig.PORT,
+    user: dbConfig.USER,
+    password: dbConfig.PASSWORD,
+    database: dbConfig.DATABASE,
+  });
+  db.connect(function (err) {
+    if (err) {
+      console.log('****\nERROR: Connect DB in updateHashedPassword()\n*****');
+      return;
+    }
+    db.query(
+        `SELECT email, password
+         FROM member`,
+      [],
+
+      function (err, results, fields) {
         if (err) {
-            console.log('****\nERROR: Connect DB in updateHashedPassword()\n*****');
-            return;
+          console.log('****\nERROR: Query DB in updateHashedPassword()\n*****');
+          return;
         }
-        db.query(
-                `SELECT email, password
-                 FROM member`,
-            [],
+        results.forEach((member, index) => {
+          //console.log(member.email);
+          if (!passwordHash.isHashed(member.password)) {
+            let hashedPassword = passwordHash.generate(member.password);
+            db.query(
+                `UPDATE member
+                 SET password = ?
+                 WHERE email = ?`,
+              [hashedPassword, member.email],
 
-            function (err, results, fields) {
+              function (err, results, fields) {
                 if (err) {
-                    console.log('****\nERROR: Query DB in updateHashedPassword()\n*****');
-                    return;
+                  console.log('****\nERROR: Update DB in updateHashedPassword()\n*****');
+                  return;
+                } else {
+                  console.log('Update DB successfully');
                 }
-                results.forEach((member, index) => {
-                    //console.log(member.email);
-                    if (!passwordHash.isHashed(member.password)) {
-                        let hashedPassword = passwordHash.generate(member.password);
-                        db.query(
-                                `UPDATE member
-                                 SET password = ?
-                                 WHERE email = ?`,
-                            [hashedPassword, member.email],
-
-                            function (err, results, fields) {
-                                if (err) {
-                                    console.log('****\nERROR: Update DB in updateHashedPassword()\n*****');
-                                    return;
-                                } else {
-                                    console.log('Update DB successfully');
-                                }
-                            }
-                        );
-                    }
-                });
-            }
-        );
-    });
+              }
+            );
+          }
+        });
+      }
+    );
+  });
 };
 
 //updateHashedPassword(); //todo: ************************************************
