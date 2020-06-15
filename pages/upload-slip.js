@@ -290,7 +290,7 @@ export default class UploadSlip extends React.Component {
                                 onChange={this.handleInputFormNumberChange}
                             />
                         </div>
-                        <div className="col-md-4 nopad">
+                        <div className="col-md-4 text-md-left text-center mt-2 mt-md-0">
                             <a href="javascript:void(0)"
                                className="btn-submit"
                                onClick={this.handleSubmitInputFormNumber}
@@ -318,42 +318,42 @@ export default class UploadSlip extends React.Component {
                                     เลขที่ใบสมัคร<br/>{traineeFormData.formNumber}
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block mt-4 mt-md-0">
                                         ชื่อผู้สมัคร
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block " style={{border: '0px solid red'}}>
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block " style={{border: '0px solid red'}}>
                                         {`${traineeFormData.trainee.title} ${traineeFormData.trainee.firstName} ${traineeFormData.trainee.lastName}`}
                                     </div>
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         ชื่อหลักสูตร / รุ่นที่
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         {traineeFormData.course.name}
                                     </div>
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         วันที่จัด
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         {formatCourseDateLong(traineeFormData.course.beginDate, traineeFormData.course.endDate)}
                                     </div>
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         สถานที่อบรม
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         {traineeFormData.course.place}
                                     </div>
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         ยอดเงิน (บาท)
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         <input value={fields.amount || ''}
                                                onChange={this.handleChangeAmount}
                                                type="number"
@@ -364,10 +364,10 @@ export default class UploadSlip extends React.Component {
                                     </div>
                                 </div>
                                 <div className="row text-default">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         วันที่โอนเงิน
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         {/*<input autoComplete="off" className="datepicker form-control-4 boxbox" placeholder="DD/MM/YY"/>*/}
                                         <DatePicker
                                             selected={fields.transferDate || ''}
@@ -389,11 +389,11 @@ export default class UploadSlip extends React.Component {
                                             value={errors.transferDate}/>
                                     </div>
                                 </div>
-                                <div className="row text-default mt-2">
-                                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                <div className="row text-default mt-0 mt-md-2">
+                                    <div className="col-md-3 text-bold d-sm-block d-md-block d-lg-block d-xl-block ">
                                         ใบสลิปหลักฐานการโอนเงิน<br/><span className="smsize">* ขนาดแต่ละไฟล์ไม่เกิน 1 MB</span>
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
 
                                         {<Dropzone onDrop={this.handleDropFiles}
                                                    onDropRejected={this.handleRejectedFiles}
@@ -486,11 +486,11 @@ export default class UploadSlip extends React.Component {
                                     </div>
                                 </div>
 
-                                <div className="row text-default">
+                                <div className="row text-default text-center text-md-left">
                                     <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
                                         &nbsp;
                                     </div>
-                                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                                    <div className="col-md-7 d-sm-block d-md-block d-lg-block d-xl-block ">
                                         <div className="sendbox" style={{marginTop: '10px', marginBottom: '5px'}}>
                                             <a href="javascript:void(0)"
                                                className="btn btn-danger"

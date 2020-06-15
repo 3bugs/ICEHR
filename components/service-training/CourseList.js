@@ -127,7 +127,7 @@ export default class CourseList extends React.Component {
                               {course.isOnline === 1 &&
                               <div style={{display: 'flex',}}>
                                 <small style={{display: 'flex', alignItems: 'center', color: 'white', backgroundColor: '#b50303', padding: '0px 6px', borderRadius: 3, marginBottom: 5}}>
-                                  <i className="fa fa-play-circle" style={{marginBottom: 2, border: '0px solid blue'}}></i>&nbsp;อบรมออนไลน์
+                                  <i className="fa fa-play-circle" style={{marginBottom: 0, border: '0px solid blue', fontSize: '75%'}}></i>&nbsp;อบรมออนไลน์
                                 </small>
                               </div>
                               }
