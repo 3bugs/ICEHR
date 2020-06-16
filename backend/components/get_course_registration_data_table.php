@@ -1658,23 +1658,72 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         <div class="col-md-12" style="text-align: center">
                           <!--<img id="imgPaymentSlip" style="height: 600px; width: 600px; object-fit: contain"/>-->
 
-                          <p style="text-align: center">
-                            <span style="color: orangered">เมื่อคลิก PDF จะแสดงในหน้าจอใหม่</span>
+                          <p style="text-align: center; margin-bottom: 15px">
+                            <span style="color: orangered">กรณีมีการแจ้งโอนหลายครั้ง รายละเอียดที่แสดงในช่องต่างๆข้างบนจะมาจากการแจ้งโอน<u>ครั้งสุดท้าย</u><br>แต่รูปภาพและ PDF หลักฐานการโอน (สลิป) ข้างล่างนี้จะรวมมาจากการแจ้งโอนทุกครั้ง</span>
                           </p>
                           <?php
-                          $thumbnailSize = 150;
+                          $thumbnailHeight = 150;
+                          $thumbnailWidth = $thumbnailHeight * 833 / 1023;
                           ?>
-                          <a href="#" data-lightbox="slipImage" data-title="">
-                            <img id="imgPaymentSlip" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/>
-                          </a>&nbsp;
-                          <a href="#" data-lightbox="slipImage" data-title="">
-                            <img id="imgPaymentSlip2" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                          <a href="#" data-lightbox="slipImage" data-title="">
-                            <img id="imgPaymentSlip3" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                          <a href="#" data-lightbox="slipImage" data-title="">
-                            <img id="imgPaymentSlip4" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                          <a href="#" data-lightbox="slipImage" data-title="">
-                            <img id="imgPaymentSlip5" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>
+                          <div id="divPaymentSlipContainer" style="display: inline-block;">
+                            <div>
+                              <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
+                                <img id="imgPaymentSlip"
+                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                              </a>
+                            </div>
+                            <div style="margin-top: 5px">
+                              <a href="javascript:void(0)" onclick="onClickDeletePaymentSlip(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                            </div>
+                          </div>
+
+                          <div id="divPaymentSlipContainer2" style="display: inline-block;">
+                            <div>
+                              <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
+                                <img id="imgPaymentSlip2"
+                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                              </a>
+                            </div>
+                            <div style="margin-top: 5px">
+                              <a href="javascript:void(0)" onclick="onClickDeletePaymentSlip(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                            </div>
+                          </div>
+
+                          <div id="divPaymentSlipContainer3" style="display: inline-block;">
+                            <div>
+                              <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
+                                <img id="imgPaymentSlip3"
+                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                              </a>
+                            </div>
+                            <div style="margin-top: 5px">
+                              <a href="javascript:void(0)" onclick="onClickDeletePaymentSlip(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                            </div>
+                          </div>
+
+                          <div id="divPaymentSlipContainer4" style="display: inline-block;">
+                            <div>
+                              <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
+                                <img id="imgPaymentSlip4"
+                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                              </a>
+                            </div>
+                            <div style="margin-top: 5px">
+                              <a href="javascript:void(0)" onclick="onClickDeletePaymentSlip(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                            </div>
+                          </div>
+
+                          <div id="divPaymentSlipContainer5" style="display: inline-block;">
+                            <div>
+                              <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
+                                <img id="imgPaymentSlip5"
+                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                              </a>
+                            </div>
+                            <div style="margin-top: 5px">
+                              <a href="javascript:void(0)" onclick="onClickDeletePaymentSlip(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1684,6 +1733,22 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     </div>
                     <div id="alertNoPaymentNotification" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
                       <i class="icon fa fa-warning"></i>ไม่พบข้อมูลการแจ้งโอนเงินสำหรับใบสมัครนี้
+                    </div>
+
+                    <hr/>
+                    <div class="row" style="margin-top: 20px">
+                      <div class="col-md-12" style="text-align: center">
+                        <a class="btn btn-app" style="padding: 10px 10px 50px; margin-bottom: 0; "
+                           href="javascript:void(0)"
+                           onClick="window.open('<?= HOST_FRONTEND . "/upload-slip?formNumber="; ?>' + $('#manageRegisterStatusModal #spanFormNumber').text())">
+                          <i class="fa fa-plus"></i> เพิ่มหลักฐานการโอนเงิน
+                        </a>
+                        <a class="btn btn-app" style="padding: 10px 10px 50px; margin-bottom: 0; "
+                           href="javascript:void(0)"
+                           onClick="doGetPaymentNotification($('#manageRegisterStatusModal #inputTraineeId').val())">
+                          <i class="fa fa-repeat"></i> โหลดข้อมูลการแจ้งโอนใหม่
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3958,6 +4023,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
         if (data.error_code === 0) {
           $('#confirmPaymentModal #inputTraineeId').val(traineeId);
 
+          console.log(JSON.stringify(data));
+
           if (data.data_list.length > 0) {
             const {
               id, member, amount, transfer_date_format, transfer_date_thai_format, slip_file_name, created_at, notification_date_format, notification_time_format
@@ -3980,7 +4047,13 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             e.target.setCustomValidity('');
                         }).datepicker('update', transfer_date_thai_format);*/
 
-            const imgPaymentSlip = $('#manageRegisterStatusModal #imgPaymentSlip');
+            const divPaymentSlipContainer1 = $('#manageRegisterStatusModal #divPaymentSlipContainer');
+            const divPaymentSlipContainer2 = $('#manageRegisterStatusModal #divPaymentSlipContainer2');
+            const divPaymentSlipContainer3 = $('#manageRegisterStatusModal #divPaymentSlipContainer3');
+            const divPaymentSlipContainer4 = $('#manageRegisterStatusModal #divPaymentSlipContainer4');
+            const divPaymentSlipContainer5 = $('#manageRegisterStatusModal #divPaymentSlipContainer5');
+
+            const imgPaymentSlip1 = $('#manageRegisterStatusModal #imgPaymentSlip');
             const imgPaymentSlip2 = $('#manageRegisterStatusModal #imgPaymentSlip2');
             const imgPaymentSlip3 = $('#manageRegisterStatusModal #imgPaymentSlip3');
             const imgPaymentSlip4 = $('#manageRegisterStatusModal #imgPaymentSlip4');
@@ -4017,60 +4090,61 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             }).datepicker('update', transfer_date_thai_format);
             //*******************************************
 
-            imgPaymentSlip.parent().attr('href', '../images/ic_no_image.png');
-            imgPaymentSlip.parent().removeAttr('data-lightbox');
-            imgPaymentSlip.hide();
+            divPaymentSlipContainer1.hide();
+            divPaymentSlipContainer2.hide();
+            divPaymentSlipContainer3.hide();
+            divPaymentSlipContainer4.hide();
+            divPaymentSlipContainer5.hide();
+
+            imgPaymentSlip1.parent().attr('href', '../images/ic_no_image.png');
+            imgPaymentSlip1.parent().removeAttr('data-lightbox');
+            //imgPaymentSlip.hide();
             imgPaymentSlip2.parent().attr('href', '../images/ic_no_image.png');
             imgPaymentSlip2.parent().removeAttr('data-lightbox');
-            imgPaymentSlip2.hide();
+            //imgPaymentSlip2.hide();
             imgPaymentSlip3.parent().attr('href', '../images/ic_no_image.png');
             imgPaymentSlip3.parent().removeAttr('data-lightbox');
-            imgPaymentSlip3.hide();
+            //imgPaymentSlip3.hide();
             imgPaymentSlip4.parent().attr('href', '../images/ic_no_image.png');
             imgPaymentSlip4.parent().removeAttr('data-lightbox');
-            imgPaymentSlip4.hide();
+            //imgPaymentSlip4.hide();
             imgPaymentSlip5.parent().attr('href', '../images/ic_no_image.png');
             imgPaymentSlip5.parent().removeAttr('data-lightbox');
-            imgPaymentSlip5.hide();
+            //imgPaymentSlip5.hide();
 
             for (let i = 0; i < data.data_list.length; i++) {
+              const slipId = data.data_list[i].id;
               const slipFileName = data.data_list[i].slip_file_name;
 
+              let divPaymentSlipContainer, imgPaymentSlip;
               switch (i) {
                 case 0:
-                  /*imgPaymentSlip.attr('src', '../uploads/slip_images/' + slipFileName);
-                                    imgPaymentSlip.show();*/
-
-                  imgPaymentSlip.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
-                  imgPaymentSlip.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
-                  setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip.parent(), 'slipImage');
-                  imgPaymentSlip.show();
+                  divPaymentSlipContainer = divPaymentSlipContainer1;
+                  imgPaymentSlip = imgPaymentSlip1;
                   break;
                 case 1:
-                  imgPaymentSlip2.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
-                  imgPaymentSlip2.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
-                  setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip2.parent(), 'slipImage');
-                  imgPaymentSlip2.show();
+                  divPaymentSlipContainer = divPaymentSlipContainer2;
+                  imgPaymentSlip = imgPaymentSlip2;
                   break;
                 case 2:
-                  imgPaymentSlip3.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
-                  imgPaymentSlip3.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
-                  setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip3.parent(), 'slipImage');
-                  imgPaymentSlip3.show();
+                  divPaymentSlipContainer = divPaymentSlipContainer3;
+                  imgPaymentSlip = imgPaymentSlip3;
                   break;
                 case 3:
-                  imgPaymentSlip4.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
-                  imgPaymentSlip4.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
-                  setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip4.parent(), 'slipImage');
-                  imgPaymentSlip4.show();
+                  divPaymentSlipContainer = divPaymentSlipContainer4;
+                  imgPaymentSlip = imgPaymentSlip4;
                   break;
                 case 4:
-                  imgPaymentSlip5.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
-                  imgPaymentSlip5.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
-                  setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip5.parent(), 'slipImage');
-                  imgPaymentSlip5.show();
+                  divPaymentSlipContainer = divPaymentSlipContainer5;
+                  imgPaymentSlip = imgPaymentSlip5;
                   break;
               }
+
+              imgPaymentSlip.attr('src', getFileExtension(slipFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + slipFileName);
+              imgPaymentSlip.parent().attr('href', getFileExtension(slipFileName) === 'pdf' ? '../uploads/slip_images/' + slipFileName : '../uploads/slip_images/' + slipFileName);
+              setAttributes(getFileExtension(slipFileName) === 'pdf', imgPaymentSlip.parent(), 'slipImage');
+              divPaymentSlipContainer.attr('slip_id', slipId);
+              divPaymentSlipContainer.show();
             }
             //imgPaymentSlip.attr('src', '../uploads/slip_images/' + slip_file_name);
 
@@ -4166,6 +4240,59 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       });
     }
 
+    function onClickDeletePaymentSlip(element) {
+      //alert($(element).parent().parent().attr('slip_id'));
+
+      if (confirm("ยืนยันลบรูปภาพสลิปนี้?")) {
+        doDeletePaymentSlip($(element).parent().parent());
+      }
+    }
+
+    function doDeletePaymentSlip(divPaymentSlipContainer) {
+      $.post(
+        '../api/api.php/delete_payment_notification',
+        {
+          paymentId: divPaymentSlipContainer.attr('slip_id'),
+        }
+      ).done(function (data) {
+        if (data.error_code === 0) {
+          divPaymentSlipContainer.hide();
+
+          BootstrapDialog.show({
+            title: 'ลบรูปภาพสลิป - สำเร็จ',
+            message: data.error_message,
+            buttons: [{
+              label: 'ปิด',
+              action: function (self) {
+                self.close();
+              }
+            }]
+          });
+        } else {
+          BootstrapDialog.show({
+            title: 'ลบรูปภาพสลิป - ผิดพลาด',
+            message: data.error_message,
+            buttons: [{
+              label: 'ปิด',
+              action: function (self) {
+                self.close();
+              }
+            }]
+          });
+        }
+      }).fail(function () {
+        BootstrapDialog.show({
+          title: 'ลบรูปภาพสลิป - ผิดพลาด',
+          message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+          buttons: [{
+            label: 'ปิด',
+            action: function (self) {
+              self.close();
+            }
+          }]
+        });
+      });
+    }
   </script>
   <?php
 }

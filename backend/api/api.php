@@ -100,6 +100,9 @@ switch ($action) {
   case 'get_payment_notification':
     doGetPaymentNotification();
     break;
+  case 'delete_payment_notification':
+    doDeletePaymentNotification();
+    break;
   case 'update_trainee_training':
     doUpdateTraineeTraining();
     break;
@@ -2405,11 +2408,11 @@ function doGetPaymentNotification()
   $sql = "SELECT p.id, p.trainee_id, p.amount, p.transfer_date, p.slip_file_name, p.created_at,
                    m.id AS member_id, m.title AS member_title, m.first_name AS member_first_name, m.last_name AS member_last_name,
                    m.phone AS member_phone, m.email AS member_email
-                FROM payment_notification p 
-                    LEFT JOIN member m 
-                        ON p.member_id = m.id  
-                WHERE trainee_id = $traineeId AND service_type = '$serviceType'
-                ORDER BY id DESC";
+          FROM payment_notification p 
+              LEFT JOIN member m 
+                  ON p.member_id = m.id  
+          WHERE trainee_id = $traineeId AND service_type = '$serviceType'
+          ORDER BY id DESC";
   if ($result = $db->query($sql)) {
     $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
     $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลสำเร็จ';
@@ -2461,6 +2464,26 @@ function doGetPaymentNotification()
   } else {
     $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
     $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
+    $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+  }
+}
+
+function doDeletePaymentNotification()
+{
+  global $db, $response;
+
+  $paymentId = $db->real_escape_string($_POST['paymentId']);
+
+  $sql = "DELETE FROM payment_notification WHERE id=$paymentId";
+
+  if ($result = $db->query($sql)) {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+  } else {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+    $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
     $errMessage = $db->error;
     $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
   }
