@@ -1154,6 +1154,24 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                          id="inputTraineeName">
                 </div>
               </div>
+              <!--ที่อยู่/เลขผู้เสียภาษี-->
+              <div class="form-group">
+                <label for="inputReceiptAddress">ที่อยู่/เลขประจำตัวผู้เสียภาษี:</label>
+                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-envelope"></i>
+                                    </span>
+
+                  <textarea class="form-control" rows="3"
+                            id="inputReceiptAddress" name="receiptAddress"
+                            placeholder="กรอกที่อยู่/เลขประจำตัวผู้เสียภาษี" required
+                            oninvalid="this.setCustomValidity('กรอกที่อยู่/เลขประจำตัวผู้เสียภาษี')"
+                            oninput="this.setCustomValidity('')"></textarea>
+
+                  <!--<input type="text" class="form-control"
+                                           id="inputCourseName">-->
+                </div>
+              </div>
               <!--หลักสูตรที่สมัคร-->
               <div class="form-group">
                 <label for="inputCourseName">หลักสูตรที่สมัคร:</label>
@@ -2778,12 +2796,52 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
               <ul class="dropdown-menu pull-right" role="menu">
                 <?php
                 if (($serviceType !== SERVICE_TYPE_SOCIAL) || $courseApplicationFee !== 0) {
+                  $displayAddress = '';
+                  if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
+                    $address = trim($trainee['receipt']['address']);
+                    $subDistrict = trim($trainee['receipt']['sub_district']);
+                    $district = trim($trainee['receipt']['district']);
+                    $province = trim($trainee['receipt']['province']);
+                    $postalCode = $trainee['receipt']['postal_code'];
+
+                    $isBangkok = false;
+                    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
+                      $isBangkok = true;
+                    }
+
+                    if ($isBangkok) {
+                      $displayAddress .= "{$address} แขวง{$subDistrict} เขต{$district} กรุงเทพมหานคร {$postalCode}";
+                    } else {
+                      $displayAddress .= "{$address} ตำบล{$subDistrict} อำเภอ{$district} จังหวัด{$province} {$postalCode}";
+                    }
+
+                    if ($serviceType === SERVICE_TYPE_TRAINING) {
+                      $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt_tax_id']) < 13 ? '-' : formatPid($trainee['receipt_tax_id']));
+                    }
+                  } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+                    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+                    //$province = trim($trainee['province']);
+
+                    $isBangkok = false;
+                    if (mb_substr($province, 0, 4) === 'กรุง' || mb_substr($province, 0, 2) === 'กท') {
+                      $isBangkok = true;
+                      $province = 'กรุงเทพมหานคร';
+                    }
+
+                    if ($isBangkok) {
+                      $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province}";
+                    } else {
+                      $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
+                    }
+                  }
+
                   ?>
                   <li><a href="javascript:void(0)"
                          onClick="onClickPrintReceipt(
                            '<?= $formNumber; ?>',
                          <?= $traineeId; ?>,
                            '<?= $trainee['title'] . ' ' . htmlentities($trainee['first_name']) . ' ' . htmlentities($trainee['last_name']); ?>',
+                           '<?= $displayAddress; ?>',
                            '<?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? htmlentities($trainee['driving_license_course_type']) : htmlentities($courseDetails); ?>',
                          <?= $serviceType === SERVICE_TYPE_DRIVING_LICENSE ? $trainee['driving_license_course_fee'] : $courseApplicationFee; ?>,
                            '<?= $paidAmount; ?>',
@@ -3004,6 +3062,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       const traineeId = $('#printReceiptModal #inputTraineeId').val();
       const receiptNumber = $('#formPrintReceipt #inputReceiptNumber').val();
       const customCourseName = encodeURIComponent($('#formPrintReceipt #inputCourseName').val());
+      const customReceiptAddress = encodeURIComponent($('#formPrintReceipt #inputReceiptAddress').val());
 
       $.post(
         '../api/api.php/update_receipt_number',
@@ -3020,7 +3079,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
           $('#printReceiptModal #alertReceiptSuccess').show();
 
           shouldReload = true;
-          window.open(`print_receipt.php?service_type=${serviceType}&trainee_id=${traineeId}&custom_course_name=${customCourseName}`, '_blank');
+          window.open(`print_receipt.php?service_type=${serviceType}&trainee_id=${traineeId}&course=${customCourseName}&address=${customReceiptAddress}`, '_blank');
         } else {
           $('#printReceiptModal #alertReceiptErrorText').text(data.error_message);
           $('#printReceiptModal #alertReceiptError').show();
@@ -3092,7 +3151,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       });
     }
 
-    function onClickPrintReceipt(formNumber, traineeId, traineeName, courseName, courseApplicationFee, paidAmount, receiptNumber, courseId) {
+    function onClickPrintReceipt(formNumber, traineeId, traineeName, receiptAddress, courseName, courseApplicationFee, paidAmount, receiptNumber, courseId) {
       const registerStatus = $('#inputRegisterStatus' + traineeId).val();
       const canPrint = registerStatus === 'complete';
 
@@ -3100,6 +3159,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       $('#formPrintReceipt #inputTraineeId').val(traineeId);
       $('#formPrintReceipt #inputCourseId').val(courseId);
       $('#formPrintReceipt #inputTraineeName').val(traineeName);
+      $('#formPrintReceipt #inputReceiptAddress').val(receiptAddress);
 
       const key = 'course_name_' + courseId;
       const storageCourseName = localStorage.getItem(key);

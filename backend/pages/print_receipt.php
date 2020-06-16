@@ -4,21 +4,22 @@ require('../dist/fpdf/fpdf2.php');
 
 $serviceType = $_GET['service_type'];
 if (!isset($serviceType)) {
-    echo 'Error: ไม่ได้ระบุประเภทบริการ (วิชาการ/ใบขับขี่)';
-    $db->close();
-    exit();
+  echo 'Error: ไม่ได้ระบุประเภทบริการ (วิชาการ/ใบขับขี่)';
+  $db->close();
+  exit();
 }
 $traineeId = $_GET['trainee_id'];
 if (!isset($traineeId)) {
-    echo 'Error: ไม่ได้ระบุ ID ใบสมัคร';
-    $db->close();
-    exit();
+  echo 'Error: ไม่ได้ระบุ ID ใบสมัคร';
+  $db->close();
+  exit();
 }
 
-$customCourseName = $_GET['custom_course_name'];
+$customCourseName = $_GET['course'];
+$customReceiptAddress = $_GET['address'];
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
-    $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name, cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, 
+  $sql = "SELECT ct.form_number, ct.title, ct.first_name, ct.last_name, cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, 
                    cr.receipt_district, cr.receipt_province, cr.receipt_postal_code, cr.receipt_tax_id,
                    cm.title AS course_title, c.batch_number AS course_batch_number, c.application_fee AS course_fee, ct.paid_amount, ct.payment_date
             FROM course_trainee ct 
@@ -30,7 +31,7 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
                     ON cm.id = c.course_master_id 
             WHERE ct.id = $traineeId";
 } else if ($serviceType === SERVICE_TYPE_SOCIAL) {
-    $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, 
+  $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.receipt_name, cr.receipt_address, cr.receipt_sub_district, 
                    cr.receipt_district, cr.receipt_province, cr.receipt_postal_code, 
                    cm.title AS course_title, c.batch_number AS course_batch_number, c.application_fee AS course_fee, cr.paid_amount, cr.payment_date
             FROM course_registration_social cr 
@@ -39,8 +40,8 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
                 INNER JOIN course_master cm 
                     ON cm.id = c.course_master_id 
             WHERE cr.id = $traineeId";
-}  else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
-    $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
+} else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
+  $sql = "SELECT cr.form_number, cr.title, cr.first_name, cr.last_name, cr.pid, cr.address, cr.moo, cr.soi, cr.road, 
                cr.sub_district, cr.district, cr.province, cr.phone,
                cr.course_type, cr.license_type, dlct.application_fee AS course_fee, cr.paid_amount, cr.payment_date
             FROM course_registration_driving_license cr 
@@ -50,91 +51,91 @@ if ($serviceType === SERVICE_TYPE_TRAINING) {
                     ON dlct.id = cr.course_type
             WHERE cr.id = $traineeId";
 } else {
-    echo 'Error: Invalid service type - ประเภทบริการไม่ถูกต้อง';
-    $db->close();
-    exit();
+  echo 'Error: Invalid service type - ประเภทบริการไม่ถูกต้อง';
+  $db->close();
+  exit();
 }
 
 if ($result = $db->query($sql)) {
-    if ($result->num_rows > 0) {
-        $trainee = $result->fetch_assoc();
-        $result->close();
+  if ($result->num_rows > 0) {
+    $trainee = $result->fetch_assoc();
+    $result->close();
 
-        if ($serviceType == SERVICE_TYPE_TRAINING || $serviceType == SERVICE_TYPE_SOCIAL) {
-            $trainee['course_name'] = "{$trainee['course_title']} รุ่นที่ {$trainee['course_batch_number']}";
-        } else if ($serviceType == SERVICE_TYPE_DRIVING_LICENSE) {
-            $trainee['course_name'] = ((int)$trainee['course_type'] === 1)
-                ? 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ'
-                : 'หลักสูตรการอบรมสำหรับผู้ขอต่ออายุใบอนุญาตขับรถ';
-            $trainee['receipt_name'] = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}";
-        }
-    } else {
-        echo 'Error: ไม่พบข้อมูล';
-        $result->close();
-        $db->close();
-        exit();
+    if ($serviceType == SERVICE_TYPE_TRAINING || $serviceType == SERVICE_TYPE_SOCIAL) {
+      $trainee['course_name'] = "{$trainee['course_title']} รุ่นที่ {$trainee['course_batch_number']}";
+    } else if ($serviceType == SERVICE_TYPE_DRIVING_LICENSE) {
+      $trainee['course_name'] = ((int)$trainee['course_type'] === 1)
+          ? 'หลักสูตรการอบรมสำหรับผู้ขอรับใบอนุญาตขับรถ'
+          : 'หลักสูตรการอบรมสำหรับผู้ขอต่ออายุใบอนุญาตขับรถ';
+      $trainee['receipt_name'] = "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}";
     }
-} else {
-    echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
+  } else {
+    echo 'Error: ไม่พบข้อมูล';
+    $result->close();
     $db->close();
     exit();
+  }
+} else {
+  echo 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $db->error . $sql;
+  $db->close();
+  exit();
 }
 
 function convert($number)
 {
-    $txtNum1 = array('ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า', 'สิบ');
-    $txtNum2 = array('', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน');
-    $number = str_replace(",", "", $number);
-    $number = str_replace(" ", "", $number);
-    $number = str_replace("บาท", "", $number);
-    $number = explode(".", $number);
+  $txtNum1 = array('ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า', 'สิบ');
+  $txtNum2 = array('', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน');
+  $number = str_replace(",", "", $number);
+  $number = str_replace(" ", "", $number);
+  $number = str_replace("บาท", "", $number);
+  $number = explode(".", $number);
 
-    if (sizeof($number) > 2) {
-        return 'Error: มีจุดทศนิยมมากกว่า 1 ตัว';
+  if (sizeof($number) > 2) {
+    return 'Error: มีจุดทศนิยมมากกว่า 1 ตัว';
+  }
+
+  $length = strlen($number[0]);
+  $convert = '';
+
+  for ($i = 0; $i < $length; $i++) {
+    $n = substr($number[0], $i, 1);
+    if ($n != 0) {
+      if ($i == ($length - 1) and $n == 1) {
+        $convert .= 'เอ็ด';
+      } elseif ($i == ($length - 2) and $n == 2) {
+        $convert .= 'ยี่';
+      } elseif ($i == ($length - 2) and $n == 1) {
+        $convert .= '';
+      } else {
+        $convert .= $txtNum1[$n];
+      }
+      $convert .= $txtNum2[$length - $i - 1];
     }
+  }
 
-    $length = strlen($number[0]);
-    $convert = '';
-
+  $convert .= 'บาท';
+  if ($number[1] == '0' or $number[1] == '00' or $number[1] == '') {
+    $convert .= 'ถ้วน';
+  } else {
+    $length = strlen($number[1]);
     for ($i = 0; $i < $length; $i++) {
-        $n = substr($number[0], $i, 1);
-        if ($n != 0) {
-            if ($i == ($length - 1) AND $n == 1) {
-                $convert .= 'เอ็ด';
-            } elseif ($i == ($length - 2) AND $n == 2) {
-                $convert .= 'ยี่';
-            } elseif ($i == ($length - 2) AND $n == 1) {
-                $convert .= '';
-            } else {
-                $convert .= $txtNum1[$n];
-            }
-            $convert .= $txtNum2[$length - $i - 1];
+      $n = substr($number[1], $i, 1);
+      if ($n != 0) {
+        if ($i == ($length - 1) and $n == 1) {
+          $convert .= 'เอ็ด';
+        } elseif ($i == ($length - 2) and $n == 2) {
+          $convert .= 'ยี่';
+        } elseif ($i == ($length - 2) and $n == 1) {
+          $convert .= '';
+        } else {
+          $convert .= $txtNum1[$n];
         }
+        $convert .= $txtNum2[$length - $i - 1];
+      }
     }
-
-    $convert .= 'บาท';
-    if ($number[1] == '0' OR $number[1] == '00' OR $number[1] == '') {
-        $convert .= 'ถ้วน';
-    } else {
-        $length = strlen($number[1]);
-        for ($i = 0; $i < $length; $i++) {
-            $n = substr($number[1], $i, 1);
-            if ($n != 0) {
-                if ($i == ($length - 1) AND $n == 1) {
-                    $convert .= 'เอ็ด';
-                } elseif ($i == ($length - 2) AND $n == 2) {
-                    $convert .= 'ยี่';
-                } elseif ($i == ($length - 2) AND $n == 1) {
-                    $convert .= '';
-                } else {
-                    $convert .= $txtNum1[$n];
-                }
-                $convert .= $txtNum2[$length - $i - 1];
-            }
-        }
-        $convert .= 'สตางค์';
-    }
-    return $convert;
+    $convert .= 'สตางค์';
+  }
+  return $convert;
 }
 
 //Create new pdf file
@@ -162,48 +163,51 @@ $pdf->SetXY(52, 34);
 
 //$displayAddress = ($serviceType === SERVICE_TYPE_TRAINING ? (' เลขประจำตัวผู้เสียภาษี ' . formatPid($trainee['receipt_tax_id']) . ', ที่อยู่ ') : '');
 
+/*
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
-    $address = trim($trainee['receipt_address']);
-    $subDistrict = trim($trainee['receipt_sub_district']);
-    $district = trim($trainee['receipt_district']);
-    $province = trim($trainee['receipt_province']);
-    $postalCode = $trainee['receipt_postal_code'];
+  $address = trim($trainee['receipt_address']);
+  $subDistrict = trim($trainee['receipt_sub_district']);
+  $district = trim($trainee['receipt_district']);
+  $province = trim($trainee['receipt_province']);
+  $postalCode = $trainee['receipt_postal_code'];
 
-    $isBangkok = false;
-    if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
-        $isBangkok = true;
-    }
+  $isBangkok = false;
+  if (mb_substr($province, 0, 4) == 'กรุง' || mb_substr($province, 0, 2) == 'กท') {
+    $isBangkok = true;
+  }
 
-    if ($isBangkok) {
-        $displayAddress .= "{$address} แขวง{$subDistrict} เขต{$district} กรุงเทพมหานคร {$postalCode}";
-    } else {
-        $displayAddress .= "{$address} ตำบล{$subDistrict} อำเภอ{$district} จังหวัด{$province} {$postalCode}";
-    }
+  if ($isBangkok) {
+    $displayAddress .= "{$address} แขวง{$subDistrict} เขต{$district} กรุงเทพมหานคร {$postalCode}";
+  } else {
+    $displayAddress .= "{$address} ตำบล{$subDistrict} อำเภอ{$district} จังหวัด{$province} {$postalCode}";
+  }
 
-    //$displayAddress = '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซอยงามวงศ์วาน 59 (วัดเทวสุนทร) แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900';
+  //$displayAddress = '11/13 วรวรรณ พาร์ค คอนโดมิเนียม ซอยงามวงศ์วาน 59 (วัดเทวสุนทร) แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900';
 
-    if ($serviceType === SERVICE_TYPE_TRAINING) {
-        $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt_tax_id']) < 13 ? '-' : formatPid($trainee['receipt_tax_id']));
-    }
+  if ($serviceType === SERVICE_TYPE_TRAINING) {
+    $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt_tax_id']) < 13 ? '-' : formatPid($trainee['receipt_tax_id']));
+  }
 } else if ($serviceType === SERVICE_TYPE_DRIVING_LICENSE) {
-    $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
-    //$province = trim($trainee['province']);
+  $province = trim(str_replace(array('จังหวัด', 'จ.'), '', $trainee['province']));
+  //$province = trim($trainee['province']);
 
-    $isBangkok = false;
-    if (mb_substr($province, 0, 4) === 'กรุง' || mb_substr($province, 0, 2) === 'กท') {
-        $isBangkok = true;
-        $province = 'กรุงเทพมหานคร';
-    }
+  $isBangkok = false;
+  if (mb_substr($province, 0, 4) === 'กรุง' || mb_substr($province, 0, 2) === 'กท') {
+    $isBangkok = true;
+    $province = 'กรุงเทพมหานคร';
+  }
 
-    if ($isBangkok) {
-        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province}";
-    } else {
-        $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
-    }
+  if ($isBangkok) {
+    $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} แขวง{$trainee['sub_district']} เขต{$trainee['district']} {$province}";
+  } else {
+    $displayAddress = "{$trainee['address']} หมู่ {$trainee['moo']} ซอย{$trainee['soi']} ถนน{$trainee['road']} ตำบล{$trainee['sub_district']} อำเภอ{$trainee['district']} จังหวัด{$province}";
+  }
 }
+*/
 
-$pdf->MultiCell(400, 5, $displayAddress, 0, 'L');
-//$pdf->MultiCell(400, 5, '90 อาคารซีดับเบิ้ลยู ทาวเวอร์ เอ ชั้นที่ 33 ถนนรัชดาภิเษก แขวงห้วยขวาง เขตห้วยขวาง กรุงเทพมหานคร 10310 เลขประจำตัวผู้เสียภาษี 3-1006-00317-06-8', 1, 'L');
+$pdf->MultiCell(400, 5, $customReceiptAddress, 0, 'L');
+//$pdf->MultiCell(400, 5, $displayAddress, 0, 'L');
+//$pdf->MultiCell(400, 5, "90 อาคารซีดับเบิ้ลยู ทาวเวอร์ เอ\nชั้นที่ 33 ถนนรัชดาภิเษก แขวงห้วยขวาง เขตห้วยขวาง กรุงเทพมหานคร 10310\nเลขประจำตัวผู้เสียภาษี 3-1006-00317-06-8", 1, 'L');
 //$pdf->MultiCell(400, 5, '11/13 วรวรรณพาร์ค คอนโดมเนียม ซอยงามวงศ์วาน 59 ถนนงามวงศวาน แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร 10900 เลขประจำตัวผู้เสียภาษี 3-1006-00317-06-8', 1, 'L');
 
 $pdf->SetXY(34, 55);
@@ -212,9 +216,9 @@ $pdf->Cell(13, 6, '', 0, 0, 'C', 0);
 
 $courseName = null;
 if (!isset($customCourseName) || trim($customCourseName) === '') {
-    $courseName = "หลักสูตร{$trainee['course_name']}";
+  $courseName = "หลักสูตร{$trainee['course_name']}";
 } else {
-    $courseName = "หลักสูตร$customCourseName";
+  $courseName = "หลักสูตร$customCourseName";
 }
 
 $pdf->MultiCell(400, 6, $courseName, 0, 'L');
@@ -226,15 +230,15 @@ $pdf->Cell(110, 7, "ค่าลงทะเบียนอบรม", 0, 0, 'L'
 $pdf->Cell(32, 7, number_format($trainee['course_fee'], 2), 0, 0, 'R', 0);
 
 if ($serviceType === SERVICE_TYPE_TRAINING || $serviceType === SERVICE_TYPE_SOCIAL) {
-    $showDiscount = (int)$trainee['course_fee'] > (int)$trainee['paid_amount'];
-    if ($showDiscount) {
-        $pdf->SetXY(47, $applicationFeeLineTop + 8);
-        $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);
-        $pdf->Cell(32, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
-    }
+  $showDiscount = (int)$trainee['course_fee'] > (int)$trainee['paid_amount'];
+  if ($showDiscount) {
+    $pdf->SetXY(47, $applicationFeeLineTop + 8);
+    $pdf->Cell(110, 7, 'ส่วนลด', 0, 0, 'L', 0);
+    $pdf->Cell(32, 7, '(' . number_format((int)$trainee['course_fee'] - (int)$trainee['paid_amount'], 2) . ')', 0, 0, 'R', 0);
+  }
 
-    $pdf->SetXY(47, $showDiscount ? $applicationFeeLineTop + 16 : $applicationFeeLineTop + 8);
-    $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
+  $pdf->SetXY(47, $showDiscount ? $applicationFeeLineTop + 16 : $applicationFeeLineTop + 8);
+  $pdf->Cell(110, 7, "{$trainee['title']}{$trainee['first_name']} {$trainee['last_name']}", 0, 0, 'L', 0);
 }
 
 $pdf->SetXY(47, 147);
