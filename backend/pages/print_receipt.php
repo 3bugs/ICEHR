@@ -16,6 +16,7 @@ if (!isset($traineeId)) {
 }
 
 $customCourseName = $_GET['course'];
+$customReceiptName = $_GET['name'];
 $customReceiptAddress = $_GET['address'];
 
 if ($serviceType === SERVICE_TYPE_TRAINING) {
@@ -157,7 +158,8 @@ $pdf->SetXY(75, 21);
 $pdf->Cell(50, 6, getThaiShortDate(date_create($trainee['payment_date'])), 0, 0, 'L', 0);
 $pdf->SetXY(70, 27);
 //$pdf->SetXY(76,24);
-$pdf->Cell(300, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
+$pdf->Cell(300, 6, $customReceiptName, 0, 0, 'L', 0);
+//$pdf->Cell(300, 6, $trainee['receipt_name'], 0, 0, 'L', 0);
 $pdf->SetXY(52, 34);
 //$pdf->SetXY(60,30);
 
