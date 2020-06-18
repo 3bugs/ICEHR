@@ -4,6 +4,7 @@
 } from "./etc/constants";*/
 
 //https://medium.com/@mhagemann/create-a-mysql-database-middleware-with-node-js-8-and-async-await-6984a09d49f4
+//https://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 
 const PORT_NUMBER = 80;
 

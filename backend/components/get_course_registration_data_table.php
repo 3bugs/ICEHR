@@ -1703,7 +1703,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div>
                               <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
                                 <img id="imgPaymentSlip"
-                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                                     style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
                               </a>
                             </div>
                             <div style="margin-top: 5px">
@@ -1715,7 +1715,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div>
                               <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
                                 <img id="imgPaymentSlip2"
-                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                                     style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
                               </a>
                             </div>
                             <div style="margin-top: 5px">
@@ -1727,7 +1727,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div>
                               <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
                                 <img id="imgPaymentSlip3"
-                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                                     style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
                               </a>
                             </div>
                             <div style="margin-top: 5px">
@@ -1739,7 +1739,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div>
                               <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
                                 <img id="imgPaymentSlip4"
-                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                                     style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
                               </a>
                             </div>
                             <div style="margin-top: 5px">
@@ -1751,7 +1751,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                             <div>
                               <a href="#" data-lightbox="slipImage" data-title="" target="_blank">
                                 <img id="imgPaymentSlip5"
-                                     style="height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                                     style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
                               </a>
                             </div>
                             <div style="margin-top: 5px">
@@ -1848,21 +1848,24 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             <i class="icon fa fa-warning"></i><span id="alertDocErrorText"></span>
           </div>
 
-          <form id="formManageDocStatus" role="form"
-                action="../api/api.php/update_driving_license_registration"
-                method="post"
-                style="margin-top: 0; margin-bottom: 0">
-            <!-- Custom Tabs -->
-            <div class="nav-tabs-custom" style="margin-bottom: 0">
-              <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab_doc_info" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
-                <li><a href="#tab_doc_pid" data-toggle="tab">สำเนาบัตร/เอกสาร</a></li>
-              </ul>
-              <div class="tab-content">
 
-                <!--แท็บ: ข้อมูลใบสมัคร-->
-                <div class="tab-pane active" id="tab_doc_info">
-                  <div class="box-body">
+          <!-- Custom Tabs -->
+          <div class="nav-tabs-custom" style="margin-bottom: 0">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_doc_info" data-toggle="tab">ข้อมูลใบสมัคร</a></li>
+              <li><a href="#tab_doc_pid" data-toggle="tab">สำเนาบัตร/เอกสาร</a></li>
+            </ul>
+            <div class="tab-content">
+
+              <!--แท็บ: ข้อมูลใบสมัคร-->
+
+              <div class="tab-pane active" id="tab_doc_info">
+                <div class="box-body">
+                  <form id="formManageDocStatus" role="form"
+                        action="../api/api.php/update_driving_license_registration"
+                        method="post"
+                        style="margin-top: 0; margin-bottom: 0">
+
                     <input type="hidden" id="inputTraineeId" name="traineeId">
 
                     <!--คำนำหน้า-ชื่อ-นามสกุล-->
@@ -1878,19 +1881,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                                  id="inputTraineeTitle" name="traineeTitle">
                         </div>
                       </div>
-                      <!--<div class="form-group col-md-2">
-                                                <label for="selectTraineeTitle">คำนำหน้าชื่อ:</label>
-                                                <select class="form-control" id="selectTraineeTitle" name="traineeTitle">
-                                                    <option value="" selected disabled>-- เลือกคำนำหน้า --</option>
-                                                    <?php
-                      /*                                                    foreach ($nameTitleList as $nameTitle) {
-                                                                                                    */ ?>
-                                                        <option value="<?php /*echo $nameTitle['title']; */ ?>" <?php /*echo($trainee['title'] === $nameTitle['title'] ? 'checked' : ''); */ ?>><?php /*echo $nameTitle['title']; */ ?></option>
-                                                        <?php
-                      /*                                                    }
-                                                                                                */ ?>
-                                                </select>
-                                            </div>-->
+
                       <!--ชื่อ-->
                       <div class="form-group col-md-5">
                         <label for="inputTraineeFirstName">ชื่อ:</label>
@@ -2109,48 +2100,157 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                       }
                       ?>
                     </div>
-                  </div>
-                  <!-- /.box-body -->
+                  </form>
                 </div>
-                <!-- /.tab-pane -->
+                <!-- /.box-body -->
+              </div>
 
-                <!--แท็บ: สำเนาบัตร/เอกสาร-->
-                <div class="tab-pane" id="tab_doc_pid">
-                  <div class="box-body">
+              <!-- /.tab-pane -->
+
+              <!--แท็บ: สำเนาบัตร/เอกสาร-->
+              <div class="tab-pane" id="tab_doc_pid">
+                <div class="box-body">
+                  <form id="formManageDocStatusAddPidImage" role="form"
+                        action="../api/api.php/add_dl_doc_image"
+                        method="post"
+                        style="margin-top: 0; margin-bottom: 0">
+
+                    <input type="hidden" id="inputTraineeId2" name="traineeId">
+
                     <div id="docDetails" class="row">
-                      <div class="col" style="text-align: left">
+                      <div class="col" style="text-align: center">
                         <p style="text-align: center">
                           <span style="color: orangered">เมื่อคลิก PDF จะแสดงในหน้าจอใหม่</span>
                         </p>
                         <?php
-                        $thumbnailSize = 150;
+                        $thumbnailHeight = 150;
+                        $thumbnailWidth = $thumbnailHeight * 833 / 1023;
                         ?>
-                        <a href="#" data-lightbox="pidImage" data-title="">
-                          <img id="imgPid" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/>
-                        </a>&nbsp;
-                        <a href="#" data-lightbox="pidImage" data-title="">
-                          <img id="imgPid2" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                        <a href="#" data-lightbox="pidImage" data-title="">
-                          <img id="imgPid3" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                        <a href="#" data-lightbox="pidImage" data-title="">
-                          <img id="imgPid4" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>&nbsp;
-                        <a href="#" data-lightbox="pidImage" data-title="">
-                          <img id="imgPid5" style="height: <?= $thumbnailSize; ?>px; width: <?= $thumbnailSize; ?>px; object-fit: contain"/></a>
+                        <div id="divPidContainer" style="display: inline-block;" pid_id="1">
+                          <div>
+                            <a href="#" data-lightbox="pidImage" data-title="" target="_blank">
+                              <img id="imgPid"
+                                   style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                            </a>
+                          </div>
+                          <div style="margin-top: 5px">
+                            <a href="javascript:void(0)" onclick="onClickDeletePid(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                          </div>
+                        </div>
+
+                        <div id="divPidContainer2" style="display: inline-block;" pid_id="2">
+                          <div>
+                            <a href="#" data-lightbox="pidImage" data-title="" target="_blank">
+                              <img id="imgPid2"
+                                   style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                            </a>
+                          </div>
+                          <div style="margin-top: 5px">
+                            <a href="javascript:void(0)" onclick="onClickDeletePid(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                          </div>
+                        </div>
+
+                        <div id="divPidContainer3" style="display: inline-block;" pid_id="3">
+                          <div>
+                            <a href="#" data-lightbox="pidImage" data-title="" target="_blank">
+                              <img id="imgPid3"
+                                   style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                            </a>
+                          </div>
+                          <div style="margin-top: 5px">
+                            <a href="javascript:void(0)" onclick="onClickDeletePid(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                          </div>
+                        </div>
+
+                        <div id="divPidContainer4" style="display: inline-block;" pid_id="4">
+                          <div>
+                            <a href="#" data-lightbox="pidImage" data-title="" target="_blank">
+                              <img id="imgPid4"
+                                   style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                            </a>
+                          </div>
+                          <div style="margin-top: 5px">
+                            <a href="javascript:void(0)" onclick="onClickDeletePid(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                          </div>
+                        </div>
+
+                        <div id="divPidContainer5" style="display: inline-block;" pid_id="5">
+                          <div>
+                            <a href="#" data-lightbox="pidImage" data-title="" target="_blank">
+                              <img id="imgPid5"
+                                   style="border: 1px solid #ddd; height: <?= $thumbnailHeight; ?>px; width: <?= $thumbnailWidth; ?>px; object-fit: cover"/>
+                            </a>
+                          </div>
+                          <div style="margin-top: 5px">
+                            <a href="javascript:void(0)" onclick="onClickDeletePid(this)"><i class="fa fa-times-circle"></i> ลบ</a>
+                          </div>
+                        </div>
+
+                        <!--<a href="#" data-lightbox="pidImage" data-title="">
+                          <img id="imgPid" style="height: <?/*= $thumbnailSize; */ ?>px; width: <?/*= $thumbnailSize; */ ?>px; object-fit: contain"/>
+                        </a>&nbsp-->
                       </div>
                     </div>
+
                     <div id="alertNoDoc" class="alert alert-warning alert-dismissible" style="margin-bottom: 5px">
                       <i class="icon fa fa-warning"></i>ไม่พบภาพสำเนาบัตรประชาชน/พาสปอร์ต/เอกสาร สำหรับใบสมัครนี้
                     </div>
-                  </div>
-                  <!-- /.box-body -->
-                </div>
-                <!-- /.tab-pane -->
 
+                    <hr/>
+                    <div class="row" style="margin-top: 20px">
+                      <div class="col-md-12" style="text-align: left">
+                        <div><i class="fa fa-plus"></i> เพิ่มสำเนาบัตร/เอกสาร</div>
+                        <input id="pid-upload" type="file" accept="image/*" multiple
+                               name="pidFiles[]" style="width: 100%; margin-top: 10px; border: 2px dotted #ccc; padding: 10px 10px 50px 10px"
+                               required
+                               oninvalid="this.setCustomValidity('เลือกไฟล์')"
+                               oninput="this.setCustomValidity('')"/>
+
+                        <div id="spanLoadingAddPidImage" style="text-align: center; margin-top: 15px">
+                          <img src="../images/ic_loading4.gif" height="32px"/>&nbsp;รอสักครู่
+                        </div>
+
+                        <div style="margin-top: 15px; text-align: center">
+                          <?php
+                          if ($responsibleUserId === (int)$_SESSION[KEY_SESSION_USER_ID]
+                              || ($serviceType === SERVICE_TYPE_DRIVING_LICENSE && currentUserHasPermission(PERMISSION_COURSE_DRIVING_LICENSE_MANAGE_REGISTRATION))) {
+                            ?>
+                            <button type="submit" class="btn btn-block btn-primary" style="display: inline; width: 200px;">
+                              <i class="fa fa-save"></i>&nbsp;&nbsp;เพิ่มสำเนาบัตร/เอกสาร
+                            </button>
+                            <?php
+                          } else {
+                            ?>
+                            <button type="button" class="btn btn-block btn-danger" style="display: inline; width: 270px;">
+                              <i class="fa fa-save"></i>&nbsp;&nbsp;คุณไม่มีสิทธิ์เพิ่มสำเนาบัตร/เอกสาร
+                            </button>
+                            <?php
+                          }
+                          ?>
+                        </div>
+                        <!--<a class="btn btn-app" style="padding: 10px 10px 50px; margin-bottom: 0; "
+                           href="javascript:void(0)"
+                           onClick="window.open('<?/*= HOST_FRONTEND . "/upload-slip?formNumber="; */ ?>' + $('#manageRegisterStatusModal #spanFormNumber').text())">
+                          <i class="fa fa-plus"></i> เพิ่มสำเนาบัตร/เอกสาร
+                        </a>-->
+                        <!--<a class="btn btn-app" style="padding: 10px 10px 50px; margin-bottom: 0; "
+                           href="javascript:void(0)"
+                           onClick="doGetPaymentNotification($('#manageRegisterStatusModal #inputTraineeId').val())">
+                          <i class="fa fa-repeat"></i> โหลดข้อมูลการแจ้งโอนใหม่
+                        </a>-->
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.box-body -->
               </div>
-              <!-- /.tab-content -->
+              <!-- /.tab-pane -->
+
             </div>
-            <!-- nav-tabs-custom -->
-          </form>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
@@ -2834,7 +2934,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                     }
 
                     if ($serviceType === SERVICE_TYPE_TRAINING) {
-                      $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt_tax_id']) < 13 ? '-' : formatPid($trainee['receipt_tax_id']));
+                      $displayAddress .= ' เลขประจำตัวผู้เสียภาษี ' . (strlen($trainee['receipt']['tax_id']) < 13 ? '-' : formatPid($trainee['receipt']['tax_id']));
                     }
 
                     $receiptName = $trainee['receipt']['name'];
@@ -2997,6 +3097,12 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
           doUpdateDrivingLicenseRegistration();
         }
       });
+      $('#formManageDocStatusAddPidImage').on('submit', (event) => {
+        event.preventDefault();
+        if (confirm("ยืนยันเพิ่มรูปภาพสำเนาบัตร/เอกสาร?")) {
+          doAddPidImage();
+        }
+      });
       $('#formRecordResult').on('submit', (event) => {
         event.preventDefault();
         if (confirm("ยืนยันบันทึกผลการอบรม?")) {
@@ -3142,6 +3248,28 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
           loadingIcon.hide();
           $('#manageDocStatusModal #alertDocErrorText').val('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
           $('#manageDocStatusModal #alertDocError').show();
+        }
+      });
+    }
+
+    function doAddPidImage() {
+      const loadingIcon = $('#manageDocStatusModal #spanLoadingAddPidImage');
+
+      loadingIcon.show();
+
+      $('#formManageDocStatusAddPidImage').ajaxSubmit({
+        dataType: 'json',
+        success: (data, statusText) => {
+          loadingIcon.hide();
+          if (data.error_code === 0) {
+            getDlDocImage($('#manageDocStatusModal #inputTraineeId').val());
+          } else {
+            alert(data.error_message);
+          }
+        },
+        error: () => {
+          loadingIcon.hide();
+          alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
         }
       });
     }
@@ -3600,9 +3728,11 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       $('#manageDocStatusModal #alertDocSuccess').hide();
       $('#manageDocStatusModal #alertDocError').hide();
       $('#manageDocStatusModal #spanLoading').hide();
+      $('#manageDocStatusModal #spanLoadingAddPidImage').hide();
 
       $('#manageDocStatusModal #spanFormNumber').text(formNumber);
       $('#manageDocStatusModal #inputTraineeId').val(traineeId);
+      $('#manageDocStatusModal #inputTraineeId2').val(traineeId);
 
       $('#manageDocStatusModal #inputTraineePid').val(traineePid);
       $('#manageDocStatusModal #inputPhone').val(traineePhone);
@@ -3630,9 +3760,40 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       $('#manageDocStatusModal #checkBoxLicenseTypeBicycle').prop('checked', (licenseType & 2) === 2);
       $('#manageDocStatusModal #checkBoxLicenseTypeCar').prop('checked', (licenseType & 1) === 1);
 
+      getDlDocImage(traineeId);
+
+      setButtonDocStatusClass(docStatus);
+      $('#manageDocStatusModal').modal('show');
+    }
+
+    function getDlDocImage(traineeId) {
+      $.post(
+        '../api/api.php/get_dl_doc_image',
+        {
+          //traineeId: $('#manageDocStatusModal #inputTraineeId').val(),
+          traineeId: traineeId,
+        }
+      ).done(function (data) {
+        if (data.error_code === 0) {
+          showDlDocImage(
+            data.data_list[0].pid_file_name,
+            data.data_list[0].pid_file_name_2,
+            data.data_list[0].pid_file_name_3,
+            data.data_list[0].pid_file_name_4,
+            data.data_list[0].pid_file_name_5
+          );
+        } else {
+
+        }
+      }).fail(function () {
+
+      });
+    }
+
+    function showDlDocImage(pidFileName, pidFileName2, pidFileName3, pidFileName4, pidFileName5) {
       const docDetails = $('#manageDocStatusModal #docDetails');
-      const imgPid = $('#manageDocStatusModal #imgPid');
-      imgPid.attr('src', '../images/ic_no_image.png');
+      const imgPid1 = $('#manageDocStatusModal #imgPid');
+      imgPid1.attr('src', '../images/ic_no_image.png');
       const imgPid2 = $('#manageDocStatusModal #imgPid2');
       imgPid2.attr('src', '../images/ic_no_image.png');
       const imgPid3 = $('#manageDocStatusModal #imgPid3');
@@ -3643,60 +3804,63 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       imgPid5.attr('src', '../images/ic_no_image.png');
       const noDocAlert = $('#manageDocStatusModal #alertNoDoc');
 
-      if (pidFileName === '') {
+      const divPidContainer1 = $('#manageDocStatusModal #divPidContainer');
+      const divPidContainer2 = $('#manageDocStatusModal #divPidContainer2');
+      const divPidContainer3 = $('#manageDocStatusModal #divPidContainer3');
+      const divPidContainer4 = $('#manageDocStatusModal #divPidContainer4');
+      const divPidContainer5 = $('#manageDocStatusModal #divPidContainer5');
+
+      if (pidFileName == null) {
         docDetails.hide();
         noDocAlert.show();
       } else {
         docDetails.show();
         noDocAlert.hide();
-        imgPid.attr('src', getFileExtension(pidFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName);
-        imgPid.parent().attr('href', getFileExtension(pidFileName) === 'pdf' ? '../uploads/slip_images/' + pidFileName : '../uploads/slip_images/' + pidFileName);
-        setAttributes(getFileExtension(pidFileName) === 'pdf', imgPid.parent(), 'pidImage');
+        imgPid1.attr('src', getFileExtension(pidFileName) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName);
+        imgPid1.parent().attr('href', getFileExtension(pidFileName) === 'pdf' ? '../uploads/slip_images/' + pidFileName : '../uploads/slip_images/' + pidFileName);
+        setAttributes(getFileExtension(pidFileName) === 'pdf', imgPid1.parent(), 'pidImage');
 
-        if (pidFileName2 === '') {
+        if (pidFileName2 == null) {
           imgPid2.parent().attr('href', '../images/ic_no_image.png');
           imgPid2.parent().removeAttr('data-lightbox');
-          imgPid2.hide();
+          divPidContainer2.hide();
         } else {
           imgPid2.attr('src', getFileExtension(pidFileName2) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName2);
           imgPid2.parent().attr('href', getFileExtension(pidFileName2) === 'pdf' ? '../uploads/slip_images/' + pidFileName2 : '../uploads/slip_images/' + pidFileName2);
           setAttributes(getFileExtension(pidFileName2) === 'pdf', imgPid2.parent(), 'pidImage');
-          imgPid2.show();
+          divPidContainer2.show();
         }
-        if (pidFileName3 === '') {
+        if (pidFileName3 == null) {
           imgPid3.parent().attr('href', '../images/ic_no_image.png');
           imgPid3.parent().removeAttr('data-lightbox');
-          imgPid3.hide();
+          divPidContainer3.hide();
         } else {
           imgPid3.attr('src', getFileExtension(pidFileName3) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName3);
           imgPid3.parent().attr('href', getFileExtension(pidFileName3) === 'pdf' ? '../uploads/slip_images/' + pidFileName3 : '../uploads/slip_images/' + pidFileName3);
           setAttributes(getFileExtension(pidFileName3) === 'pdf', imgPid3.parent(), 'pidImage');
-          imgPid3.show();
+          divPidContainer3.show();
         }
-        if (pidFileName4 === '') {
+        if (pidFileName4 == null) {
           imgPid4.parent().attr('href', '../images/ic_no_image.png');
           imgPid4.parent().removeAttr('data-lightbox');
-          imgPid4.hide();
+          divPidContainer4.hide();
         } else {
           imgPid4.attr('src', getFileExtension(pidFileName4) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName4);
           imgPid4.parent().attr('href', getFileExtension(pidFileName4) === 'pdf' ? '../uploads/slip_images/' + pidFileName4 : '../uploads/slip_images/' + pidFileName4);
           setAttributes(getFileExtension(pidFileName4) === 'pdf', imgPid4.parent(), 'pidImage');
-          imgPid4.show();
+          divPidContainer4.show();
         }
-        if (pidFileName5 === '') {
+        if (pidFileName5 == null) {
           imgPid5.parent().attr('href', '../images/ic_no_image.png');
           imgPid5.parent().removeAttr('data-lightbox');
-          imgPid5.hide();
+          divPidContainer5.hide();
         } else {
           imgPid5.attr('src', getFileExtension(pidFileName5) === 'pdf' ? '../images/pdf.png' : '../uploads/slip_images/' + pidFileName5);
           imgPid5.parent().attr('href', getFileExtension(pidFileName5) === 'pdf' ? '../uploads/slip_images/' + pidFileName5 : '../uploads/slip_images/' + pidFileName5);
           setAttributes(getFileExtension(pidFileName5) === 'pdf', imgPid5.parent(), 'pidImage');
-          imgPid5.show();
+          divPidContainer5.show();
         }
       }
-
-      setButtonDocStatusClass(docStatus);
-      $('#manageDocStatusModal').modal('show');
     }
 
     function getFileExtension(fileName) {
@@ -4369,6 +4533,69 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       }).fail(function () {
         BootstrapDialog.show({
           title: 'ลบรูปภาพสลิป - ผิดพลาด',
+          message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
+          buttons: [{
+            label: 'ปิด',
+            action: function (self) {
+              self.close();
+            }
+          }]
+        });
+      });
+    }
+
+    function onClickDeletePid(element) {
+      //alert($(element).parent().parent().attr('slip_id'));
+
+      if (confirm("ยืนยันลบรูปภาพสำเนาบัตร/เอกสารนี้?")) {
+        doDeletePid($(element).parent().parent());
+      }
+    }
+
+    function doDeletePid(divPidContainer) {
+      //alert($('#manageDocStatusModal #inputTraineeId').val());
+      //alert(divPaymentSlipContainer.attr('pid_id'));
+
+      const traineeId = $('#manageDocStatusModal #inputTraineeId').val();
+
+      $.post(
+        '../api/api.php/delete_dl_doc_image',
+        {
+          traineeId: traineeId,
+          pidId: divPidContainer.attr('pid_id'),
+        }
+      ).done(function (data) {
+        if (data.error_code === 0) {
+          shouldReload = true;
+          //divPidContainer.hide();
+
+          getDlDocImage(traineeId);
+
+          /*BootstrapDialog.show({
+            title: 'ลบรูปภาพสำเนาบัตร/เอกสาร - สำเร็จ',
+            message: data.error_message,
+            buttons: [{
+              label: 'ปิด',
+              action: function (self) {
+                self.close();
+              }
+            }]
+          });*/
+        } else {
+          BootstrapDialog.show({
+            title: 'ลบรูปภาพสำเนาบัตร/เอกสาร - ผิดพลาด',
+            message: data.error_message,
+            buttons: [{
+              label: 'ปิด',
+              action: function (self) {
+                self.close();
+              }
+            }]
+          });
+        }
+      }).fail(function () {
+        BootstrapDialog.show({
+          title: 'ลบรูปภาพสำเนาบัตร/เอกสาร - ผิดพลาด',
           message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ Server',
           buttons: [{
             label: 'ปิด',

@@ -8,6 +8,8 @@ require_once '../components/get_course_registration_data_table.php';
     <?php require_once('../include/head.inc'); ?>
     <!-- DataTables -->
     <link rel="stylesheet" href="../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <!--Lightbox-->
+    <link href="../dist/lightbox/css/lightbox.css" rel="stylesheet">
     <style>
 
     </style>
@@ -80,6 +82,8 @@ require_once '../components/get_course_registration_data_table.php';
   <!-- DataTables -->
   <script src="../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
   <script src="../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+  <!--Lightbox-->
+  <script src="../dist/lightbox/js/lightbox.js"></script>
   </body>
   </html>
 <?php

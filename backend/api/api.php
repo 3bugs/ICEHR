@@ -103,6 +103,15 @@ switch ($action) {
   case 'delete_payment_notification':
     doDeletePaymentNotification();
     break;
+  case 'add_dl_doc_image':
+    doAddDlDocImage();
+    break;
+  case 'get_dl_doc_image':
+    doGetDlDocImage();
+    break;
+  case 'delete_dl_doc_image':
+    doDeleteDlDocImage();
+    break;
   case 'update_trainee_training':
     doUpdateTraineeTraining();
     break;
@@ -2485,6 +2494,181 @@ function doDeletePaymentNotification()
     $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
     $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการลบข้อมูล';
     $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+  }
+}
+
+function doGetDlDocImage() {
+  global $db, $response;
+
+  $traineeId = $db->real_escape_string($_POST['traineeId']);
+
+  $sql = "SELECT pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5 
+          FROM course_registration_driving_license 
+          WHERE id = $traineeId";
+  if ($result = $db->query($sql)) {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อ่านข้อมูลสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+    $response[KEY_DATA_LIST] = array();
+
+    while ($row = $result->fetch_assoc()) {
+      array_push($response[KEY_DATA_LIST], $row);
+    }
+    $result->close();
+  } else {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+    $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอ่านข้อมูล';
+    $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+  }
+}
+
+function doAddDlDocImage()
+{
+  global $db, $response;
+  $PID_FILE_NAME = 'pid_file_name';
+
+  $traineeId = $db->real_escape_string($_POST['traineeId']);
+  $uploadedFilesCount = sizeof($_FILES['pidFiles']['name']);
+
+  $sql = "SELECT pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5 
+          FROM course_registration_driving_license
+          WHERE id = $traineeId";
+
+  if ($result = $db->query($sql)) {
+    if ($result->num_rows > 0) {
+      $row = $result->fetch_assoc();
+      $fieldsUseCount = 0;
+      $fieldsUseCount += ($row[$PID_FILE_NAME] !== null ? 1 : 0);
+      $fieldsUseCount += ($row["{$PID_FILE_NAME}_2"] !== null ? 1 : 0);
+      $fieldsUseCount += ($row["{$PID_FILE_NAME}_3"] !== null ? 1 : 0);
+      $fieldsUseCount += ($row["{$PID_FILE_NAME}_4"] !== null ? 1 : 0);
+      $fieldsUseCount += ($row["{$PID_FILE_NAME}_5"] !== null ? 1 : 0);
+      $result->close();
+
+      $numFieldsLeft = 5 - $fieldsUseCount;
+      if ($uploadedFilesCount > $numFieldsLeft) {
+        if ($numFieldsLeft > 0) {
+          $errMessage = "เกิดข้อผิดพลาดในการเพิ่มรูปภาพ: คุณสามารถเพิ่มได้อีกไม่เกิน $numFieldsLeft รูปเท่านั้น";
+        } else {
+          $errMessage = "เกิดข้อผิดพลาดในการเพิ่มรูปภาพ: คุณไม่สามารถเพิ่มได้อีก เพราะมีรูปภาพครบ 5 รูปแล้ว";
+        }
+        $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+        $response[KEY_ERROR_MESSAGE] = $errMessage;
+        $response[KEY_ERROR_MESSAGE_MORE] = "SQL: $sql";
+        return;
+      }
+
+      $nextFieldNumber = $fieldsUseCount + 1;
+      $db->query('START TRANSACTION');
+
+      for ($i = 0; $i < sizeof($_FILES['pidFiles']['name']); $i++) {
+        $fileName = null;
+
+        if (!moveUploadedFile('pidFiles', '../uploads/slip_images/', $fileName, $i)) {
+          $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+          $errorValue = $_FILES['pidFiles']['error'][$i];
+          $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ [Error: $errorValue]";
+          $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+          $db->query('ROLLBACK');
+          return;
+        }
+
+        if ($nextFieldNumber > 1) {
+          $fieldName = "{$PID_FILE_NAME}_{$nextFieldNumber}";
+        } else {
+          $fieldName = "{$PID_FILE_NAME}";
+        }
+        $nextFieldNumber++;
+
+        $sql = "UPDATE course_registration_driving_license 
+                SET $fieldName = '$fileName'
+                WHERE id = $traineeId";
+        if (!($result = $db->query($sql))) {
+          $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+          $errMessage = $db->error;
+          $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการเพิ่มรูปภาพ: $errMessage";
+          $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+
+          $db->query('ROLLBACK');
+          return;
+        }
+      }
+
+      $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+      $response[KEY_ERROR_MESSAGE] = 'เพิ่มรูปภาพสำเร็จ';
+      $response[KEY_ERROR_MESSAGE_MORE] = '';
+
+      $db->query('COMMIT');
+    } else {
+      $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+      $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการเพิ่มรูปภาพ (SELECT empty)";
+      $response[KEY_ERROR_MESSAGE_MORE] = "SQL: $sql";
+    }
+  } else {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+    $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการเพิ่มรูปภาพ (SELECT error): $errMessage";
+    $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+  }
+}
+
+function doDeleteDlDocImage()
+{
+  global $db, $response;
+  $PID_FILE_NAME = 'pid_file_name';
+
+  $traineeId = $db->real_escape_string($_POST['traineeId']);
+  $pidId = (int)$_POST['pidId'];
+
+  $pidFieldName = $PID_FILE_NAME;
+  if ($pidId > 1) {
+    $pidFieldName .= "_{$pidId}";
+  }
+
+  $db->query('START TRANSACTION');
+
+  $sql = "UPDATE course_registration_driving_license 
+          SET $pidFieldName = NULL
+          WHERE id = $traineeId";
+
+  if ($result = $db->query($sql)) {
+    $setClause = '';
+    for ($i = $pidId; $i <= 5; $i++) {
+      if ($i === 1) {
+        $setClause .= "{$PID_FILE_NAME} = {$PID_FILE_NAME}_2, ";
+      } else if ($i === 5) {
+        $setClause .= "{$PID_FILE_NAME}_5 = NULL";
+      } else {
+        $setClause .= "{$PID_FILE_NAME}_{$i} = {$PID_FILE_NAME}_" . ($i + 1) . ", ";
+      }
+    }
+    $sqlReOrder = "UPDATE course_registration_driving_license 
+                   SET $setClause
+                   WHERE id=$traineeId";
+
+    if ($resultReOrder = $db->query($sqlReOrder)) {
+      $db->query('COMMIT');
+
+      $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+      $response[KEY_ERROR_MESSAGE] = 'ลบข้อมูลสำเร็จ';
+      $response[KEY_ERROR_MESSAGE_MORE] = '';
+    } else {
+      $db->query('ROLLBACK');
+
+      $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+      $errMessage = $db->error;
+      $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการลบข้อมูล (re-order fields): $errMessage\nSQL: $sqlReOrder";
+      $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sqlReOrder";
+    }
+  } else {
+    $db->query('ROLLBACK');
+
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+    $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE] = "เกิดข้อผิดพลาดในการลบข้อมูล: $errMessage";
     $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
   }
 }
