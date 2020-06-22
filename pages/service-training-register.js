@@ -679,7 +679,7 @@ export default class ServiceTrainingRegister extends React.Component {
       initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = user.organizationType;
       initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = user.organizationTypeCustom;
       initialCoordinatorFields[REGISTER_COORDINATOR_PHONE] = user.phone;
-      initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;
+      initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;REGISTER_RECEIPT_NAME
 
       initialReceiptFields[REGISTER_RECEIPT_ADDRESS] = user.address;
       initialReceiptFields[REGISTER_RECEIPT_SUB_DISTRICT] = user.subDistrict;
@@ -688,6 +688,17 @@ export default class ServiceTrainingRegister extends React.Component {
       initialReceiptFields[REGISTER_RECEIPT_POSTAL_CODE] = user.postalCode;
       initialReceiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE] = user.organizationPhone;
       initialReceiptFields[REGISTER_RECEIPT_TAX_ID] = user.taxId;
+    }
+
+    if (user.address == null) {
+      initialReceiptFields[REGISTER_RECEIPT_NAME] = localStorage.getItem(REGISTER_RECEIPT_NAME);
+      initialReceiptFields[REGISTER_RECEIPT_ADDRESS] = localStorage.getItem(REGISTER_RECEIPT_ADDRESS);
+      initialReceiptFields[REGISTER_RECEIPT_SUB_DISTRICT] = localStorage.getItem(REGISTER_RECEIPT_SUB_DISTRICT);
+      initialReceiptFields[REGISTER_RECEIPT_DISTRICT] = localStorage.getItem(REGISTER_RECEIPT_DISTRICT);
+      initialReceiptFields[REGISTER_RECEIPT_PROVINCE] = localStorage.getItem(REGISTER_RECEIPT_PROVINCE);
+      initialReceiptFields[REGISTER_RECEIPT_POSTAL_CODE] = localStorage.getItem(REGISTER_RECEIPT_POSTAL_CODE);
+      initialReceiptFields[REGISTER_RECEIPT_ORGANIZATION_PHONE] = localStorage.getItem(REGISTER_RECEIPT_ORGANIZATION_PHONE);
+      initialReceiptFields[REGISTER_RECEIPT_TAX_ID] = localStorage.getItem(REGISTER_RECEIPT_TAX_ID);
     }
 
     let {traineeForms, coordinatorForm, receiptForm} = this.state;
@@ -817,6 +828,16 @@ export default class ServiceTrainingRegister extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.validateFormReceipt()) {
+      let {receiptForm} = this.state;
+      localStorage.setItem(REGISTER_RECEIPT_NAME, receiptForm.fields[REGISTER_RECEIPT_NAME]);
+      localStorage.setItem(REGISTER_RECEIPT_ADDRESS, receiptForm.fields[REGISTER_RECEIPT_ADDRESS]);
+      localStorage.setItem(REGISTER_RECEIPT_SUB_DISTRICT, receiptForm.fields[REGISTER_RECEIPT_SUB_DISTRICT]);
+      localStorage.setItem(REGISTER_RECEIPT_DISTRICT, receiptForm.fields[REGISTER_RECEIPT_DISTRICT]);
+      localStorage.setItem(REGISTER_RECEIPT_PROVINCE, receiptForm.fields[REGISTER_RECEIPT_PROVINCE]);
+      localStorage.setItem(REGISTER_RECEIPT_POSTAL_CODE, receiptForm.fields[REGISTER_RECEIPT_POSTAL_CODE]);
+      localStorage.setItem(REGISTER_RECEIPT_ORGANIZATION_PHONE, receiptForm.fields[REGISTER_RECEIPT_ORGANIZATION_PHONE]);
+      localStorage.setItem(REGISTER_RECEIPT_TAX_ID, receiptForm.fields[REGISTER_RECEIPT_TAX_ID]);
+
       this.doRegister();
     } else {
       /*this.showDialog("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error", () => {

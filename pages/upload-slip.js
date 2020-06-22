@@ -43,21 +43,21 @@ export default class UploadSlip extends React.Component {
       this.setState({
         inputFormNumber: formNumber,
       }, () => {
-        this.handleSubmitInputFormNumber();
+        this.handleSubmitInputFormNumber(formNumber);
       });
     }
   }
 
-  handleInputFormNumberChange = (event, {newValue, method}) => {
+  handleInputFormNumberChange = newText => {
     this.setState({
-      inputFormNumber: newValue.trim(),
+      inputFormNumber: newText,
     }, () => {
 
     });
   };
 
-  handleSubmitInputFormNumber = event => {
-    if (this.state.inputFormNumber !== '') {
+  handleSubmitInputFormNumber = formNumber => {
+    if (this.validateSuggestForm(formNumber)) {
       /*this.setState({
           traineeFormData: null
       });*/
@@ -67,7 +67,7 @@ export default class UploadSlip extends React.Component {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          formNumber: this.state.inputFormNumber
+          formNumber: formNumber
         }),
       })
         .then(result => result.json())
@@ -84,10 +84,31 @@ export default class UploadSlip extends React.Component {
             });
           }
         });
-    } else {
-      //todo: แสดง error บอกให้กรอกข้อมูล
     }
   };
+
+  handleClickSuggestItem = (formNumber) => {
+    this.handleSubmitInputFormNumber(formNumber);
+  }
+
+  validateSuggestForm = (inputFormNumber) => {
+    //const {inputFormNumber} = this.state;
+    let valid = true;
+    if (inputFormNumber.length === 0) {
+      alert("กรุณากรอกเลขที่ใบสมัคร\n-----\n\nเลขที่ใบสมัคร จะขึ้นต้นด้วย 'AC' หรือ 'SO' หรือ 'DL' เท่านั้น แล้วตามด้วยตัวเลข 8 หรือ 12 หลัก");
+      valid = false;
+    } else if (inputFormNumber.length !== 12 && inputFormNumber.length !== 17) {
+      alert("เลขที่ใบสมัคร ต้องขึ้นต้นด้วย 'AC' หรือ 'SO' หรือ 'DL' เท่านั้น แล้วตามด้วยตัวเลข 8 หรือ 12 หลัก");
+      valid = false;
+    } else if (inputFormNumber.substring(0, 2).toUpperCase() === 'AC' && inputFormNumber.length != 17) {
+      alert("เลขที่ใบสมัครที่ขึ้นต้นด้วย 'AC' จะต้องตามด้วยตัวเลข 12 หลัก");
+      valid = false;
+    } else if ((inputFormNumber.substring(0, 2).toUpperCase() === 'SO' || inputFormNumber.substring(0, 2).toUpperCase() === 'DL') && inputFormNumber.length != 12) {
+      alert("เลขที่ใบสมัครที่ขึ้นต้นด้วย 'SO' หรือ 'DL' จะต้องตามด้วยตัวเลข 8 หลัก");
+      valid = false;
+    }
+    return valid;
+  }
 
   handleChangeAmount = e => {
     const {fields} = this.state;
@@ -301,12 +322,13 @@ export default class UploadSlip extends React.Component {
               <TraineeFormAutoSuggest
                 value={this.state.inputFormNumber}
                 onChange={this.handleInputFormNumberChange}
+                onClickSuggestItem={this.handleClickSuggestItem}
               />
             </div>
             <div className="col-md-4 text-md-left text-center mt-2 mt-md-0">
               <a href="javascript:void(0)"
                  className="btn-submit"
-                 onClick={this.handleSubmitInputFormNumber}
+                 onClick={() => this.handleSubmitInputFormNumber(this.state.inputFormNumber)}
                  style={{padding: '5px 0px', width: '100px', textAlign: 'center'}}>
                 ค้นหา
               </a>

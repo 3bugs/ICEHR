@@ -10,220 +10,242 @@ import {scroller} from "react-scroll/modules";
 import Dialog from "../components/Dialog";
 
 export default class CheckStatus extends React.Component {
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            inputFormNumber: '',
-            traineeFormData: null,
-            errorMessage: null,
-            fields: {},
-            errors: {},
-            dialog: {
-                isOpen: false,
-                message: '',
-                textColor: '#000',
-                onCloseCallback: null,
-            },
-        };
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      inputFormNumber: '',
+      traineeFormData: null,
+      errorMessage: null,
+      fields: {},
+      errors: {},
+      dialog: {
+        isOpen: false,
+        message: '',
+        textColor: '#000',
+        onCloseCallback: null,
+      },
+    };
+  }
+
+  handleInputFormNumberChange = newText => {
+    this.setState({
+      inputFormNumber: newText,
+    }, () => {
+
+    });
+  };
+
+  handleSubmitInputFormNumber = formNumber => {
+    if (this.validateSuggestForm(formNumber)) {
+      /*this.setState({
+          traineeFormData: null
+      });*/
+      fetch('/api/get_trainee_by_form_number', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          formNumber: formNumber
+        }),
+      })
+        .then(result => result.json())
+        .then(result => {
+          if (result['error']['code'] === 0) {
+            this.setState({
+              traineeFormData: result['data'],
+              errorMessage: null,
+            });
+          } else {
+            this.setState({
+              traineeFormData: null,
+              errorMessage: result['error']['message'],
+            });
+          }
+        });
+    }
+  };
+
+  validateSuggestForm = (inputFormNumber) => {
+    //const {inputFormNumber} = this.state;
+    let valid = true;
+    if (inputFormNumber.length === 0) {
+      alert("กรุณากรอกเลขที่ใบสมัคร\n-----\n\nเลขที่ใบสมัคร จะขึ้นต้นด้วย 'AC' หรือ 'SO' หรือ 'DL' เท่านั้น แล้วตามด้วยตัวเลข 8 หรือ 12 หลัก");
+      valid = false;
+    } else if (inputFormNumber.length !== 12 && inputFormNumber.length !== 17) {
+      alert("เลขที่ใบสมัคร ต้องขึ้นต้นด้วย 'AC' หรือ 'SO' หรือ 'DL' เท่านั้น แล้วตามด้วยตัวเลข 8 หรือ 12 หลัก");
+      valid = false;
+    } else if (inputFormNumber.substring(0, 2).toUpperCase() === 'AC' && inputFormNumber.length != 17) {
+      alert("เลขที่ใบสมัครที่ขึ้นต้นด้วย 'AC' จะต้องตามด้วยตัวเลข 12 หลัก");
+      valid = false;
+    } else if ((inputFormNumber.substring(0, 2).toUpperCase() === 'SO' || inputFormNumber.substring(0, 2).toUpperCase() === 'DL') && inputFormNumber.length != 12) {
+      alert("เลขที่ใบสมัครที่ขึ้นต้นด้วย 'SO' หรือ 'DL' จะต้องตามด้วยตัวเลข 8 หลัก");
+      valid = false;
+    }
+    return valid;
+  }
+
+  showDialog = (message, textColor, onCloseCallback) => {
+    const dialog = {
+      isOpen: true,
+      message, textColor,
+      onCloseCallback
+    };
+    this.setState({dialog});
+  };
+
+  dismissDialog = () => {
+    const dialog = {
+      isOpen: false,
+      message: '',
+      textColor: '#000',
+      onCloseCallback: null,
+    };
+    this.setState({dialog});
+  };
+
+  handleClickSuggestItem = (formNumber) => {
+    this.handleSubmitInputFormNumber(formNumber);
+  }
+
+  render() {
+    const {traineeFormData, errorMessage, fields, errors, dialog} = this.state;
+
+    let statusImage = '';
+    let statusText = '';
+    if (traineeFormData) {
+      switch (traineeFormData.registerStatus) {
+        case 'start':
+          statusImage = 'step1.svg';
+          statusText = 'รอการชำระเงิน';
+          break;
+        case 'wait-approve':
+          statusImage = 'step2.svg';
+          statusText = 'เจ้าหน้าที่กำลังตรวจสอบข้อมูลการชำระเงิน';
+          break;
+        case 'complete':
+          statusImage = 'step4.svg';
+          statusText = 'การลงทะเบียนสมบูรณ์';
+          break;
+        /*case 'cancel':
+            statusImage = 'step1.svg';
+            break;*/
+      }
     }
 
-    handleInputFormNumberChange = (event, {newValue, method}) => {
-        this.setState({
-            inputFormNumber: newValue.trim(),
-        }, () => {
+    return (
+      <MainLayout>
+        <NextHead>
+        </NextHead>
 
-        });
-    };
+        <div className="container">
+          <div className="row">
+            <div className="col text-title-top">
+              <h3>ตรวจสอบสถานะการลงทะเบียน</h3>
+            </div>
+          </div>
+          <div className="row form-other mt-3">
+            <div className="col-md-2">
+              <label>เลขที่ใบสมัคร</label>
+            </div>
+            <div className="col-md-6">
+              <TraineeFormAutoSuggest
+                value={this.state.inputFormNumber}
+                onChange={this.handleInputFormNumberChange}
+                onClickSuggestItem={this.handleClickSuggestItem}
+              />
+            </div>
+            <div className="col-md-4 nopad">
+              <a href="javascript:void(0)"
+                 className="btn-submit"
+                 onClick={() => this.handleSubmitInputFormNumber(this.state.inputFormNumber)}
+                 style={{padding: '5px 0px', width: '100px', textAlign: 'center'}}>
+                ค้นหา
+              </a>
+            </div>
+          </div>
 
-    handleSubmitInputFormNumber = event => {
-        if (this.state.inputFormNumber !== '') {
-            /*this.setState({
-                traineeFormData: null
-            });*/
-            fetch('/api/get_trainee_by_form_number', {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    formNumber: this.state.inputFormNumber
-                }),
-            })
-                .then(result => result.json())
-                .then(result => {
-                    if (result['error']['code'] === 0) {
-                        this.setState({
-                            traineeFormData: result['data'],
-                            errorMessage: null,
-                        });
-                    } else {
-                        this.setState({
-                            traineeFormData: null,
-                            errorMessage: result['error']['message'],
-                        });
-                    }
-                });
-        } else {
-            //todo: แสดง error บอกให้กรอกข้อมูล
-        }
-    };
+          {!traineeFormData && !errorMessage &&
+          <div style={{height: '60px'}}/>
+          }
 
-    showDialog = (message, textColor, onCloseCallback) => {
-        const dialog = {
-            isOpen: true,
-            message, textColor,
-            onCloseCallback
-        };
-        this.setState({dialog});
-    };
+          {errorMessage &&
+          <div style={{color: 'red', margin: '30px 0', textAlign: 'center'}}>
+            {this.state.errorMessage}
+          </div>
+          }
 
-    dismissDialog = () => {
-        const dialog = {
-            isOpen: false,
-            message: '',
-            textColor: '#000',
-            onCloseCallback: null,
-        };
-        this.setState({dialog});
-    };
-
-    render() {
-        const {traineeFormData, errorMessage, fields, errors, dialog} = this.state;
-
-        let statusImage = '';
-        let statusText = '';
-        if (traineeFormData) {
-            switch (traineeFormData.registerStatus) {
-                case 'start':
-                    statusImage = 'step1.svg';
-                    statusText = 'รอการชำระเงิน';
-                    break;
-                case 'wait-approve':
-                    statusImage = 'step2.svg';
-                    statusText = 'เจ้าหน้าที่กำลังตรวจสอบข้อมูลการชำระเงิน';
-                    break;
-                case 'complete':
-                    statusImage = 'step4.svg';
-                    statusText = 'การลงทะเบียนสมบูรณ์';
-                    break;
-                /*case 'cancel':
-                    statusImage = 'step1.svg';
-                    break;*/
-            }
-        }
-
-        return (
-            <MainLayout>
-                <NextHead>
-                </NextHead>
-
-                <div className="container">
-                    <div className="row">
-                        <div className="col text-title-top">
-                            <h3>ตรวจสอบสถานะการลงทะเบียน</h3>
-                        </div>
+          {traineeFormData &&
+          <React.Fragment>
+            <div className="row">
+              <div className="col">
+                <div className="bg-gray">
+                  <div className="number-check">
+                    เลขที่ใบสมัคร<br/>{traineeFormData.formNumber}
+                  </div>
+                  <div className="row text-default">
+                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      ชื่อผู้สมัคร
                     </div>
-                    <div className="row form-other mt-3">
-                        <div className="col-md-2">
-                            <label>เลขที่ใบสมัคร</label>
-                        </div>
-                        <div className="col-md-6">
-                            <TraineeFormAutoSuggest
-                                value={this.state.inputFormNumber}
-                                onChange={this.handleInputFormNumberChange}
-                            />
-                        </div>
-                        <div className="col-md-4 nopad">
-                            <a href="javascript:void(0)"
-                               className="btn-submit"
-                               onClick={this.handleSubmitInputFormNumber}
-                               style={{padding: '5px 0px', width: '100px', textAlign: 'center'}}>
-                                ค้นหา
-                            </a>
-                        </div>
+                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block " style={{border: '0px solid red'}}>
+                      {`${traineeFormData.trainee.title} ${traineeFormData.trainee.firstName} ${traineeFormData.trainee.lastName}`}
                     </div>
-
-                    {!traineeFormData && !errorMessage &&
-                    <div style={{height: '60px'}}/>
-                    }
-
-                    {errorMessage &&
-                    <div style={{color: 'red', margin: '30px 0', textAlign: 'center'}}>
-                        {this.state.errorMessage}
+                  </div>
+                  <div className="row text-default">
+                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      ชื่อหลักสูตร / รุ่นที่
                     </div>
-                    }
-
-                    {traineeFormData &&
-                    <React.Fragment>
-                        <div className="row">
-                            <div className="col">
-                                <div className="bg-gray">
-                                    <div className="number-check">
-                                        เลขที่ใบสมัคร<br/>{traineeFormData.formNumber}
-                                    </div>
-                                    <div className="row text-default">
-                                        <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            ชื่อผู้สมัคร
-                                        </div>
-                                        <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block " style={{border: '0px solid red'}}>
-                                            {`${traineeFormData.trainee.title} ${traineeFormData.trainee.firstName} ${traineeFormData.trainee.lastName}`}
-                                        </div>
-                                    </div>
-                                    <div className="row text-default">
-                                        <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            ชื่อหลักสูตร / รุ่นที่
-                                        </div>
-                                        <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            {traineeFormData.course.name}
-                                        </div>
-                                    </div>
-                                    <div className="row text-default">
-                                        <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            วันที่จัด
-                                        </div>
-                                        <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            {formatCourseDateLong(traineeFormData.course.beginDate, traineeFormData.course.endDate)}
-                                        </div>
-                                    </div>
-                                    <div className="row text-default">
-                                        <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            สถานที่อบรม
-                                        </div>
-                                        <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            {traineeFormData.course.place}
-                                        </div>
-                                    </div>
-                                    <div className="row text-default">
-                                        <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            สถานะการลงทะเบียน
-                                        </div>
-                                        <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
-                                            <u>{statusText}</u>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {/*<div className="row">
+                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      {traineeFormData.course.name}
+                    </div>
+                  </div>
+                  <div className="row text-default">
+                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      วันที่จัด
+                    </div>
+                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      {formatCourseDateLong(traineeFormData.course.beginDate, traineeFormData.course.endDate)}
+                    </div>
+                  </div>
+                  <div className="row text-default">
+                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      สถานที่อบรม
+                    </div>
+                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      {traineeFormData.course.place}
+                    </div>
+                  </div>
+                  <div className="row text-default">
+                    <div className="col-md-3 text-bold d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      สถานะการลงทะเบียน
+                    </div>
+                    <div className="col-md-7 d-none d-sm-block d-md-block d-lg-block d-xl-block ">
+                      <u>{statusText}</u>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/*<div className="row">
                             <div className="col">
                                 <h4>สถานะการลงทะเบียน</h4>
                             </div>
                         </div>*/}
-                        <div className="row">
-                            <div className="col">
-                                <img src={`/static/images/${statusImage}`} className="stepimg"/>
-                            </div>
-                        </div>
-                    </React.Fragment>
-                    }
-                </div>
+            <div className="row">
+              <div className="col">
+                <img src={`/static/images/${statusImage}`} className="stepimg"/>
+              </div>
+            </div>
+          </React.Fragment>
+          }
+        </div>
 
-                <Dialog message={dialog.message}
-                        textColor={dialog.textColor}
-                        isOpen={dialog.isOpen}
-                        onCloseCallback={dialog.onCloseCallback}/>
+        <Dialog message={dialog.message}
+                textColor={dialog.textColor}
+                isOpen={dialog.isOpen}
+                onCloseCallback={dialog.onCloseCallback}/>
 
-                <style jsx>{`
+        <style jsx>{`
                     .text-title-top h3 {
                         width: 100%;
                         font-size: 2em;
@@ -369,7 +391,7 @@ export default class CheckStatus extends React.Component {
                         }
                     }
                 `}</style>
-            </MainLayout>
-        );
-    }
+      </MainLayout>
+    );
+  }
 }
