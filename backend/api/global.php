@@ -1,8 +1,8 @@
 <?php
 require_once '../vendor/autoload.php';
 
-define('HOST_FRONTEND', 'http://localhost:3000');
-//define('HOST_FRONTEND', 'http://www.icehr.tu.ac.th');
+//define('HOST_FRONTEND', 'http://localhost:3000');
+define('HOST_FRONTEND', 'http://www.icehr.tu.ac.th');
 
 //define('HOST_FRONTEND', 'http://202.6.26.3:3000');
 //define('HOST_FRONTEND', 'http://www2.icehr.tu.ac.th:3000');

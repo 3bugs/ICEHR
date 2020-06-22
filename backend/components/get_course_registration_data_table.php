@@ -3783,10 +3783,10 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
             data.data_list[0].pid_file_name_5
           );
         } else {
-
+          alert(data.error_message);
         }
       }).fail(function () {
-
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Server');
       });
     }
 

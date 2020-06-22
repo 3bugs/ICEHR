@@ -209,6 +209,9 @@ switch ($action) {
   case 'update_trainer_status':
     doUpdateTrainerStatus();
     break;
+  case 'update_certificate_signer':
+    doUpdateCertificateSigner();
+    break;
   case 'add_user_department':
     doAddUserDepartment();
     break;
@@ -3268,6 +3271,52 @@ function doUpdateTrainer()
   } else {
     $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
     $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2): ' . $db->error;
+    $errMessage = $db->error;
+    $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
+  }
+}
+
+function doUpdateCertificateSigner()
+{
+  global $db, $response;
+
+  if (!checkPermission(PERMISSION_COURSE_TRAINING_MANAGE_COURSE_MASTER)) {
+    return;
+  }
+
+  $signerId = $db->real_escape_string($_POST['signerId']);
+
+  $title = $db->real_escape_string($_POST['title']);
+  $firstName = $db->real_escape_string($_POST['firstName']);
+  $lastName = $db->real_escape_string($_POST['lastName']);
+  $position = $db->real_escape_string($_POST['position']);
+
+  $imageFileName = null;
+
+  if ($_FILES['signatureImage']) {
+    if (!moveUploadedFile('signatureImage', UPLOAD_DIR_SIGNATURES, $imageFileName)) {
+      $response[KEY_ERROR_CODE] = ERROR_CODE_ERROR;
+      $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์รูปภาพ';
+      $response[KEY_ERROR_MESSAGE_MORE] = '';
+      return;
+    }
+
+    $sql = "UPDATE certificate_signer SET title = '$title', first_name = '$firstName', last_name = '$lastName',  
+                position = '$position', signature_image = '$imageFileName'
+                WHERE id = $signerId";
+  } else {
+    $sql = "UPDATE certificate_signer SET title = '$title', first_name = '$firstName', last_name = '$lastName',  
+                position = '$position'
+                WHERE id = $signerId";
+  }
+
+  if ($result = $db->query($sql)) {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SUCCESS;
+    $response[KEY_ERROR_MESSAGE] = 'อัพเดทข้อมูลผู้ลงนามใบรับรองสำเร็จ';
+    $response[KEY_ERROR_MESSAGE_MORE] = '';
+  } else {
+    $response[KEY_ERROR_CODE] = ERROR_CODE_SQL_ERROR;
+    $response[KEY_ERROR_MESSAGE] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $db->error;
     $errMessage = $db->error;
     $response[KEY_ERROR_MESSAGE_MORE] = "$errMessage\nSQL: $sql";
   }
