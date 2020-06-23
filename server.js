@@ -150,7 +150,168 @@ app
       const queryParams = { title: req.params.id };
       app.render(req, res, actualPage, queryParams);*/
 
-      const db = mysql.createConnection({
+      let db;
+
+      function handleDisconnect() {
+        db = mysql.createConnection({
+          host: dbConfig.HOST,
+          port: dbConfig.PORT,
+          user: dbConfig.USER,
+          password: dbConfig.PASSWORD,
+          database: dbConfig.DATABASE,
+        });
+
+        db.on('error', function(err) {
+          console.log('DB error', err);
+          if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+            handleDisconnect();                         // lost due to either server restart, or a
+          } else {                                      // connnection idle timeout (the wait_timeout
+            throw err;                                  // server variable configures this)
+          }
+        });
+
+        db.connect(function (err) {     // The server is either down
+          if (err) {                                    // or restarting (takes a while sometimes).
+            console.log('Error when connecting to db:', err);
+            setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+          }                                             // to avoid a hot loop, and to allow our node script to
+
+          logConnection(req, res, db);
+          //console.log('Db connected as id ' + db.threadId);
+
+          switch (req.params.action) {
+            case 'login_member':
+              doLoginMember(req, res, db);
+              break;
+            case 'register_member':
+              doRegisterMember(req, res, db);
+              break;
+            case 'forgot_password':
+              doForgotPassword(req, res, db);
+              break;
+            case 'reset_password':
+              doResetPassword(req, res, db);
+              break;
+            case 'update_member':
+              doUpdateMember(req, res, db);
+              break;
+            case 'logout_member':
+              break;
+            case 'get_course':
+              doGetCourse(req, res, db);
+              break;
+            case 'search_course':
+              doSearchCourse(req, res, db);
+              break;
+            case 'register_course':
+              registerCourse(req, res, db, constants.SERVICE_TRAINING);
+              break;
+            case 'register_course_social':
+              registerCourse(req, res, db, constants.SERVICE_SOCIAL);
+              //doRegisterCourseSocial(req, res, db);
+              break;
+            case 'register_course_driving_license':
+              registerCourseDrivingLicense(req, res, db);
+              //registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
+              //doRegisterCourseDrivingLicense(req, res, db);
+              break;
+            case 'register_in_house':
+              doRegisterInHouse(req, res, db);
+              break;
+            case 'get_name_title':
+              doGetNameTitle(req, res, db);
+              break;
+            case 'get_organization_type':
+              doGetOrganizationType(req, res, db);
+              break;
+            case 'get_registration_list_by_member':
+              doGetRegistrationListByMember(req, res, db);
+              break;
+            case 'get_trainee_by_form_number':
+              doGetTraineeByFormNumber(req, res, db);
+              break;
+            case 'get_registration_by_member_id':
+              doGetRegistrationByMemberId(req, res, db);
+              break;
+            case 'add_transfer_notification':
+              doAddTransferNotification(req, res, db);
+              break;
+            case 'get_academic_paper':
+              doGetAcademicPaper(req, res, db);
+              break;
+            case 'search_academic_paper':
+              doSearchAcademicPaper(req, res, db);
+              break;
+            case 'add_academic_paper_download':
+              doAddAcademicPaperDownload(req, res, db);
+              break;
+            case 'get_training_course_category':
+              doGetTrainingCourseCategory(req, res, db);
+              break;
+            case 'get_driving_license_course_type':
+              doGetDrivingLicenseCourseType(req, res, db);
+              break;
+            case 'get_document_download':
+              doGetDocumentDownload(req, res, db);
+              break;
+            case 'update_document_download_count':
+              doUpdateDocumentDownloadCount(req, res, db);
+              break;
+            case 'get_news':
+              doGetNews(req, res, db);
+              break;
+            case 'get_news_latest':
+              doGetNewsLatest(req, res, db);
+              break;
+            case 'get_in_house_latest':
+              doGetInHouseLatest(req, res, db);
+              break;
+            case 'get_in_house':
+              doGetInHouse(req, res, db);
+              break;
+            case 'get_news_by_id':
+              doGetNewsById(req, res, db);
+              break;
+            case 'get_activity':
+              doGetActivity(req, res, db);
+              break;
+            case 'get_faq':
+              doGetFaq(req, res, db);
+              break;
+            case 'get_course_num_trainee_available':
+              doGetCourseNumTraineeAvailable(req, res, db);
+              break;
+            case 'get_intro':
+              doGetIntro(req, res, db);
+              break;
+            case 'get_service':
+              doGetService(req, res, db);
+              break;
+            case 'get_service_link_contact':
+              doGetServiceLinkContact(req, res, db);
+              break;
+            case 'get_user':
+              doGetUser(req, res, db);
+              break;
+            case 'get_committee':
+              doGetCommittee(req, res, db);
+              break;
+
+            default:
+              //res.status(404).end();
+              res.send({
+                error: new Error(1, 'Invalid API endpoint', ''),
+                dataList: null
+              });
+              break;
+          }
+          //db.end();
+        });
+      }
+
+      handleDisconnect();
+
+      /*const db = mysql.createConnection({
         host: dbConfig.HOST,
         port: dbConfig.PORT,
         user: dbConfig.USER,
@@ -164,138 +325,7 @@ app
           });
           return;
         }
-
-        logConnection(req, res, db);
-        //console.log('Db connected as id ' + db.threadId);
-
-        switch (req.params.action) {
-          case 'login_member':
-            doLoginMember(req, res, db);
-            break;
-          case 'register_member':
-            doRegisterMember(req, res, db);
-            break;
-          case 'forgot_password':
-            doForgotPassword(req, res, db);
-            break;
-          case 'reset_password':
-            doResetPassword(req, res, db);
-            break;
-          case 'update_member':
-            doUpdateMember(req, res, db);
-            break;
-          case 'logout_member':
-            break;
-          case 'get_course':
-            doGetCourse(req, res, db);
-            break;
-          case 'search_course':
-            doSearchCourse(req, res, db);
-            break;
-          case 'register_course':
-            registerCourse(req, res, db, constants.SERVICE_TRAINING);
-            break;
-          case 'register_course_social':
-            registerCourse(req, res, db, constants.SERVICE_SOCIAL);
-            //doRegisterCourseSocial(req, res, db);
-            break;
-          case 'register_course_driving_license':
-            registerCourseDrivingLicense(req, res, db);
-            //registerCourse(req, res, db, constants.SERVICE_DRIVING_LICENSE);
-            //doRegisterCourseDrivingLicense(req, res, db);
-            break;
-          case 'register_in_house':
-            doRegisterInHouse(req, res, db);
-            break;
-          case 'get_name_title':
-            doGetNameTitle(req, res, db);
-            break;
-          case 'get_organization_type':
-            doGetOrganizationType(req, res, db);
-            break;
-          case 'get_registration_list_by_member':
-            doGetRegistrationListByMember(req, res, db);
-            break;
-          case 'get_trainee_by_form_number':
-            doGetTraineeByFormNumber(req, res, db);
-            break;
-          case 'get_registration_by_member_id':
-            doGetRegistrationByMemberId(req, res, db);
-            break;
-          case 'add_transfer_notification':
-            doAddTransferNotification(req, res, db);
-            break;
-          case 'get_academic_paper':
-            doGetAcademicPaper(req, res, db);
-            break;
-          case 'search_academic_paper':
-            doSearchAcademicPaper(req, res, db);
-            break;
-          case 'add_academic_paper_download':
-            doAddAcademicPaperDownload(req, res, db);
-            break;
-          case 'get_training_course_category':
-            doGetTrainingCourseCategory(req, res, db);
-            break;
-          case 'get_driving_license_course_type':
-            doGetDrivingLicenseCourseType(req, res, db);
-            break;
-          case 'get_document_download':
-            doGetDocumentDownload(req, res, db);
-            break;
-          case 'update_document_download_count':
-            doUpdateDocumentDownloadCount(req, res, db);
-            break;
-          case 'get_news':
-            doGetNews(req, res, db);
-            break;
-          case 'get_news_latest':
-            doGetNewsLatest(req, res, db);
-            break;
-          case 'get_in_house_latest':
-            doGetInHouseLatest(req, res, db);
-            break;
-          case 'get_in_house':
-            doGetInHouse(req, res, db);
-            break;
-          case 'get_news_by_id':
-            doGetNewsById(req, res, db);
-            break;
-          case 'get_activity':
-            doGetActivity(req, res, db);
-            break;
-          case 'get_faq':
-            doGetFaq(req, res, db);
-            break;
-          case 'get_course_num_trainee_available':
-            doGetCourseNumTraineeAvailable(req, res, db);
-            break;
-          case 'get_intro':
-            doGetIntro(req, res, db);
-            break;
-          case 'get_service':
-            doGetService(req, res, db);
-            break;
-          case 'get_service_link_contact':
-            doGetServiceLinkContact(req, res, db);
-            break;
-          case 'get_user':
-            doGetUser(req, res, db);
-            break;
-          case 'get_committee':
-            doGetCommittee(req, res, db);
-            break;
-
-          default:
-            //res.status(404).end();
-            res.send({
-              error: new Error(1, 'Invalid API endpoint', ''),
-              dataList: null
-            });
-            break;
-        }
-        //db.end();
-      });
+      });*/
     });
 
     /*จัดการ GET api call*/
