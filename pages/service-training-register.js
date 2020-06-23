@@ -679,7 +679,7 @@ export default class ServiceTrainingRegister extends React.Component {
       initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE] = user.organizationType;
       initialCoordinatorFields[REGISTER_COORDINATOR_ORGANIZATION_TYPE_CUSTOM] = user.organizationTypeCustom;
       initialCoordinatorFields[REGISTER_COORDINATOR_PHONE] = user.phone;
-      initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;REGISTER_RECEIPT_NAME
+      initialCoordinatorFields[REGISTER_COORDINATOR_EMAIL] = user.email;
 
       initialReceiptFields[REGISTER_RECEIPT_ADDRESS] = user.address;
       initialReceiptFields[REGISTER_RECEIPT_SUB_DISTRICT] = user.subDistrict;
