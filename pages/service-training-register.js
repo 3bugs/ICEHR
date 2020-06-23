@@ -690,7 +690,7 @@ export default class ServiceTrainingRegister extends React.Component {
       initialReceiptFields[REGISTER_RECEIPT_TAX_ID] = user.taxId;
     }
 
-    if (user.address == null) {
+    if (user == null || user.address == null) {
       initialReceiptFields[REGISTER_RECEIPT_NAME] = localStorage.getItem(REGISTER_RECEIPT_NAME);
       initialReceiptFields[REGISTER_RECEIPT_ADDRESS] = localStorage.getItem(REGISTER_RECEIPT_ADDRESS);
       initialReceiptFields[REGISTER_RECEIPT_SUB_DISTRICT] = localStorage.getItem(REGISTER_RECEIPT_SUB_DISTRICT);
