@@ -313,6 +313,7 @@ app
                 error: new Error(1, 'Invalid API endpoint', ''),
                 dataList: null
               });
+              db.end();
               break;
           }
           //db.end();
@@ -611,6 +612,7 @@ doResetPassword = (req, res, db) => {
       res.send({
         error: new Error(1, 'ไม่สามารถรีเซ็ตรหัสผ่านได้ เนื่องจากเกินเวลา 15 นาที กรุณาแจ้งลืมรหัสผ่านใหม่', ''),
       });
+      db.end();
     } else {
       db.query(
           `UPDATE member
@@ -629,11 +631,13 @@ doResetPassword = (req, res, db) => {
             });
           }
         });
+      db.end();
     }
   } else {
     res.send({
       error: new Error(1, 'Token ไม่ถูกต้อง! ถ้าหากคุณก๊อปปี link ที่ใช้รีเซ็ตรหัสผ่านมาจากอีเมล กรุณาตรวจสอบว่าได้ก๊อปปี link มาครบถ้วนสมบูรณ์', ''),
     });
+    db.end();
   }
 };
 
@@ -701,6 +705,7 @@ doUpdateMember = (req, res, db) => {
         res.send({
           error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error run query: ' + err.stack),
         });
+        db.end();
       } else {
         /*query ข้อมูลกลับมา เพื่อส่งไปอัพเดท local storage*/
         db.query(
@@ -1280,14 +1285,13 @@ doGetCourseNumTraineeAvailable = (req, res, db) => {
           error: new Error(1, data, ''),
         });
       }
+      db.end();
     }
   );
 };
 
 getCourseNumTraineeAvailable = (db, courseId, callback) => {
   let registrationTable = null;
-
-  //
 
   db.query(
       `SELECT cm.service_type
@@ -1685,11 +1689,13 @@ registerCourseDrivingLicense = (req, res, db) => {
       res.send({
         error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
       });
+      db.end();
       return;
     } else if (err) {
       res.send({
         error: new Error(1, 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์', ''),
       });
+      db.end();
       return;
     }
 
@@ -2041,6 +2047,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                 res.send({
                   error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
                 });
+                db.end();
               } else {
                 if (results.length > 0) {
                   const {
@@ -2070,6 +2077,7 @@ doGetTraineeByFormNumber = (req, res, db) => {
                       registerStatus,
                     }
                   });
+                  db.end();
                 } else {
                   db.query( // ถ้าหาในบริการวิชาการและใบขับขี่ไม่เจอ ก็ไปหาในสังคม
                       `SELECT cm.title           AS courseTitle,
@@ -2179,7 +2187,6 @@ doGetRegistrationByMemberId = (req, res, db) => {
         });
         db.end();
       } else {
-
         db.query( // สังคม
             `SELECT cm.title           AS courseTitle,
                     cm.service_type    AS serviceType,
@@ -2258,6 +2265,7 @@ doGetRegistrationByMemberId = (req, res, db) => {
                       error: new Error(0, 'อ่านข้อมูลสำเร็จ', ''),
                       dataList: results,
                     });
+                    db.end();
                   }
                 }
               ); // ใบขับขี่
@@ -3247,6 +3255,7 @@ doGetServiceLinkContact = (req, res, db) => {
         res.send({
           error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (1)', 'error run query: ' + err.stack),
         });
+        db.end();
       } else {
         const serviceList = results;
 
@@ -3263,6 +3272,7 @@ doGetServiceLinkContact = (req, res, db) => {
               res.send({
                 error: new Error(1, 'เกิดข้อผิดพลาดในการอ่านข้อมูล (2)', 'error run query: ' + err.stack),
               });
+              db.end();
             } else {
               const linkList = results.filter(item => {
                 return item.type === 'link';
