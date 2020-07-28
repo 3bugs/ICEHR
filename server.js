@@ -11,6 +11,7 @@ const PORT_NUMBER = 80;
 const constants = require('./etc/constants');
 const utils = require('./etc/utils');
 
+const RateLimit = require('express-rate-limit');
 const express = require('express');
 const next = require('next');
 const mysql = require('mysql');
@@ -45,6 +46,14 @@ app
   .then(() => {
     const server = express();
 
+    /*const limiter = new RateLimit({
+      windowMs: 1 * 60 * 1000, // 1 minutes
+      max: 30,
+      delayMs: 0 // disabled
+    });
+
+    // only apply to requests that begin with /api/
+    server.use('/api/', limiter);*/
     server.use(bodyParser.json());       // to support JSON-encoded bodies
     server.use(bodyParser.urlencoded({   // to support URL-encoded bodies
       extended: true
@@ -163,18 +172,19 @@ app
 
         db.on('error', function(err) {
           console.log('DB error', err);
-          if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-            handleDisconnect();                         // lost due to either server restart, or a
-          } else {                                      // connnection idle timeout (the wait_timeout
-            throw err;                                  // server variable configures this)
+          if (err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+            handleDisconnect();                          // lost due to either server restart, or a
+          } else {                                       // connection idle timeout (the wait_timeout
+            throw err;                                   // server variable configures this)
           }
         });
 
         db.connect(function (err) {     // The server is either down
           if (err) {                                    // or restarting (takes a while sometimes).
             console.log('Error when connecting to db:', err);
-            setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-          }                                             // to avoid a hot loop, and to allow our node script to
+            setTimeout(handleDisconnect, 2000);
+            return;
+          }
 
           logConnection(req, res, db);
           //console.log('Db connected as id ' + db.threadId);
