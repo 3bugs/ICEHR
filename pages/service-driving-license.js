@@ -5,98 +5,117 @@ import CourseDetails from "../components/service-training/CourseDetails";
 import {SERVICE_DRIVING_LICENSE, SERVICE_SOCIAL, SERVICE_TRAINING} from "../etc/constants";
 import CalendarView from "../components/CalendarView";
 import Router from 'next/router';
+import fetch from "isomorphic-unfetch";
 
 export default class ServiceDrivingLicense extends React.Component {
-    constructor(props, context) {
-        super(props, context);
-        this.state = {};
+  constructor(props, context) {
+    super(props, context);
+    this.state = {};
+  }
+
+  static getInitialProps = async ({req, query}) => {
+    const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
+    const {courseId} = query;
+
+    if (courseId === undefined) {
+      let result = {showList: true};
+      return {result};
+    } else {
+      let result = {showList: false, courseId: courseId};
+
+      const courseRes = await fetch(baseUrl + '/api/get_course', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          serviceType: SERVICE_DRIVING_LICENSE,
+          courseId: courseId,
+        }),
+      });
+      const courseResult = await courseRes.json();
+      let course = null;
+      if (courseResult.error.code === 0) {
+        course = courseResult.dataList[0];
+      }
+
+      return {result, course};
     }
+  };
 
-    static getInitialProps = context => {
-        const {courseId} = context.query;
+  componentDidMount() {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
 
-        if (courseId === undefined) {
-            let result = {showList: true};
-            return {result};
+    this.updateCalendar(month, year);
+  }
+
+  updateCalendar = (month, year) => {
+    fetch('/api/get_course', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        serviceType: SERVICE_DRIVING_LICENSE,
+        month, year
+      }),
+    })
+      .then(result => result.json())
+      .then(result => {
+        if (result['error']['code'] === 0) {
+          this.setState({
+            month, year,
+            courseList: result['dataList'],
+            errorMessage: null,
+          });
         } else {
-            let result = {showList: false, courseId: courseId};
-            return {result};
+          this.setState({
+            courseList: null,
+            errorMessage: result['error']['message'],
+          });
         }
-    };
+      });
+  };
 
-    componentDidMount() {
-        const today = new Date();
-        const day = today.getDate();
-        const month = today.getMonth() + 1;
-        const year = today.getFullYear();
+  showCourseDetails = (courseId) => {
+    Router.push('/service-driving-license/' + courseId);
+  };
 
-        this.updateCalendar(month, year);
-    }
+  /***************************************
+   https://medium.com/the-web-tub/managing-your-react-state-with-redux-affab72de4b1
+   ****************************************/
 
-    updateCalendar = (month, year) => {
-        fetch('/api/get_course', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                serviceType: SERVICE_DRIVING_LICENSE,
-                month, year
-            }),
-        })
-            .then(result => result.json())
-            .then(result => {
-                if (result['error']['code'] === 0) {
-                    this.setState({
-                        month, year,
-                        courseList: result['dataList'],
-                        errorMessage: null,
-                    });
-                } else {
-                    this.setState({
-                        courseList: null,
-                        errorMessage: result['error']['message'],
-                    });
-                }
-            });
-    };
+  render() {
+    const {month, year, courseList, errorMessage} = this.state;
 
-    showCourseDetails = (courseId) => {
-        Router.push('/service-driving-license/' + courseId);
-    };
-
-    /***************************************
-     https://medium.com/the-web-tub/managing-your-react-state-with-redux-affab72de4b1
-     ****************************************/
-
-    render() {
-        const {month, year, courseList, errorMessage} = this.state;
-
-        return (
-            <MainLayout>
-                <NextHead>
-                    {/*<link rel="stylesheet" href="/static/css/jquery-ui.css"/>
+    return (
+      <MainLayout>
+        <NextHead>
+          {/*<link rel="stylesheet" href="/static/css/jquery-ui.css"/>
                     <script src="/static/js/jquery-ui.js"/>*/}
-                </NextHead>
+        </NextHead>
 
-                {/*หัวข้อ "บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่"*/}
-                <div className="container">
-                    <div className="row">
-                        <div className="col">
-                            <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>
-                                {this.props.result.showList &&
-                                <span>ปฏิทินการอบรมใบขับขี่</span>
-                                }
-                                {!this.props.result.showList &&
-                                <span>การอบรมหลักสูตรด้านใบอนุญาตขับรถภาคทฤษฎี</span>
-                                }
-                            </h3>
-                        </div>
-                    </div>
-                </div>
+        {/*หัวข้อ "บริการอบรมภาคทฤษฎีเพื่อขอใบอนุญาตขับขี่"*/}
+        <div className="container">
+          <div className="row">
+            <div className="col">
+              <h3 style={{fontSize: '2em', textAlign: 'center', marginTop: '40px', width: '100%'}}>
+                {this.props.result.showList &&
+                <span>ปฏิทินการอบรมใบขับขี่</span>
+                }
+                {!this.props.result.showList &&
+                <span>การอบรมหลักสูตรด้านใบอนุญาตขับรถภาคทฤษฎี</span>
+                }
+              </h3>
+            </div>
+          </div>
+        </div>
 
-                {/*แถบค้นหาบริการสังคม*/}
-                {/*<div className="bg-search-service3">
+        {/*แถบค้นหาบริการสังคม*/}
+        {/*<div className="bg-search-service3">
                     <div className="container form-search d-none d-sm-block d-md-block d-lg-block d-xl-block">
                         <div className="row">
                             <div className="col-md-5 col-lg-6">
@@ -161,33 +180,34 @@ export default class ServiceDrivingLicense extends React.Component {
                     </div>
                 </div>*/}
 
-                {/*ปฏิทินหลักสูตร*/
-                    this.props.result.showList && (courseList !== null) &&
-                    <CalendarView month={month} year={year}
-                                  courseList={courseList}
-                                  handlePreviousNextMonthCallback={this.updateCalendar}
-                                  handleClickCourseCallback={this.showCourseDetails}
-                    />
-                }
-                {/*กรณีเกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตรจาก server*/
-                    this.props.result.showList && courseList === null &&
-                    <div className="mt-3" style={{textAlign: 'center', color: 'red'}}>{errorMessage}</div>
-                }
+        {/*ปฏิทินหลักสูตร*/
+          this.props.result.showList && (courseList !== null) &&
+          <CalendarView month={month} year={year}
+                        courseList={courseList}
+                        handlePreviousNextMonthCallback={this.updateCalendar}
+                        handleClickCourseCallback={this.showCourseDetails}
+          />
+        }
+        {/*กรณีเกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตรจาก server*/
+          this.props.result.showList && courseList === null &&
+          <div className="mt-3" style={{textAlign: 'center', color: 'red'}}>{errorMessage}</div>
+        }
 
-                {/*รายละเอียดหลักสูตร*/
-                    !this.props.result.showList &&
-                    <CourseDetails
-                        serviceType={SERVICE_DRIVING_LICENSE}
-                        courseId={this.props.result.courseId}
-                    />
-                }
+        {/*รายละเอียดหลักสูตร*/
+          !this.props.result.showList &&
+          <CourseDetails
+            serviceType={SERVICE_DRIVING_LICENSE}
+            courseId={this.props.result.courseId}
+            course={this.props.course}
+          />
+        }
 
-                <style jsx>{`
+        <style jsx>{`
                     .submitbox {
                         margin-top: 0px;
                     }                    
                 `}</style>
-            </MainLayout>
-        );
-    }
+      </MainLayout>
+    );
+  }
 }
