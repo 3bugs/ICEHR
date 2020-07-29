@@ -51,7 +51,24 @@ export default class ServiceTraining extends React.Component {
       return {result, trainingCourseCategoryList};
     } else {
       let result = {showList: false, courseId: courseId};
-      return {result, trainingCourseCategoryList};
+
+      const courseRes = await fetch(baseUrl + '/api/get_course', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          serviceType: SERVICE_TRAINING,
+          courseId: courseId,
+        }),
+      });
+      const courseResult = await courseRes.json();
+      let course = null;
+      if (courseResult.error.code === 0) {
+        course = courseResult.dataList[0];
+      }
+
+      return {result, trainingCourseCategoryList, course};
     }
   };
 
@@ -289,6 +306,7 @@ export default class ServiceTraining extends React.Component {
           <CourseDetails
             serviceType={SERVICE_TRAINING}
             courseId={this.props.result.courseId}
+            course={this.props.course}
           />
         }
 

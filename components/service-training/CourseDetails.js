@@ -26,7 +26,7 @@ export default class CourseDetails extends React.Component {
   componentDidMount() {
     console.log('CourseDetails componentDidMount() - ' + Math.random());
 
-    fetch('/api/get_course', {
+    /*fetch('/api/get_course', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export default class CourseDetails extends React.Component {
             errorMessage: result['error']['message'],
           });
         }
-      });
+      });*/
   }
 
   onChange = () => {
@@ -68,7 +68,8 @@ export default class CourseDetails extends React.Component {
   };
 
   render() {
-    const {course, errorMessage} = this.state;
+    const {errorMessage} = this.state;
+    const {course} = this.props;
 
     let coverImage = `${HOST_BACKEND}/uploads/course_assets/default_cover_image.jpg`;
     if (course != null) {
@@ -89,7 +90,7 @@ export default class CourseDetails extends React.Component {
           <meta property="og:image:secure_url" content={coverImage}/>
         </NextHead>
 
-        {course != null &&
+        {course != null && typeof window !== 'undefined' &&
         <div className="container">
           <div className="row text-default">
             <div className="col-md-9">
