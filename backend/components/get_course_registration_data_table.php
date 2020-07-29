@@ -3319,7 +3319,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
       const storageCourseName = localStorage.getItem(key);
 
       //$('#formPrintReceipt #inputCourseName').val(courseName);
-      $('#formPrintReceipt #inputCourseName').text(storageCourseName == null ? courseName : storageCourseName);
+      //$('#formPrintReceipt #inputCourseName').text(storageCourseName == null ? courseName : storageCourseName);
+      $('#formPrintReceipt #inputCourseName').text(courseName);
 
       $('#formPrintReceipt #inputCourseFee').val(formatNumber(courseApplicationFee));
       $('#formPrintReceipt #inputPaidAmount').val(paidAmount);
