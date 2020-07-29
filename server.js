@@ -1060,7 +1060,7 @@ doGetCourse = (req, res, db) => {
                FROM course c
                         INNER JOIN course_master cm
                                    ON c.course_master_id = cm.id
-               WHERE cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
+               WHERE c.status = 'normal' AND cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
             (inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType],
             function (err, totalCountResults, fields) {
               if (err) {
