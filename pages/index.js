@@ -61,7 +61,7 @@ class ActivityItem extends React.Component {
   componentDidMount() {
     const {data} = this.props;
 
-    /*function slideshow() {
+    function slideshow() {
       if ($('.slideshow,.flexslider').size()) {
         $('.slideshow .flexslider').flexslider({
           animation: 'slide'
@@ -78,7 +78,10 @@ class ActivityItem extends React.Component {
       $(this).parent().parent().parent().parent().parent().parent().parent().find('.slideshow .flexslider').flexslider(rel);
       //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
     });
-    slideshow();*/
+    
+    $(function () {
+      slideshow();
+    });
   }
 
   render() {
