@@ -61,7 +61,7 @@ class ActivityItem extends React.Component {
   componentDidMount() {
     const {data} = this.props;
 
-    function slideshow() {
+    /*function slideshow() {
       if ($('.slideshow,.flexslider').size()) {
         $('.slideshow .flexslider').flexslider({
           animation: 'slide'
@@ -78,7 +78,7 @@ class ActivityItem extends React.Component {
       $(this).parent().parent().parent().parent().parent().parent().parent().find('.slideshow .flexslider').flexslider(rel);
       //$('.slideshow .flexslider').flexslider($(this).index(".eventPic"));
     });
-    slideshow();
+    slideshow();*/
   }
 
   render() {
@@ -286,244 +286,246 @@ export default class Index extends React.Component {
   };
 
   componentDidMount() {
-    $('.owl-news').on('initialized.owl.carousel', function (event) {
-      $(".dotmaster").trigger("update.dot");
-    });
-    $(".owl-news").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: true
-      , dots: false
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , responsive: {
-        0: {
-          items: 1
-          , nav: false
-          , dots: true
+    $(function () {
+      $('.owl-news').on('initialized.owl.carousel', function (event) {
+        $(".dotmaster").trigger("update.dot");
+      });
+      $(".owl-news").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: true
+        , dots: false
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , responsive: {
+          0: {
+            items: 1
+            , nav: false
+            , dots: true
+          }
+          , 500: {
+            items: 2
+            , nav: false
+            , dots: true
+          }
+          , 768: {
+            margin: 30
+            , items: 3
+            , nav: false
+            , dots: true
+          }
+          , 992: {
+            margin: 80
+            , items: 3
+          }
+          , 1025: {
+            margin: 80
+            , items: 3
+          }
         }
-        , 500: {
-          items: 2
-          , nav: false
-          , dots: true
+      });
+      $(".owl-newsbottom").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: false
+        , dots: true
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , responsive: {
+          0: {
+            items: 1
+            , nav: false
+            , dots: true
+          }
+          , 500: {
+            items: 1
+            , nav: false
+            , dots: true
+          }
+          , 768: {
+            margin: 30
+            , items: 1
+            , nav: false
+            , dots: true
+          }
+          , 992: {
+            margin: 80
+            , items: 1
+          }
+          , 1025: {
+            margin: 80
+            , items: 1
+          }
         }
-        , 768: {
-          margin: 30
-          , items: 3
-          , nav: false
-          , dots: true
+      });
+      $(".owl-newstop").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: true
+        , dots: false
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , responsive: {
+          0: {
+            items: 1
+            , margin: 15, //slideBy: 3
+          }
+          , 500: {
+            items: 2
+          }
+          , 768: {
+            margin: 20
+            , items: 4
+          }
+          , 992: {
+            margin: 10
+            , items: 4
+          }
+          , 1025: {
+            margin: 10
+            , items: 4
+          }
         }
-        , 992: {
-          margin: 80
-          , items: 3
+      });
+      $('.owl-newsmobile').on('initialized.owl.carousel', function (event) {
+        $(".dotmaster").trigger("update.dot");
+      });
+      $(".owl-newsmobile").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: true
+        , dots: false
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , items: 1
+      });
+      $(".owl-link").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: false
+        , dots: false
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , responsive: {
+          0: {
+            items: 1
+            , margin: 15
+            , slideBy: 1
+          }
+          , 500: {
+            items: 2
+            , slideBy: 2
+          }
+          , 768: {
+            margin: 30
+            , items: 3
+            , slideBy: 3
+          }
+          , 992: {
+            margin: 30
+            , items: 4
+            , slideBy: 4
+          }
+          , 1025: {
+            margin: 35
+            , items: 4
+            , slideBy: 4
+          }
         }
-        , 1025: {
-          margin: 80
-          , items: 3
+      });
+      $(".owl-media").owlCarousel({
+        loop: false
+        , margin: 20
+        , nav: false
+        , dots: false
+        , autoplay: false
+        , autoplayTimeout: 6000
+        , slideBy: 1
+        , responsive: {
+          0: {
+            items: 2
+            , margin: 15
+            , slideBy: 2
+          }
+          , 500: {
+            items: 2
+            , slideBy: 2
+          }
+          , 768: {
+            margin: 30
+            , items: 3
+            , slideBy: 3
+          }
+          , 992: {
+            margin: 30
+            , items: 4
+            , slideBy: 4
+          }
+          , 1025: {
+            margin: 35
+            , items: 4
+            , slideBy: 4
+          }
         }
+      });
+      var owlstagepad = $('.container').offset().left / 1;
+      $('.banner-txt-slide').css('left', owlstagepad * 2 - 1);
+      $('.social-fixed').css('left', owlstagepad * 2 - 1);
+      $('.customowlnext').css('right', owlstagepad);
+      //$('.owl-banner').on('initialized.owl.carousel', function (event) {
+      //    $('.customowlnext').css('right', owlstagepad);
+      //});
+      var owlright = $('.container').offset().left;
+      var owlleft = $('.container').offset().left + 60;
+      if (Modernizr.mq('(max-width: 991px)')) {
+        var bannersp = $('.container').offset().left;
+        $('.bg_search').css('right', bannersp + 60);
+      } else {
+        var bannersp = $('.container').offset().left + 50;
+        $('.bg_search').css('right', bannersp + 90);
       }
-    });
-    $(".owl-newsbottom").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: false
-      , dots: true
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , responsive: {
-        0: {
-          items: 1
-          , nav: false
-          , dots: true
+      $(".owl-topbanner").on('changed.owl.carousel initialized.owl.carousel', function (event) {
+        $(event.target).find('.owl-item').removeClass('last').eq(event.item.index + event.page.size - 2).addClass('last');
+        $('.owl-topbanner.owl-carousel .owl-stage').css('left', '-50px');
+      }).owlCarousel({
+        loop: true, //margin:20,
+        //navText: ["<img src='images/chevron_leftgrey.png'>","<img src='images/chevron_rightgrey.png'>"],
+        nav: false,
+        dots: true,
+        rewind: true,
+        autoplay: true,
+        autoplayTimeout: 10000,
+        smartSpeed: 800,
+        stagePadding: bannersp,
+        slideBy: 1,
+        responsive: {
+          0: {
+            items: 1,
+            margin: 10
+            //slideBy: 3
+          },
+          500: {
+            items: 1
+          },
+          768: {
+            margin: 15,
+            items: 1
+          },
+          992: {
+            margin: 15,
+            items: 1
+          },
+          1025: {
+            margin: 15,
+            items: 1
+          }
         }
-        , 500: {
-          items: 1
-          , nav: false
-          , dots: true
-        }
-        , 768: {
-          margin: 30
-          , items: 1
-          , nav: false
-          , dots: true
-        }
-        , 992: {
-          margin: 80
-          , items: 1
-        }
-        , 1025: {
-          margin: 80
-          , items: 1
-        }
-      }
-    });
-    $(".owl-newstop").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: true
-      , dots: false
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , responsive: {
-        0: {
-          items: 1
-          , margin: 15, //slideBy: 3
-        }
-        , 500: {
-          items: 2
-        }
-        , 768: {
-          margin: 20
-          , items: 4
-        }
-        , 992: {
-          margin: 10
-          , items: 4
-        }
-        , 1025: {
-          margin: 10
-          , items: 4
-        }
-      }
-    });
-    $('.owl-newsmobile').on('initialized.owl.carousel', function (event) {
-      $(".dotmaster").trigger("update.dot");
-    });
-    $(".owl-newsmobile").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: true
-      , dots: false
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , items: 1
-    });
-    $(".owl-link").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: false
-      , dots: false
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , responsive: {
-        0: {
-          items: 1
-          , margin: 15
-          , slideBy: 1
-        }
-        , 500: {
-          items: 2
-          , slideBy: 2
-        }
-        , 768: {
-          margin: 30
-          , items: 3
-          , slideBy: 3
-        }
-        , 992: {
-          margin: 30
-          , items: 4
-          , slideBy: 4
-        }
-        , 1025: {
-          margin: 35
-          , items: 4
-          , slideBy: 4
-        }
-      }
-    });
-    $(".owl-media").owlCarousel({
-      loop: false
-      , margin: 20
-      , nav: false
-      , dots: false
-      , autoplay: false
-      , autoplayTimeout: 6000
-      , slideBy: 1
-      , responsive: {
-        0: {
-          items: 2
-          , margin: 15
-          , slideBy: 2
-        }
-        , 500: {
-          items: 2
-          , slideBy: 2
-        }
-        , 768: {
-          margin: 30
-          , items: 3
-          , slideBy: 3
-        }
-        , 992: {
-          margin: 30
-          , items: 4
-          , slideBy: 4
-        }
-        , 1025: {
-          margin: 35
-          , items: 4
-          , slideBy: 4
-        }
-      }
-    });
-    var owlstagepad = $('.container').offset().left / 1;
-    $('.banner-txt-slide').css('left', owlstagepad * 2 - 1);
-    $('.social-fixed').css('left', owlstagepad * 2 - 1);
-    $('.customowlnext').css('right', owlstagepad);
-    //$('.owl-banner').on('initialized.owl.carousel', function (event) {
-    //    $('.customowlnext').css('right', owlstagepad);
-    //});
-    var owlright = $('.container').offset().left;
-    var owlleft = $('.container').offset().left + 60;
-    if (Modernizr.mq('(max-width: 991px)')) {
-      var bannersp = $('.container').offset().left;
-      $('.bg_search').css('right', bannersp + 60);
-    } else {
-      var bannersp = $('.container').offset().left + 50;
-      $('.bg_search').css('right', bannersp + 90);
-    }
-    $(".owl-topbanner").on('changed.owl.carousel initialized.owl.carousel', function (event) {
-      $(event.target).find('.owl-item').removeClass('last').eq(event.item.index + event.page.size - 2).addClass('last');
-      $('.owl-topbanner.owl-carousel .owl-stage').css('left', '-50px');
-    }).owlCarousel({
-      loop: true, //margin:20,
-      //navText: ["<img src='images/chevron_leftgrey.png'>","<img src='images/chevron_rightgrey.png'>"],
-      nav: false,
-      dots: true,
-      rewind: true,
-      autoplay: true,
-      autoplayTimeout: 10000,
-      smartSpeed: 800,
-      stagePadding: bannersp,
-      slideBy: 1,
-      responsive: {
-        0: {
-          items: 1,
-          margin: 10
-          //slideBy: 3
-        },
-        500: {
-          items: 1
-        },
-        768: {
-          margin: 15,
-          items: 1
-        },
-        992: {
-          margin: 15,
-          items: 1
-        },
-        1025: {
-          margin: 15,
-          items: 1
-        }
-      }
+      });
     });
 
     //////////////////////////////////////////////////////////////////////////////////////////////
