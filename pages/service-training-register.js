@@ -547,6 +547,7 @@ export default class ServiceTrainingRegister extends React.Component {
       registerSuccessDialog: {
         show: false,
         title: null,
+        message: null,
       },
       isSubmitting: false,
     };
@@ -1227,7 +1228,8 @@ export default class ServiceTrainingRegister extends React.Component {
           const courseRegId = result['courseRegId'];
           const registerSuccessDialog = {
             show: true,
-            title: 'ลงทะเบียนสำเร็จ'
+            title: 'ลงทะเบียนสำเร็จ',
+            message: msg,
           };
           this.setState({
             isSubmitting: false,
@@ -1907,7 +1909,7 @@ export default class ServiceTrainingRegister extends React.Component {
                            target="_blank">
                             แสดงใบสมัคร/รายละเอียดการชำระเงิน<i className="fa fa-print" style={{color: '#aaa'}}></i>
                         </a>*/}
-            <div style={{marginBottom: 15}}>ท่านได้ทำการลงทะเบียนอบรมเรียบร้อยแล้ว</div>
+            <div style={{marginBottom: 15}} dangerouslySetInnerHTML={{__html: this.state.registerSuccessDialog.message}}/>
             <a className="btn btn-dark"
                style={{padding: '5px 20px'}}
                href={`${HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${this.state.courseRegId}&user=1`}

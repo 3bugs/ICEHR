@@ -170,7 +170,7 @@ app
           database: dbConfig.DATABASE,
         });
 
-        db.on('error', function(err) {
+        db.on('error', function (err) {
           console.log('DB error', err);
           if (err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
             handleDisconnect();                          // lost due to either server restart, or a
@@ -1060,7 +1060,8 @@ doGetCourse = (req, res, db) => {
                FROM course c
                         INNER JOIN course_master cm
                                    ON c.course_master_id = cm.id
-               WHERE c.status = 'normal' AND cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
+               WHERE c.status = 'normal'
+                 AND cm.service_type = ? ` + ((inputMonth == null || inputYear == null) ? ' AND c.begin_date >= ? ' : ''),
             (inputMonth == null || inputYear == null) ? [inputServiceType, today] : [inputServiceType],
             function (err, totalCountResults, fields) {
               if (err) {
@@ -1510,87 +1511,128 @@ doRegisterCourse = (req, res, db) => {
               console.log(err.stack);
               db.end();
             } else {
-              let placeHolder = '';
-              const data = [];
-              for (let i = 0; i < trainees.length; i++) {
-                placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+              getDuplicateTraineeListInCourse(db, courseId, trainees, (duplicateList) => {
+                duplicateList = duplicateList.map(duplicate => duplicate.full_name);
 
-                const {
-                  traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeJobPosition,
-                  traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
-                } = trainees[i];
+                console.log('***** DUPLICATE LIST');
+                console.log(JSON.stringify(duplicateList));
 
-                const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
-                trainees[i].traineeFormNumber = traineeFormNumber;
+                const canRegisterTrainees = trainees.filter(trainee => !duplicateList.includes(`${trainee.traineeFirstName} ${trainee.traineeLastName}`));
 
-                //console.log(traineeFirstName);
+                console.log('***** CAN REGISTER TRAINEES');
+                console.log(JSON.stringify(canRegisterTrainees));
 
-                data.push(insertCourseRegId);
-                data.push(traineeFormNumber);
-                data.push(traineeTitle.trim());
-                data.push(traineeFirstName.trim());
-                data.push(traineeLastName.trim());
-                data.push(traineeBirthDate);
-                data.push(traineeJobPosition.trim());
-                data.push(traineeOrganizationName.trim());
-                data.push(traineeOrganizationType);
-                data.push(traineeOrganizationTypeCustom == null ? null : traineeOrganizationTypeCustom.trim());
-                data.push(traineePhone.trim());
-                data.push(traineeEmail.trim());
-              }
-              placeHolder = placeHolder.substring(0, placeHolder.length - 1);
+                if (canRegisterTrainees.length === 0) {
+                  res.send({
+                    error: new Error(1, `ลงทะเบียนไม่สำเร็จ เนื่องจากผู้สมัคร${trainees.length > 1 ? ('ทั้ง ' + trainees.length + ' ท่าน ') : ''}เคยลงทะเบียนในหลักสูตรนี้แล้ว`, ''),
+                  });
+                  db.end();
+                  return;
+                }
 
-              db.query(
+                let placeHolder = '';
+                const data = [];
+                for (let i = 0; i < canRegisterTrainees.length; i++) {
+                  placeHolder += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),';
+
+                  const {
+                    traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeJobPosition,
+                    traineeOrganizationName, traineeOrganizationType, traineeOrganizationTypeCustom, traineePhone, traineeEmail
+                  } = canRegisterTrainees[i];
+
+                  const traineeFormNumber = formNumber + '-' + ('000' + (i + 1)).slice(-4);
+                  canRegisterTrainees[i].traineeFormNumber = traineeFormNumber;
+
+                  //console.log(traineeFirstName);
+
+                  data.push(insertCourseRegId);
+                  data.push(traineeFormNumber);
+                  data.push(traineeTitle.trim());
+                  data.push(traineeFirstName.trim());
+                  data.push(traineeLastName.trim());
+                  data.push(traineeBirthDate);
+                  data.push(traineeJobPosition.trim());
+                  data.push(traineeOrganizationName.trim());
+                  data.push(traineeOrganizationType);
+                  data.push(traineeOrganizationTypeCustom == null ? null : traineeOrganizationTypeCustom.trim());
+                  data.push(traineePhone.trim());
+                  data.push(traineeEmail.trim());
+                }
+                placeHolder = placeHolder.substring(0, placeHolder.length - 1);
+
+                db.query(
                   `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
                                               organization_type_custom, phone, email)
                    VALUES ` + placeHolder,
-                data,
-                function (err, results, fields) {
-                  if (err) {
-                    res.send({
-                      error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (3)', 'error run query: ' + err.stack),
-                    });
-                    console.log(err.stack);
-                  } else {
-                    // constants.HOST_BACKEND
-                    // /pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1
-
-                    const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${insertCourseRegId}&payment=1&user=1&email=1`;
-                    if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                      https.get(sendMailUrl);
+                  data,
+                  function (err, results, fields) {
+                    if (err) {
+                      res.send({
+                        error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (3)', 'error run query: ' + err.stack),
+                      });
+                      console.log(err.stack);
                     } else {
-                      http.get(sendMailUrl);
+                      // constants.HOST_BACKEND
+                      // /pages/print_ac_registration_form.php?ac_course_reg_id=92&payment=1&user=1&email=1
+
+                      const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?ac_course_reg_id=${insertCourseRegId}&payment=1&user=1&email=1`;
+                      if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                        https.get(sendMailUrl);
+                      } else {
+                        http.get(sendMailUrl);
+                      }
+
+                      if (duplicateList.length > 0) {
+                        let msg = '<br>--------------------<br>';
+                        msg += 'รายชื่อผู้สมัครที่ลงทะเบียนสำเร็จ<br>';
+                        msg += canRegisterTrainees.reduce((total, trainee) => total + `- ${trainee.traineeFirstName} ${trainee.traineeLastName}<br>`, '');
+                        msg += '<br>--------------------<br>';
+                        msg += 'รายชื่อผู้สมัครที่ลงทะเบียนไม่สำเร็จ<br>';
+                        msg += duplicateList.reduce((total, fullName) => total + `- ${fullName}<br>`, '');
+
+                        res.send({
+                          error: new Error(0, `ลงทะเบียนสำเร็จ แต่มีผู้สมัคร ${duplicateList.length} ท่านไม่สามารถลงทะเบียนได้ เนื่องจากเคยลงทะเบียนมาแล้วก่อนหน้านี้<br>${msg}`, ''),
+                          courseRegId: insertCourseRegId,
+                        });
+                      } else {
+                        res.send({
+                          error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                          courseRegId: insertCourseRegId,
+                        });
+                      }
                     }
-
-                    res.send({
-                      error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                      courseRegId: insertCourseRegId,
-                    });
-
-                    // สร้างอาร์เรย์ของหมายเลขใบสมัครแต่ละคน
-                    /*const traineeFormNumberList = [];
-                    for (let i = 0; i < trainees.length; i++) {
-                        const trainee = trainees[i];
-                        traineeFormNumberList.push(trainee.traineeFormNumber);
-                    }
-
-                    pdf.generateTraineeForm_Training(traineeFormNumberList, (success, message) => {
-                        if (success) {
-                            res.send({
-                                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                            });
-                        } else {
-                            res.send({
-                                error: new Error(1, message, ''),
-                            });
-                        }
-                    });*/
-                  }
-                });
-              db.end();
+                  });
+                db.end();
+              });
             }
           }
         );
+      }
+    }
+  );
+};
+
+getDuplicateTraineeListInCourse = (db, courseId, trainees, callback) => {
+  console.log('GET_DUPLICATE_TRAINEE_LIST_IN_COURSE');
+
+  const traineeNameCsv = trainees.reduce((total, trainee, index) => {
+    return total + (index === 0 ? '' : ', ') + `'${trainee.traineeFirstName} ${trainee.traineeLastName}'`
+  }, '');
+
+  const sql = `SELECT CONCAT(ct.first_name, ' ', ct.last_name) AS full_name
+               FROM course_registration cr
+                        INNER JOIN course_trainee ct
+                                   ON cr.id = ct.course_registration_id
+               WHERE cr.course_id = ?
+                 AND CONCAT(ct.first_name, ' ', ct.last_name) IN (${traineeNameCsv})`;
+  db.query(
+    sql,
+    [courseId],
+    function (err, results, fields) {
+      if (err) {
+        callback([err]);
+      } else {
+        callback(results);
       }
     }
   );
