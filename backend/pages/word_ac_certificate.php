@@ -2,6 +2,13 @@
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
+error_reporting(E_ERROR | E_PARSE);
+header('Content-type: text/html; charset=utf-8');
+header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', FALSE);
+header('Pragma: no-cache');
+
 $courseId = $_GET['course_id'];
 $traineeId = $_GET['trainee_id'];
 $serviceType = $_GET['service_type'];
@@ -111,8 +118,12 @@ header('Cache-Control: max-age=0');
 $phpWord = new \PhpOffice\PhpWord\PhpWord();
 
 $section = $phpWord->addSection([
-    'pageSizeH' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(19.5),
-    'pageSizeW' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(25.5)
+    'pageSizeH' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(19.7),
+    'pageSizeW' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(25.5),
+    'marginLeft' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(2.0),
+    'marginRight' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(2.0),
+    'marginTop' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(4.5),
+    'marginBottom' => \PhpOffice\PhpWord\Shared\Converter::cmToTwip(1.0)
 ]);
 
 $i = 0;
@@ -127,44 +138,49 @@ foreach ($traineeList as $trainee) {
   $text = $section->addText('มหาวิทยาลัยธรรมศาสตร์');
 
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(true);
-  $fontStyle->setSize(57);
+  $fontStyle->setSize(48);
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setSpaceBefore(1500);
-  $paragraphStyle->setLineHeight(0.8);
+  $paragraphStyle->setSpaceBefore(0);
+  //$paragraphStyle->setSpaceAfter(\PhpOffice\PhpWord\Shared\Converter::cmToTwip(0.212));
+  $paragraphStyle->setSpaceAfter(0.0);
+  $paragraphStyle->setLineHeight(1.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // สถาบันเสริมศึกษาและทรัพยากรมนุษย์
   $text = $section->addText('สถาบันเสริมศึกษาและทรัพยากรมนุษย์');
 
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(false);
-  $fontStyle->setSize(39);
+  $fontStyle->setSize(36);
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
-  $paragraphStyle->setSpaceAfter(100);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceAfter(\PhpOffice\PhpWord\Shared\Converter::cmToTwip(0.212));
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // ใบรับรองฉบับนี้ให้ไว้เพื่อแสดงว่า
   $text = $section->addText('ใบรับรองฉบับนี้ให้ไว้เพื่อแสดงว่า');
 
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(false);
-  $fontStyle->setSize(28);
+  $fontStyle->setSize(22);
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceAfter(\PhpOffice\PhpWord\Shared\Converter::cmToTwip(0.212));
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // ชื่อผู้เข้าอบรม
@@ -173,50 +189,53 @@ foreach ($traineeList as $trainee) {
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
   //$fontStyle->setName('TH Charm of AU');
   $fontStyle->setName('Browallia New');
-  $fontStyle->setBold(false);
-  $fontStyle->setSize(40);
+  $fontStyle->setBold(true);
+  $fontStyle->setSize(36);
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.6);
+  $paragraphStyle->setLineHeight(1.0);
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // ได้ผ่านการอบรมหลักสูตร
   if ($courseText) {
     $text = $section->addText($courseText);
   } else {
-    $text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . thaiNumDigit($trainee['batch_number']));
+    $text = $section->addText('ได้ผ่านการอบรม หลักสูตร "' . $trainee['course_title'] . '" รุ่นที่ ' . $trainee['batch_number']);
   }
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(true);
   if ($fontSize) {
     $fontStyle->setSize(floatval($fontSize));
   } else {
-    $fontStyle->setSize(28);
+    $fontStyle->setSize(22);
   }
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
-  $paragraphStyle->setSpaceAfter(250);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceAfter(250);
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // อบรมวันที่
   $text = $section->addText(($trainee['begin_date'] === $trainee['end_date'] ? 'อบรมวันที่ ' : 'อบรมตั้งแต่วันที่ ') .
-      thaiNumDigit(getThaiIntervalDate(date_create($trainee['begin_date']), date_create($trainee['end_date']))));
+      getThaiIntervalDate(date_create($trainee['begin_date']), date_create($trainee['end_date'])));
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(false);
-  $fontStyle->setSize(20);
+  $fontStyle->setSize(18);
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
-  $paragraphStyle->setSpaceAfter(100);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceAfter(100);
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // ขอให้มีความสุข ความเจริญ และบำเพ็ญตนให้เป็นประโยชน์แก่สังคมสืบไป
@@ -225,21 +244,22 @@ foreach ($traineeList as $trainee) {
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
-  $paragraphStyle->setSpaceAfter(100);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceAfter(100);
+  $paragraphStyle->setSpaceAfter(0.0);
   $text->setParagraphStyle($paragraphStyle);
 
   // ให้ไว้ ณ วันที่
   define('NUM_SPACES', 3);
   $spaces = str_repeat(' ', NUM_SPACES);
-  $text = $section->addText("ให้ไว้{$spaces}ณ{$spaces}วันที่{$spaces}" . thaiNumDigit(getThaiDateForCertificate(date_create($trainee['end_date']), NUM_SPACES)));
+  $text = $section->addText("ให้ไว้{$spaces}ณ{$spaces}วันที่{$spaces}" . getThaiDateForCertificate(date_create($trainee['end_date']), NUM_SPACES));
   $text->setFontStyle($fontStyle);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(0.8);
-  $paragraphStyle->setSpaceBefore(350);
-  $paragraphStyle->setSpaceAfter(350);
+  $paragraphStyle->setLineHeight(1.0);
+  //$paragraphStyle->setSpaceBefore(350);
+  $paragraphStyle->setSpaceAfter(\PhpOffice\PhpWord\Shared\Converter::cmToTwip(0.2));
   $text->setParagraphStyle($paragraphStyle);
 
   //$section->addText("\n");
@@ -249,9 +269,9 @@ foreach ($traineeList as $trainee) {
 
   $table = $section->addTable();
   $row = $table->addRow();
-  $leftCell = $row->addCell(5000);
-  $row->addCell(1100);
-  $rightCell = $row->addCell(5700);
+  $leftCell = $row->addCell(5400);
+  $row->addCell(800);
+  $rightCell = $row->addCell(6200);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center')->setSpaceBefore(200);
@@ -301,14 +321,15 @@ foreach ($traineeList as $trainee) {
   $rightCellText = $rightCell->addText("({$displayName})\n{$position}");
 
   $fontStyle = new \PhpOffice\PhpWord\Style\Font();
-  $fontStyle->setName('IrisUPC');
+  $fontStyle->setName('Angsana New');
   $fontStyle->setBold(true);
-  $fontStyle->setSize(16);
+  $fontStyle->setSize(14);
 
   $paragraphStyle = new \PhpOffice\PhpWord\Style\Paragraph();
   $paragraphStyle->setAlignment('center');
-  $paragraphStyle->setLineHeight(1);
-  $paragraphStyle->setSpaceBefore(100);
+  $paragraphStyle->setLineHeight(1.0);
+  $paragraphStyle->setSpaceAfter(0.0);
+  //$paragraphStyle->setSpaceBefore(100);
 
   $leftCellText->setFontStyle($fontStyle);
   $rightCellText->setFontStyle($fontStyle);
