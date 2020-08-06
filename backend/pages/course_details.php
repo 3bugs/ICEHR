@@ -224,7 +224,7 @@ if ($result = $db->query($sql)) {
                                         <i class="fa fa-pencil"></i>
                                     </span>
                 <?php
-                $courseBatchNumber = thaiNumDigit($course['batch_number']);
+                $courseBatchNumber = $course['batch_number'];
                 $courseText = "ได้ผ่านการอบรม หลักสูตร &#8220{$course['course_title']}&#8221 รุ่นที่ {$courseBatchNumber}";
                 ?>
                 <textarea class="form-control" rows="3"
