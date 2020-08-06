@@ -1561,9 +1561,9 @@ doRegisterCourse = (req, res, db) => {
                 placeHolder = placeHolder.substring(0, placeHolder.length - 1);
 
                 db.query(
-                  `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
-                                              organization_type_custom, phone, email)
-                   VALUES ` + placeHolder,
+                    `INSERT INTO course_trainee(course_registration_id, form_number, title, first_name, last_name, birth_date, job_position, organization_name, organization_type,
+                                                organization_type_custom, phone, email)
+                     VALUES ` + placeHolder,
                   data,
                   function (err, results, fields) {
                     if (err) {
@@ -1658,57 +1658,68 @@ doRegisterCourseSocial = (req, res, db) => {
 
   /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
-  db.query(
-      `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district,
-                                               province, postal_code, phone, email, contact_name, contact_phone, disease, news_source,
-                                               receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
-      traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource,
-      registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode],
-
-    function (err, results, fields) {
-      if (err) {
+  getDuplicateTraineeCountInCourseSo(db, courseId, traineeFirstName, traineeLastName, (duplicateCount) => {
+      if (duplicateCount > 0) {
         res.send({
-          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+          error: new Error(1, `ลงทะเบียนไม่สำเร็จ เนื่องจากผู้สมัครเคยลงทะเบียนในหลักสูตรนี้แล้ว`),
         });
-        console.log(err.stack);
         db.end();
-      } else {
-        let insertId = results.insertId;
-
-        /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
-        const formNumber = constants.SERVICE_PREFIX_SOCIAL + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
-        db.query(
-            `UPDATE course_registration_social
-             SET form_number = ?
-             WHERE id = ?`,
-          [formNumber, insertId],
-
-          function (err, results, fields) {
-            if (err) {
-              res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-              });
-              console.log(err.stack);
-            } else {
-              const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${constants.SERVICE_SOCIAL}&trainee_id=${insertId}&payment=1&user=1&email=1`;
-              if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                https.get(sendMailUrl);
-              } else {
-                http.get(sendMailUrl);
-              }
-
-              res.send({
-                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                courseRegId: insertId,
-              });
-              console.log('ลงทะเบียนสำเร็จ');
-            }
-          }
-        );
-        db.end();
+        return;
       }
+
+      db.query(
+          `INSERT INTO course_registration_social (course_id, member_id, title, first_name, last_name, birth_date, occupation, work_place, address, sub_district, district,
+                                                   province, postal_code, phone, email, contact_name, contact_phone, disease, news_source,
+                                                   receipt_name, receipt_address, receipt_sub_district, receipt_district, receipt_province, receipt_postal_code)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineeBirthDate, traineeOccupation, traineeWorkPlace, traineeAddress, traineeSubDistrict, traineeDistrict,
+          traineeProvince, traineePostalCode, traineePhone, traineeEmail, traineeContactPersonName, traineeContactPersonPhone, traineeDisease, newsSource,
+          registerReceiptName, registerReceiptAddress, registerReceiptSubDistrict, registerReceiptDistrict, registerReceiptProvince, registerReceiptPostalCode],
+
+        function (err, results, fields) {
+          if (err) {
+            res.send({
+              error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+            });
+            console.log(err.stack);
+            db.end();
+          } else {
+            let insertId = results.insertId;
+
+            /*เลขที่ใบสมัคร รูปแบบ SO-2019-0001*/
+            const formNumber = constants.SERVICE_PREFIX_SOCIAL + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+            db.query(
+                `UPDATE course_registration_social
+                 SET form_number = ?
+                 WHERE id = ?`,
+              [formNumber, insertId],
+
+              function (err, results, fields) {
+                if (err) {
+                  res.send({
+                    error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                  });
+                  console.log(err.stack);
+                } else {
+                  const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_ac_registration_form.php?service_type=${constants.SERVICE_SOCIAL}&trainee_id=${insertId}&payment=1&user=1&email=1`;
+                  if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                    https.get(sendMailUrl);
+                  } else {
+                    http.get(sendMailUrl);
+                  }
+
+                  res.send({
+                    error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                    courseRegId: insertId,
+                  });
+                  console.log('ลงทะเบียนสำเร็จ');
+                }
+              }
+            );
+            db.end();
+          }
+        }
+      );
     }
   );
 };
@@ -1778,74 +1789,124 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
   console.log('2: ' + loginToken === null);
   console.log(typeof loginToken);
 
-  // ถ้า user ไม่ได้ login, ค่า loginToken จะส่งมาเป็นสตริงว่าง
-  const memberId = loginToken === '' ? 0 : decodeToken(loginToken);
+  getDuplicateTraineeCountInCourseDl(db, courseId, traineeFirstName, traineeLastName, (duplicateCount) => {
+    if (duplicateCount > 0) {
+      res.send({
+        error: new Error(1, `ลงทะเบียนไม่สำเร็จ เนื่องจากผู้สมัครเคยลงทะเบียนในหลักสูตรนี้แล้ว`),
+      });
+      db.end();
+      return;
+    }
 
-  /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
-  const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
+    // ถ้า user ไม่ได้ login, ค่า loginToken จะส่งมาเป็นสตริงว่าง
+    const memberId = loginToken === '' ? 0 : decodeToken(loginToken);
 
-  /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
+    /*ใช้แต่ละ bit เก็บค่า license type แต่ละค่า (user สามารถเลือกได้มากกว่า 1 license)*/
+    const licenseType = (traineeSelectedLicenseTypeCar === '1' ? 1 : 0) + (traineeSelectedLicenseTypeBicycle === '1' ? 2 : 0) + (traineeSelectedLicenseTypeTricycle === '1' ? 4 : 0);
 
-  //const {filename} = req.file;
-  const filename = [];
-  let i;
-  for (i = 0; i < req.files.length; i++) {
-    filename.push(req.files[i].filename);
-  }
-  for (; i < 5; i++) {
-    filename.push(null);
-  }
+    /*แปลงกลับเป็น binary string ใช้ number.toString(2)*/
 
+    //const {filename} = req.file;
+    const filename = [];
+    let i;
+    for (i = 0; i < req.files.length; i++) {
+      filename.push(req.files[i].filename);
+    }
+    for (; i < 5; i++) {
+      filename.push(null);
+    }
+
+    db.query(
+        `INSERT INTO course_registration_driving_license
+         (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
+          province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5,
+          course_type, license_type)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
+        traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename[0], filename[1], filename[2], filename[3], filename[4],
+        traineeSelectedCourseType, licenseType],
+
+      function (err, results, fields) {
+        if (err) {
+          res.send({
+            error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
+          });
+          console.log(err.stack);
+          db.end();
+        } else {
+          let insertId = results.insertId;
+
+          /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
+          const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
+          db.query(
+              `UPDATE course_registration_driving_license
+               SET form_number = ?
+               WHERE id = ?`,
+            [formNumber, insertId],
+
+            function (err, results, fields) {
+              if (err) {
+                res.send({
+                  error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
+                });
+                console.log(err.stack);
+              } else {
+                const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${insertId}&payment=1&user=1&email=1`;
+                if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
+                  https.get(sendMailUrl);
+                } else {
+                  http.get(sendMailUrl);
+                }
+
+                res.send({
+                  error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
+                  courseRegId: insertId,
+                });
+              }
+            }
+          );
+          db.end();
+        }
+      }
+    );
+  });
+};
+
+getDuplicateTraineeCountInCourseSo = (db, courseId, traineeFirstName, traineeLastName, callback) => {
+  console.log('GET_DUPLICATE_TRAINEE_COUNT_IN_COURSE_SO');
+
+  const sql = `SELECT CONCAT(cr.first_name, ' ', cr.last_name) AS full_name
+               FROM course_registration_social cr
+               WHERE cr.course_id = ?
+                 AND CONCAT(cr.first_name, ' ', cr.last_name) = '${traineeFirstName} ${traineeLastName}'`;
   db.query(
-      `INSERT INTO course_registration_driving_license
-       (course_id, member_id, title, first_name, last_name, pid, address, moo, soi, road, sub_district, district,
-        province, postal_code, phone, pid_file_name, pid_file_name_2, pid_file_name_3, pid_file_name_4, pid_file_name_5,
-        course_type, license_type)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [courseId, memberId, traineeTitle, traineeFirstName, traineeLastName, traineePid, traineeAddress, traineeMoo, traineeSoi, traineeRoad,
-      traineeSubDistrict, traineeDistrict, traineeProvince, traineePostalCode, traineePhone, filename[0], filename[1], filename[2], filename[3], filename[4],
-      traineeSelectedCourseType, licenseType],
-
+    sql,
+    [courseId],
     function (err, results, fields) {
       if (err) {
-        res.send({
-          error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (1)', 'error run query: ' + err.stack),
-        });
-        console.log(err.stack);
-        db.end();
+        callback(0);
       } else {
-        let insertId = results.insertId;
+        callback(results.length);
+      }
+    }
+  );
+};
 
-        /*เลขที่ใบสมัคร รูปแบบ DL-2019-0001*/
-        const formNumber = constants.SERVICE_PREFIX_DRIVING_LICENSE + '-' + new Date().getFullYear() + '-' + ('000' + insertId).slice(-4);
-        db.query(
-            `UPDATE course_registration_driving_license
-             SET form_number = ?
-             WHERE id = ?`,
-          [formNumber, insertId],
+getDuplicateTraineeCountInCourseDl = (db, courseId, traineeFirstName, traineeLastName, callback) => {
+  console.log('GET_DUPLICATE_TRAINEE_COUNT_IN_COURSE_DL');
 
-          function (err, results, fields) {
-            if (err) {
-              res.send({
-                error: new Error(1, 'เกิดข้อผิดพลาดในการบันทึกข้อมูล (2)', 'error run query: ' + err.stack),
-              });
-              console.log(err.stack);
-            } else {
-              const sendMailUrl = `${constants.HOST_BACKEND}/pages/print_dl_registration_form.php?trainee_id=${insertId}&payment=1&user=1&email=1`;
-              if (constants.HOST_BACKEND.substring(0, 5) === 'https') {
-                https.get(sendMailUrl);
-              } else {
-                http.get(sendMailUrl);
-              }
-
-              res.send({
-                error: new Error(0, 'ลงทะเบียนสำเร็จ', ''),
-                courseRegId: insertId,
-              });
-            }
-          }
-        );
-        db.end();
+  const sql = `SELECT CONCAT(cr.first_name, ' ', cr.last_name) AS full_name
+               FROM course_registration_driving_license cr
+               WHERE cr.course_id = ?
+                 AND CONCAT(cr.first_name, ' ', cr.last_name) = '${traineeFirstName} ${traineeLastName}'`;
+  db.query(
+    sql,
+    [courseId],
+    function (err, results, fields) {
+      if (err) {
+        callback(0);
+      } else {
+        callback(results.length);
       }
     }
   );
