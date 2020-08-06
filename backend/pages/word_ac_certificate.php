@@ -2,13 +2,6 @@
 require_once '../vendor/autoload.php';
 require_once '../include/head_php.inc';
 
-error_reporting(E_ERROR | E_PARSE);
-header('Content-type: text/html; charset=utf-8');
-header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', FALSE);
-header('Pragma: no-cache');
-
 $courseId = $_GET['course_id'];
 $traineeId = $_GET['trainee_id'];
 $serviceType = $_GET['service_type'];
