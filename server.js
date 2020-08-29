@@ -1790,7 +1790,7 @@ doRegisterCourseDrivingLicense = (req, res, db) => {
   console.log(typeof loginToken);
 
   getDuplicateTraineeCountInCourseDl(db, courseId, traineeFirstName, traineeLastName, (duplicateCount) => {
-    if (duplicateCount > 0) {
+    if (false /*duplicateCount > 0*/) {
       res.send({
         error: new Error(1, `ลงทะเบียนไม่สำเร็จ เนื่องจากผู้สมัครเคยลงทะเบียนในหลักสูตรนี้แล้ว`),
       });
