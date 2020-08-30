@@ -310,7 +310,7 @@ function getPage($licenseType)
             ?>
         </table>
 
-        <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 40px;">
+        <table width="700px" align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
             <tr>
                 <td width="350px"></td>
                 <td width="300px" align="center" style="padding-top: 20px; padding-bottom: 10px">
