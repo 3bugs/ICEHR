@@ -6,13 +6,17 @@ require_once '../api/global.php';
  * @param string $serviceType
  * @param int $paramCourseId
  * @param int $responsibleUserId
+ * @param int $offset
+ * @param int $limit
  */
-function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null, $responsibleUserId = null)
+function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null, $responsibleUserId = null, $offset = null, $limit = null)
 {
   $whereClause = ' TRUE ';
   if ($paramCourseId !== null) {
     $whereClause = " course_id = $paramCourseId ";
   }
+  $limitClause = (is_null($offset) || is_null($limit)) ? '' : "LIMIT $offset, $limit";
+
   switch ($serviceType) {
     case SERVICE_TYPE_TRAINING:
       $sql = "SELECT ct.id, ct.form_number, ct.title, ct.first_name, ct.last_name, ct.phone, ct.email, 
@@ -27,7 +31,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         INNER JOIN course_registration cr 
                             ON ct.course_registration_id = cr.id
                     WHERE $whereClause
-                    ORDER BY ct.id DESC ";
+                    ORDER BY ct.id DESC 
+                    $limitClause";
       break;
 
     case SERVICE_TYPE_SOCIAL:
@@ -38,7 +43,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                            cr.register_status, cr.created_at, cr.course_id, cr.paid_amount, cr.payment_date, cr.receipt_number
                     FROM course_registration_social cr  
                     WHERE $whereClause
-                    ORDER BY id DESC";
+                    ORDER BY id DESC
+                    $limitClause";
       break;
 
     case SERVICE_TYPE_DRIVING_LICENSE:
@@ -54,7 +60,8 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
                         INNER JOIN driving_license_course_type ct 
                             ON cr.course_type = ct.id 
                     WHERE $whereClause
-                    ORDER BY id DESC";
+                    ORDER BY id DESC
+                    $limitClause";
       break;
 
     default:
@@ -2464,7 +2471,7 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
   </div>
 
   <!--Data table-->
-  <table id="tableRegistration" class="table table-bordered table-striped">
+  <table id="<?= $paramCourseId == NULL ? 'tableCourseRegistration' : 'tableCourseDetails' ?>" class="table table-bordered table-striped">
     <thead>
     <tr>
       <?php
@@ -3047,7 +3054,34 @@ function getCourseRegistrationDataTable($db, $serviceType, $paramCourseId = null
     let shouldReload = false;
 
     $(document).ready(function () {
-      $('#tableRegistration').DataTable({
+      $('#tableCourseRegistration').DataTable({
+        stateSave: false,
+        stateDuration: -1, // sessionStorage
+        order: [[0, 'desc']],
+        paging: false,
+        searching: false,
+        ordering: false,
+        info: false,
+        language: {
+          lengthMenu: "แสดงหน้าละ _MENU_ แถวข้อมูล",
+          zeroRecords: "ไม่มีข้อมูล",
+          emptyTable: "ไม่มีข้อมูล",
+          info: "หน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า",
+          infoEmpty: "แสดง 0 แถวข้อมูล",
+          infoFiltered: "(กรองจากทั้งหมด _MAX_ แถวข้อมูล)",
+          search: "ค้นหา:",
+          thousands: ",",
+          loadingRecords: "รอสักครู่...",
+          processing: "กำลังประมวลผล...",
+          paginate: {
+            first: "หน้าแรก",
+            last: "หน้าสุดท้าย",
+            next: "ถัดไป",
+            previous: "ก่อนหน้า"
+          },
+        },
+      });
+      $('#tableCourseDetails').DataTable({
         stateSave: true,
         stateDuration: -1, // sessionStorage
         order: [[0, 'desc']],

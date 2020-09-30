@@ -2947,15 +2947,16 @@ doGetActivity = (req, res, db) => {
   const limitClause = (offset == null || limit == null) ? '' : `LIMIT ${offset}, ${limit}`;
 
   db.query(
-    `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type,
-                    na.file_name
-             FROM (SELECT * 
-                        FROM news 
-                        WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish' 
-                        ORDER BY pinned DESC, created_at DESC
-                        ${limitClause}) n
-                 LEFT JOIN news_asset na 
-                     ON n.id = na.news_id`,
+    `SELECT n.id, n.title, n.short_description, n.details, n.image_file_name, n.news_date, n.news_type, na.file_name, n.pinned, n.created_at
+        FROM (SELECT * 
+            FROM news
+            WHERE news_type = 'activity' AND ${whereClause} AND status = 'publish'
+            ORDER BY pinned DESC, created_at DESC
+            ${limitClause}) n
+        LEFT JOIN news_asset na
+        ON n.id = na.news_id
+        ORDER BY pinned DESC, created_at DESC`,
+
     id == null ? [] : [id],
     function (err, results, fields) {
       if (err) {
