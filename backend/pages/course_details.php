@@ -812,7 +812,7 @@ if ($result = $db->query($sql)) {
                   </div>
 
                   <!--แบบฟอร์มเปล่า-->
-                  <div class="btn-group" style="margin-right: 6px">
+                  <!--<div class="btn-group" style="margin-right: 6px">
                     <button type="button" class="btn btn-default">แบบฟอร์มเปล่า</button>
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                       <span class="caret"></span>
@@ -822,10 +822,8 @@ if ($result = $db->query($sql)) {
                       <li><a target="_blank" href=""><i class="fa fa-print"></i> ใบสมัคร</a></li>
                       <li><a target="_blank" href=""><i class="fa fa-print"></i> ใบบันทึกผลการอบรม</a></li>
                       <li><a target="_blank" href=""><i class="fa fa-print"></i> ใบรับรองการผ่านการอบรม</a></li>
-                      <!--<li class="divider"></li>
-                      <li><a href="#">Separated link</a></li>-->
                     </ul>
-                  </div>
+                  </div>-->
 
                   <!--<div class="btn-group" style="margin-right: 6px">
                                             <a target="_blank" href="print_dl_trainee_list_all.php?course_id=<?/*= $courseId; */ ?>"
